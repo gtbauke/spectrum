@@ -78,3 +78,8 @@ async def upload_dataset_file(
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"File upload failed: {str(e)}")
+
+
+@dataset_router.get("/{dataset_id}/top-expressions")
+def get_top_expressions(dataset_id: str, n: int = 10):
+    pass
