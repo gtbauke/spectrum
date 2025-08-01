@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.resources.datasets.routes import dataset_router
+from app.resources.jobs.routes import job_router
 from app.versioning import APIVersionMiddleware
 from contextlib import asynccontextmanager
 from app.resources.services.services import get_all_services
@@ -16,7 +17,7 @@ async def lifespan(app: FastAPI):
     for service in all_services:
         service.on_server_shutdown()
 
-
+# TODO: create repositories for resources instead of doing everything in the routes
 app = FastAPI(
     title="Spectrum API",
     description="API for managing Symbolic Regression datasets",
@@ -27,3 +28,6 @@ app = FastAPI(
 app.add_middleware(APIVersionMiddleware)
 app.include_router(dataset_router, prefix="/api/v1",
                    tags=["v1", "datasets"])
+
+app.include_router(job_router, prefix="/api/v1",
+                   tags=["v1", "jobs"])

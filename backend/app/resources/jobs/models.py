@@ -2,7 +2,10 @@ from sqlmodel import SQLModel, Field, Relationship
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
 from enum import Enum
-from app.resources.datasets.models import Dataset
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.resources.datasets.models import Dataset
 
 
 class LossFunction(str, Enum):
@@ -12,23 +15,39 @@ class LossFunction(str, Enum):
     POISSON = "Poisson"
 
 
+# TODO: Create non terminals in some sort of way
 class CreateJob(SQLModel):
     description: str
     file_name: str
-    dataset_id: UUID
     generations: int = 100
     population_size: int = 100
     max_expression_size: int = 15
     tournament_size: int = 3
     crossover_probability: float = 0.9
     mutation_probability: float = 0.3
-    non_terminals: list[str] = ["add", "sub", "mul", "div"]
     loss_function: LossFunction = LossFunction.MSE
     max_optimization_iterations: int = 50
     max_optimization_restarts: int = 2
     parameter_count: int = -1
     split: int = 1
     simplify: bool = False
+
+
+class UpdateJob(SQLModel):
+    description: str | None = None
+    file_name: str | None = None
+    generations: int | None = None
+    population_size: int | None = None
+    max_expression_size: int | None = None
+    tournament_size: int | None = None
+    crossover_probability: float | None = None
+    mutation_probability: float | None = None
+    loss_function: LossFunction | None = None
+    max_optimization_iterations: int | None = None
+    max_optimization_restarts: int | None = None
+    parameter_count: int | None = None
+    split: int | None = None
+    simplify: bool | None = None
 
 
 class Job(CreateJob, table=True):
@@ -39,7 +58,7 @@ class Job(CreateJob, table=True):
     file_name: str = Field(max_length=255)
 
     dataset_id: UUID = Field(foreign_key="datasets.id")
-    dataset: Dataset = Relationship(back_populates="jobs")
+    dataset: "Dataset" = Relationship(back_populates="jobs")
 
     generations: int = Field(default=100)
     population_size: int = Field(default=100)
@@ -47,7 +66,6 @@ class Job(CreateJob, table=True):
     tournament_size: int = Field(default=3)
     crossover_probability: float = Field(default=0.9)
     mutation_probability: float = Field(default=0.3)
-    non_terminals: list[str] = Field(default=["add", "sub", "mul", "div"])
     loss_function: LossFunction = Field(default=LossFunction.MSE)
     max_optimization_iterations: int = Field(default=50)
     max_optimization_restarts: int = Field(default=2)

@@ -41,8 +41,6 @@ def upgrade() -> None:
                               nullable=False, server_default="0.9"),
                     sa.Column("mutation_probability", sa.Float(),
                               nullable=False, server_default="0.3"),
-                    sa.Column("non_terminals", postgresql.ARRAY(sa.String()), nullable=False,
-                              server_default=sa.text("ARRAY['add', 'sub', 'mul', 'div']")),
                     sa.Column("loss_function", sa.Enum("MSE", "Gaussian", "Bernoulli",
                                                        "Poisson", name="lossfunction"), nullable=False, server_default="MSE"),
                     sa.Column("max_optimization_iterations", sa.Integer(),
