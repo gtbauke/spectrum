@@ -1,7 +1,8 @@
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Relationship
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
 from typing import Optional
+from app.resources.jobs.models import Job
 
 
 class CreateDataset(SQLModel):
@@ -20,6 +21,8 @@ class Dataset(CreateDataset, table=True):
 
     dataset_file_path: Optional[str] = Field(default=None,
                                              description="Path to the dataset file on the server")
+
+    jobs: list[Job] = Relationship(back_populates="dataset")
 
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc))
