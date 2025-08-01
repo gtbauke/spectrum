@@ -1,9 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlmodel import Session, select
+from uuid import UUID
 from app.database import get_session
 from app.resources.datasets.models import Dataset, CreateDataset
 from app.resources.services.file_service import FileService
 from app.resources.services.services import get_file_service
+from app.resources.jobs.models import Job, CreateJob
+from app.resources.jobs.worker import process_file
 
 dataset_router = APIRouter(prefix="/datasets", tags=["datasets"])
 
@@ -68,6 +71,19 @@ async def upload_dataset_file(
         session.add(dataset)
         session.commit()
         session.refresh(dataset)
+
+        # Create default job
+        job = CreateJob(
+            description=f"Default job for dataset {dataset_id}",
+            file_name=f"{dataset_id}.egraph"
+        )
+
+        job = Job(**job.model_dump(), dataset_id=UUID(dataset_id))
+        session.add(job)
+        session.commit()
+        session.refresh(job)
+
+        process_file(file_path)
 
         return {
             "message": "File uploaded successfully",
