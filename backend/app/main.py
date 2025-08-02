@@ -1,9 +1,11 @@
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
+
+from app.versioning import APIVersionMiddleware
+from app.resources.services.services import get_all_services
 from app.resources.datasets.routes import dataset_router
 from app.resources.jobs.routes import job_router
-from app.versioning import APIVersionMiddleware
-from contextlib import asynccontextmanager
-from app.resources.services.services import get_all_services
+from app.resources.job_runs.routes import job_runs_router
 
 
 @asynccontextmanager
@@ -31,3 +33,6 @@ app.include_router(dataset_router, prefix="/api/v1",
 
 app.include_router(job_router, prefix="/api/v1",
                    tags=["v1", "jobs"])
+
+app.include_router(job_runs_router, prefix="/api/v1",
+                   tags=["v1", "job_runs"])

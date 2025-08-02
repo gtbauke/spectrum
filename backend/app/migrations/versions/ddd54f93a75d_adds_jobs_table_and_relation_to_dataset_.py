@@ -28,7 +28,7 @@ def upgrade() -> None:
                     sa.Column("file_name", sa.String(
                         length=255), nullable=False),
                     sa.Column("dataset_id", sa.UUID(), sa.ForeignKey(
-                        "datasets.id"), nullable=False),
+                        "datasets.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False),
                     sa.Column("generations", sa.Integer(),
                               nullable=False, server_default="100"),
                     sa.Column("population_size", sa.Integer(),
@@ -57,12 +57,6 @@ def upgrade() -> None:
                               server_default=sa.text('now()'), nullable=False),
                     sa.Column("updated_at", postgresql.TIMESTAMP(timezone=True),
                               server_default=sa.text('now()'), nullable=False),
-                    sa.ForeignKeyConstraint(
-                        ["dataset_id"],
-                        ["datasets.id"],
-                        name=op.f("fk_jobs_dataset_id_datasets"),
-                        ondelete="CASCADE"
-                    ),
                     sa.PrimaryKeyConstraint("id", name=op.f("pk_jobs")),
                     sa.UniqueConstraint(
                         "file_name", name=op.f("uq_jobs_file_name"))
@@ -72,3 +66,4 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Downgrade schema."""
     op.drop_table("jobs")
+    op.execute("DROP TYPE IF EXISTS lossfunction")

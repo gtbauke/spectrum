@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from app.resources.datasets.models import Dataset
+    from app.resources.job_runs.models import JobRun
 
 
 class LossFunction(str, Enum):
@@ -77,3 +78,6 @@ class Job(CreateJob, table=True):
         default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc))
+
+    runs: list["JobRun"] = Relationship(back_populates="job", sa_relationship_kwargs={
+                                        "cascade": "all, delete-orphan"})
