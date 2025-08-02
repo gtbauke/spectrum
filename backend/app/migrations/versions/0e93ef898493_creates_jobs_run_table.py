@@ -22,7 +22,7 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     """Upgrade schema."""
     op.create_table(
-        "jobs_run",
+        "job_runs",
         sa.Column("id", sa.UUID(), primary_key=True, nullable=False),
         sa.Column("job_id", sa.UUID(), sa.ForeignKey(
             "jobs.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False),

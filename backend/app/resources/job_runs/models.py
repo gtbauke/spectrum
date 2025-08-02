@@ -22,7 +22,7 @@ class JobRun(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
 
     job_id: UUID = Field(foreign_key="jobs.id")
-    job: Job = Relationship(back_populates="runs")
+    job: "Job" = Relationship(back_populates="runs")
 
     status: JobRunStatus = Field(index=True)
 

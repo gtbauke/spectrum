@@ -1,26 +1,32 @@
 from fastapi import APIRouter, Depends
 from sqlmodel import Session, select
 from uuid import UUID
+
 from app.database import get_session
 from app.resources.jobs.models import Job, CreateJob, UpdateJob
 from app.resources.datasets.models import Dataset
 from app.resources.jobs.errors import DatasetNotFoundError, JobWithFileNameAlreadyExistsError
+from app.utils.api_response import ApiResponse
 
 job_router = APIRouter(prefix="/datasets/{dataset_id}/jobs", tags=["jobs"])
 
 
-@job_router.get("/")
-def get_jobs(dataset_id: UUID, session: Session = Depends(get_session)) -> list[Job]:
+@job_router.get("/", response_model=ApiResponse[list[Job]])
+# TODO: return jobs with runs and figure out how to type this
+def get_jobs(dataset_id: UUID, session: Session = Depends(get_session)) -> ApiResponse[list[Job]]:
     dataset = session.get(Dataset, dataset_id)
     if not dataset:
         raise DatasetNotFoundError(str(dataset_id))
 
     jobs = session.exec(
+        # select(Job, JobRun)
+        # .outerjoin(JobRun, full=True)
         select(Job)
         .where(Job.dataset_id == dataset_id)
-    )
+    ).all()
 
-    return list(jobs)
+    jobs = list(jobs)
+    return ApiResponse(status=200, data=jobs)
 
 
 @job_router.post("/")
