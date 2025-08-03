@@ -26,7 +26,7 @@ async def get_dataset(dataset_id: str, session: Session = Depends(get_session)):
     return {"data": dataset}
 
 
-@dataset_router.post("/", response_model=ApiResponse[DatasetWithJobs])
+@dataset_router.post("/", status_code=201, response_model=ApiResponse[DatasetWithJobs])
 async def create_dataset_(data: CreateDataset, session: Session = Depends(get_session)):
     dataset = create_dataset(data, session)
     return {"data": dataset}

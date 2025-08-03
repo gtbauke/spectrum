@@ -10,6 +10,7 @@ from app.utils.api_response import ApiResponse
 
 from app.resources.jobs.repository import get_all_jobs
 
+# TODO: refactor this to use repository functions instead of direct session queries
 job_router = APIRouter(prefix="/datasets/{dataset_id}/jobs", tags=["jobs"])
 
 
@@ -19,7 +20,7 @@ async def get_jobs(dataset_id: UUID, session: Session = Depends(get_session)):
     return {"data": jobs}
 
 
-@job_router.post("/")
+@job_router.post("/", status_code=201)
 async def create_job(data: CreateJob, dataset_id: UUID, session: Session = Depends(get_session)) -> Job:
     dataset = session.get(Dataset, dataset_id)
     if not dataset:
