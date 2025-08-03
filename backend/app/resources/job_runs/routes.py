@@ -5,7 +5,7 @@ from app.resources.job_runs.models import JobRun, JobRunStatus
 from app.database import get_session
 from app.resources.job_runs.errors import JobRunNotFoundError
 
-job_runs_router = APIRouter(prefix="/{job_id}/runs", tags=["job_runs"])
+job_runs_router = APIRouter(prefix="/jobs/{job_id}/runs", tags=["job_runs"])
 
 
 @job_runs_router.get("/")

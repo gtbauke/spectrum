@@ -1,32 +1,37 @@
-from sqlmodel import SQLModel, Field, Relationship
-from datetime import datetime, timezone
+from sqlmodel import Field, Relationship, SQLModel
 from uuid import UUID, uuid4
-from typing import Optional, TYPE_CHECKING
+from typing import Optional
 
-if TYPE_CHECKING:
-    from app.resources.jobs.models import Job
+from app.utils.sql_model_base import ModelBase
+from app.resources.jobs.models import Job
 
 
-class CreateDataset(SQLModel):
+class DatasetBase(ModelBase):
+    name: str = Field(max_length=255, unique=True, index=True)
+    description: Optional[str] = Field(default=None)
+    dataset_file_path: Optional[str] = Field(
+        default=None, description="Path to the dataset file on the server"
+    )
+
+
+class CreateDataset(DatasetBase):
     name: str
     description: Optional[str] = None
     dataset_file_path: Optional[str] = None
 
 
-class Dataset(CreateDataset, table=True):
+class Dataset(DatasetBase, table=True):
     __tablename__: str = "datasets"  # type: ignore
 
     id: UUID = Field(default_factory=uuid4, primary_key=True)
+    jobs: list[Job] = Relationship(back_populates="dataset")
 
-    name: str = Field(max_length=255, unique=True)
-    description: Optional[str] = Field(default=None)
 
-    dataset_file_path: Optional[str] = Field(default=None,
-                                             description="Path to the dataset file on the server")
+class DatasetWithJobs(DatasetBase):
+    id: UUID
+    jobs: list[Job] = []
 
-    jobs: list["Job"] = Relationship(back_populates="dataset")
 
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc))
+class DatasetFileUploadResponse(SQLModel):
+    dataset: Dataset
+    default_job: Job

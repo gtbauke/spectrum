@@ -9,5 +9,4 @@ class ApiResponse(GenericModel, Generic[T]):
     """
     A generic API response model that can be used to standardize the structure of API responses.
     """
-    status: int
     data: T

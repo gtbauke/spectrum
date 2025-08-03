@@ -8,29 +8,19 @@ from app.resources.datasets.models import Dataset
 from app.resources.jobs.errors import DatasetNotFoundError, JobWithFileNameAlreadyExistsError
 from app.utils.api_response import ApiResponse
 
+from app.resources.jobs.repository import get_all_jobs
+
 job_router = APIRouter(prefix="/datasets/{dataset_id}/jobs", tags=["jobs"])
 
 
 @job_router.get("/", response_model=ApiResponse[list[Job]])
-# TODO: return jobs with runs and figure out how to type this
-def get_jobs(dataset_id: UUID, session: Session = Depends(get_session)) -> ApiResponse[list[Job]]:
-    dataset = session.get(Dataset, dataset_id)
-    if not dataset:
-        raise DatasetNotFoundError(str(dataset_id))
-
-    jobs = session.exec(
-        # select(Job, JobRun)
-        # .outerjoin(JobRun, full=True)
-        select(Job)
-        .where(Job.dataset_id == dataset_id)
-    ).all()
-
-    jobs = list(jobs)
-    return ApiResponse(status=200, data=jobs)
+async def get_jobs(dataset_id: UUID, session: Session = Depends(get_session)):
+    jobs = await get_all_jobs(dataset_id, session)
+    return {"data": jobs}
 
 
 @job_router.post("/")
-def create_job(data: CreateJob, dataset_id: UUID, session: Session = Depends(get_session)) -> Job:
+async def create_job(data: CreateJob, dataset_id: UUID, session: Session = Depends(get_session)) -> Job:
     dataset = session.get(Dataset, dataset_id)
     if not dataset:
         raise DatasetNotFoundError(str(dataset_id))
@@ -69,7 +59,7 @@ def create_job(data: CreateJob, dataset_id: UUID, session: Session = Depends(get
 
 
 @job_router.delete("/{job_id}")
-def delete_job(job_id: UUID, dataset_id: UUID, session: Session = Depends(get_session)) -> None:
+async def delete_job(job_id: UUID, dataset_id: UUID, session: Session = Depends(get_session)) -> None:
     job = session.get(Job, job_id)
     if not job or job.dataset_id != dataset_id:
         raise DatasetNotFoundError(str(dataset_id))
@@ -79,7 +69,7 @@ def delete_job(job_id: UUID, dataset_id: UUID, session: Session = Depends(get_se
 
 
 @job_router.get("/{job_id}")
-def get_job(job_id: UUID, dataset_id: UUID, session: Session = Depends(get_session)) -> Job:
+async def get_job(job_id: UUID, dataset_id: UUID, session: Session = Depends(get_session)) -> Job:
     job = session.get(Job, job_id)
     if not job or job.dataset_id != dataset_id:
         raise DatasetNotFoundError(str(dataset_id))
@@ -88,7 +78,7 @@ def get_job(job_id: UUID, dataset_id: UUID, session: Session = Depends(get_sessi
 
 
 @job_router.put("/{job_id}")
-def update_job(job_id: UUID, dataset_id: UUID, data: UpdateJob, session: Session = Depends(get_session)) -> Job:
+async def update_job(job_id: UUID, dataset_id: UUID, data: UpdateJob, session: Session = Depends(get_session)) -> Job:
     job = session.get(Job, job_id)
     if not job or job.dataset_id != dataset_id:
         raise DatasetNotFoundError(str(dataset_id))

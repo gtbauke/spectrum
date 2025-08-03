@@ -8,6 +8,8 @@ from app.resources.services.service import Service
 
 
 class FileService(Service):
+    MAX_FILE_SIZE = 100 * 1024 * 1024 * 1024
+
     @abstractmethod
     def on_server_start(self) -> None:
         """Method to be called when the server starts."""
