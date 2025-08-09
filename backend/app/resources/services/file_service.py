@@ -34,3 +34,8 @@ class FileService(Service):
     def delete_file(self, file_path: Path) -> None:
         """Deletes a file at the specified path."""
         pass
+
+    @abstractmethod
+    def get_file_path(self, file_name: str) -> Path:
+        """Returns the path to a file with the specified name."""
+        pass

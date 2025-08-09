@@ -56,3 +56,11 @@ class TemporaryFileService(FileService):
 
     def delete_file(self, file_path: Path) -> None:
         raise NotImplementedError
+
+    def get_file_path(self, file_name: str) -> Path:
+        """
+        Returns the path to a file with the specified name in the temporary directory.
+        If the file does not exist, it will return a new Path object.
+        """
+        TEMP_FILE_DIR.mkdir(parents=True, exist_ok=True)
+        return TEMP_FILE_DIR / file_name
