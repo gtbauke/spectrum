@@ -34,7 +34,6 @@ def upgrade() -> None:
                   server_default=sa.text('now()'), nullable=False),
         sa.Column("finished_at", postgresql.TIMESTAMP(timezone=True),
                   nullable=True, server_default=None),
-        sa.UniqueConstraint("job_id", name="uq_jobs_run_job_id"),
         sa.PrimaryKeyConstraint("id", name="pk_jobs_run_id"),
     )
 
