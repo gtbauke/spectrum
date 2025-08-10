@@ -10,7 +10,7 @@ from app.resources.job_runs.routes import job_runs_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    all_services = await get_all_services()
+    all_services = get_all_services()
     for service in all_services:
         service.on_server_start()
 

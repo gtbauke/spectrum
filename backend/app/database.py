@@ -1,8 +1,7 @@
 from sqlmodel import create_engine, Session, SQLModel
-from os import getenv
+from app.utils.config import Config
 
-DATABASE_URL = getenv("DATABASE_URL")
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(Config.DATABASE_URL, echo=True)
 
 
 def init_db():
@@ -12,3 +11,7 @@ def init_db():
 def get_session():
     with Session(engine) as session:
         yield session
+
+
+def get_local_session():
+    return Session(engine)
