@@ -6,7 +6,7 @@ from sqlmodel import Session, select
 
 from app.utils.config import Config
 from app.database import get_local_session
-from app.resources.services.services import get_file_service
+from app.services import get_file_service
 from app.resources.job_runs.models import JobRun, JobRunStatus
 
 import pandas as pd

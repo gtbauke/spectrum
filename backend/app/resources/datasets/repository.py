@@ -7,7 +7,7 @@ from app.resources.datasets.models import Dataset, CreateDataset, DatasetFileUpl
 from app.resources.datasets.errors import DatasetNotFoundError, NoFileProvidedError, FileTooLargeError, FileUploadError
 from app.resources.jobs.repository import create_default_job
 
-from app.resources.services.file_service import FileService
+from app.services.file_service.file_service import FileService
 
 
 async def get_all_datasets(session: Session):

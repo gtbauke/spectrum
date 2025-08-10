@@ -1,6 +1,6 @@
-from app.resources.services.file_service import FileService
-from app.resources.services.temporary_file_service import TemporaryFileService
-from app.resources.services.service import Service
+from app.services.file_service.file_service import FileService
+from app.services.file_service.temporary_file_service import TemporaryFileService
+from app.services.service import Service
 
 
 def get_file_service() -> FileService:
@@ -12,4 +12,4 @@ def get_file_service() -> FileService:
 
 
 def get_all_services() -> list[Service]:
-    return [await get_file_service()]
+    return [get_file_service()]

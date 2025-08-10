@@ -5,8 +5,8 @@ from uuid import UUID
 from app.database import get_session
 from app.utils.id import ID
 from app.resources.datasets.models import CreateDataset, DatasetWithJobs, DatasetFileUploadResponse
-from app.resources.services.file_service import FileService
-from app.resources.services.services import get_file_service
+from app.services.file_service.file_service import FileService
+from app.services import get_file_service
 from app.utils.api_response import ApiResponse
 
 from app.resources.datasets.repository import get_all_datasets, get_dataset_by_id, create_dataset, upload_data_file_to_dataset

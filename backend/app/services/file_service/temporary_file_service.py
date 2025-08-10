@@ -2,7 +2,7 @@ from pathlib import Path
 from sqlmodel import Session, select
 from fastapi import Depends
 from typing import BinaryIO
-from app.resources.services.file_service import FileService
+from app.services.file_service.file_service import FileService
 from app.resources.datasets.models import Dataset
 from app.database import get_session
 import tempfile

@@ -4,7 +4,7 @@ from sqlmodel import Session
 from fastapi import Depends
 from typing import BinaryIO
 from app.database import get_session
-from app.resources.services.service import Service
+from app.services.service import Service
 
 
 class FileService(Service):
