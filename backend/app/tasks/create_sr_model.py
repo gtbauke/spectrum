@@ -15,7 +15,7 @@ app = Celery("worker", broker=Config.REDIS_URL)
 
 
 @app.task
-def create_sr_model(file_path: str, job_run_id: int):
+def create_sr_model(file_path: str, job_run_id: str):
     session = get_local_session()
     file_service = get_file_service()
 

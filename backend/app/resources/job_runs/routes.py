@@ -43,6 +43,6 @@ async def create_job_run_(
         raise ValueError("Dataset file path is not set for the job's dataset.")
 
     create_sr_model.delay(job_run.job.dataset.dataset_file_path,
-                          job_run.id)
+                          str(job_run.id))
 
     return {"data": job_run}
