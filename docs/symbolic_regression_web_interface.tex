@@ -1,36 +1,159 @@
-\documentclass{article}
-\usepackage{graphicx}
+\documentclass[
+  12pt,
+  oneside,
+  a4paper,
+  chapter=TITLE,
+  section=TITLE,
+  subsection=TITLE,
+  subsubsection=TITLE,
+  english,
+  brazil,
+]{abntex2}
 
-\title{Interface Web para Regressão Simbólica}
-\author{Gustavo Teodoro Bauke}
-\date{July 2025}
+\usepackage[backend=biber,style=abnt]{biblatex}
+\addbibresource{references.bib}
+
+\usepackage{cmap}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{indentfirst}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{spverbatim}
+\usepackage{hyperref}
+\usepackage[hyphenbreaks]{breakurl}
+\usepackage{subfig}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+\usepackage[linguistics]{forest}
+\usepackage{nicefrac}
+\usepackage{listings}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstdefinestyle{code_style}{
+  frame=tb,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+\usepackage[export]{adjustbox}
+\usepackage{lipsum}
+
+\titulo{Interface Web para Regressão Simbólica}
+\autor{Gustavo Teodoro Bauke}
+\local{Santo André - SP}
+\data{2025}
+\orientador{Prof. Dr. Fabrício Olivetti de França}
+\instituicao{
+  Universidade Federal do ABC
+  \par
+  Curso de Ciência da Computação
+}
+\tipotrabalho{Trabalho de Conclusão de Curso}
+
+\definecolor{blue}{RGB}{41,5,195}
+
+\makeatletter
+\hypersetup{
+  pdftitle={\@title},
+  pdfauthor={\@author},
+  pdfsubject={\imprimirpreambulo},
+  pdfcreator={LaTeX with abnTeX2},
+  pdfkeywords={Regressão Simbólica}{Regressão}{Aprendizado de Máquina}{Interface Web},
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  filecolor=magenta,
+  urlcolor=blue,
+  bookmarksdepth=4
+}
+
+\makeatother
+
+\setlength{\parindent}{1.3cm}
+\setlength{\parskip}{0.2cm}
+
+\makeindex
 
 \begin{document}
+\frenchspacing
 
-\maketitle
+\begin{figure}
+  \centering
+  \subfloat{{\includegraphics[width=4cm]{images/ufabc.png}}}
+\end{figure}
 
-\section{Introdução}
+\let\cleardoublepage\clearpage
 
-Regressão simbólica é uma técnica de regressão que busca encontrar expressões matemáticas que melhor
-se ajustem a um conjunto de dados, considerando tanto acurácia quanto a simplicidade da expressão.
-Algoritmos considerados \textit{State of the Art} (SotA) utilizam de programação genética como principal mecanismo
-de busca do espaço de soluções.
-\par Esse tipo de algoritmo é muito usado nas ciências naturais para obter um melhor entendimento de fenômenos
-observados. Muitas vezes, uma relação linear é assumida como boa aproximação entre as variáveis independentes e dependentes pela facilidade
-na interpretação do modelo. No entanto, elas podem falhar em representar a complexidade de alguns fenômenos governados por
-relações não lineares.
-\par Algoritmos de regressão não lineares, muitas vezes, requerem um maior esforço computacional para encontrar uma solução
-adequada, além de necessitarem de conhecimento técnico para serem corretamente utilizados e interpretados. A regressão simbólica
-almeja simplificar esse processo, permitindo que relações não lineares sejam encontradas ao mesmo tempo que a simplicidade da expressão é considerada.
+\imprimircapa
+\imprimirfolhaderosto*
 
-\section{Objetivos}
+\begin{dedicatoria}
+  \vspace*{\fill}
+  \centering
+  \noindent
+  \textit{
+    Dedicatória...
+  }
+  \vspace*{\fill}
+\end{dedicatoria}
 
-O objetivo desse projeto é propor uma nova plataforma online para exploração de algoritmos de regressão simbólica, no qual um usuário seria capaz de, após fazer \textit{upload} de um conjunto de dados,
-analisar expressões que melhor relacionam esses dados, filtrar expressões que contenham determinado padrão, plotar diferentes métricas do conjunto de dados, configurar hiper-parâmetros do algoritmo, e salvar
-e carregar um arquvio `.egraph` contendo essas informações.
+\begin{agradecimentos}
+  Agradecimentos...
+\end{agradecimentos}
 
-\section{Justificativa}
+\begin{epigrafe}
+  \begin{vplace}[0.7]
+    \textit{Frase bonitinha sobre computação}
+  \end{vplace}
+\end{epigrafe}
 
-\section{Metodologia}
+\begin{resumo}
+  RESUMO
+
+  \vspace{\onelineskip}
+  \noindent
+  \textbf{Palavras-chave}: Regressão Simbólica. Regressão. Aprendizado de Máquina. Interface Web.
+\end{resumo}
+
+\begin{resumo}[Abstract]
+  \begin{otherlanguage*}{english}
+    ABSTRACT
+
+    \vspace{\onelineskip}
+    \noindent
+    \textbf{Keywords}: Symbolic Regression. Regression. Machine Learning. Web Interface.
+  \end{otherlanguage*}
+\end{resumo}
+
+\pdfbookmark[0]{\contentsname}{toc}
+\tableofcontents*
+\cleardoublepage
+
+\listoffigures
+\cleardoublepage
+
+\textual
+
+\include{chapters/introduction}
+\include{chapters/literature_review}
+
+\printbibliography
 
 \end{document}

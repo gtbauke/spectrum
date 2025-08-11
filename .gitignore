@@ -9,4 +9,9 @@
 *.blg
 *.run.xml
 *.dvi
-*.pdf
+*.bcf
+*.lof
+*.lot
+*.idx
+*.ilg
+*.ind
