@@ -7,13 +7,29 @@ A regressão paramétrica fixa uma relação funcional entre as variáveis e seu
 
 \section{Algoritmos Genéticos}
 
-Algoritmos genéticos (AGs) são uma classe de algoritmos inspirados na evolução natural, onde soluções são evoluídas ao longo de gerações para resolver problemas complexos. Eles utilizam operações como seleção, cruzamento e mutação para explorar o espaço de soluções~\cite{Angelis2023,sr_book}.
+Algoritmos genéticos (AGs) são uma classe de algoritmos inspirados na evolução natural, onde soluções são evoluídas ao longo de gerações para resolver problemas complexos. A ideia principal do algoritmo é simular o processo de seleção natural, no qual a pressão exercida pelo ambiente seleciona os melhores indivíduos de uma espécie. Esses algoritmos utilizam operações como seleção, cruzamento e mutação para explorar o espaço de soluções~\cite{Angelis2023,sr_book}. O objetivo principal é otimizar um objetivo arbitrário em relação a um conjunto de variáveis de entrada~\cite{Beyer2002}. Algoritmos genéticos são amplamente utilizados em problemas de busca, otimização, decisão e aprendizado de máquia~\cite{galr}.
 
-\subsection{Operador de mutação}
+O funcionamento básico do algoritmo segue os seguintes passos:
+\begin{enumerate}
+  \item Uma população inicial de soluções é gerada aleatoriamente;
+  \item A cada iteração, os indivíduos da população são avaliados com base em uma função de aptidão, que indica o quão bem cada indivíduo resolve o problema;
+  \item Os melhores indivíduos são selecionados para reprodução;
+  \item Operadores de cruzamento e mutação são aplicados para gerar novos indivíduos;
+  \item A nova população é formada com os indivíduos gerados;
+  \item O processo é repetido até que um critério de parada seja atingido.
+\end{enumerate}
+
+\subsection{Operador de seleção}
+
+% TODO: add more information about genetic algorithms, including their application in symbolic regression.
 
 \subsection{Operador de crossover}
 
-\subsection{Operador de seleção}
+Cruzamento é o processo de combinação dos genomas de dois indivíduos para geração de novos indivíduos~\cite{galr}. Normalmente, o cruzamento é realizado escolhendo-se um ponto aleatório de corte na representação genética dos indivíduos e trocando-se as partes dos genomas a partir desse ponto.
+
+\subsection{Operador de mutação}
+
+Mutação é o processo de alteração aleatória de um ou mais genes de um indivíduo para introduzir diversidade na população. O objetivo da mutação é evitar a convergência prematura para solução sub-ótimas~\cite{galr}. Assim como no cruzamento, a mutação depende da forma utilizada para codificação dos indivíduos. Em uma representação em que os genes são expressos por uma sequência de bits, a mutação pode ser realizada invertendo-se um ou mais bits aleatoriamente.
 
 % TODO: add more information about genetic algorithms, including their application in symbolic regression.
 
@@ -45,7 +61,7 @@ A Figura \ref{fig:ast_crossover} ilustra o processo de cruzamento entre duas exp
   \label{fig:ast_crossover}
 \end{figure}
 
-A Figura \ref{fig:ast_mutation} ilustra o processo de mutação, onde uma subárvore aleatória é selecionada e substituída por uma nova subárvore gerada aleatoriamente. A mutação introduz diversidade na população, ajudando a evitar a convergência prematura para soluções subótimas. Na esquerda, o indivíduo original, e na direita, o indivíduo após a mutação.
+A Figura \ref{fig:ast_mutation} ilustra o processo de mutação, onde uma subárvore aleatória é selecionada e substituída por uma nova subárvore gerada aleatoriamente. A mutação introduz diversidade na população, ajudando a evitar a convergência prematura para soluções sub-ótimas. Na esquerda, o indivíduo original, e na direita, o indivíduo após a mutação.
 
 \begin{figure}
   \centering
@@ -66,7 +82,7 @@ Diante dos desafios enfrentados pela regressão simbólica tradicional, uma abor
 
 \subsection{Grafos de Igualdade}
 
-Grafos de igualdade são estruturas de dados que representam expressões matemáticas e suas equivalências de maneira eficiente. Elementos matemáticos são representadas por e-nodes, enquanto classes de expressões equivalentes são representadas por e-classes. Cada e-class contém um conjunto de e-nodes que representam diferentes formas de expressar a mesma expressão matemática. Cada e-node aponta para e-classes filhas, que representam os operandos da operação matemática representada pelo e-node.
+Grafos de igualdade são estruturas de dados que representam expressões matemáticas e suas equivalências de maneira eficiente~\cite{eggp,rEGGression}. Elementos matemáticos são representadas por e-nodes, enquanto classes de expressões equivalentes são representadas por e-classes. Cada e-class contém um conjunto de e-nodes que representam diferentes formas de expressar a mesma expressão matemática. Cada e-node aponta para e-classes filhas, que representam os operandos da operação matemática representada pelo e-node.
 
 A Figura \ref{fig:egraph_example} ilustra um grafo de igualdade. Note que as expressões $2x$ e $x + x$ pertencem à mesma e-class, uma vez que são logicamente equivalentes. A implementação de e-graphs utiliza uma estrutura union-find para gerenciar a união de e-classes quando novas equivalências são descobertas durante o processo de saturação~\cite{eggp}. Uma e-class armazena uma lista de e-nodes que pertencem a ela, uma lista de e-nodes pais (e-nodes que possuem essa e-class como filha) e demais informações auxiliares para otimizar operações de busca e união.
 
@@ -79,9 +95,42 @@ A Figura \ref{fig:egraph_example} ilustra um grafo de igualdade. Note que as exp
 
 \subsection{Saturação de igualdade}
 
+Saturação de igualdade é o processo de aplicar regras de reescrita a uma árvore para gerar expressões logicamente equivalentes. O processo é eficiente porque todas as regras de reescrita são aplicadas paralelamente~\cite{eggp}, utilizando a estrutura de e-graphs para evitar a duplicação de expressões. O processo se saturação acontece em quatro etapas:
+\begin{enumerate}
+  \item Elenque todas as regras de equivalência para o estado atual do e-graph;
+  \item Aplique todas as regras;
+  \item Junte e-classes equivalentes;
+  \item Repita os passos anteriores até que nenhuma nova equivalência seja
+\end{enumerate}
+
+Após a aplicação repetida de todas as regras, o e-graph é considerado saturado. Nesse estado, todas as expressões equivalentes possíveis foram geradas e armazenadas no e-graph.
+
+\subsection{Algoritmo: Eggp}
+
+Eggp (E-graph Genetic Programming) é uma implementação de um algoritmo genético para regressão simbólica que utiliza e-graphs e saturação de igualidade~\cite{eggp}. O algoritmo segue os passos tradicionais de um algoritmo genético, mas com algumas diferenças importantes:
+\begin{enumerate}
+  \item A cada nova expressão inserida no e-graph, é executada uma etapa de saturação, agrupando todas as expressões logicamente equivalentes;
+  \item Os operadores de mutação e cruzamento são adaptados para geração de expressões não visitadas;
+\end{enumerate}
+
+Os operadores de mutação e cruzamento utilizam das informações do e-graph para gerar expressões ainda não visitadas. No cruzamento, uma subárvore aleatória de um dos pais é substituída por uma subárvore aleatória escolhida de um conjunto de todas as possíveis subárvores do outro pai. O conjunto é construído de tal forma que todos seus elementos, ao substituírem a subárvore original, geram expressões novas.
+
+Na mutação, o processo tradicional é seguido, substituindo-se uma subárvore aleatória por uma nova subárvore gerada aleatoriamente. No entanto, caso a nova expressão já exista no e-graph, a subárvore é substituída por outra aleatória que faça parte do conjunto de símbolos de mesma aridade da subárvore original. Da mesma forma que no cruzamento, esse conjunto é formado de tal maneira que todas as substituições geram expressões novas.
+
 \section{Outros métodos para Regressão Simbólica}
 
+Apesar de algoritmos genéticos serem os mais comuns para implementação de regressão simbólica, outros métodos também podem ser utilizados~\cite{Bartlett_2024, Makke2024}. Outros métodos incluem:
+- Aprendizado por reforço;
+- Redes neurais;
+- Transformadores.
+
+Para fins de comparação, esse trabalho também aborda uma implementação de regressão simbólica conhecida como Interação-Transformação~\cite{lsritr}, que utiliza uma abordagem diferente para geração de expressões matemáticas. Além disso, também será abordada uma técnica conhecida como Regressão Simbólica Exaustiva~\cite{Bartlett_2024}, que utiliza uma técnica similar à Interação-Transformação, mas que visa explorar todo o espaço de expressões possíveis dentro de um recorte delimitado, garantindo que a solução ótima seja encontrada.
+
 \subsection{Interação-Transformação}
+
+A regressão simbólica utilizando da estrutura de Interação-Transformação (IT) é uma abordagem que restringe o espaço de busca de expressões matemáticas para aquelas que podem ser representadas como uma combinação polinomial das variáveis seguidas por uma transformação nã-linear~\cite{lsritr}. Diferentemente dos algoritmos genéticos, nessa implementação, algumas relações não podem ser representadas.
+
+% TODO: add more information about Interaction-Transformation symbolic regression.
 
 \subsection{Regressão Simbólica Exaustiva}
 
@@ -91,6 +140,14 @@ A Figura \ref{fig:egraph_example} ilustra um grafo de igualdade. Note que as exp
 
 \subsection{HeuristicLab}
 
+HeuristicLab é uma ferramenta gráfica que, dentre outros algoritmos, suporta a exploração de algoritmos de regressão simbólica.
+
+% TODO: add more information about HeuristicLab.
+
 \subsection{TuringBot}
 
+Assim como a ferramenta anterior, TuringBot é uma interface gráfica para exploração de algoritmos de regressão simbólica. Ele mostra ao usuário as melhores expressões encontradas para o conjunto de dados fornecido com algumas métricas simples do modelo criado~\cite{rEGGression}.
+
 \subsection{Outras ferramentas}
+
+Para além de ferramentas comerciais, existem diversas bibliotecas que permitem a exploração de algoritmos de regressão simbólica. No caso do algoritmo Eggp, apresentado anteriormente, é possível utilizar a ferramenta \textit{rEGGression}~\cite{rEGGression} para explorar os modelos gerados por esse algoritmo. Essa ferramenta permite que as expressões encontradas pelo modelo sejam consultadas por tamanho, complexidade e número de parâmetros numéricos; permite a inserção de novas expressões; permite a listagem de sub-expressões; e permite o uso de padrões para busca de expressões~\cite{rEGGression}.
