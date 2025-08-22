@@ -1,8 +1,6 @@
 from celery import Celery
 from eggp import EGGP
-from reggression import Reggression
 from datetime import datetime
-from sqlmodel import Session, select
 
 from app.utils.config import Config
 from app.database import get_local_session
@@ -48,15 +46,9 @@ def create_sr_model(file_path: str, job_run_id: str):
     model = EGGP(dumpTo=str(dump_to_file_path))
     model.fit(X, y)
 
-    egg = Reggression(
-        dataset=job_run.job.dataset.dataset_file_path,
-        loadFrom=str(dump_to_file_path),
-    )
-
     job_run.status = JobRunStatus.COMPLETED
     job_run.finished_at = datetime.now()
+    job_run.eggp_file_path = str(dump_to_file_path)
+
     session.add(job_run)
     session.commit()
-
-    top_models = egg.top(10)
-    print(top_models)

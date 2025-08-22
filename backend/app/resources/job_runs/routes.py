@@ -1,6 +1,7 @@
 from sqlmodel import Session
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, WebSocket
 from uuid import UUID
+from reggression import Reggression
 
 from app.database import get_session
 from app.utils.api_response import ApiResponse
@@ -46,3 +47,28 @@ async def create_job_run_(
                           str(job_run.id))
 
     return {"data": job_run}
+
+
+@job_runs_router.websocket("/{run_id}/ws")
+async def explore_job_run(
+    websocket: WebSocket,
+    run_id: UUID,
+    session: Session = Depends(get_session)
+):
+    current_run = session.get(JobRun, run_id)
+    if current_run is None or current_run.eggp_file_path is None:
+        await websocket.close(code=1008)
+
+    eggp = Regression(
+        dataset=current_run.job.dataset.dataset_file_path,
+        eggp_file_path=current_run.eggp_file_path
+    )
+
+    await websocket.accept()
+    try:
+        while True:
+            # TODO: Implement the logic to handle WebSocket messages
+            pass
+    except Exception as e:
+        await websocket.close(code=1011)
+        raise e
