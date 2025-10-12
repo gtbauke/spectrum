@@ -1,58 +1,55 @@
-import { useEffect, useState } from "react";
+import Editor, { type OnMount } from "@monaco-editor/react";
+import type * as monacoType from "monaco-editor/esm/vs/editor/editor.api";
+import { type FormEvent, useRef } from "react";
 import { useParams } from "react-router";
-import useWebSocket, { ReadyState } from "react-use-websocket";
-
-const WS_URL =
-    "ws://127.0.0.1:8000/job/0684eb49-6d0e-4ed0-ac77-c107f0217e25/runs/b39c3854-5c01-455f-8a12-f32cce43495d/ws";
 
 type PlaygroundPageParams = {
     datasetId: string;
 };
 
 export function PlaygroundPage() {
-    const [query, setQuery] = useState("");
-
     const { datasetId } = useParams<PlaygroundPageParams>();
-    const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(
-        WS_URL,
-        {
-            share: false,
-            shouldReconnect: () => true,
-        },
+    const editorRef = useRef<monacoType.editor.IStandaloneCodeEditor | null>(
+        null,
     );
 
-    useEffect(() => {
-        console.log("Connection state changed!");
-        if (readyState === ReadyState.OPEN) {
-            sendJsonMessage({
-                event: "subscribe",
-                data: {
-                    channel: "general-chatroom",
-                },
-            });
-        }
-    }, [readyState, sendJsonMessage]);
+    const handleFormSubmit = (formEvent: FormEvent<HTMLFormElement>) => {
+        formEvent.preventDefault();
+        console.log(editorRef.current?.getValue());
+    };
 
-    useEffect(() => {
-        console.log(`Got a new message: ${lastJsonMessage}`);
-    }, [lastJsonMessage]);
+    const handleEditorOnMount: OnMount = (editor) => {
+        editorRef.current = editor;
+    };
 
     return (
-        <div>
-            <h1>Playground</h1>
-            <p>Dataset: {datasetId}</p>
-
+        <div className="space-y-8 text-white">
             <div>
-                <label className="flex flex-col gap-2">
-                    Query
-                    <input
-                        className="border border-white p-2"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                    />
-                    <pre>{lastJsonMessage}</pre>
-                </label>
+                <h1>Playground</h1>
+                <p>Dataset: {datasetId}</p>
             </div>
+
+            <form className="space-y-4" onSubmit={handleFormSubmit}>
+                <Editor
+                    onMount={handleEditorOnMount}
+                    className="min-h-[400px]"
+                    theme="vs-dark"
+                    options={{
+                        minimap: {
+                            enabled: false,
+                        },
+                    }}
+                    defaultLanguage="sql"
+                    defaultValue="-- Write your query here"
+                />
+
+                <button
+                    type="submit"
+                    className="w-full cursor-pointer rounded bg-green-700 p-2 hover:bg-green-800 active:bg-green-900"
+                >
+                    Run
+                </button>
+            </form>
         </div>
     );
 }
