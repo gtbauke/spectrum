@@ -2,6 +2,7 @@ from sqlmodel import Session
 from fastapi import APIRouter, Depends, WebSocket
 from uuid import UUID
 from reggression import Reggression
+from datetime import datetime
 
 from app.database import get_session
 from app.utils.api_response import ApiResponse
@@ -68,7 +69,12 @@ async def explore_job_run(
     try:
         while True:
             # TODO: Implement the logic to handle WebSocket messages
-            pass
+            data = await websocket.receive_json()
+            await websocket.send_json({
+                "received_at": datetime.now(),
+                "original_message": data,
+                "response": "Hello, World! From WebSockets"
+            })
     except Exception as e:
         await websocket.close(code=1011)
         raise e
