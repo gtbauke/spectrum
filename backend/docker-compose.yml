@@ -14,7 +14,7 @@ services:
 
   worker:
     build: .
-    command: uv run celery -A app.resources.jobs.worker.celery_app worker --loglevel=info
+    command: uv run celery -A app.tasks.create_sr_model worker
     volumes:
       - .:/app
     env_file:

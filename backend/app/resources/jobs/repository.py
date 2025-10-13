@@ -15,7 +15,7 @@ async def get_all_jobs(
     if not dataset:
         raise DatasetNotFoundError(str(dataset_id))
 
-    query = select(Job).where(Job.dataset.id == dataset_id)
+    query = select(Job).where(Job.dataset_id == dataset_id)
     jobs = session.exec(query).all()
 
     return jobs

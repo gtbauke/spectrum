@@ -14,6 +14,7 @@ app = Celery("worker", broker=Config.REDIS_URL)
 
 @app.task
 def create_sr_model(file_path: str, job_run_id: str):
+    print("RUNNING MODEL")
     session = get_local_session()
     file_service = get_file_service()
 
@@ -29,7 +30,18 @@ def create_sr_model(file_path: str, job_run_id: str):
     session.add(job_run)
     session.commit()
 
-    file_df = pd.read_csv(file_path, sep=",")
+    try:
+        file_df = pd.read_csv(file_path, sep=",")
+    except FileNotFoundError:
+        print("JOB RUN FAILED")
+
+        job_run.status = JobRunStatus.FAILED
+        job_run.finished_at = datetime.now()
+
+        session.add(job_run)
+        session.commit()
+
+        return
 
     dependent_variable_name = "target"
     independent_variable_names = [

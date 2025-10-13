@@ -43,3 +43,7 @@ class JobRun(JobRunBase, table=True):
 
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     job: "Job" = Relationship(back_populates="runs")
+
+
+class JobRunQuery(SQLModel):
+    query: str = Field(default=None, nullable=True)

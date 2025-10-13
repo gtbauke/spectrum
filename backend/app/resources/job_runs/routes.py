@@ -1,12 +1,11 @@
 from sqlmodel import Session
-from fastapi import APIRouter, Depends, WebSocket
+from fastapi import APIRouter, Depends
 from uuid import UUID
-from reggression import Reggression
-from datetime import datetime
 
 from app.database import get_session
+from app.resources.job_runs.errors import JobRunNotFoundError
 from app.utils.api_response import ApiResponse
-from app.resources.job_runs.models import JobRun
+from app.resources.job_runs.models import JobRun, JobRunQuery
 from app.resources.job_runs.repository import get_all_job_runs, get_job_run_by_id, create_job_run
 from app.tasks.create_sr_model import create_sr_model
 
@@ -50,31 +49,19 @@ async def create_job_run_(
     return {"data": job_run}
 
 
-@job_runs_router.websocket("/{run_id}/ws")
-async def explore_job_run(
-    websocket: WebSocket,
+@job_runs_router.post("/{run_id}/model", status_code=200)
+async def process_model_query(
+    job_id: UUID,
     run_id: UUID,
+    query: JobRunQuery,
     session: Session = Depends(get_session)
 ):
-    current_run = session.get(JobRun, run_id)
-    if current_run is None or current_run.eggp_file_path is None:
-        await websocket.close(code=1008)
+    """
+    Process a query for the trained model
+    """
+    job_run = session.get(JobRun, run_id)
+    if not job_run:
+        raise JobRunNotFoundError(job_id, run_id)
 
-    eggp = Regression(
-        dataset=current_run.job.dataset.dataset_file_path,
-        eggp_file_path=current_run.eggp_file_path
-    )
-
-    await websocket.accept()
-    try:
-        while True:
-            # TODO: Implement the logic to handle WebSocket messages
-            data = await websocket.receive_json()
-            await websocket.send_json({
-                "received_at": datetime.now(),
-                "original_message": data,
-                "response": "Hello, World! From WebSockets"
-            })
-    except Exception as e:
-        await websocket.close(code=1011)
-        raise e
+    print(query.query)
+    return {"data": query}
