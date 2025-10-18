@@ -1,11 +1,17 @@
+import json
+import logging
+from app.utils.config import Config
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
+from dotenv import load_dotenv
 
 from app.versioning import APIVersionMiddleware
 from app.services import get_all_services
 from app.resources.datasets.routes import dataset_router
 from app.resources.jobs.routes import job_router
 from app.resources.job_runs.routes import job_runs_router
+
+load_dotenv()
 
 
 @asynccontextmanager

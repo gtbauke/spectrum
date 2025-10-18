@@ -1,6 +1,7 @@
 from celery import Celery
 from eggp import EGGP
 from datetime import datetime
+from dotenv import load_dotenv
 
 from app.utils.config import Config
 from app.database import get_local_session
@@ -9,7 +10,10 @@ from app.resources.job_runs.models import JobRun, JobRunStatus
 
 import pandas as pd
 
+load_dotenv()
 app = Celery("worker", broker=Config.REDIS_URL)
+
+# TODO: upload .eggp file to S3
 
 
 @app.task

@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, UploadFile, File
+from app.utils.config import Config
+from fastapi import APIRouter, Depends, UploadFile, File, logger
 from sqlmodel import Session
 from uuid import UUID
 
@@ -39,6 +40,7 @@ async def upload_dataset_file(
     session: Session = Depends(get_session),
     file_service: FileService = Depends(get_file_service)
 ):
+    logger.logger.info(f"FileService: {Config.FILE_SERVICE_TYPE}")
     response = await upload_data_file_to_dataset(
         dataset_id,
         file,
