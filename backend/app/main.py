@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.versioning import APIVersionMiddleware
 from app.services import get_all_services
@@ -27,6 +28,17 @@ app = FastAPI(
     description="API for managing Symbolic Regression datasets",
     version="1.0.0",
     lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "https://localhost:5173"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
 
 app.add_middleware(APIVersionMiddleware)
