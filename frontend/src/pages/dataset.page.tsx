@@ -1,5 +1,7 @@
-import { IoCopy, IoPencil, IoTrash } from "react-icons/io5";
+import { Suspense, useEffect, useState } from "react";
 import { useParams } from "react-router";
+import { JobEntry } from "~/components/job-entry.component";
+import { type Project, parseProjectResponse } from "~/models/project.model";
 
 type DatasetPageParams = {
     datasetId: string;
@@ -7,40 +9,38 @@ type DatasetPageParams = {
 
 export function DatasetPage() {
     const { datasetId } = useParams<DatasetPageParams>();
+    const [dataset, setDataset] = useState<Project>();
+
+    useEffect(() => {
+        const _f = async () => {
+            const response = await fetch(
+                `http://localhost:8000/api/v1/datasets/${datasetId}`,
+            );
+            const responseJson = await response.json();
+            const parsedResponse = parseProjectResponse(responseJson.data);
+            setDataset(parsedResponse);
+        };
+
+        _f();
+    }, [datasetId]);
 
     return (
-        <div>
-            <h1 className="text-white">Dataset - {datasetId}</h1>
+        <Suspense fallback={<p>Loading...</p>}>
+            <div className="space-y-4">
+                <h1 className="text-white">
+                    Dataset {dataset?.name} - {datasetId}
+                </h1>
 
-            {/* TODO: move this to a Job component */}
-            <div className="flex bg-background-secondary p-2 rounded">
-                <div className="flex flex-row items-center justify-between w-full">
-                    <p className="text-white">Job ID - Job Name</p>
-
-                    <div className="flex flex-row items-center">
-                        <button type="button" className="cursor-pointer p-2">
-                            <IoPencil
-                                size={20}
-                                className="text-white hover:text-gray-300 active:text-blue-300"
-                            />
-                        </button>
-
-                        <button type="button" className="cursor-pointer p-2">
-                            <IoCopy
-                                size={20}
-                                className="text-white hover:text-gray-300 active:text-green-300"
-                            />
-                        </button>
-
-                        <button type="button" className="cursor-pointer p-2">
-                            <IoTrash
-                                size={20}
-                                className="text-white hover:text-gray-300 active:text-red-300"
-                            />
-                        </button>
-                    </div>
+                <div className="space-y-2">
+                    {dataset?.jobs.map((job) => (
+                        <JobEntry
+                            key={job.id}
+                            id={job.id}
+                            name={job.description}
+                        />
+                    ))}
                 </div>
             </div>
-        </div>
+        </Suspense>
     );
 }

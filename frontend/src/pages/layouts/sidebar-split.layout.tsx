@@ -5,7 +5,7 @@ export function SidebarSplitLayout() {
     return (
         <div className="flex h-screen">
             <Sidebar />
-            <main className="p-6 bg-background flex-1">
+            <main className="flex-1 bg-background p-6">
                 <Outlet />
             </main>
         </div>
