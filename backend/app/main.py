@@ -1,6 +1,3 @@
-import json
-import logging
-from app.utils.config import Config
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv

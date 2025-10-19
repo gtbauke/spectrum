@@ -16,7 +16,7 @@ class S3FileService(FileService):
     Service for handling uploads for AWS S3
     """
 
-    def __init__(self) -> None:
+    def __init__(self, options: dict[str, str] | None) -> None:
         super().__init__()
 
         logger.logger.warning(f"AWS_ACCESS_KEY: {Config.AWS_ACCESS_KEY}")
@@ -24,8 +24,10 @@ class S3FileService(FileService):
 
         self.s3_instance: S3Client = boto3.client(  # type: ignore
             service_name="s3",
-            aws_access_key_id=Config.AWS_ACCESS_KEY,
-            aws_secret_access_key=Config.AWS_SECRET_KEY,
+            aws_access_key_id=Config.AWS_ACCESS_KEY if Config.AWS_ACCESS_KEY is not "" else
+            options["aws_access_key_id"] if options is not None else "",
+            aws_secret_access_key=Config.AWS_SECRET_KEY if Config.AWS_SECRET_KEY is not "" else
+            options["aws_secret_access_key"] if options is not None else "",
             region_name=Config.S3_BUCKET_REGION
         )
 
@@ -45,8 +47,20 @@ class S3FileService(FileService):
 
         return f"https://{Config.S3_BUCKET_NAME}.s3.{Config.S3_BUCKET_REGION}.amazonaws.com/{destination}"
 
+    def upload_file_from_path(self, file_path: str, destination: str) -> str:
+        try:
+            self.s3_instance.upload_file(
+                Filename=file_path, Bucket=Config.S3_BUCKET_NAME, Key=destination)
+        except ClientError as e:
+            logger.logger.error(e)
+            raise e
+
+        return f"https://{Config.S3_BUCKET_NAME}.s3.{Config.S3_BUCKET_REGION}.amazonaws.com/{destination}"
+
     def download_file(self, file_url: Path, destination: str) -> str:
-        raise NotImplementedError
+        self.s3_instance.download_file(
+            Config.S3_BUCKET_NAME, str(file_url), destination)
+        return destination
 
     def delete_file(self, file_path: Path) -> None:
         raise NotImplementedError

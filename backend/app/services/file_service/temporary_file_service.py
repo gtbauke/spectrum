@@ -51,8 +51,11 @@ class TemporaryFileService(FileService):
 
         return str(temp_file_path)
 
-    def download_file(self, file_url: Path, destination: str) -> str:
+    def upload_file_from_path(self, file_path: str, destination: str) -> str:
         raise NotImplementedError
+
+    def download_file(self, file_url: Path, destination: str) -> str:
+        return destination
 
     def delete_file(self, file_path: Path) -> None:
         raise NotImplementedError

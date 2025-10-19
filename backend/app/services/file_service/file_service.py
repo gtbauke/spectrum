@@ -26,6 +26,10 @@ class FileService(Service):
         pass
 
     @abstractmethod
+    def upload_file_from_path(self, file_path: str, destination: str) -> str:
+        pass
+
+    @abstractmethod
     def download_file(self, file_url: Path, destination: str) -> str:
         """Downloads a file from a specified URL to a local destination."""
         pass
