@@ -31,7 +31,7 @@ logger.add(
 if ENV == "production":
     cloudwatch_handler = watchtower.CloudWatchLogHandler(
         log_group="spectrum-app-logs",
-        stream_name=f"spectrum-app-instance-{uuid.uuid4()}"
+        stream_name=f"spectrum-app-instance-{uuid.uuid4()}",
     )
 
     logger.add(
