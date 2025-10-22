@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+import time
+from fastapi import FastAPI, Request
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,6 +9,8 @@ from app.services import get_all_services
 from app.resources.datasets.routes import dataset_router
 from app.resources.jobs.routes import job_router
 from app.resources.job_runs.routes import job_runs_router
+from app.logging_config import logger
+
 
 load_dotenv()
 
@@ -50,3 +53,15 @@ app.include_router(job_router, prefix="/api/v1",
 
 app.include_router(job_runs_router, prefix="/api/v1",
                    tags=["v1", "job_runs"])
+
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):  # type: ignore
+    start = time.time()
+    response = await call_next(request)  # type: ignore
+    process_time = (time.time() - start) * 1000
+
+    logger.info(
+        f"{request.method} {request.url.path} - {response.status_code} ({process_time:.2f} ms)")
+
+    return response  # type: ignore

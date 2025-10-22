@@ -12,6 +12,7 @@ dependencies = [
     "celery[redis]>=5.5.3",
     "eggp>=1.0.6",
     "fastapi[standard]>=0.116.1",
+    "loguru>=0.7.3",
     "numpy>=2.3.2",
     "pandas>=2.3.1",
     "pandas-stubs>=2.3.0.250703",
@@ -23,5 +24,6 @@ dependencies = [
     "sqlalchemy>=2.0.41",
     "sqlmodel>=0.0.24",
     "uvicorn>=0.35.0",
+    "watchtower>=3.4.0",
     "websockets>=15.0.1",
 ]
