@@ -1,11 +1,14 @@
 import time
-from fastapi import FastAPI, Request
+
 from contextlib import asynccontextmanager
+from app.services.file_service import FileService
+from app.tasks.create_sr_model import Boto3SessionOptions
+from app.utils.config import Config
+from fastapi import FastAPI, Request
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.versioning import APIVersionMiddleware
-from app.services import get_all_services
 from app.resources.datasets.routes import dataset_router
 from app.resources.jobs.routes import job_router
 from app.resources.job_runs.routes import job_runs_router
@@ -17,20 +20,25 @@ load_dotenv()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    all_services = get_all_services()
-    for service in all_services:
-        service.on_server_start()
+    file_service = FileService(options=Boto3SessionOptions(
+        region_name=Config.S3_BUCKET_REGION,
+        aws_access_key_id=Config.AWS_ACCESS_KEY,
+        aws_secret_access_key=Config.AWS_SECRET_KEY,
+    ))
+
+    await file_service.on_server_startup()
+    app.state.file_service = file_service
 
     yield
 
-    for service in all_services:
-        service.on_server_shutdown()
+    await file_service.on_server_shutdown()
+
 
 app = FastAPI(
     title="Spectrum API",
     description="API for managing Symbolic Regression datasets",
     version="1.0.0",
-    lifespan=lifespan,
+    lifespan=lifespan
 )
 
 app.add_middleware(
@@ -60,8 +68,9 @@ async def log_requests(request: Request, call_next):  # type: ignore
     start = time.time()
     response = await call_next(request)  # type: ignore
     process_time = (time.time() - start) * 1000
+    status_code = response.status_code  # type: ignore
 
     logger.info(
-        f"{request.method} {request.url.path} - {response.status_code} ({process_time:.2f} ms)")
+        f"{request.method} {request.url.path} - {status_code} ({process_time:.2f} ms)")
 
     return response  # type: ignore

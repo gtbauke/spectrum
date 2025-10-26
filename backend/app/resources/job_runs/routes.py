@@ -1,3 +1,4 @@
+from typing import Sequence
 from sqlmodel import Session
 from fastapi import APIRouter, Depends
 from uuid import UUID
@@ -7,13 +8,13 @@ from app.resources.job_runs.errors import JobRunNotFoundError
 from app.utils.api_response import ApiResponse
 from app.resources.job_runs.models import JobRun, JobRunQuery
 from app.resources.job_runs.repository import get_all_job_runs, get_job_run_by_id, create_job_run
-from app.tasks.create_sr_model import create_sr_model
+from app.tasks.create_sr_model import create_sr_model_task
 
 job_runs_router = APIRouter(prefix="/jobs/{job_id}/runs", tags=["job_runs"])
 
 
 @job_runs_router.get("/", response_model=ApiResponse[list[JobRun]])
-async def get_job_runs(job_id: UUID, session: Session = Depends(get_session)):
+async def get_job_runs(job_id: UUID, session: Session = Depends(get_session)) -> dict[str, Sequence[JobRun]]:
     """
     Retrieve all job runs for a specific job.
     """
@@ -43,8 +44,8 @@ async def create_job_run_(
     if job_run.job.dataset.dataset_file_path is None:
         raise ValueError("Dataset file path is not set for the job's dataset.")
 
-    create_sr_model.delay(job_run.job.dataset.dataset_file_path,
-                          str(job_run.id))
+    create_sr_model_task.delay(job_run.job.dataset.dataset_file_path,
+                               str(job_run.id))
 
     return {"data": job_run}
 

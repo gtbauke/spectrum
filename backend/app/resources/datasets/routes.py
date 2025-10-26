@@ -1,15 +1,14 @@
 from app.utils.config import Config
-from fastapi import APIRouter, Depends, UploadFile, File, logger
+from fastapi import APIRouter, Depends, UploadFile, File
 from sqlmodel import Session
 from uuid import UUID
 
 from app.database import get_session
 from app.utils.id import ID
 from app.resources.datasets.models import CreateDataset, DatasetWithJobs, DatasetFileUploadResponse
-from app.services.file_service.file_service import FileService
-from app.services import get_file_service
+from app.services.file_service import get_file_service, FileService
 from app.utils.api_response import ApiResponse
-
+from app.logging_config import logger
 from app.resources.datasets.repository import get_all_datasets, get_dataset_by_id, create_dataset, upload_data_file_to_dataset
 
 dataset_router = APIRouter(prefix="/datasets", tags=["datasets"])
@@ -40,7 +39,9 @@ async def upload_dataset_file(
     session: Session = Depends(get_session),
     file_service: FileService = Depends(get_file_service)
 ):
-    logger.logger.info(f"FileService: {Config.FILE_SERVICE_TYPE}")
+    logger.info(f"FileService: {Config.FILE_SERVICE_TYPE}")
+    logger.info(f"Uploading dataset for {dataset_id}")
+
     response = await upload_data_file_to_dataset(
         dataset_id,
         file,

@@ -17,7 +17,7 @@ logger.add(
            "<level>{level: <8}</level> | "
            "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
            "<level>{message}</level>",
-    level="INFO"
+    level="INFO" if ENV != "development" else "DEBUG"
 )
 
 logger.add(
@@ -25,7 +25,7 @@ logger.add(
     rotation="10 MB",
     retention="7 days",
     compression="zip",
-    level="INFO"
+    level="INFO" if ENV != "development" else "DEBUG"
 )
 
 if ENV == "production":

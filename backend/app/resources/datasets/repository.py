@@ -7,7 +7,7 @@ from app.resources.datasets.models import Dataset, CreateDataset, DatasetFileUpl
 from app.resources.datasets.errors import DatasetNotFoundError, NoFileProvidedError, FileTooLargeError, FileUploadError
 from app.resources.jobs.repository import create_default_job
 
-from app.services.file_service.file_service import FileService
+from app.services.file_service import FileService
 
 
 async def get_all_datasets(session: Session):
@@ -65,9 +65,9 @@ async def upload_data_file_to_dataset(
         raise FileTooLargeError(file_service.MAX_FILE_SIZE)
 
     try:
-        file_path = file_service.upload_file(
+        file_path = await file_service.save_file_obj(
             file.file, f"{dataset_id}/{file.filename}")
-        dataset.dataset_file_path = file_path
+        dataset.dataset_file_path = str(file_path)
 
         session.add(dataset)
         session.commit()

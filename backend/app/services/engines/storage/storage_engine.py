@@ -8,13 +8,13 @@ class StorageEngine(ABC):
         pass
 
     @abstractmethod
-    def get_file_path(self, key: str) -> Path:
+    async def get_file_path(self, key: str) -> Path | str:
         pass
 
     @abstractmethod
-    def save_file_obj(self, file_obj: BinaryIO, key: str) -> Path:
+    async def save_file_obj(self, file_obj: BinaryIO, key: str) -> Path | str:
         pass
 
     @abstractmethod
-    def save_file(self, file_path: Path, key: str) -> Path:
+    async def delete(self, key: str) -> None:
         pass
