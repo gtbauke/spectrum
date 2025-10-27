@@ -19,8 +19,8 @@ class LocalStorageEngine(StorageEngine):
         return self.base_dir / key
 
     async def save_file_obj(self, file_obj: BinaryIO, key: str) -> Path:
-        os.makedirs(self.base_dir, exist_ok=True)
         file_path = self.base_dir / key
+        os.makedirs(file_path.parent, exist_ok=True)
 
         async with aiofiles.open(file_path, "wb") as out_file:
             while chunk := file_obj.read(self.CHUNK_SIZE * self.CHUNK_SIZE):

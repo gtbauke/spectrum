@@ -23,7 +23,7 @@ class FileServiceType(Enum):
 class FileService(Service):
     MAX_FILE_SIZE = 1024 * 1024
 
-    def __init__(self, temp_engine_base_dir: str = "temp", options: Optional[Boto3SessionOptions] = None) -> None:
+    def __init__(self, temp_engine_base_dir: str = "temp", options: Optional[Boto3SessionOptions] = None, file_service_type_override: Optional[FileServiceType] = None) -> None:
         super().__init__()
 
         self.local_engine = LocalStorageEngine()
@@ -38,8 +38,9 @@ class FileService(Service):
             FileServiceType.TEMP: self.temp_engine,
         }
 
-        self.default_engine = self.engine_mapping[FileServiceType(
-            Config.FILE_SERVICE_TYPE)]
+        file_service_type = file_service_type_override if file_service_type_override is not None else FileServiceType(
+            Config.FILE_SERVICE_TYPE)
+        self.default_engine = self.engine_mapping[file_service_type]
 
     async def on_server_startup(self):
         await self.temp_engine.cleanup_expired_files()

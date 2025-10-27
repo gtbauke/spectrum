@@ -6,7 +6,7 @@ import tempfile
 
 from pathlib import Path
 from app.integrations.aws.session import Boto3SessionOptions
-from app.services.file_service import FileService
+from app.services.file_service import FileService, FileServiceType
 from celery import Celery
 from celery.utils.log import get_task_logger
 from eggp import EGGP
@@ -35,11 +35,15 @@ def create_sr_model_task(file_path: str, job_run_id: str):
     logger.info(f"FILE_SERVICE_TYPE: {app.conf.FILE_SERVICE_TYPE}")
 
     session = get_local_session()
-    file_service = FileService(temp_engine_base_dir="spectrum_datasets", options=Boto3SessionOptions(
-        region_name=app.conf.REGION_NAME,
-        aws_access_key_id=app.conf.AWS_ACCESS_KEY,
-        aws_secret_access_key=app.conf.AWS_SECRET_KEY,
-    ))
+    file_service = FileService(
+        temp_engine_base_dir="spectrum_datasets",
+        options=Boto3SessionOptions(
+            region_name=app.conf.REGION_NAME,
+            aws_access_key_id=app.conf.AWS_ACCESS_KEY,
+            aws_secret_access_key=app.conf.AWS_SECRET_KEY,
+        ),
+        file_service_type_override=FileServiceType(app.conf.FILE_SERVICE_TYPE)
+    )
 
     job_run = session.get(JobRun, job_run_id)
     if not job_run:
@@ -55,11 +59,15 @@ def create_sr_model_task(file_path: str, job_run_id: str):
 
     file_to_delete = None
     try:
-        file_name = file_service.remote_engine.get_presigned_url(
-            file_path.split(".com/")[-1]) if "https" in file_path else file_path
-
         local_file_path = file_path
-        if "http" in file_name:
+        logger.warning(
+            f"FILE_SERVICE_TYPE: {app.conf.FILE_SERVICE_TYPE} | {FileServiceType(app.conf.FILE_SERVICE_TYPE) == FileServiceType.REMOTE}")
+
+        if FileServiceType(app.conf.FILE_SERVICE_TYPE) == FileServiceType.REMOTE:
+            logger.warning("REMOTE FILE IS BEING FETCHED")
+            file_name = file_service.remote_engine.get_presigned_url(
+                file_path.split(".com/")[-1])
+
             temp_file = tempfile.NamedTemporaryFile(delete=False)
             temp_path = temp_file.name
             temp_file.close()
@@ -108,11 +116,14 @@ def create_sr_model_task(file_path: str, job_run_id: str):
     model = EGGP(dumpTo=str(path))
     model.fit(X, y)  # type: ignore
 
+    if FileServiceType(app.conf.FILE_SERVICE_TYPE) == FileServiceType.LOCAL:
+        os.makedirs(path.parent, exist_ok=True)
+
     with open(path, "rb") as f:
         key = str(Path(str(job_run.job.dataset_id)) /
                   str(job_run.job_id) / eggp_file_name)
 
-        asyncio.run(file_service.remote_engine.save_file_obj(f, key))
+        asyncio.run(file_service.save_file_obj(f, key))
 
     job_run.status = JobRunStatus.COMPLETED
     job_run.finished_at = datetime.now()
