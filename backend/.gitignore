@@ -191,3 +191,4 @@ cython_debug/
 
 spectrum_files/
 .vscode/
+.ruff_cache/
