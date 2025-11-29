@@ -1,0 +1,29 @@
+{
+    "name": "spectrum",
+    "version": "1.0.0",
+    "description": "Data analatycs platform powered by Symbolic Regression",
+    "homepage": "https://github.com/gtbauke/spectrum#readme",
+    "bugs": {
+        "url": "https://github.com/gtbauke/spectrum/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/gtbauke/spectrum.git"
+    },
+    "license": "MIT",
+    "author": "Gustavo T. Bauke",
+    "type": "module",
+    "main": "dist/index.js",
+    "directories": {
+        "doc": "docs"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "^2.3.8",
+        "@types/node": "^24.10.1",
+        "tsx": "^4.20.6",
+        "typescript": "^5.9.3"
+    }
+}

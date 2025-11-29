@@ -15,3 +15,5 @@
 *.idx
 *.ilg
 *.ind
+
+node_modules/
