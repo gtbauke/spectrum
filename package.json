@@ -17,6 +17,10 @@
     "directories": {
         "doc": "docs"
     },
+    "workspaces": [
+        "./packages/frontend",
+        "./packages/backend"
+    ],
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
