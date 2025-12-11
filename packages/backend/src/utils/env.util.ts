@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Simplify } from "~b/types/simplify.type.js";
+import { getEnvironment, ROOT_ENV } from "~utils/root-env.util.js";
 
 const LOG_LEVELS = ["trace", "debug", "info", "warn", "error", "fatal"];
 const LOG_LEVEL_NUMBERS = [10, 20, 30, 40, 50, 60];
@@ -9,28 +9,6 @@ const PROD_ENVS = ["prod", "production"];
 const TEST_ENVS = ["test", "homolog"];
 
 const ALL_ENVS = [...DEV_ENVS, ...PROD_ENVS, ...TEST_ENVS];
-
-class EnvironmentValidationError extends Error {
-    public constructor(errors: string[]) {
-        super(`Invalid environment variables:\n${errors.join("\n")}`);
-    }
-}
-
-function getEnvironment<TSchema extends Record<string, z.ZodType>>(
-    schema: TSchema,
-): Simplify<z.infer<z.ZodObject<TSchema>>> {
-    const validatedEnv = z.object(schema).safeParse(process.env);
-    if (!validatedEnv.success) {
-        const finalErrors = validatedEnv.error.issues.map((issue) => {
-            const path = issue.path.join(".");
-            return `${path}: ${issue.message}`;
-        });
-
-        throw new EnvironmentValidationError(finalErrors);
-    }
-
-    return validatedEnv.data;
-}
 
 export const ENV = getEnvironment({
     PORT: z
@@ -68,6 +46,8 @@ export const ENV = getEnvironment({
             return v;
         })
         .default("dev"),
+
+    DATABASE_URL: z.string().default(ROOT_ENV.DATABASE_URL),
 });
 
 export function isDev() {

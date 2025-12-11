@@ -23,6 +23,12 @@
         "paths": {
             "~b/*": [
                 "packages/backend/src/*"
+            ],
+            "~utils/*": [
+                "utils/*"
+            ],
+            "~prisma/*": [
+                "generated/prisma/*"
             ]
         }
     }

@@ -17,3 +17,6 @@
 *.ind
 
 node_modules/
+
+generated/
+.env
