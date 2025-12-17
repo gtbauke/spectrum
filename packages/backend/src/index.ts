@@ -4,6 +4,7 @@ import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import { pinoHttp } from "pino-http";
+import { datasetsRouter } from "./datasets/datasets.routes.js";
 import { logger } from "./logger.js";
 import { prisma } from "./prisma.service.js";
 import { ENV } from "./utils/env.util.js";
@@ -20,12 +21,7 @@ async function main() {
         }),
     );
 
-    app.get("/", async (_, res) => {
-        const allDatasets = await prisma.dataset.findMany();
-        logger.info(`All datasets: ${JSON.stringify(allDatasets, null, 4)}`);
-
-        return res.status(200);
-    });
+    app.use("/datasets", datasetsRouter);
 
     app.listen(ENV.PORT, () => {
         logger.info(`Server listening on port ${ENV.PORT}`);
