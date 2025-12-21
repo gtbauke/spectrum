@@ -1,0 +1,18 @@
+meta {
+  name: Create
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{BASE_URL}}/datasets
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "My custom dataset",
+    "fileUrl": "https://github.com/gtbauke/spectrum/file.csv"
+  }
+}

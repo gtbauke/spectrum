@@ -29,6 +29,9 @@
             ],
             "~prisma/*": [
                 "generated/prisma/*"
+            ],
+            "~shared/*": [
+                "packages/shared/src/*"
             ]
         }
     }

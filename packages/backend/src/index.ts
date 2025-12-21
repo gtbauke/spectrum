@@ -4,13 +4,14 @@ import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import { pinoHttp } from "pino-http";
-import { datasetsRouter } from "./datasets/datasets.routes.js";
 import { logger } from "./logger.js";
 import { prisma } from "./prisma.service.js";
 import { ENV } from "./utils/env.util.js";
+import { v1Router } from "./versioning/v1.routes.js";
 
 async function main() {
     const app = express();
+    app.use(express.json());
 
     app.use(cors());
     app.use(helmet());
@@ -21,7 +22,7 @@ async function main() {
         }),
     );
 
-    app.use("/datasets", datasetsRouter);
+    app.use("/api/v1", v1Router);
 
     app.listen(ENV.PORT, () => {
         logger.info(`Server listening on port ${ENV.PORT}`);
