@@ -2,6 +2,7 @@
 import type { NextFunction, Request, RequestHandler, Response } from "express";
 import { z } from "zod";
 import type { SafeOmit } from "~b/types/safe-omit.type.js";
+import { HTTP_CODES } from "./http.util.js";
 import type { Middleware, MiddlewareMutationMap } from "./middleware.util.js";
 
 export const MULTIPART_FORM_DATA = "multipart/form-data";
@@ -79,7 +80,7 @@ async function handleMultipartRequest<T extends PartialSchema>({
         });
 
         if (!result.success) {
-            return response.status(400).json({
+            return response.status(HTTP_CODES.BAD_REQUEST).json({
                 error: "Validation Error",
                 details: z.treeifyError(result.error),
             });
@@ -114,7 +115,7 @@ async function handleNonMultipartRequest<T extends PartialSchema>({
         });
 
         if (!result.success) {
-            return response.status(400).json({
+            return response.status(HTTP_CODES.BAD_REQUEST).json({
                 error: "Validation Error",
                 details: z.treeifyError(result.error),
             });

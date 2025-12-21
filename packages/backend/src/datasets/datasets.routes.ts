@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "~b/prisma.service.js";
 import { ENV } from "~b/utils/env.util.js";
+import { HTTP_CODES } from "~b/utils/http.util.js";
 import { ensure } from "~b/utils/middleware.util.js";
 import { typedPipeline } from "~b/utils/request.util.js";
 import { streamToS3 } from "~b/utils/s3.util.js";
@@ -19,7 +20,7 @@ const datasetsService = new DatasetsService({ prisma });
 
 datasetsRouter.get("/", async (_, res) => {
     const data = await datasetsService.getAll({});
-    return res.status(200).json({ data });
+    return res.status(HTTP_CODES.OK).json({ data });
 });
 
 datasetsRouter.post(
@@ -54,7 +55,7 @@ datasetsRouter.post(
                 fileUrl: url,
             });
 
-            return res.status(201).json({ data: dataset });
+            return res.status(HTTP_CODES.CREATED).json({ data: dataset });
         },
     ),
 );
