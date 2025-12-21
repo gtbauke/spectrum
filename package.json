@@ -19,14 +19,16 @@
     },
     "workspaces": [
         "./packages/frontend",
-        "./packages/backend"
+        "./packages/backend",
+        "./packages/shared",
+        "./packages/infra"
     ],
     "scripts": {
         "cw": "tsx ./scripts/create-package.ts"
     },
     "devDependencies": {
         "@biomejs/biome": "^2.3.8",
-        "@types/node": "^24.10.1",
+        "@types/node": "^24.10.4",
         "prisma": "^7.1.0",
         "tsx": "^4.20.6",
         "typescript": "^5.9.3"
