@@ -48,6 +48,10 @@ export const ENV = getEnvironment({
         .default("dev"),
 
     DATABASE_URL: z.string().default(ROOT_ENV.DATABASE_URL),
+    AWS_REGION: z.string(),
+    AWS_ACCESS_KEY_ID: z.string(),
+    AWS_SECRET_ACCESS_KEY: z.string(),
+    S3_BUCKET_NAME: z.string(),
 });
 
 export function isDev() {

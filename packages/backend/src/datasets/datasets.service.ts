@@ -13,7 +13,7 @@ export class DatasetsService {
         return this._deps.prisma.dataset.findMany({ where });
     }
 
-    public async create(data: CreateDatasetData) {
+    public async create(data: CreateDatasetData & { fileUrl: string }) {
         return this._deps.prisma.dataset.create({ data });
     }
 }

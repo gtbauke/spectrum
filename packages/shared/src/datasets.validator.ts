@@ -12,7 +12,6 @@ export const datasetValidator = z.object({
 
 export const createDatasetValidator = datasetValidator.pick({
     title: true,
-    fileUrl: true,
 });
 
 export type CreateDatasetData = z.infer<typeof createDatasetValidator>;

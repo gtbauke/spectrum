@@ -6,13 +6,17 @@ meta {
 
 post {
   url: {{BASE_URL}}/datasets
-  body: json
+  body: multipartForm
   auth: none
 }
 
 body:json {
   {
-    "title": "My custom dataset",
-    "fileUrl": "https://github.com/gtbauke/spectrum/file.csv"
+    "title": "My custom dataset"
   }
+}
+
+body:multipart-form {
+  title: "My custom title"
+  dataset: @file(C:\Users\gusta\OneDrive\Área de Trabalho\My Stuff\NSP\nej-sao-paulo_13112024_a_02122024_07213730.csv)
 }
