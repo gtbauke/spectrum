@@ -1,34 +1,138 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: This file uses `any` in order to handle unknown shapes of requests */
 import type { NextFunction, Request, RequestHandler, Response } from "express";
-import { Readable } from "stream";
-import { file, z } from "zod";
-import { logger } from "~b/logger.js";
+import { z } from "zod";
+import type { SafeOmit } from "~b/types/safe-omit.type.js";
+import type { Middleware, MiddlewareMutationMap } from "./middleware.util.js";
 
-export type Middleware<CIn, COut> = (
-    ctx: CIn,
-    req: Request,
-    res: Response,
-) => Promise<COut> | COut;
+export const MULTIPART_FORM_DATA = "multipart/form-data";
 
-export function compose<C0, C1, C2>(
-    m1: Middleware<C0, C1>,
-    m2: Middleware<C1, C2>,
-) {
-    return [m1, m2];
+type PartialSchema = {
+    body?: z.ZodType;
+    query?: z.ZodType;
+    params?: z.ZodType;
+};
+
+type RequestHandlerData<T extends PartialSchema> = {
+    partialSchema: T;
+    middlewares: Middleware<MiddlewareMutationMap, MiddlewareMutationMap>[];
+    handler: (
+        data: z.infer<z.ZodObject<T>>,
+        context: any,
+        res: Response,
+    ) => any;
+    request: Request;
+    response: Response;
+    next: NextFunction;
+};
+
+function parseRequestBody<T extends Record<string, unknown>>(body: T) {
+    const parsedBody: Partial<Record<keyof T, unknown>> = {};
+
+    for (const key in body) {
+        if (typeof body[key] !== "string") {
+            continue;
+        }
+
+        const value = JSON.parse(body[key]);
+        parsedBody[key] = value;
+    }
+
+    return parsedBody;
 }
 
-export function ensure<C0, C1>(middleware: Middleware<C0, C1>) {
-    return [middleware];
+async function handleMiddlewaresAndRequest<T extends PartialSchema>({
+    handler,
+    middlewares,
+    request,
+    response,
+    result,
+}: SafeOmit<RequestHandlerData<T>, "partialSchema" | "next"> & {
+    result: z.infer<z.ZodObject<T>>;
+}) {
+    let context = {};
+    let body = result || {};
+
+    for (const mw of middlewares) {
+        const result = await mw(context, request, response);
+
+        context = { ...result.context, ...context };
+        body = { ...body, ...result.body };
+    }
+
+    return handler(result, context, response);
 }
 
-export function typedRoute<
-    Context,
-    T extends {
-        body?: z.ZodType;
-        query?: z.ZodType;
-        params?: z.ZodType;
-    },
->(
+async function handleMultipartRequest<T extends PartialSchema>({
+    handler,
+    middlewares,
+    next,
+    partialSchema,
+    request,
+    response,
+}: RequestHandlerData<T>) {
+    try {
+        const schema = z.object(partialSchema);
+        const result = schema.safeParse({
+            body: parseRequestBody(request.body),
+            query: request.query,
+            params: request.params,
+        });
+
+        if (!result.success) {
+            return response.status(400).json({
+                error: "Validation Error",
+                details: z.treeifyError(result.error),
+            });
+        }
+
+        handleMiddlewaresAndRequest({
+            handler,
+            middlewares,
+            request,
+            response,
+            result: result.data,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+async function handleNonMultipartRequest<T extends PartialSchema>({
+    handler,
+    middlewares,
+    next,
+    partialSchema,
+    request,
+    response,
+}: RequestHandlerData<T>) {
+    try {
+        const schema = z.object(partialSchema);
+        const result = schema.safeParse({
+            body: request.body,
+            query: request.query,
+            params: request.params,
+        });
+
+        if (!result.success) {
+            return response.status(400).json({
+                error: "Validation Error",
+                details: z.treeifyError(result.error),
+            });
+        }
+
+        handleMiddlewaresAndRequest({
+            handler,
+            middlewares,
+            request,
+            response,
+            result: result.data,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+export function typedPipeline<Context, T extends PartialSchema>(
     partialSchema: T,
     middlewares: Middleware<any, any>[],
     handler: (
@@ -38,162 +142,28 @@ export function typedRoute<
     ) => any,
 ): RequestHandler {
     return async (req: Request, res: Response, next: NextFunction) => {
-        logger.info({
-            message: "Received request for typed route",
-            route: req.path,
-            method: req.method,
-            body: req.body,
-            contentType: req.headers["content-type"],
+        const contentType = req.headers["content-type"] || "";
+
+        if (contentType.includes(MULTIPART_FORM_DATA)) {
+            handleMultipartRequest({
+                handler,
+                middlewares,
+                next,
+                partialSchema,
+                request: req,
+                response: res,
+            });
+
+            return;
+        }
+
+        handleNonMultipartRequest({
+            handler,
+            middlewares,
+            next,
+            partialSchema,
+            request: req,
+            response: res,
         });
-
-        try {
-            logger.info({
-                message: "Typed route pipeline started",
-                route: req.path,
-                method: req.method,
-                body: req.body,
-                query: req.query,
-                params: req.params,
-            });
-
-            const schema = z.object(partialSchema);
-            const result = schema.safeParse({
-                body: req.body,
-                query: req.query,
-                params: req.params,
-            });
-
-            logger.info({
-                message: "Validation result",
-                success: result.success,
-                errors: result.success ? null : result.error,
-            });
-
-            if (!result.success) {
-                return res.status(400).json({
-                    error: "Validation Error",
-                    details: z.treeifyError(result.error),
-                });
-            }
-
-            let context: any = {};
-            for (const mw of middlewares) {
-                context = await mw(context, req, res);
-            }
-
-            return handler(result.data, context, res);
-        } catch (error) {
-            next(error);
-        }
-    };
-}
-
-export type StreamedFile = {
-    stream: NodeJS.ReadableStream;
-    mimeType: string;
-    originalName: string;
-    size?: number;
-};
-
-type FileContext<T> = {
-    files: T;
-};
-
-export class MissingRequiredFileError extends Error {
-    public constructor(fileField: string) {
-        super(`Missing required file: ${fileField}`);
-        this.name = "MissingRequiredFileError";
-    }
-}
-
-export class InvalidMimeTypeError extends Error {
-    public constructor(
-        fileField: string,
-        expectedTypes: string[],
-        actualType: string,
-    ) {
-        super(
-            `Invalid MIME type for file ${fileField}: expected one of [${expectedTypes.join(
-                ", ",
-            )}], but got ${actualType}`,
-        );
-        this.name = "InvalidMimeTypeError";
-    }
-}
-
-export function streamFiles<T extends Record<string, StreamedFile>>(
-    rules: {
-        [K in keyof T]: {
-            required?: boolean;
-            mimeTypes?: string[];
-        };
-    },
-): Middleware<{}, FileContext<T>> {
-    return async (_, req) => {
-        const multerFiles = req.files as
-            | Record<string, Express.Multer.File[]>
-            | undefined;
-
-        const files: Partial<Record<keyof T, StreamedFile>> = {};
-
-        for (const field in rules) {
-            const rule = rules[field];
-            const fileArray = multerFiles?.[field];
-
-            const file = fileArray?.[0];
-
-            if (rule.required && !file) {
-                throw new MissingRequiredFileError(field);
-            }
-
-            if (!file) {
-                continue;
-            }
-
-            if (rule.mimeTypes && !rule.mimeTypes.includes(file.mimetype)) {
-                throw new InvalidMimeTypeError(
-                    field,
-                    rule.mimeTypes,
-                    file.mimetype,
-                );
-            }
-
-            files[field] = {
-                stream: Readable.from(file.buffer),
-                mimeType: file.mimetype,
-                originalName: file.originalname,
-                size: file.size,
-            };
-        }
-
-        return { files: files as T };
-    };
-}
-
-export function parseJsonFields<T extends Record<string, z.ZodType>>(
-    schemas: T,
-): Middleware<{}, any> {
-    return async (_, req) => {
-        const parsedData: Partial<Record<keyof T, any>> = {};
-
-        for (const field in schemas) {
-            const rawValue = req.body[field];
-
-            if (typeof rawValue !== "string") {
-                throw new Error(
-                    `Field ${field} is not a string and cannot be parsed as JSON`,
-                );
-            }
-
-            try {
-                parsedData[field] = JSON.parse(rawValue);
-            } catch (error) {
-                throw new Error(
-                    `Failed to parse field ${field} as JSON: ${(error as Error).message}`,
-                );
-            }
-        }
-
-        return parsedData;
     };
 }
