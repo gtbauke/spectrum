@@ -52,6 +52,7 @@ export const ENV = getEnvironment({
     AWS_ACCESS_KEY_ID: z.string(),
     AWS_SECRET_ACCESS_KEY: z.string(),
     S3_BUCKET_NAME: z.string(),
+    DATASET_UPLOADED_TOPIC_ARN: z.string(),
 });
 
 export function isDev() {
