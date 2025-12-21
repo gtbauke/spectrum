@@ -1,8 +1,10 @@
-import { Stack, type StackProps } from "aws-cdk-lib";
+import { Duration, Stack, type StackProps } from "aws-cdk-lib";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as iam from "aws-cdk-lib/aws-iam";
 import type * as s3 from "aws-cdk-lib/aws-s3";
 import type * as sns from "aws-cdk-lib/aws-sns";
+import * as subs from "aws-cdk-lib/aws-sns-subscriptions";
+import * as sqs from "aws-cdk-lib/aws-sqs";
 import type { Construct } from "constructs";
 
 interface ComputeStackProps extends StackProps {
@@ -41,5 +43,16 @@ export class ComputeStack extends Stack {
             export DATASET_UPLOADED_TOPIC_ARN=${props.datasetUploadedTopic.topicArn}
             `,
         );
+
+        const datasetEventsQueue = new sqs.Queue(this, "DatasetEventsQueue", {
+            visibilityTimeout: Duration.seconds(60),
+            retentionPeriod: Duration.days(4),
+        });
+
+        props.datasetUploadedTopic.addSubscription(
+            new subs.SqsSubscription(datasetEventsQueue),
+        );
+
+        datasetEventsQueue.grantConsumeMessages(role);
     }
 }
