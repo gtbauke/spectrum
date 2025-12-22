@@ -24,6 +24,9 @@
             "~b/*": [
                 "packages/backend/src/*"
             ],
+            "~f/*": [
+                "packages/frontend/app/*"
+            ],
             "~utils/*": [
                 "utils/*"
             ],
