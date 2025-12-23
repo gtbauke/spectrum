@@ -53,6 +53,7 @@ export default function Home() {
                         const datasetFile: DatasetFile = {
                             header: headers,
                             rows: data,
+                            originalName: acceptedFiles[0].name,
                         };
 
                         setFile(datasetFile);

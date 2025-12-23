@@ -1,8 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useCallback } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
 import { z } from "zod";
 import { FormInput } from "~/components/ui/forms/form-input.component";
 import { FormTextArea } from "~/components/ui/forms/form-textarea.component";
+import { useDatasetCreationContext } from "~/contexts/dataset-creation.context";
 
 const createDatasetFormDataValidator = z.object({
     datasetName: z
@@ -21,7 +24,12 @@ const createDatasetFormDataValidator = z.object({
 
 type CreateDatasetFormData = z.infer<typeof createDatasetFormDataValidator>;
 
+// TODO: handle API call
+// TODO: use shared dataset creation validator
 export function DatasetsAsideSection() {
+    const { file } = useDatasetCreationContext();
+    const navigate = useNavigate();
+
     const {
         register,
         handleSubmit,
@@ -29,11 +37,16 @@ export function DatasetsAsideSection() {
         formState: { errors },
     } = useForm<CreateDatasetFormData>({
         defaultValues: {
-            datasetName: "",
+            datasetName: file?.originalName || "",
             datasetDescription: "",
         },
         resolver: zodResolver(createDatasetFormDataValidator),
     });
+
+    const onCancel = useCallback(() => {
+        reset();
+        navigate("/");
+    }, [reset, navigate]);
 
     const onSubmit: SubmitHandler<CreateDatasetFormData> = (data) => {
         console.log(errors);
@@ -47,7 +60,7 @@ export function DatasetsAsideSection() {
             <form
                 className="flex flex-col gap-3"
                 onSubmit={handleSubmit(onSubmit)}
-                onReset={() => reset()}
+                onReset={onCancel}
             >
                 <FormInput
                     label="Dataset name"

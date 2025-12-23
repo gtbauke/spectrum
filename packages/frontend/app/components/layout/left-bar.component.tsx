@@ -9,11 +9,11 @@ export type LeftBatLayoutProps = {
 
 export function LeftBarLayout({ Aside, Main, mainProps }: LeftBatLayoutProps) {
     return (
-        <main className="flex h-screen">
+        <main className="flex h-screen overflow-x-hidden">
             <aside className="min-w-72 shadow-lg">
                 <Aside />
             </aside>
-            <div className="flex-1">
+            <div className="flex-1 overflow-x-scroll">
                 <Main {...mainProps} />
             </div>
         </main>
