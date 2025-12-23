@@ -30,6 +30,7 @@ datasetsRouter.post(
     upload.fields([
         { name: "dataset", maxCount: 1 },
         { name: "title", maxCount: 1 },
+        { name: "description", maxCount: 1 },
     ]),
     typedPipeline<CreateDatasetContext, CreateDatasetRequestValidator>(
         createDatasetRequestValidator,
@@ -54,6 +55,7 @@ datasetsRouter.post(
 
             const dataset = await datasetsService.create({
                 title: body.title,
+                description: body.description,
                 fileUrl: url,
             });
 
