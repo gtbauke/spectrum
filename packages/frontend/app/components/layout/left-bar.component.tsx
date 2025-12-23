@@ -10,7 +10,7 @@ export type LeftBatLayoutProps = {
 export function LeftBarLayout({ Aside, Main, mainProps }: LeftBatLayoutProps) {
     return (
         <main className="flex h-screen">
-            <aside className="min-w-64 shadow-lg">
+            <aside className="min-w-72 shadow-lg">
                 <Aside />
             </aside>
             <div className="flex-1">
