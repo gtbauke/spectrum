@@ -16,7 +16,9 @@ datasource db {
 model Dataset {
     id String @id @default(cuid())
 
-    title   String
+    title       String
+    description String?
+
     fileUrl String
 
     createdAt DateTime @default(now())
