@@ -39,21 +39,20 @@ export default function Home() {
                             console.error("Received non object element");
                         }
 
-                        const data = Object.keys(
-                            res.data[0] as Record<string, string>,
-                        ).reduce(
-                            (acc, key) => {
-                                acc[key] = (
-                                    res.data as Record<string, string>[]
-                                ).map((r) => Number(r[key]));
-                                return acc;
-                            },
-                            {} as Record<string, number[]>,
+                        const data = (res.data as Record<string, string>[]).map(
+                            (r) =>
+                                Object.keys(r).reduce(
+                                    (acc, key) => {
+                                        acc[key] = Number(r[key]);
+                                        return acc;
+                                    },
+                                    {} as Record<string, number>,
+                                ),
                         );
 
                         const datasetFile: DatasetFile = {
                             header: headers,
-                            data,
+                            rows: data,
                         };
 
                         setFile(datasetFile);
