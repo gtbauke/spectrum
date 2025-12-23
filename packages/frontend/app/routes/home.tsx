@@ -1,7 +1,12 @@
+import Papa from "papaparse";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { AiOutlineCloudUpload, AiOutlineFileExcel } from "react-icons/ai";
+import { useNavigate } from "react-router";
+import { useDatasetCreationContext } from "~/contexts/dataset-creation.context";
+import type { DatasetFile } from "~/models/dataset.model";
 import { cn } from "~/utils/classname.util";
+import { MainContainer } from "../components/layout/main.component";
 import type { Route } from "./+types/home";
 
 export function meta(_: Route.MetaArgs) {
@@ -15,9 +20,52 @@ export function meta(_: Route.MetaArgs) {
 }
 
 export default function Home() {
-    const onDrop = useCallback((acceptedFiles: File[]) => {
-        console.log(acceptedFiles);
-    }, []);
+    const { setFile } = useDatasetCreationContext();
+    const navigate = useNavigate();
+
+    const onDrop = useCallback(
+        (acceptedFiles: File[]) => {
+            if (acceptedFiles.length > 0) {
+                Papa.parse(acceptedFiles[0], {
+                    delimiter: ",",
+                    header: true,
+                    worker: true,
+                    chunkSize: 1024 * 1024,
+                    skipEmptyLines: true,
+                    complete: (res) => {
+                        const headers = res.meta.fields || [];
+
+                        if (typeof res.data[0] !== "object") {
+                            console.error("Received non object element");
+                        }
+
+                        const data = Object.keys(
+                            res.data[0] as Record<string, string>,
+                        ).reduce(
+                            (acc, key) => {
+                                acc[key] = (
+                                    res.data as Record<string, string>[]
+                                ).map((r) => Number(r[key]));
+                                return acc;
+                            },
+                            {} as Record<string, number[]>,
+                        );
+
+                        const datasetFile: DatasetFile = {
+                            header: headers,
+                            data,
+                        };
+
+                        setFile(datasetFile);
+                    },
+                    error: (err) => console.error(err),
+                });
+
+                navigate("/datasets", { replace: true });
+            }
+        },
+        [setFile, navigate],
+    );
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
@@ -28,7 +76,7 @@ export default function Home() {
     });
 
     return (
-        <main className="container mx-auto pt-16 p-4 w-full">
+        <MainContainer>
             <div className="text-center">
                 <h1 className="text-4xl font-bold">Welcome to Spectrum</h1>
                 <p className="mt-2 text-gray-300">
@@ -72,6 +120,6 @@ export default function Home() {
                     </p>
                 </div>
             </div>
-        </main>
+        </MainContainer>
     );
 }
