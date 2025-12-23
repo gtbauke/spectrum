@@ -6,8 +6,12 @@ export type DatasetFile = {
 };
 
 export function getColumnDefinitions(
-    file: DatasetFile,
+    file: DatasetFile | null,
 ): ColumnDef<Record<string, number>, unknown>[] {
+    if (file === null) {
+        return [];
+    }
+
     return file.header.map(
         (header) =>
             ({

@@ -3,6 +3,9 @@ import {
     getCoreRowModel,
     useReactTable,
 } from "@tanstack/react-table";
+import { LeftBarLayout } from "~/components/layout/left-bar.component";
+import { DatasetsAsideSection } from "~/components/sections/datasets-creation/datasets-aside.component";
+import { DatasetsMainSection } from "~/components/sections/datasets-creation/datasets-main.component";
 import { useDatasetCreationContext } from "~/contexts/dataset-creation.context";
 import { getColumnDefinitions } from "~/models/dataset.model";
 import type { Route } from "../+types/root";
@@ -22,10 +25,24 @@ export default function DatasetCreation() {
     const { file } = useDatasetCreationContext();
     const table = useReactTable({
         data: file?.rows || [],
-        columns: getColumnDefinitions(file!),
+        columns: getColumnDefinitions(file),
         getCoreRowModel: getCoreRowModel(),
     });
 
+    // TODO: remove if and return default left bar layout
+    if (file === null) {
+        return (
+            <LeftBarLayout
+                Aside={DatasetsAsideSection}
+                Main={DatasetsMainSection}
+                mainProps={{
+                    file,
+                }}
+            />
+        );
+    }
+
+    // TODO: move to table component and to DatasetsMainSection component
     return (
         <MainContainer>
             <div className="text-center">
