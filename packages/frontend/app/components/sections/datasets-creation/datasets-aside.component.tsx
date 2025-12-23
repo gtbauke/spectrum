@@ -2,30 +2,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
-import { z } from "zod";
 import { FormInput } from "~/components/ui/forms/form-input.component";
 import { FormTextArea } from "~/components/ui/forms/form-textarea.component";
 import { useDatasetCreationContext } from "~/contexts/dataset-creation.context";
-
-const createDatasetFormDataValidator = z.object({
-    datasetName: z
-        .string({
-            error: "Dataset name must be a string",
-        })
-        .min(1, {
-            error: "Dataset name is required",
-        }),
-    datasetDescription: z
-        .string({
-            error: "Dataset description must be a string",
-        })
-        .optional(),
-});
-
-type CreateDatasetFormData = z.infer<typeof createDatasetFormDataValidator>;
+import {
+    type CreateDatasetData,
+    createDatasetValidator,
+} from "~s/datasets.validator";
 
 // TODO: handle API call
-// TODO: use shared dataset creation validator
 export function DatasetsAsideSection() {
     const { file } = useDatasetCreationContext();
     const navigate = useNavigate();
@@ -35,12 +20,12 @@ export function DatasetsAsideSection() {
         handleSubmit,
         reset,
         formState: { errors },
-    } = useForm<CreateDatasetFormData>({
+    } = useForm<CreateDatasetData>({
         defaultValues: {
-            datasetName: file?.originalName || "",
-            datasetDescription: "",
+            title: file?.originalName || "",
+            description: "",
         },
-        resolver: zodResolver(createDatasetFormDataValidator),
+        resolver: zodResolver(createDatasetValidator),
     });
 
     const onCancel = useCallback(() => {
@@ -48,7 +33,7 @@ export function DatasetsAsideSection() {
         navigate("/");
     }, [reset, navigate]);
 
-    const onSubmit: SubmitHandler<CreateDatasetFormData> = (data) => {
+    const onSubmit: SubmitHandler<CreateDatasetData> = (data) => {
         console.log(errors);
         console.log(data);
     };
@@ -64,16 +49,16 @@ export function DatasetsAsideSection() {
             >
                 <FormInput
                     label="Dataset name"
-                    error={errors.datasetName}
+                    error={errors.title}
                     required
-                    {...register("datasetName", { required: true })}
+                    {...register("title", { required: true })}
                 />
 
                 <FormTextArea
                     label="Dataset description"
                     className="min-h-30"
-                    error={errors.datasetDescription}
-                    {...register("datasetDescription")}
+                    error={errors.description}
+                    {...register("description")}
                 />
 
                 <div className="flex flex-col gap-2">
