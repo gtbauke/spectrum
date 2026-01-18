@@ -9,6 +9,11 @@ TASKS_QUEUE = 'dataset_training_tasks'
 def callback(ch: BlockingChannel, method: Basic.Deliver, properties: BasicProperties, body: bytes):
     print(f"Received task: {body.decode()}")
     print("Task completed")
+
+    if not method.delivery_tag:
+        print("No delivery tag found, cannot acknowledge message.")
+        return
+
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
     # TODO: download dataset from S3

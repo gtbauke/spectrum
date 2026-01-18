@@ -1,5 +1,5 @@
 {
-    "name": "backend",
+    "name": "@spectrum/backend",
     "type": "module",
     "dependencies": {
         "@aws-sdk/client-s3": "^3.956.0",

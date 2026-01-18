@@ -1,21 +1,11 @@
 {
-    "name": "infra",
-    "version": "0.1.0",
-    "scripts": {
-        "build": "tsc",
-        "watch": "tsc -w",
-        "test": "jest",
-        "cdk": "cdk"
-    },
+    "name": "@spectrum/infra",
     "type": "module",
-    "devDependencies": {
-        "aws-cdk": "2.1100.1",
-        "ts-node": "^10.9.2",
-        "typescript": "~5.9.3"
+    "scripts": {
+        "dev": "tsx watch --include \"./src/*\" ./src/index.ts",
+        "start": "tsx ./src/index.ts"
     },
-    "dependencies": {
-        "aws-cdk-lib": "2.232.1",
-        "constructs": "^10.0.0",
-        "dotenv": "^17.2.3"
+    "devDependencies": {
+        "@types/node": "^24.10.9"
     }
 }

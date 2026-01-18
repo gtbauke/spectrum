@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { getEnvironment, ROOT_ENV } from "~utils/root-env.util.js";
 
-const LOG_LEVELS = ["trace", "debug", "info", "warn", "error", "fatal"];
-const LOG_LEVEL_NUMBERS = [10, 20, 30, 40, 50, 60];
-
 const DEV_ENVS = ["dev", "development"];
 const PROD_ENVS = ["prod", "production"];
 const TEST_ENVS = ["test", "homolog"];
@@ -16,24 +13,6 @@ export const ENV = getEnvironment({
         .default("3000")
         .transform((v) => Number.parseInt(v, 10))
         .pipe(z.number()),
-
-    LOG_LEVEL: z
-        .union([
-            z.enum(LOG_LEVELS),
-            z
-                .number()
-                .int()
-                .refine((v) => LOG_LEVEL_NUMBERS.includes(v)),
-        ])
-        .transform((v) => {
-            if (typeof v === "number") {
-                const index = LOG_LEVEL_NUMBERS.indexOf(v);
-                return LOG_LEVELS[index];
-            }
-
-            return v;
-        })
-        .default("info"),
 
     NODE_ENV: z
         .enum(ALL_ENVS)
