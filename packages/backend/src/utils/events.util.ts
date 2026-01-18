@@ -1,16 +1,19 @@
 import amqp from "amqplib";
 import { logger } from "~b/logger.js";
+import { ENV } from "./env.util.js";
 
-export const TASK_QUEUE = "dataset_training_tasks";
+const connection = await amqp.connect({
+    hostname: ENV.RABBITMQ_HOST,
+    port: ENV.RABBITMQ_PORT,
+    username: ENV.RABBITMQ_USERNAME,
+    password: ENV.RABBITMQ_PASSWORD,
+});
 
-// TODO: Load RabbitMQ connection URL from environment variables
-const connection = await amqp.connect("amqp://localhost");
+// TODO: assert exchanges and queues on startup (need to declare everything the same way in all services)
 const channel = await connection.createChannel();
 
-await channel.assertQueue(TASK_QUEUE, { durable: true });
-
 export async function publishDatasetUploadedEvent(datasetId: string) {
-    channel.sendToQueue(TASK_QUEUE, Buffer.from(datasetId), {
+    channel.sendToQueue(ENV.TASKS_QUEUE, Buffer.from(datasetId), {
         persistent: true,
     });
 

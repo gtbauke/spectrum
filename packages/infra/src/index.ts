@@ -33,6 +33,10 @@ async function buildSharedEnvironment() {
     );
     sharedBuilder.set("TASKS_STATUS_EXCHANGE", "tasks_status_exchange");
 
+    sharedBuilder.set("TASKS_EXCHANGE_ROUTING_KEY", "tasks.main");
+    sharedBuilder.set("TASKS_RETRY_ROUTING_KEY", "tasks.retry");
+    sharedBuilder.set("TASKS_DEAD_LETTER_ROUTING_KEY", "tasks.dlx");
+
     sharedBuilder.set("TASKS_QUEUE", "tasks_queue");
     sharedBuilder.set("TASKS_RETRY_QUEUE", "tasks_retry_queue");
     sharedBuilder.set("TASKS_DEAD_LETTER_QUEUE", "tasks_dead_letter_queue");
