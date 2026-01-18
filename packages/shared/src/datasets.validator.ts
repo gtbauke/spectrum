@@ -12,9 +12,11 @@ export const datasetValidator = z.object({
         .min(1, {
             error: "Title is required",
         }),
-    description: z.string({
-        error: "Description must be a string",
-    }),
+    description: z
+        .string({
+            error: "Description must be a string",
+        })
+        .nullable(),
 
     fileUrl: z.url({
         error: "File URL must be a valid URL",

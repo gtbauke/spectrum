@@ -55,7 +55,7 @@ datasetsRouter.post(
 
             const dataset = await datasetsService.create({
                 title: body.title,
-                description: body.description,
+                description: body.description || "",
                 fileUrl: url,
             });
 

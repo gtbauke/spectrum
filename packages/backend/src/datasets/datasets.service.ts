@@ -14,6 +14,11 @@ export class DatasetsService {
     }
 
     public async create(data: CreateDatasetData & { fileUrl: string }) {
-        return this._deps.prisma.dataset.create({ data });
+        return this._deps.prisma.dataset.create({
+            data: {
+                title: data.title,
+                fileUrl: data.fileUrl,
+            },
+        });
     }
 }
