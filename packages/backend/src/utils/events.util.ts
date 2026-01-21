@@ -1,5 +1,5 @@
 import amqp from "amqplib";
-import { logger } from "~b/logger.js";
+import { logger } from "~/logger.js";
 import { ENV } from "./env.util.js";
 
 const connection = await amqp.connect({
