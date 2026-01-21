@@ -2,11 +2,11 @@ import { Router } from "express";
 import { logger } from "~/logger.js";
 import { prisma } from "~/prisma.service.js";
 import { ENV } from "~/utils/env.util.js";
+import { publishDatasetUploadedEvent } from "~/utils/events.util.js";
 import { HTTP_CODES } from "~/utils/http.util.js";
 import { ensure } from "~/utils/middleware.util.js";
 import { typedPipeline } from "~/utils/request.util.js";
 import { streamToS3 } from "~/utils/s3.util.js";
-import { publishDatasetUploadedEvent } from "~/utils/sns.util.js";
 import { streamFiles } from "~/utils/stream.util.js";
 import { upload } from "~/utils/upload.util.js";
 import { DatasetsService } from "./datasets.service.js";
@@ -55,17 +55,12 @@ datasetsRouter.post(
 
             const dataset = await datasetsService.create({
                 title: body.title,
-                description: body.description,
+                description: body.description || "",
                 fileUrl: url,
             });
 
             try {
-                await publishDatasetUploadedEvent({
-                    datasetId: dataset.id,
-                    bucket: ENV.S3_BUCKET_NAME,
-                    key,
-                    uploadedAt: dataset.createdAt.toISOString(),
-                });
+                await publishDatasetUploadedEvent(dataset.id);
             } catch (error) {
                 logger.error({
                     message: "Failed to publish dataset uploaded event",

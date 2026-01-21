@@ -52,7 +52,29 @@ export const ENV = getEnvironment({
     AWS_ACCESS_KEY_ID: z.string(),
     AWS_SECRET_ACCESS_KEY: z.string(),
     S3_BUCKET_NAME: z.string(),
-    DATASET_UPLOADED_TOPIC_ARN: z.string(),
+
+    RABBITMQ_HOST: z.string().default("localhost"),
+    RABBITMQ_PORT: z
+        .string()
+        .default("5672")
+        .transform((v) => Number.parseInt(v, 10))
+        .pipe(z.number()),
+    RABBITMQ_USERNAME: z.string().default("guest"),
+    RABBITMQ_PASSWORD: z.string().default("guest"),
+
+    TASKS_EXCHANGE: z.string(),
+    TASKS_RETRY_EXCHANGE: z.string(),
+    TASKS_DEAD_LETTER_EXCHANGE: z.string(),
+    TASKS_STATUS_EXCHANGE: z.string(),
+
+    TASKS_EXCHANGE_ROUTING_KEY: z.string(),
+    TASKS_RETRY_ROUTING_KEY: z.string(),
+    TASKS_DEAD_LETTER_ROUTING_KEY: z.string(),
+
+    TASKS_QUEUE: z.string(),
+    TASKS_RETRY_QUEUE: z.string(),
+    TASKS_DEAD_LETTER_QUEUE: z.string(),
+    TASKS_STATUS_QUEUE: z.string(),
 });
 
 export function isDev() {

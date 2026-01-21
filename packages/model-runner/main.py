@@ -1,5 +1,6 @@
 from src.main import main
 
+
 def entrypoint():
     main()
 
