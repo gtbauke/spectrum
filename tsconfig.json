@@ -18,24 +18,6 @@
         "noUncheckedSideEffectImports": true,
         "moduleDetection": "force",
         "skipLibCheck": true,
-        "outDir": "./dist",
-        "baseUrl": ".",
-        "paths": {
-            "~b/*": [
-                "packages/backend/src/*"
-            ],
-            "~f/*": [
-                "packages/frontend/app/*"
-            ],
-            "~utils/*": [
-                "utils/*"
-            ],
-            "~prisma/*": [
-                "generated/prisma/*"
-            ],
-            "~shared/*": [
-                "packages/shared/src/*"
-            ]
-        }
+        "outDir": "./dist"
     }
 }

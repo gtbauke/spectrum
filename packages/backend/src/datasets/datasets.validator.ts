@@ -1,5 +1,5 @@
-import type { StreamedFile } from "~b/utils/stream.util.js";
-import { createDatasetValidator } from "~shared/datasets.validator.js";
+import { createDatasetValidator } from "@spectrum/shared";
+import type { StreamedFile } from "~/utils/stream.util.js";
 
 export const createDatasetRequestValidator = {
     body: createDatasetValidator,

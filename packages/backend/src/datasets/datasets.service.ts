@@ -1,6 +1,6 @@
+import type { CreateDatasetData } from "@spectrum/shared";
 import type { PrismaClient } from "~prisma/client.js";
 import type { DatasetWhereInput } from "~prisma/models.js";
-import type { CreateDatasetData } from "~shared/datasets.validator.js";
 
 type DatasetsServiceDependencies = {
     prisma: PrismaClient;

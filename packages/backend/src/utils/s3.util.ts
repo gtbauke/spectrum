@@ -1,7 +1,7 @@
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { type BodyDataTypes, Upload } from "@aws-sdk/lib-storage";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { logger } from "~b/logger.js";
+import { logger } from "~/logger.js";
 import { ENV } from "./env.util.js";
 
 const EXPIRES_IN_ONE_HOUR = 3600;

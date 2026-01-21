@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: This file uses `any` in order to handle unknown shapes of requests */
 import type { NextFunction, Request, RequestHandler, Response } from "express";
 import { z } from "zod";
-import type { SafeOmit } from "~b/types/safe-omit.type.js";
+import type { SafeOmit } from "~/types/safe-omit.type.js";
 import { HTTP_CODES } from "./http.util.js";
 import type { Middleware, MiddlewareMutationMap } from "./middleware.util.js";
 

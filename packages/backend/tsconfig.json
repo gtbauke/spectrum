@@ -1,6 +1,17 @@
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
-        "outDir": "./dist"
+        "outDir": "./dist",
+        "paths": {
+            "~/*": [
+                "./src/*"
+            ],
+            "~prisma/*": [
+                "../../generated/prisma/*"
+            ],
+            "~utils/*": [
+                "../../utils/*"
+            ]
+        }
     }
 }
