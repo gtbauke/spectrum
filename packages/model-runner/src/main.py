@@ -1,5 +1,6 @@
 import json
 import pika
+import pandas as pd
 
 from pika import BlockingConnection
 from pika.adapters.blocking_connection import BlockingChannel
@@ -7,6 +8,10 @@ from pika.exchange_type import ExchangeType
 from pika.spec import Basic, BasicProperties
 from src.utils.env import ENV
 from threading import Thread
+from src.utils.s3 import download_dataset, upload_model
+from pathlib import Path
+from datetime import datetime
+from eggp import EGGP
 
 
 def publish_status(channel: BlockingChannel, task_id: str, status: str, progress: int | None = None):
@@ -29,11 +34,54 @@ def publish_status(channel: BlockingChannel, task_id: str, status: str, progress
 def on_message(connection: BlockingConnection, channel: BlockingChannel, method: Basic.Deliver, properties: BasicProperties, body: bytes):
     def process():
         try:
+            # TODO: update task status throughout processing
             print(f"Processing task with payload: {body.decode()}")
-            # TODO: download dataset from S3
-            # TODO: preprocess dataset
-            # TODO: create EGGP model and train it
-            # TODO: upload trained model to S3
+            payload = json.loads(body.decode())
+
+            dataset_id = payload.get("datasetId")
+            dataset_key = payload.get("key")
+
+            temp_folder = Path("/tmp")
+            temp_folder.mkdir(parents=True, exist_ok=True)
+            dataset_file_path = temp_folder / f"{dataset_id}.csv"
+
+            download_dataset(
+                bucket=ENV.S3_BUCKET_NAME,
+                key=dataset_key,
+                file_path=str(dataset_file_path)
+            )
+
+            print(f"Downloaded dataset to {dataset_file_path}")
+
+            file_df = pd.read_csv(dataset_file_path)  # type: ignore
+
+            dependent_variable_name = "target"
+            independent_variable_names = [
+                col for col in file_df.columns if col != dependent_variable_name
+            ]
+
+            X = file_df[independent_variable_names]
+            y = file_df[dependent_variable_name].to_numpy()
+
+            eggp_file_name = f"{dataset_id}_{datetime.now().timestamp()}_model.eggp"
+            temp_file_folder = Path("/tmp/models")
+            temp_file_folder.mkdir(parents=True, exist_ok=True)
+
+            eggp_file_path = temp_file_folder / eggp_file_name
+            eggp_file_path.touch()
+
+            # Not working on Windows due to Tempfile restrictions
+            model = EGGP(dumpTo=str(eggp_file_path))
+            model.fit(X, y)  # type: ignore
+
+            upload_model(
+                file_path=str(eggp_file_path),
+                bucket=ENV.S3_BUCKET_NAME,
+                key=f"models/{eggp_file_name}"
+            )
+
+            print(f"Uploaded model to S3 with key: models/{eggp_file_name}")
+
             # TODO: send notification of task completion
             # TODO: handle errors and retries
             # TODO: log task progress and results
