@@ -12,10 +12,18 @@ const connection = await amqp.connect({
 // TODO: assert exchanges and queues on startup (need to declare everything the same way in all services)
 const channel = await connection.createChannel();
 
-export async function publishDatasetUploadedEvent(datasetId: string) {
-    channel.sendToQueue(ENV.TASKS_QUEUE, Buffer.from(datasetId), {
+type DatasetUploadedEventPayload = {
+    datasetId: string;
+    s3url: string;
+    key: string;
+};
+
+export async function publishDatasetUploadedEvent(
+    payload: DatasetUploadedEventPayload,
+) {
+    channel.sendToQueue(ENV.TASKS_QUEUE, Buffer.from(JSON.stringify(payload)), {
         persistent: true,
     });
 
-    logger.info({ message: "Published dataset uploaded event", datasetId });
+    logger.info({ message: "Published dataset uploaded event", payload });
 }

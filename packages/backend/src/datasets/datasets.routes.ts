@@ -60,7 +60,11 @@ datasetsRouter.post(
             });
 
             try {
-                await publishDatasetUploadedEvent(dataset.id);
+                await publishDatasetUploadedEvent({
+                    datasetId: dataset.id,
+                    s3url: url,
+                    key,
+                });
             } catch (error) {
                 logger.error({
                     message: "Failed to publish dataset uploaded event",
