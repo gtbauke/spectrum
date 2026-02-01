@@ -1,9 +1,0 @@
-node_modules
-packages/*/node_modules
-
-dist
-Dockerfile
-.dockerignore
-.git
-.gitignore
-npm-debug.log
