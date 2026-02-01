@@ -22,3 +22,5 @@ generated/
 .env
 dist
 __pycache__
+
+spectrum_data

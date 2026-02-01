@@ -1,3 +1,4 @@
-from app.db.models.job import Job
+from app.db.models.job import JobORM
+from app.db.models.dataset import DatasetORM
 
-__all__ = ["Job"]
+__all__ = ["JobORM", "DatasetORM"]
