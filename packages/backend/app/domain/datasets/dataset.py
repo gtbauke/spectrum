@@ -14,6 +14,11 @@ class Dataset:
         name: str,
         status: DatasetStatus,
         file_path: Optional[str],
+        num_rows: Optional[int],
+        num_features: Optional[int],
+        processing_attempts: int,
+        last_processing_error: Optional[str],
+        checksum: Optional[str],
         created_at: datetime,
         updated_at: datetime,
     ):
@@ -21,6 +26,11 @@ class Dataset:
         self.name = name
         self.status = status
         self.file_path = file_path
+        self.num_rows = num_rows
+        self.num_features = num_features
+        self.processing_attempts = processing_attempts
+        self.last_processing_error = last_processing_error
+        self.checksum = checksum
         self.created_at = created_at
         self.updated_at = updated_at
 
@@ -31,6 +41,11 @@ class Dataset:
             name=name,
             status=DatasetStatus.PENDING,
             file_path=None,
+            num_rows=None,
+            num_features=None,
+            processing_attempts=0,
+            last_processing_error=None,
+            checksum=None,
             created_at=datetime.now(),
             updated_at=datetime.now(),
         )

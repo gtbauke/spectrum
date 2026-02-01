@@ -46,6 +46,21 @@ class DatasetORM(Base):
         nullable=True,
     )
 
+    processing_attempts: Mapped[int] = mapped_column(
+        nullable=False,
+        default=0,
+    )
+
+    last_processing_error: Mapped[str | None] = mapped_column(
+        String(),
+        nullable=True,
+    )
+
+    checksum: Mapped[str | None] = mapped_column(
+        String(),
+        nullable=True,
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
@@ -74,6 +89,11 @@ class DatasetORM(Base):
             name=self.name,
             status=self.status,
             file_path=self.file_path,
+            num_rows=self.num_rows,
+            num_features=self.num_features,
+            processing_attempts=self.processing_attempts,
+            last_processing_error=self.last_processing_error,
+            checksum=self.checksum,
             created_at=self.created_at,
             updated_at=self.updated_at,
         )
