@@ -1,0 +1,14 @@
+from enum import StrEnum
+
+
+class JobStatus(StrEnum):
+    PENDING = "PENDING"
+    QUEUED = "QUEUED"
+    RUNNING = "RUNNING"
+    SUCCEEDED = "SUCCEEDED"
+    FAILED = "FAILED"
+    CANCELED = "CANCELED"
+    TIMEOUT = "TIMEOUT"
+    RETRYING = "RETRYING"
+    SKIPPED = "SKIPPED"
+    UNKNOWN = "UNKNOWN"

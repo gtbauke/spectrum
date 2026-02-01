@@ -6,6 +6,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
+from app.domain.jobs.job_status import JobStatus
 
 
 class Job(Base):
@@ -17,10 +18,13 @@ class Job(Base):
         default=uuid.uuid4,
     )
 
-    status: Mapped[str] = mapped_column(
-        Enum("pending", "in_progress", "completed", "failed", name="job_status"),
+    status: Mapped[JobStatus] = mapped_column(
+        Enum(
+            JobStatus,
+            name="job_status",
+        ),
         nullable=False,
-        default="pending",
+        default=JobStatus.PENDING,
     )
 
     dataset_id: Mapped[uuid.UUID] = mapped_column(
