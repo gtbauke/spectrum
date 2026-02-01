@@ -38,6 +38,14 @@ class DatasetORM(Base):
         nullable=True,
     )
 
+    num_rows: Mapped[int | None] = mapped_column(
+        nullable=True,
+    )
+
+    num_features: Mapped[int | None] = mapped_column(
+        nullable=True,
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
