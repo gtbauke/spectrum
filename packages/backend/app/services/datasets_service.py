@@ -4,6 +4,7 @@ from fastapi import UploadFile
 from app.api.deps import UnitOfWork
 from app.infra.file_storage.base import FileStorage
 from app.db.models.dataset import Dataset, DatasetORM, DatasetStatus
+from app.utils.checksum import calculate_upload_file_checksum
 
 
 class DatasetsService:
@@ -14,8 +15,10 @@ class DatasetsService:
         self._storage = storage
 
     async def create(self, uow: UnitOfWork, *, name: str, file: UploadFile) -> UUID:
+        checksum = await calculate_upload_file_checksum(file)
+
         async with uow:
-            dataset = Dataset.start_upload(name=name)
+            dataset = Dataset.start_upload(name=name, checksum=checksum)
 
             orm = DatasetORM.from_domain(dataset)
             orm = await uow.datasets.add(orm)
@@ -39,7 +42,6 @@ class DatasetsService:
             orm = await uow.datasets.get(dataset_id)
 
             if orm:
-                orm.status = DatasetStatus.PROCESSING
                 orm.file_path = file_path
 
         return dataset_id

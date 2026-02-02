@@ -35,7 +35,7 @@ class Dataset:
         self.updated_at = updated_at
 
     @classmethod
-    def start_upload(cls, *, name: str) -> Dataset:
+    def start_upload(cls, *, name: str, checksum: str) -> Dataset:
         return cls(
             id=uuid4(),
             name=name,
@@ -45,21 +45,21 @@ class Dataset:
             num_features=None,
             processing_attempts=0,
             last_processing_error=None,
-            checksum=None,
+            checksum=checksum,
             created_at=datetime.now(),
             updated_at=datetime.now(),
         )
 
-    def mark_processing(self, file_path: str) -> None:
+    def mark_processing(self) -> None:
         self.status = DatasetStatus.PROCESSING
-        self.file_path = file_path
-
         self.updated_at = datetime.now()
 
     def mark_completed(self) -> None:
         self.status = DatasetStatus.COMPLETED
         self.updated_at = datetime.now()
 
-    def mark_failed(self) -> None:
+    def mark_failed(self, error: str) -> None:
         self.status = DatasetStatus.FAILED
+        self.last_processing_error = error
+
         self.updated_at = datetime.now()

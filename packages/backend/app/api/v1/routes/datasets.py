@@ -19,7 +19,7 @@ async def create_dataset(
     name: str = Form(...),
     file: UploadFile = File(...),
     uow: UnitOfWork = Depends(get_uow),
-    file_storage: FileStorage = Depends(get_file_storage)
+    file_storage: FileStorage = Depends(get_file_storage),
 ):
     payload = CreateDatasetRequest(name=name)
     service = DatasetsService(storage=file_storage)

@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     RABBITMQ_HOST: str = "localhost"
     RABBITMQ_PORT: int = 5672
 
+    RABBITMQ_URL: str = ""
+
     model_config = {
         "env_file": ".env",
         "env_file_encoding": "utf-8",

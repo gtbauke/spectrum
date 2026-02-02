@@ -3,6 +3,7 @@ from typing import Optional
 from uuid import UUID
 
 from app.db.models import DatasetORM
+from app.domain.datasets.dataset import Dataset
 
 
 class DatasetsRepository(ABC):
@@ -17,3 +18,10 @@ class DatasetsRepository(ABC):
 
     @abstractmethod
     async def update(self, dataset: DatasetORM) -> None: ...
+
+    @abstractmethod
+    async def save(self, dataset: Dataset) -> None: ...
+
+    @abstractmethod
+    async def get_for_update(
+        self, dataset_id: UUID) -> Optional[Dataset]: ...

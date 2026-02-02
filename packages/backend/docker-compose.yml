@@ -15,7 +15,7 @@ services:
             - "8000:8000"
         depends_on:
             - postgres
-            - rabbbitmq
+            - rabbitmq
 
     worker:
         build: .
@@ -27,7 +27,7 @@ services:
             - .env
         depends_on:
             - postgres
-            - rabbbitmq
+            - rabbitmq
         deploy:
             replicas: 2
 
@@ -43,7 +43,7 @@ services:
         ports:
             - "5432:5432"
 
-    rabbbitmq:
+    rabbitmq:
         image: rabbitmq:3-management
         container_name: backend_rabbitmq
         environment:
