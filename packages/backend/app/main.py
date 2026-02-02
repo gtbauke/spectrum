@@ -2,11 +2,14 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.api.v1.routes.datasets import datasets_router
+from app.infra.events.rabbitmq import rabbitmq_manager
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await rabbitmq_manager.connect()
     yield
+    await rabbitmq_manager.close()
 
 app = FastAPI(
     title="Spectrum Backend",
