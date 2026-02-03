@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from app.infra.events.datasets.dataset_events_publisher import DatasetsEventsPublisher
 from app.workers.schemas.dataset_processing_event import DatasetProcessingEvent
-from app.workers.setup import queue_settings
+from app.core.queues import queue_settings
 
 
 class RabbitMQDatasetsEventsPublisher(DatasetsEventsPublisher):
