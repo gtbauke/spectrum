@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.uow.unit_of_work import UnitOfWork
 from app.repositories.sqlalchemy.datasets_repository import SqlAlchemyDatasetsRepository
 from app.repositories.sqlalchemy.datasets_metadata_repository import SqlAlchemyDatasetsMetadataRepository
+from app.repositories.sqlalchemy.models_repository import SqlAlchemyModelsRepository
 
 
 class SqlAlchemyUnitOfWork(UnitOfWork):
@@ -20,6 +21,8 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
         self.datasets = SqlAlchemyDatasetsRepository(self._session)
         self.datasets_metadata = SqlAlchemyDatasetsMetadataRepository(
             self._session)
+
+        self.models = SqlAlchemyModelsRepository(self._session)
 
         return self
 

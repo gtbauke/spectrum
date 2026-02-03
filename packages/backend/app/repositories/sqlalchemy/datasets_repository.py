@@ -2,7 +2,6 @@ from typing import Optional
 
 from uuid import UUID
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import DatasetORM
 from app.domain.datasets.dataset import Dataset
@@ -10,10 +9,6 @@ from app.repositories.datasets_repository import DatasetsRepository
 
 
 class SqlAlchemyDatasetsRepository(DatasetsRepository):
-    def __init__(self, session: AsyncSession) -> None:
-        super().__init__()
-        self._session = session
-
     async def get_by_id(self, id: UUID) -> DatasetORM | None:
         result = await self._session.execute(
             select(DatasetORM).where(DatasetORM.id == id)

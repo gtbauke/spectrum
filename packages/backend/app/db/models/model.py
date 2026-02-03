@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import uuid
 
 from typing import TYPE_CHECKING
@@ -7,6 +9,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+from app.domain.models.model import Model
 
 if TYPE_CHECKING:
     from app.db.models.dataset import DatasetORM
@@ -52,3 +55,14 @@ class ModelORM(Base):
         default=func.now(),
         onupdate=func.now(),
     )
+
+    @classmethod
+    def from_domain(cls, model: Model) -> ModelORM:
+        return cls(
+            id=model.id,
+            name=model.name,
+            dataset_id=model.dataset_id,
+            version=model.version,
+            created_at=model.created_at,
+            updated_at=model.updated_at,
+        )

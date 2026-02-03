@@ -5,11 +5,13 @@ from typing import Optional, Type
 
 from app.repositories.datasets_repository import DatasetsRepository
 from app.repositories.datasets_metadata_repository import DatasetsMetadataRepository
+from app.repositories.models_repository import ModelsRepository
 
 
 class UnitOfWork(ABC):
     datasets: DatasetsRepository
     datasets_metadata: DatasetsMetadataRepository
+    models: ModelsRepository
 
     @abstractmethod
     async def __aenter__(self) -> UnitOfWork: ...
