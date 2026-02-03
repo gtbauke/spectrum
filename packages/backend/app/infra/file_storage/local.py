@@ -27,5 +27,8 @@ class LocalFileStorage(FileStorage):
         return str(file_path)
 
     async def get_full_path(self, *, file_path: str) -> str:
+        if settings.FILE_STORAGE_ROOT_PATH in file_path:
+            return file_path
+
         path = Path(settings.FILE_STORAGE_ROOT_PATH) / file_path
         return str(path)

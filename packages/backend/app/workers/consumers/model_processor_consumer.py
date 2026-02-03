@@ -3,7 +3,7 @@ from aio_pika.abc import AbstractIncomingMessage
 
 from app.workers.schemas.base import EventEnvelope
 from app.workers.schemas.start_model_training_event import StartModelTrainingEvent
-from app.services import get_datasets_service, get_models_service
+from app.services import get_datasets_service, get_model_training_service, get_models_service
 from app.api.deps import get_uow
 
 
@@ -23,6 +23,7 @@ class DatasetIsNotReadyException(Exception):
 async def handle_model_training_message(message: AbstractIncomingMessage) -> None:
     models_service = get_models_service()
     datasets_service = get_datasets_service()
+    model_training_service = get_model_training_service()
 
     async with message.process():
         event_data = EventEnvelope[StartModelTrainingEvent].model_validate_json(
@@ -45,6 +46,9 @@ async def handle_model_training_message(message: AbstractIncomingMessage) -> Non
                 version=1,
             )
 
-        # TODO: create EGGP model
-        print(
-            f"Model training initiated for dataset ID {event_data.payload.dataset_id}")
+        if not dataset.file_path:
+            raise DatasetNotFoundException(event_data.payload.dataset_id)
+
+        await model_training_service.train_model(
+            file_path=dataset.file_path
+        )

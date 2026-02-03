@@ -1,4 +1,5 @@
 import aio_pika
+from aio_pika.abc import AbstractChannel
 
 from app.core.config import settings
 from app.core.queues import queue_settings
@@ -58,7 +59,7 @@ async def setup_model_processing(channel: aio_pika.abc.AbstractChannel):
     return channel
 
 
-async def setup_queues():
+async def setup_queues() -> AbstractChannel:
     connection = await aio_pika.connect_robust(
         host=settings.RABBITMQ_HOST,
         port=settings.RABBITMQ_PORT,
