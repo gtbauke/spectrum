@@ -1,0 +1,18 @@
+from typing import Optional, TypeVar, Generic
+from abc import ABC, abstractmethod
+from uuid import UUID
+
+
+TypeORM = TypeVar("TypeORM")
+TypeDomain = TypeVar("TypeDomain")
+
+
+class BaseRepository(ABC, Generic[TypeORM, TypeDomain]):
+    @abstractmethod
+    async def get_by_id(self, id: UUID) -> Optional[TypeORM]: ...
+
+    @abstractmethod
+    async def get_for_update(self, id: UUID) -> Optional[TypeORM]: ...
+
+    @abstractmethod
+    async def add(self, obj: TypeORM) -> TypeORM: ...

@@ -5,6 +5,7 @@ from uuid import UUID
 from fastapi import UploadFile
 
 from app.infra.file_storage.base import FileStorage
+from app.core.config import settings
 
 
 class LocalFileStorage(FileStorage):
@@ -12,7 +13,7 @@ class LocalFileStorage(FileStorage):
         self.base_path = Path(base_path)
 
     async def save(self, *, file: UploadFile, destination: str) -> str:
-        dataset_dir = self.base_path / destination
+        dataset_dir = settings.FILE_STORAGE_ROOT_PATH / self.base_path / destination
         dataset_dir.mkdir(parents=True, exist_ok=True)
 
         file_name = file.filename if file.filename else str(UUID())
@@ -24,3 +25,7 @@ class LocalFileStorage(FileStorage):
 
         await file.close()
         return str(file_path)
+
+    async def get_full_path(self, *, file_path: str) -> str:
+        path = Path(settings.FILE_STORAGE_ROOT_PATH) / file_path
+        return str(path)

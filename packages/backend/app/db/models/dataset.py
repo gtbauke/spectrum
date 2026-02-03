@@ -9,6 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.db.base import Base
 from app.domain.datasets.dataset import Dataset
 from app.domain.datasets.dataset_status import DatasetStatus
+from app.domain.datasets.dataset_metadata import DatasetMetadata
 
 
 class DatasetORM(Base):
@@ -34,24 +35,6 @@ class DatasetORM(Base):
     )
 
     file_path: Mapped[str | None] = mapped_column(
-        String(),
-        nullable=True,
-    )
-
-    num_rows: Mapped[int | None] = mapped_column(
-        nullable=True,
-    )
-
-    num_features: Mapped[int | None] = mapped_column(
-        nullable=True,
-    )
-
-    processing_attempts: Mapped[int] = mapped_column(
-        nullable=False,
-        default=0,
-    )
-
-    last_processing_error: Mapped[str | None] = mapped_column(
         String(),
         nullable=True,
     )
@@ -89,11 +72,78 @@ class DatasetORM(Base):
             name=self.name,
             status=self.status,
             file_path=self.file_path,
+            checksum=self.checksum,
+            created_at=self.created_at,
+            updated_at=self.updated_at,
+        )
+
+
+class DatasetMetadataORM(Base):
+    __tablename__ = "dataset_metadata"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+
+    dataset_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        nullable=False,
+    )
+
+    num_rows: Mapped[int] = mapped_column(
+        nullable=False,
+    )
+
+    num_features: Mapped[int] = mapped_column(
+        nullable=False,
+    )
+
+    processing_attempts: Mapped[int] = mapped_column(
+        nullable=False,
+        default=0,
+    )
+
+    last_processing_error: Mapped[str | None] = mapped_column(
+        String(),
+        nullable=True,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False,
+        default=func.now(),
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False,
+        default=func.now(),
+        onupdate=func.now(),
+    )
+
+    @classmethod
+    def from_domain(cls, metadata: DatasetMetadata) -> DatasetMetadataORM:
+        return cls(
+            id=metadata.id,
+            dataset_id=metadata.dataset_id,
+            num_rows=metadata.num_rows,
+            num_features=metadata.num_features,
+            processing_attempts=metadata.processing_attempts,
+            last_processing_error=metadata.last_processing_error,
+            created_at=metadata.created_at,
+            updated_at=metadata.updated_at,
+        )
+
+    def to_domain(self) -> DatasetMetadata:
+        return DatasetMetadata(
+            id=self.id,
+            dataset_id=self.dataset_id,
             num_rows=self.num_rows,
             num_features=self.num_features,
             processing_attempts=self.processing_attempts,
             last_processing_error=self.last_processing_error,
-            checksum=self.checksum,
             created_at=self.created_at,
             updated_at=self.updated_at,
         )

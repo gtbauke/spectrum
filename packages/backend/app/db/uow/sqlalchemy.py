@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.uow.unit_of_work import UnitOfWork
 from app.repositories.sqlalchemy.datasets_repository import SqlAlchemyDatasetsRepository
+from app.repositories.sqlalchemy.datasets_metadata_repository import SqlAlchemyDatasetsMetadataRepository
 
 
 class SqlAlchemyUnitOfWork(UnitOfWork):
@@ -17,6 +18,9 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
         self._session = self._session_factory()
 
         self.datasets = SqlAlchemyDatasetsRepository(self._session)
+        self.datasets_metadata = SqlAlchemyDatasetsMetadataRepository(
+            self._session)
+
         return self
 
     async def __aexit__(

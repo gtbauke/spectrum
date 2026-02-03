@@ -36,14 +36,14 @@ class DatasetsService:
             )
         except Exception:
             async with uow:
-                orm = await uow.datasets.get(dataset_id)
+                orm = await uow.datasets.get_by_id(dataset_id)
 
                 if orm:
                     orm.status = DatasetStatus.FAILED
             raise
 
         async with uow:
-            orm = await uow.datasets.get(dataset_id)
+            orm = await uow.datasets.get_by_id(dataset_id)
 
             if orm:
                 orm.file_path = file_path

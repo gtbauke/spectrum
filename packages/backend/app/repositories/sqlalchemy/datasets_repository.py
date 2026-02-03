@@ -14,9 +14,9 @@ class SqlAlchemyDatasetsRepository(DatasetsRepository):
         super().__init__()
         self._session = session
 
-    async def get(self, dataset_id: UUID) -> DatasetORM | None:
+    async def get_by_id(self, id: UUID) -> DatasetORM | None:
         result = await self._session.execute(
-            select(DatasetORM).where(DatasetORM.id == dataset_id)
+            select(DatasetORM).where(DatasetORM.id == id)
         )
 
         return result.scalar_one_or_none()
@@ -27,11 +27,11 @@ class SqlAlchemyDatasetsRepository(DatasetsRepository):
 
         return dataset
 
-    async def add(self, dataset: DatasetORM) -> DatasetORM:
-        self._session.add(dataset)
+    async def add(self, obj: DatasetORM) -> DatasetORM:
+        self._session.add(obj)
         await self._session.flush()
 
-        return dataset
+        return obj
 
     async def update(self, dataset: DatasetORM) -> None:
         await self._session.merge(dataset)
@@ -39,14 +39,14 @@ class SqlAlchemyDatasetsRepository(DatasetsRepository):
     async def save(self, dataset: Dataset) -> None:
         await self._session.merge(DatasetORM.from_domain(dataset))
 
-    async def get_for_update(self, dataset_id: UUID) -> Optional[Dataset]:
+    async def get_for_update(self, id: UUID) -> Optional[DatasetORM]:
         statement = (
             select(DatasetORM)
-            .where(DatasetORM.id == dataset_id)
+            .where(DatasetORM.id == id)
             .with_for_update()
         )
 
         result = await self._session.execute(statement)
         orm = result.scalar_one_or_none()
 
-        return orm.to_domain() if orm else None
+        return orm
