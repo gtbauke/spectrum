@@ -45,5 +45,6 @@ async def handle_model_training_message(message: AbstractIncomingMessage):
                 version=1,
             )
 
+        # TODO: create EGGP model
         print(
             f"Model training initiated for dataset ID {event_data.payload.dataset_id}")
