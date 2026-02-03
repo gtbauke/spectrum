@@ -4,12 +4,13 @@ import uuid
 from datetime import datetime
 from sqlalchemy import DateTime, String, Enum, func
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 from app.domain.datasets.dataset import Dataset
 from app.domain.datasets.dataset_status import DatasetStatus
 from app.domain.datasets.dataset_metadata import DatasetMetadata
+from app.db.models.model import ModelORM
 
 
 class DatasetORM(Base):
@@ -42,6 +43,12 @@ class DatasetORM(Base):
     checksum: Mapped[str | None] = mapped_column(
         String(),
         nullable=True,
+    )
+
+    models: Mapped[list["ModelORM"]] = relationship(
+        back_populates="dataset",
+        cascade="all, delete-orphan",
+        lazy="selectin",
     )
 
     created_at: Mapped[datetime] = mapped_column(
