@@ -16,8 +16,13 @@ class ModelsService:
         model_name: str,
         dataset_id: UUID,
         version: int,
-    ) -> UUID:
+    ) -> Model:
         async with uow:
+            existing_model = await uow.models.get_by_dataset_id(dataset_id)
+
+            if existing_model:
+                return existing_model.to_domain()
+
             model = Model.create(
                 name=model_name,
                 dataset_id=dataset_id,
@@ -26,4 +31,4 @@ class ModelsService:
 
             orm = await uow.models.add(ModelORM.from_domain(model))
 
-        return orm.id
+        return orm.to_domain()

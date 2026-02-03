@@ -15,7 +15,7 @@ from app.workers.schemas.start_model_training_event import StartModelTrainingEve
 
 async def handle_dataset_processing_message(
     message: AbstractIncomingMessage
-):
+) -> None:
     file_storage = get_file_storage()
     model_publisher = get_model_events_publisher()
 

@@ -32,3 +32,10 @@ class SqlAlchemyModelsRepository(ModelsRepository):
         await self._session.flush()
 
         return obj
+
+    async def get_by_dataset_id(self, dataset_id: UUID) -> ModelORM | None:
+        result = await self._session.execute(
+            select(ModelORM).where(ModelORM.dataset_id == dataset_id)
+        )
+
+        return result.scalar_one_or_none()

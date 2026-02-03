@@ -18,6 +18,15 @@ class DatasetsService:
         self._storage = storage
         self._datasets_event_publisher = datasets_event_publisher
 
+    async def get_by_id(self, uow: UnitOfWork, *, dataset_id: UUID) -> Dataset | None:
+        async with uow:
+            orm = await uow.datasets.get_by_id(dataset_id)
+
+            if orm:
+                return orm.to_domain()
+
+            return None
+
     async def create(self, uow: UnitOfWork, *, name: str, file: UploadFile) -> UUID:
         checksum = await calculate_upload_file_checksum(file)
 

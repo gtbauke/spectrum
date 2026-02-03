@@ -37,3 +37,6 @@ class Dataset:
             created_at=datetime.now(),
             updated_at=datetime.now(),
         )
+
+    def is_ready_for_model_training(self) -> bool:
+        return self.status == DatasetStatus.COMPLETED

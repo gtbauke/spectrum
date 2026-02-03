@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from uuid import UUID
+from uuid import UUID, uuid4
 from pydantic import BaseModel
 
 
@@ -16,11 +16,11 @@ class Model(BaseModel):
     updated_at: datetime
 
     @classmethod
-    def create(cls, *, name: str, dataset_id: UUID, version: int) -> Model:
+    def create(cls, *, name: str, dataset_id: UUID, version: int = 1) -> Model:
         now = datetime.now()
 
         return cls(
-            id=UUID(),
+            id=uuid4(),
             name=name,
             dataset_id=dataset_id,
             version=version,

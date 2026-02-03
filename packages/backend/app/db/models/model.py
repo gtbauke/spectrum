@@ -56,6 +56,16 @@ class ModelORM(Base):
         onupdate=func.now(),
     )
 
+    def to_domain(self) -> Model:
+        return Model(
+            id=self.id,
+            name=self.name,
+            dataset_id=self.dataset_id,
+            version=self.version,
+            created_at=self.created_at,
+            updated_at=self.updated_at,
+        )
+
     @classmethod
     def from_domain(cls, model: Model) -> ModelORM:
         return cls(
