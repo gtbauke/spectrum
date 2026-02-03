@@ -9,12 +9,15 @@ from app.api.deps import get_uow
 from app.db.models.dataset import DatasetMetadataORM
 from app.domain.datasets.dataset_status import DatasetStatus
 from app.domain.datasets.dataset_metadata import DatasetMetadata
+from app.infra.events import get_model_events_publisher
+from app.workers.schemas.start_model_training_event import StartModelTrainingEvent
 
 
 async def handle_dataset_processing_message(
     message: AbstractIncomingMessage
 ):
     file_storage = get_file_storage()
+    model_publisher = get_model_events_publisher()
 
     async with message.process():
         event_data = EventEnvelope[DatasetProcessingEvent].model_validate_json(
@@ -86,3 +89,9 @@ async def handle_dataset_processing_message(
 
             await uow.datasets_metadata.add(metadata_orm)
             await uow.commit()
+
+        await model_publisher.publish_start_training_event(
+            StartModelTrainingEvent(
+                dataset_id=event_data.payload.dataset_id,
+            )
+        )
