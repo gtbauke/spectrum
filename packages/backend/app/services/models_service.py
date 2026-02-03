@@ -32,3 +32,21 @@ class ModelsService:
             orm = await uow.models.add(ModelORM.from_domain(model))
 
         return orm.to_domain()
+
+    async def get_trained_models(
+        self,
+        uow: UnitOfWork,
+    ) -> list[Model]:
+        async with uow:
+            orms = await uow.models.get_all_trained_models()
+
+        return [orm.to_domain() for orm in orms]
+
+    async def get_non_trained_models(
+        self,
+        uow: UnitOfWork,
+    ) -> list[Model]:
+        async with uow:
+            orms = await uow.models.get_all_non_trained_models()
+
+        return [orm.to_domain() for orm in orms]

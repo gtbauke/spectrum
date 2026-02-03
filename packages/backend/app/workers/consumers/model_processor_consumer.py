@@ -20,7 +20,7 @@ class DatasetIsNotReadyException(Exception):
             f"Dataset with ID {dataset_id} is not ready for model training.")
 
 
-async def handle_model_training_message(message: AbstractIncomingMessage):
+async def handle_model_training_message(message: AbstractIncomingMessage) -> None:
     models_service = get_models_service()
     datasets_service = get_datasets_service()
 

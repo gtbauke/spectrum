@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Optional
 from uuid import UUID, uuid4
 from pydantic import BaseModel
 
@@ -12,11 +13,13 @@ class Model(BaseModel):
     dataset_id: UUID
     version: int
 
+    model_file: Optional[str]
+
     created_at: datetime
     updated_at: datetime
 
     @classmethod
-    def create(cls, *, name: str, dataset_id: UUID, version: int = 1) -> Model:
+    def create(cls, *, name: str, dataset_id: UUID, model_file: Optional[str] = None, version: int = 1) -> Model:
         now = datetime.now()
 
         return cls(
@@ -24,6 +27,10 @@ class Model(BaseModel):
             name=name,
             dataset_id=dataset_id,
             version=version,
+            model_file=model_file,
             created_at=now,
             updated_at=now,
         )
+
+    def has_model_artifacts(self) -> bool:
+        return self.model_file is not None

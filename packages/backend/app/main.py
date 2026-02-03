@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.api.v1.routes.datasets import datasets_router
+from app.api.v1.routes.models import models_router
 from app.infra.events.rabbitmq import rabbitmq_manager
 
 
@@ -21,4 +22,9 @@ app = FastAPI(
 app.include_router(
     prefix="/api/v1/datasets",
     router=datasets_router
+)
+
+app.include_router(
+    prefix="/api/v1/models",
+    router=models_router
 )

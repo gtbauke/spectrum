@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Sequence
 from uuid import UUID
 
 from sqlalchemy import select
@@ -39,3 +39,17 @@ class SqlAlchemyModelsRepository(ModelsRepository):
         )
 
         return result.scalar_one_or_none()
+
+    async def get_all_trained_models(self) -> Sequence[ModelORM]:
+        result = await self._session.execute(
+            select(ModelORM).where(ModelORM.model_file.isnot(None))
+        )
+
+        return result.scalars().all()
+
+    async def get_all_non_trained_models(self) -> Sequence[ModelORM]:
+        result = await self._session.execute(
+            select(ModelORM).where(ModelORM.model_file.is_(None))
+        )
+
+        return result.scalars().all()
