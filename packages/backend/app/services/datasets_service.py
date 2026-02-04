@@ -2,20 +2,21 @@ from uuid import UUID
 from fastapi import UploadFile
 
 from app.api.deps import UnitOfWork
-from app.infra.file_storage.base import FileStorage
 from app.infra.events.datasets.dataset_events_publisher import DatasetsEventsPublisher
 from app.workers.schemas.dataset_processing_event import DatasetProcessingEvent
 from app.db.models.dataset import Dataset, DatasetORM, DatasetStatus
 from app.utils.checksum import calculate_upload_file_checksum
+from app.services.dataset_files_service import DatasetFilesService
 
 
+# TODO: fix dataset file upload and FileStorage usage
 class DatasetsService:
     def __init__(
         self,
-        storage: FileStorage,
+        datasets_file_service: DatasetFilesService,
         datasets_event_publisher: DatasetsEventsPublisher,
     ):
-        self._storage = storage
+        self._datasets_file_service = datasets_file_service
         self._datasets_event_publisher = datasets_event_publisher
 
     async def get_by_id(self, uow: UnitOfWork, *, dataset_id: UUID) -> Dataset | None:
@@ -27,7 +28,7 @@ class DatasetsService:
 
             return None
 
-    async def create(self, uow: UnitOfWork, *, name: str, file: UploadFile) -> UUID:
+    async def create(self, uow: UnitOfWork, *, name: str, file: UploadFile) -> Dataset:
         checksum = await calculate_upload_file_checksum(file)
 
         async with uow:
@@ -39,9 +40,8 @@ class DatasetsService:
             dataset_id = orm.id
 
         try:
-            file_path = await self._storage.save(
+            file_path = await self._datasets_file_service.save_dataset_file(
                 file=file,
-                destination=f"datasets/{dataset.id}"
             )
         except Exception:
             async with uow:
@@ -57,10 +57,16 @@ class DatasetsService:
             if orm:
                 orm.file_path = file_path
 
+        async with uow:
+            dataset_model = await uow.datasets.get_by_id(dataset_id)
+
+            if not dataset_model:
+                raise ValueError("Dataset not found after creation")
+
         event_payload = DatasetProcessingEvent(
             dataset_id=dataset_id,
             file_path=file_path,
         )
 
         await self._datasets_event_publisher.publish_dataset_processing_event(payload=event_payload)
-        return dataset_id
+        return dataset_model.to_domain()

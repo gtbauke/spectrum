@@ -13,5 +13,9 @@ async def main():
         await rabbitmq_manager.close()
 
 
-if __name__ == "__main__":
+def run():
     asyncio.run(main())
+
+
+if __name__ == "__main__":
+    run()

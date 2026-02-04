@@ -3,11 +3,14 @@ from app.services.models_service import ModelsService
 from app.services.model_training_service import ModelTrainingService
 from app.infra.file_storage import get_file_storage
 from app.infra.events import get_dataset_events_publisher
+from app.services.dataset_files_service import DatasetFilesService
 
 
 def get_datasets_service() -> DatasetsService:
     return DatasetsService(
-        storage=get_file_storage(),
+        datasets_file_service=DatasetFilesService(
+            file_storage=get_file_storage()
+        ),
         datasets_event_publisher=get_dataset_events_publisher()
     )
 

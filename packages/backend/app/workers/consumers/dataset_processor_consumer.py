@@ -11,12 +11,15 @@ from app.domain.datasets.dataset_status import DatasetStatus
 from app.domain.datasets.dataset_metadata import DatasetMetadata
 from app.infra.events import get_model_events_publisher
 from app.workers.schemas.start_model_training_event import StartModelTrainingEvent
+from app.services.dataset_files_service import DatasetFilesService
 
 
 async def handle_dataset_processing_message(
     message: AbstractIncomingMessage
 ) -> None:
     file_storage = get_file_storage()
+
+    dataset_files_service = DatasetFilesService(file_storage=file_storage)
     model_publisher = get_model_events_publisher()
 
     async with message.process():
@@ -36,7 +39,7 @@ async def handle_dataset_processing_message(
             dataset.status = DatasetStatus.PROCESSING
             await uow.commit()
 
-        dataset_path = event_data.payload.file_path
+        dataset_path = await dataset_files_service.get_dataset_file_path(file_name=event_data.payload.file_path)
         local_path = await file_storage.get_full_path(file_path=dataset_path)
 
         data_frame = pd.read_csv(local_path)  # type: ignore

@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     RABBITMQ_URL: str = ""
 
     FILE_STORAGE_ROOT_PATH: str = ""
-    FILE_STORAGE_SPECTRUM_DATA_PATH: str = "spectrum_data"
+    FILE_STORAGE_SPECTRUM_DATA_PATH: str = ""
 
     model_config = {
         "env_file": ".env",

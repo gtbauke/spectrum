@@ -1,34 +1,24 @@
 import aiofiles
 
-from pathlib import Path
-from uuid import UUID
 from fastapi import UploadFile
+from pathlib import Path
 
 from app.infra.file_storage.base import FileStorage
 from app.core.config import settings
 
 
 class LocalFileStorage(FileStorage):
-    def __init__(self, base_path: str = "storage"):
-        self.base_path = Path(base_path)
-
     async def save(self, *, file: UploadFile, destination: str) -> str:
-        dataset_dir = settings.FILE_STORAGE_ROOT_PATH / self.base_path / destination
-        dataset_dir.mkdir(parents=True, exist_ok=True)
+        parent_folder = Path(destination).parent
+        parent_folder.mkdir(parents=True, exist_ok=True)
 
-        file_name = file.filename if file.filename else str(UUID())
-        file_path = dataset_dir / file_name
-
-        async with aiofiles.open(file_path, 'wb') as out_file:
+        async with aiofiles.open(destination, 'wb') as out_file:
             while chunk := await file.read(1024):
                 await out_file.write(chunk)
 
         await file.close()
-        return str(file_path)
+        return str(destination)
 
     async def get_full_path(self, *, file_path: str) -> str:
-        if settings.FILE_STORAGE_ROOT_PATH in file_path:
-            return file_path
-
-        path = Path(settings.FILE_STORAGE_ROOT_PATH) / file_path
-        return str(path)
+        full_path = settings.FILE_STORAGE_ROOT_PATH / self._base_path / file_path
+        return str(full_path)

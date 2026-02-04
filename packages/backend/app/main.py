@@ -12,6 +12,7 @@ async def lifespan(app: FastAPI):
     yield
     await rabbitmq_manager.close()
 
+
 app = FastAPI(
     title="Spectrum Backend",
     description="Backend service for Spectrum application",
