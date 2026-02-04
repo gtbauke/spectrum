@@ -2,7 +2,7 @@ from __future__ import annotations
 import uuid
 
 from datetime import datetime
-from sqlalchemy import DateTime, String, Enum, func
+from sqlalchemy import DateTime, String, Enum, ForeignKey, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -51,6 +51,13 @@ class DatasetORM(Base):
         lazy="selectin",
     )
 
+    dataset_metadata: Mapped["DatasetMetadataORM"] = relationship(
+        back_populates="dataset",
+        uselist=False,
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
@@ -80,6 +87,7 @@ class DatasetORM(Base):
             status=self.status,
             file_path=self.file_path,
             checksum=self.checksum,
+            dataset_metadata=self.dataset_metadata.to_domain() if self.dataset_metadata else None,
             created_at=self.created_at,
             updated_at=self.updated_at,
         )
@@ -96,7 +104,15 @@ class DatasetMetadataORM(Base):
 
     dataset_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
+        ForeignKey("datasets.id"),
         nullable=False,
+        unique=True,
+    )
+
+    dataset: Mapped["DatasetORM"] = relationship(
+        back_populates="dataset_metadata",
+        lazy="joined",
+        foreign_keys=[dataset_id],
     )
 
     num_rows: Mapped[int] = mapped_column(
@@ -109,7 +125,7 @@ class DatasetMetadataORM(Base):
 
     processing_attempts: Mapped[int] = mapped_column(
         nullable=False,
-        default=0,
+        default=1,
     )
 
     last_processing_error: Mapped[str | None] = mapped_column(

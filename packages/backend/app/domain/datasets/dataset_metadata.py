@@ -1,24 +1,23 @@
-from uuid import UUID, uuid4
+from uuid import UUID
 from datetime import datetime
+from pydantic import BaseModel, Field
 
 
-class DatasetMetadata:
-    def __init__(
-        self,
-        dataset_id: UUID,
-        num_rows: int,
-        num_features: int,
-        processing_attempts: int,
-        last_processing_error: str | None,
-        id: UUID | None = None,
-        created_at: datetime | None = None,
-        updated_at: datetime | None = None,
-    ):
-        self.id = id if id is not None else uuid4()
-        self.dataset_id = dataset_id
-        self.num_rows = num_rows
-        self.num_features = num_features
-        self.processing_attempts = processing_attempts
-        self.last_processing_error = last_processing_error
-        self.created_at = created_at if created_at is not None else datetime.now()
-        self.updated_at = updated_at if updated_at is not None else datetime.now()
+class DatasetMetadata(BaseModel):
+    id: UUID = Field(...,
+                     description="The unique identifier of the dataset metadata")
+    dataset_id: UUID = Field(...,
+                             description="The unique identifier of the associated dataset")
+
+    num_rows: int = Field(..., description="The number of rows in the dataset")
+    num_features: int = Field(...,
+                              description="The number of features in the dataset")
+    processing_attempts: int = Field(
+        ..., description="The number of processing attempts made on the dataset")
+    last_processing_error: str | None = Field(
+        None, description="The last processing error encountered, if any"
+    )
+    created_at: datetime = Field(...,
+                                 description="The creation timestamp of the dataset metadata")
+    updated_at: datetime = Field(...,
+                                 description="The last update timestamp of the dataset metadata")

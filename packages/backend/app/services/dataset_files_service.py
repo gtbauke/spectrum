@@ -14,7 +14,7 @@ class DatasetFilesService:
         final_path = await self.get_dataset_file_path(file_name=file_name)
 
         await self._file_storage.save(file=file, destination=str(final_path))
-        return file_name
+        return final_path
 
     async def get_dataset_file_path(self, file_name: str) -> str:
         with_datasets_folder = Path("datasets") / file_name

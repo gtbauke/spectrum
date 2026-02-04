@@ -45,3 +45,10 @@ class SqlAlchemyDatasetsRepository(DatasetsRepository):
         orm = result.scalar_one_or_none()
 
         return orm
+
+    async def list(self) -> list[DatasetORM]:
+        result = await self._session.execute(
+            select(DatasetORM)
+        )
+
+        return list(result.scalars().all())

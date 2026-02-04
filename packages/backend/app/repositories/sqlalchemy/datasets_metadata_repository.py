@@ -22,3 +22,27 @@ class SqlAlchemyDatasetsMetadataRepository(DatasetsMetadataRepository):
         await self._session.flush()
 
         return obj
+
+    async def create_or_get_for_update(
+        self,
+        dataset_id: UUID,
+    ) -> DatasetMetadataORM:
+        result = await self._session.execute(
+            select(DatasetMetadataORM)
+            .where(DatasetMetadataORM.dataset_id == dataset_id)
+            .with_for_update()
+        )
+
+        metadata_orm = result.scalar_one_or_none()
+
+        if metadata_orm:
+            return metadata_orm
+
+        metadata_orm = DatasetMetadataORM(
+            dataset_id=dataset_id,
+        )
+
+        self._session.add(metadata_orm)
+        await self._session.flush()
+
+        return metadata_orm

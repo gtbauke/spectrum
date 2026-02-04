@@ -3,7 +3,7 @@ from aio_pika.abc import AbstractChannel
 
 from app.core.config import settings
 from app.core.queues import queue_settings
-from app.workers.consumers.model_processor_consumer import handle_model_training_message
+from app.workers.consumers.models.model_processor_consumer import handle_model_training_message
 
 
 async def setup_model_processing(channel: aio_pika.abc.AbstractChannel):

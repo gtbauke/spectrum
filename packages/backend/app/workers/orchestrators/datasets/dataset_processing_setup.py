@@ -3,7 +3,7 @@ from aio_pika.abc import AbstractChannel
 
 from app.core.config import settings
 from app.core.queues import queue_settings
-from app.workers.consumers.dataset_processor_consumer import handle_dataset_processing_message
+from app.workers.consumers.datasets.dataset_processor_consumer import handle_dataset_processing_message
 
 
 async def setup_dataset_processing(channel: aio_pika.abc.AbstractChannel):

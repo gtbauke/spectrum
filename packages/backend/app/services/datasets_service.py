@@ -70,3 +70,23 @@ class DatasetsService:
 
         await self._datasets_event_publisher.publish_dataset_processing_event(payload=event_payload)
         return dataset_model.to_domain()
+
+    async def update_status(
+        self,
+        uow: UnitOfWork,
+        *,
+        dataset_id: UUID,
+        status: DatasetStatus
+    ) -> None:
+        async with uow:
+            orm = await uow.datasets.get_by_id(dataset_id)
+
+            if not orm:
+                raise ValueError("Dataset not found")
+
+            orm.status = status
+
+    async def get_all(self, uow: UnitOfWork) -> list[Dataset]:
+        async with uow:
+            orms = await uow.datasets.list()
+            return [orm.to_domain() for orm in orms]
