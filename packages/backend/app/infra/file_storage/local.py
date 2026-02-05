@@ -30,5 +30,7 @@ class LocalFileStorage(FileStorage):
             "base_path": self._base_path,
         })
 
-        full_path = settings.FILE_STORAGE_ROOT_PATH / self._base_path / file_path
+        full_path = Path(settings.FILE_STORAGE_ROOT_PATH) / \
+            self._base_path / file_path
+
         return str(full_path)

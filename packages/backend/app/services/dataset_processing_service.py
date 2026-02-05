@@ -1,7 +1,11 @@
+import logging
 from uuid import UUID
 
 from app.api.deps import UnitOfWork
 from app.domain.datasets.dataset_status import DatasetStatus
+
+
+logger = logging.getLogger(__name__)
 
 
 class DatasetProcessingService:
@@ -15,6 +19,9 @@ class DatasetProcessingService:
 
         if not dataset:
             return False
+
+        logger.info("Starting processing for dataset with id %s", dataset_id, extra={
+                    "dataset_id": dataset_id, "status": dataset.status})
 
         if dataset.status in (DatasetStatus.PROCESSING, DatasetStatus.COMPLETED):
             return False

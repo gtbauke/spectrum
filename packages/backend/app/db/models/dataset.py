@@ -76,6 +76,9 @@ class DatasetORM(Base):
         return cls(
             id=dataset.id,
             name=dataset.name,
+            status=dataset.status,
+            file_path=dataset.file_path,
+            checksum=dataset.checksum,
             created_at=dataset.created_at,
             updated_at=dataset.updated_at,
         )

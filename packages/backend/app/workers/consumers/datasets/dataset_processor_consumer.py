@@ -43,7 +43,11 @@ async def handle_dataset_processing_message(
                 raise DatasetCannotBeProcessedError(
                     event_data.payload.dataset_id)
 
-        dataset_path = await dataset_files_service.get_dataset_file_path(file_name=event_data.payload.file_path)
+        dataset_path = await dataset_files_service.get_dataset_file_path(
+            file_name=event_data.payload.file_path,
+            dataset_id=event_data.payload.dataset_id
+        )
+
         logger.info(
             "Processing dataset with id %s located at %s",
             event_data.payload.dataset_id,

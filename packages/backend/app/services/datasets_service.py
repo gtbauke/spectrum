@@ -9,7 +9,6 @@ from app.utils.checksum import calculate_upload_file_checksum
 from app.services.dataset_files_service import DatasetFilesService
 
 
-# TODO: fix dataset file upload and FileStorage usage
 class DatasetsService:
     def __init__(
         self,
@@ -42,6 +41,7 @@ class DatasetsService:
         try:
             file_path = await self._datasets_file_service.save_dataset_file(
                 file=file,
+                dataset_id=dataset_id,
             )
         except Exception:
             async with uow:
