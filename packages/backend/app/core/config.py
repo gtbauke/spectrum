@@ -1,4 +1,7 @@
 from pydantic_settings import BaseSettings
+from pathlib import Path
+
+ROOT_PATH = Path(__file__).resolve().parents[4]
 
 
 class Settings(BaseSettings):
@@ -17,11 +20,10 @@ class Settings(BaseSettings):
     RABBITMQ_PORT: int = 5672
     RABBITMQ_URL: str = ""
 
-    FILE_STORAGE_ROOT_PATH: str = ""
     FILE_STORAGE_SPECTRUM_DATA_PATH: str = ""
 
     model_config = {
-        "env_file": ".env",
+        "env_file": str(ROOT_PATH / ".env"),
         "env_file_encoding": "utf-8",
     }
 

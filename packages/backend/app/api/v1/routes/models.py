@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from app.api.v1.schemas.model import GetAllModelsResponse
 from app.db.uow.unit_of_work import UnitOfWork
 from app.api.deps import get_uow
-from app.services.models_service import ModelsService
+from app.services.models.models_service import ModelsService
 
 models_router = APIRouter(tags=["models"])
 

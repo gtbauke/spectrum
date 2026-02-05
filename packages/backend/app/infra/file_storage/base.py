@@ -1,3 +1,4 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 
 from pathlib import Path
@@ -13,3 +14,7 @@ class FileStorage(ABC):
 
     @abstractmethod
     async def get_full_path(self, *, file_path: str) -> str: ...
+
+    def scoped(self, scope: str) -> FileStorage:
+        self._base_path = Path(self._base_path) / scope
+        return self

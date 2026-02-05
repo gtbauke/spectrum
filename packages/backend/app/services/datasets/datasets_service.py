@@ -6,7 +6,7 @@ from app.infra.events.datasets.dataset_events_publisher import DatasetsEventsPub
 from app.workers.schemas.dataset_processing_event import DatasetProcessingEvent
 from app.db.models.dataset import Dataset, DatasetORM, DatasetStatus
 from app.utils.checksum import calculate_upload_file_checksum
-from app.services.dataset_files_service import DatasetFilesService
+from app.services.datasets.dataset_files_service import DatasetFilesService
 
 
 class DatasetsService:

@@ -3,11 +3,11 @@ from fastapi import APIRouter, Depends, Form, UploadFile, File
 from app.api.v1.schemas.dataset import CreateDatasetRequest
 from app.db.uow.unit_of_work import UnitOfWork
 from app.api.deps import get_uow
-from app.services.datasets_service import DatasetsService
+from app.services.datasets.datasets_service import DatasetsService
 from app.infra.file_storage import FileStorage, get_file_storage
 from app.infra.events.datasets.dataset_events_publisher import DatasetsEventsPublisher
 from app.infra.events import get_dataset_events_publisher
-from app.services.dataset_files_service import DatasetFilesService
+from app.services.datasets.dataset_files_service import DatasetFilesService
 from app.domain import Dataset
 
 datasets_router = APIRouter(tags=["datasets"])

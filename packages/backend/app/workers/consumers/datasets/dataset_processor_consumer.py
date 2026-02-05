@@ -9,8 +9,8 @@ from app.infra.file_storage import get_file_storage
 from app.api.deps import get_uow
 from app.infra.events import get_model_events_publisher
 from app.workers.schemas.start_model_training_event import StartModelTrainingEvent
-from app.services.dataset_files_service import DatasetFilesService
-from app.services.dataset_processing_service import DatasetProcessingService
+from app.services.datasets.dataset_files_service import DatasetFilesService
+from app.services.datasets.dataset_processing_service import DatasetProcessingService
 from app.workers.consumers.datasets.errors.dataset_cannot_be_processed_error import DatasetCannotBeProcessedError
 from app.workers.consumers.datasets.errors.missing_target_column_error import MissingTargetColumnError
 
@@ -40,6 +40,14 @@ async def handle_dataset_processing_message(
             )
 
             if not can_process:
+                await dataset_processing_service.fail_dataset_processing(
+                    uow=uow,
+                    dataset_id=event_data.payload.dataset_id,
+                    num_of_rows=0,
+                    num_of_features=0,
+                    error_message="Dataset cannot be processed in its current state.",
+                )
+
                 raise DatasetCannotBeProcessedError(
                     event_data.payload.dataset_id)
 

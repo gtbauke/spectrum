@@ -114,16 +114,16 @@ class DatasetMetadataORM(Base):
 
     dataset: Mapped["DatasetORM"] = relationship(
         back_populates="dataset_metadata",
-        lazy="joined",
+        lazy="selectin",
         foreign_keys=[dataset_id],
     )
 
-    num_rows: Mapped[int] = mapped_column(
-        nullable=False,
+    num_rows: Mapped[int | None] = mapped_column(
+        nullable=True,
     )
 
-    num_features: Mapped[int] = mapped_column(
-        nullable=False,
+    num_features: Mapped[int | None] = mapped_column(
+        nullable=True,
     )
 
     processing_attempts: Mapped[int] = mapped_column(
