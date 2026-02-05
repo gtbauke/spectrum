@@ -20,6 +20,4 @@ def get_models_service() -> ModelsService:
 
 
 def get_model_training_service() -> ModelTrainingService:
-    return ModelTrainingService(
-        file_storage=get_file_storage()
-    )
+    return ModelTrainingService()
