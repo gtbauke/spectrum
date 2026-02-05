@@ -21,3 +21,6 @@ class BaseRepository(ABC, Generic[TypeORM, TypeDomain]):
 
     @abstractmethod
     async def add(self, obj: TypeORM) -> TypeORM: ...
+
+    @abstractmethod
+    async def update(self, obj: TypeORM) -> TypeORM: ...

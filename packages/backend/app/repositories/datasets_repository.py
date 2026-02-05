@@ -13,9 +13,6 @@ class DatasetsRepository(BaseRepository[DatasetORM, Dataset], ABC):
     async def add(self, obj: DatasetORM) -> DatasetORM: ...
 
     @abstractmethod
-    async def update(self, dataset: DatasetORM) -> None: ...
-
-    @abstractmethod
     async def save(self, dataset: Dataset) -> None: ...
 
     @abstractmethod

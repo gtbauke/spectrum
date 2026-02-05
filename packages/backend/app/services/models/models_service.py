@@ -4,6 +4,8 @@ from app.api.deps import UnitOfWork
 from app.domain.models.model import Model
 from app.db.models.model import ModelORM
 
+# TODO: better error handling in the Repository layer
+
 
 class ModelsService:
     def __init__(self):
@@ -30,8 +32,9 @@ class ModelsService:
             )
 
             orm = await uow.models.add(ModelORM.from_domain(model))
+            domain = orm.to_domain()
 
-        return orm.to_domain()
+        return domain
 
     async def get_trained_models(
         self,
@@ -41,6 +44,25 @@ class ModelsService:
             orms = await uow.models.get_all_trained_models()
 
         return [orm.to_domain() for orm in orms]
+
+    async def update_model_file_path(
+        self,
+        uow: UnitOfWork,
+        *,
+        model_id: UUID,
+        model_file_path: str,
+    ) -> Model:
+        async with uow:
+            orm = await uow.models.get_by_id(model_id)
+
+            if not orm:
+                raise ValueError(f"Model with ID {model_id} not found.")
+
+            orm.model_file = model_file_path
+
+            await uow.models.update(orm)
+
+        return orm.to_domain()
 
     async def get_non_trained_models(
         self,

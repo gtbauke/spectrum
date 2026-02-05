@@ -28,8 +28,9 @@ class SqlAlchemyDatasetsRepository(DatasetsRepository):
 
         return obj
 
-    async def update(self, dataset: DatasetORM) -> None:
-        await self._session.merge(dataset)
+    async def update(self, obj: DatasetORM) -> DatasetORM:
+        await self._session.merge(obj)
+        return obj
 
     async def save(self, dataset: Dataset) -> None:
         await self._session.merge(DatasetORM.from_domain(dataset))

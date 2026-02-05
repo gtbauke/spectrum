@@ -1,4 +1,3 @@
-from uuid import UUID
 from aio_pika.abc import AbstractIncomingMessage
 
 from app.workers.schemas.base import EventEnvelope
@@ -6,19 +5,9 @@ from app.workers.schemas.start_model_training_event import StartModelTrainingEve
 from app.services import (DatasetFilesService, get_datasets_service,
                           get_file_storage, get_model_training_service, get_models_service)
 from app.api.deps import get_uow
-
-
-class DatasetNotFoundException(Exception):
-    def __init__(self, dataset_id: UUID):
-        self.dataset_id = dataset_id
-        super().__init__(f"Dataset with ID {dataset_id} not found.")
-
-
-class DatasetIsNotReadyException(Exception):
-    def __init__(self, dataset_id: UUID):
-        self.dataset_id = dataset_id
-        super().__init__(
-            f"Dataset with ID {dataset_id} is not ready for model training.")
+from app.workers.consumers.datasets.errors.dataset_not_found_error import DatasetNotFoundError
+from app.workers.consumers.models.errors.dataset_not_ready_for_training_error import DatasetNotReadyForTrainingError
+from app.workers.consumers.models.errors.dataset_missing_file_path_error import DatasetMissingFilePathError
 
 
 async def handle_model_training_message(message: AbstractIncomingMessage) -> None:
@@ -39,12 +28,13 @@ async def handle_model_training_message(message: AbstractIncomingMessage) -> Non
             dataset = await datasets_service.get_by_id(uow=uow, dataset_id=event_data.payload.dataset_id)
 
             if not dataset:
-                raise DatasetNotFoundException(event_data.payload.dataset_id)
+                raise DatasetNotFoundError(event_data.payload.dataset_id)
 
             if not dataset.is_ready_for_model_training():
-                raise DatasetIsNotReadyException(event_data.payload.dataset_id)
+                raise DatasetNotReadyForTrainingError(
+                    event_data.payload.dataset_id)
 
-            await models_service.create(
+            model = await models_service.create(
                 uow=uow,
                 model_name=f"Model for dataset {dataset.name}",
                 dataset_id=dataset.id,
@@ -52,7 +42,7 @@ async def handle_model_training_message(message: AbstractIncomingMessage) -> Non
             )
 
         if not dataset.file_path:
-            raise DatasetNotFoundException(event_data.payload.dataset_id)
+            raise DatasetMissingFilePathError(event_data.payload.dataset_id)
 
         final_path = await dataset_files_service.get_dataset_file_path(
             dataset_id=dataset.id,
@@ -63,5 +53,12 @@ async def handle_model_training_message(message: AbstractIncomingMessage) -> Non
             file_path=final_path
         )
 
-        # TODO: update model entry in DB
+        async with get_uow() as uow:
+            # TODO: model_file_path should not be the full system path, but rather a relative path
+            await models_service.update_model_file_path(
+                uow=uow,
+                model_id=model.id,
+                model_file_path=final_path
+            )
+
         # TODO: create job entry in DB

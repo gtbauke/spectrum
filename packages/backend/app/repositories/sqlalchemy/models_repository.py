@@ -53,3 +53,7 @@ class SqlAlchemyModelsRepository(ModelsRepository):
         )
 
         return result.scalars().all()
+
+    async def update(self, obj: ModelORM) -> ModelORM:
+        await self._session.merge(obj)
+        return obj
