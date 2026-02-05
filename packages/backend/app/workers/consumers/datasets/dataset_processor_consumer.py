@@ -1,3 +1,4 @@
+import logging
 import pandas as pd
 
 from aio_pika.abc import AbstractIncomingMessage
@@ -12,6 +13,9 @@ from app.services.dataset_files_service import DatasetFilesService
 from app.services.dataset_processing_service import DatasetProcessingService
 from app.workers.consumers.datasets.errors.dataset_cannot_be_processed_error import DatasetCannotBeProcessedError
 from app.workers.consumers.datasets.errors.missing_target_column_error import MissingTargetColumnError
+
+
+logger = logging.getLogger(__name__)
 
 
 async def handle_dataset_processing_message(
@@ -40,6 +44,15 @@ async def handle_dataset_processing_message(
                     event_data.payload.dataset_id)
 
         dataset_path = await dataset_files_service.get_dataset_file_path(file_name=event_data.payload.file_path)
+        logger.info(
+            "Processing dataset with id %s located at %s",
+            event_data.payload.dataset_id,
+            dataset_path,
+            extra={
+                "dataset_id": event_data.payload.dataset_id,
+                "dataset_path": dataset_path,
+            }
+        )
 
         data_frame = pd.read_csv(dataset_path)  # type: ignore
         headers = data_frame.columns.tolist()

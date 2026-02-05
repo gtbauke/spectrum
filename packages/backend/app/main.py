@@ -5,6 +5,7 @@ from app.api.v1.routes.datasets import datasets_router
 from app.api.v1.routes.models import models_router
 from app.infra.events.rabbitmq import rabbitmq_manager
 from app.api.middlewares.correlation_id_middleware import CorrelationIdMiddleware
+from app.core.logging import setup_logging
 
 
 @asynccontextmanager
@@ -13,6 +14,7 @@ async def lifespan(app: FastAPI):
     yield
     await rabbitmq_manager.close()
 
+setup_logging()
 
 app = FastAPI(
     title="Spectrum Backend",

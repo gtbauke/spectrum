@@ -1,7 +1,10 @@
+import logging
 from fastapi import UploadFile
 from datetime import datetime
 
 from app.infra.file_storage.base import FileStorage
+
+logger = logging.getLogger(__name__)
 
 
 class DatasetFilesService:
@@ -17,4 +20,7 @@ class DatasetFilesService:
 
     async def get_dataset_file_path(self, file_name: str) -> str:
         full_path = await self._file_storage.get_full_path(file_path=file_name)
+        logger.info("get_dataset_file_path", extra={
+                    "file_name": file_name, "full_path": full_path})
+
         return str(full_path)
