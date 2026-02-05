@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 async def handle_dataset_processing_message(
     message: AbstractIncomingMessage
 ) -> None:
-    file_storage = get_file_storage()
+    file_storage = get_file_storage().scoped("datasets")
 
     dataset_files_service = DatasetFilesService(file_storage=file_storage)
     dataset_processing_service = DatasetProcessingService()

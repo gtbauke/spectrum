@@ -29,7 +29,7 @@ async def create_dataset(
     payload = CreateDatasetRequest(name=name)
     service = DatasetsService(
         datasets_file_service=DatasetFilesService(
-            file_storage=file_storage
+            file_storage=file_storage.scoped("datasets")
         ),
         datasets_event_publisher=datasets_publisher
     )
