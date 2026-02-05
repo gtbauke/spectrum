@@ -1,27 +1,26 @@
-import json
-
-from aio_pika import Message
-from pydantic import BaseModel
+from aio_pika.abc import AbstractConnection, AbstractChannel
 
 from app.infra.events.datasets.dataset_events_publisher import DatasetsEventsPublisher
 from app.workers.schemas.dataset_processing_event import DatasetProcessingEvent
 from app.core.queues import queue_settings
+from app.infra.events.base import EventMessage
 
 
 class RabbitMQDatasetsEventsPublisher(DatasetsEventsPublisher):
-    async def publish(self, event: str, payload: BaseModel) -> None:
-        message = Message(
-            body=json.dumps({
-                "event": event,
-                "payload": payload.model_dump(mode="json"),
-            }).encode("utf-8")
-        )
-
-        exchange = await self._channel.get_exchange(queue_settings.DATASET_PROCESSING_EXCHANGE)
-        await exchange.publish(
-            message,
+    def __init__(
+        self,
+        connection: AbstractConnection,
+        channel: AbstractChannel,
+    ):
+        super().__init__(
+            connection,
+            channel,
+            exchange_id=queue_settings.DATASET_PROCESSING_EXCHANGE,
             routing_key=queue_settings.DATASET_PROCESSING_ROUTING_KEY,
         )
 
     async def publish_dataset_processing_event(self, payload: DatasetProcessingEvent) -> None:
-        await self.publish("dataset_processing_event", payload)
+        await self.publish(EventMessage(
+            event="dataset_processing_event",
+            payload=payload,
+        ))

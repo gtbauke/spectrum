@@ -8,5 +8,5 @@ class ModelEventsPublisher(EventPublisher):
     @abstractmethod
     async def publish_start_training_event(
         self,
-        payload: StartModelTrainingEvent
+        payload: StartModelTrainingEvent,
     ) -> None: ...

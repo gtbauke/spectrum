@@ -68,7 +68,10 @@ class DatasetsService:
             file_path=file_path,
         )
 
-        await self._datasets_event_publisher.publish_dataset_processing_event(payload=event_payload)
+        await self._datasets_event_publisher.publish_dataset_processing_event(
+            payload=event_payload,
+        )
+
         return dataset_model.to_domain()
 
     async def update_status(
