@@ -1,8 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-from app.api.v1.routes.datasets import datasets_router
-from app.api.v1.routes.models import models_router
+from app.api.v1.router import v1_router
 from app.infra.events.rabbitmq import rabbitmq_manager
 from app.api.middlewares.correlation_id_middleware import CorrelationIdMiddleware
 from app.core.logging import setup_logging
@@ -26,13 +25,4 @@ app = FastAPI(
 )
 
 app.add_middleware(CorrelationIdMiddleware)
-
-app.include_router(
-    prefix="/api/v1/datasets",
-    router=datasets_router
-)
-
-app.include_router(
-    prefix="/api/v1/models",
-    router=models_router
-)
+app.include_router(v1_router)

@@ -3,10 +3,13 @@ import asyncio
 from app.workers.orchestrators.datasets.dataset_processing_setup import setup_queues
 from app.infra.events.rabbitmq import rabbitmq_manager
 from app.core.logging import setup_logging
+from app.domain.rebuild import rebuild_models
 
 
 async def main():
     setup_logging()
+    rebuild_models()
+
     await rabbitmq_manager.connect()
 
     try:

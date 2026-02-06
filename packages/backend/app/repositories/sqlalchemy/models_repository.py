@@ -40,6 +40,15 @@ class SqlAlchemyModelsRepository(ModelsRepository):
 
         return result.scalar_one_or_none()
 
+    async def list_all(self, where_id: Optional[UUID] = None) -> list[ModelORM]:
+        query = select(ModelORM)
+        if where_id:
+            query = query.where(ModelORM.id == where_id)
+
+        result = await self._session.execute(query)
+
+        return list(result.scalars().all())
+
     async def get_all_trained_models(self) -> Sequence[ModelORM]:
         result = await self._session.execute(
             select(ModelORM).where(ModelORM.model_file.isnot(None))

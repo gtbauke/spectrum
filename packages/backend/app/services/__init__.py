@@ -5,6 +5,7 @@ from app.infra.file_storage import get_file_storage
 from app.infra.events import get_dataset_events_publisher
 from app.services.datasets.dataset_files_service import DatasetFilesService
 from app.services.models.model_files_service import ModelFilesService
+from app.services.jobs.jobs_service import JobsService
 
 
 def get_datasets_service() -> DatasetsService:
@@ -31,3 +32,7 @@ def get_model_training_service() -> ModelTrainingService:
         ),
         dataset_files_service=dataset_files_service
     )
+
+
+def get_jobs_service() -> JobsService:
+    return JobsService()

@@ -50,3 +50,11 @@ class SqlAlchemyDatasetsMetadataRepository(DatasetsMetadataRepository):
     async def update(self, obj: DatasetMetadataORM) -> DatasetMetadataORM:
         await self._session.merge(obj)
         return obj
+
+    async def list_all(self, where_id: Optional[UUID] = None) -> list[DatasetMetadataORM]:
+        query = select(DatasetMetadataORM)
+        if where_id:
+            query = query.where(DatasetMetadataORM.dataset_id == where_id)
+
+        result = await self._session.execute(query)
+        return list(result.scalars().all())

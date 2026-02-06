@@ -17,6 +17,8 @@ from app.workers.consumers.datasets.errors.missing_target_column_error import Mi
 
 logger = logging.getLogger(__name__)
 
+# TODO: handle exceptions, retry logic and status updates in case of failure
+
 
 async def handle_dataset_processing_message(
     message: AbstractIncomingMessage

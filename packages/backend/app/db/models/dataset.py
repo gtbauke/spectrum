@@ -97,8 +97,8 @@ class DatasetORM(Base):
             status=self.status,
             file_path=self.file_path,
             checksum=self.checksum,
-            jobs=[self.job.to_domain()
-                  for self.job in self.jobs] if self.jobs else [],
+            # jobs=[self.job.to_domain()
+            #       for self.job in self.jobs] if self.jobs else [],
             dataset_metadata=self.dataset_metadata.to_domain() if self.dataset_metadata else None,
             created_at=self.created_at,
             updated_at=self.updated_at,

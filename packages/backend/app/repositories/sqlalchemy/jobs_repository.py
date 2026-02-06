@@ -1,8 +1,13 @@
+import logging
+
+from typing import Optional
 from uuid import UUID
 from sqlalchemy import select
 
 from app.repositories.jobs_repository import JobsRepository
 from app.db.models.job import JobORM
+
+logger = logging.getLogger(__name__)
 
 
 class SQLAlchemyJobsRepository(JobsRepository):
@@ -28,3 +33,11 @@ class SQLAlchemyJobsRepository(JobsRepository):
     async def update(self, obj: JobORM) -> JobORM:
         await self._session.merge(obj)
         return obj
+
+    async def list_all(self, where_id: Optional[UUID] = None) -> list[JobORM]:
+        query = select(JobORM)
+        if where_id:
+            query = query.where(JobORM.dataset_id == where_id)
+
+        result = await self._session.execute(query)
+        return list(result.scalars().all())

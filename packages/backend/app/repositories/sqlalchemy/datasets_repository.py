@@ -47,9 +47,11 @@ class SqlAlchemyDatasetsRepository(DatasetsRepository):
 
         return orm
 
-    async def list(self) -> list[DatasetORM]:
-        result = await self._session.execute(
-            select(DatasetORM)
-        )
+    async def list_all(self, where_id: Optional[UUID] = None) -> list[DatasetORM]:
+        query = select(DatasetORM)
+        if where_id:
+            query = query.where(DatasetORM.id == where_id)
+
+        result = await self._session.execute(query)
 
         return list(result.scalars().all())

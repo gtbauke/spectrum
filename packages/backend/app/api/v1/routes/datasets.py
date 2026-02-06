@@ -9,6 +9,7 @@ from app.infra.events.datasets.dataset_events_publisher import DatasetsEventsPub
 from app.infra.events import get_dataset_events_publisher
 from app.services.datasets.dataset_files_service import DatasetFilesService
 from app.domain.datasets.dataset import Dataset
+from app.api.v1.routes.jobs import jobs_router
 
 datasets_router = APIRouter(tags=["datasets"])
 
@@ -65,3 +66,8 @@ async def list_datasets(
         datasets = await service.get_all(uow=uow)
 
     return datasets
+
+datasets_router.include_router(
+    prefix="/{dataset_id}/jobs",
+    router=jobs_router
+)

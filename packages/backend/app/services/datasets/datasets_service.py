@@ -91,5 +91,5 @@ class DatasetsService:
 
     async def get_all(self, uow: UnitOfWork) -> list[Dataset]:
         async with uow:
-            orms = await uow.datasets.list()
+            orms = await uow.datasets.list_all()
             return [orm.to_domain() for orm in orms]

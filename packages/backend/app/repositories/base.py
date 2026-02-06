@@ -23,3 +23,7 @@ class BaseRepository(ABC, Generic[TypeORM]):
 
     @abstractmethod
     async def update(self, obj: TypeORM) -> TypeORM: ...
+
+    @abstractmethod
+    async def list_all(
+        self, where_id: Optional[UUID] = None) -> list[TypeORM]: ...

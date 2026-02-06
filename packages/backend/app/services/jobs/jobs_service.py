@@ -1,3 +1,5 @@
+import logging
+
 from uuid import UUID
 
 from app.api.deps import UnitOfWork
@@ -6,12 +8,16 @@ from app.domain.jobs.job import Job
 from app.domain.datasets.dataset import Dataset
 from app.domain.jobs.job_status import JobStatus
 
+logger = logging.getLogger(__name__)
+
 
 class JobsService:
     async def create(self, uow: UnitOfWork, *, dataset: Dataset) -> Job:
         async with uow:
             job = Job.new(dataset=dataset)
-            await uow.jobs.add(JobORM.from_domain(job))
+
+            orm = JobORM.from_domain(job)
+            await uow.jobs.add(orm)
 
         return job
 
@@ -26,3 +32,10 @@ class JobsService:
             domain = orm.to_domain()
 
         return domain
+
+    async def list_all(self, uow: UnitOfWork, dataset_id: UUID) -> list[Job]:
+        logger.info("GET jobs for dataset", extra={"dataset_id": dataset_id})
+
+        async with uow:
+            orms = await uow.jobs.list_all(where_id=dataset_id)
+            return [orm.to_domain() for orm in orms]
