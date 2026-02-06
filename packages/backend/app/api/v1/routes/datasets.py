@@ -8,7 +8,7 @@ from app.infra.file_storage import FileStorage, get_file_storage
 from app.infra.events.datasets.dataset_events_publisher import DatasetsEventsPublisher
 from app.infra.events import get_dataset_events_publisher
 from app.services.datasets.dataset_files_service import DatasetFilesService
-from app.domain import Dataset
+from app.domain.datasets.dataset import Dataset
 
 datasets_router = APIRouter(tags=["datasets"])
 

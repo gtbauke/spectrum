@@ -1,12 +1,19 @@
+from __future__ import annotations
+
 import uuid
 
 from datetime import datetime
-from sqlalchemy import DateTime, Enum, func
+from typing import TYPE_CHECKING
+from sqlalchemy import DateTime, Enum, func, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 from app.domain.jobs.job_status import JobStatus
+from app.domain.jobs.job import Job
+
+if TYPE_CHECKING:
+    from app.db.models.dataset import DatasetORM
 
 
 class JobORM(Base):
@@ -29,7 +36,13 @@ class JobORM(Base):
 
     dataset_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
+        ForeignKey("datasets.id", ondelete="CASCADE"),
         nullable=False,
+    )
+
+    dataset: Mapped["DatasetORM"] = relationship(
+        back_populates="jobs",
+        lazy="selectin",
     )
 
     created_at: Mapped[datetime] = mapped_column(
@@ -49,3 +62,25 @@ class JobORM(Base):
         nullable=True,
         default=None,
     )
+
+    def to_domain(self) -> Job:
+        return Job(
+            id=self.id,
+            status=self.status,
+            dataset_id=self.dataset_id,
+            dataset=self.dataset.to_domain(),
+            created_at=self.created_at,
+            started_at=self.started_at,
+            finished_at=self.finished_at,
+        )
+
+    @classmethod
+    def from_domain(cls, job: Job) -> JobORM:
+        return cls(
+            id=job.id,
+            status=job.status,
+            dataset_id=job.dataset_id,
+            created_at=job.created_at,
+            started_at=job.started_at,
+            finished_at=job.finished_at,
+        )
