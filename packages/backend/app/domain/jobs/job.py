@@ -1,4 +1,6 @@
-from uuid import UUID
+from __future__ import annotations
+
+from uuid import UUID, uuid4
 from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import TYPE_CHECKING
@@ -11,7 +13,8 @@ if TYPE_CHECKING:
 
 class Job(BaseModel):
     id: UUID = Field(..., description="The unique identifier of the job")
-    status: JobStatus = Field(..., description="The current status of the job")
+    status: JobStatus = Field(
+        JobStatus.PENDING, description="The current status of the job")
     dataset_id: UUID = Field(
         ..., description="The unique identifier of the dataset associated with the job")
     dataset: "Dataset" = Field(...,
@@ -24,3 +27,15 @@ class Job(BaseModel):
     finished_at: datetime | None = Field(
         None, description="The timestamp when the job finished, if it has finished"
     )
+
+    @classmethod
+    def new(cls, dataset: "Dataset") -> Job:
+        return cls(
+            id=uuid4(),
+            status=JobStatus.PENDING,
+            dataset_id=dataset.id,
+            dataset=dataset,
+            created_at=datetime.now(),
+            started_at=None,
+            finished_at=None,
+        )
