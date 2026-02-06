@@ -8,6 +8,7 @@ from app.db.uow.unit_of_work import UnitOfWork
 from app.repositories.sqlalchemy.datasets_repository import SqlAlchemyDatasetsRepository
 from app.repositories.sqlalchemy.datasets_metadata_repository import SqlAlchemyDatasetsMetadataRepository
 from app.repositories.sqlalchemy.models_repository import SqlAlchemyModelsRepository
+from app.repositories.sqlalchemy.jobs_repository import SQLAlchemyJobsRepository
 
 
 class SqlAlchemyUnitOfWork(UnitOfWork):
@@ -23,6 +24,7 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
             self._session)
 
         self.models = SqlAlchemyModelsRepository(self._session)
+        self.jobs = SQLAlchemyJobsRepository(self._session)
 
         return self
 

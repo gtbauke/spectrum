@@ -4,8 +4,10 @@ from app.repositories.base import BaseRepository
 from app.db.models import DatasetORM
 from app.domain.datasets.dataset import Dataset
 
+# TODO: clean up this class
 
-class DatasetsRepository(BaseRepository[DatasetORM, Dataset], ABC):
+
+class DatasetsRepository(BaseRepository[DatasetORM], ABC):
     @abstractmethod
     async def create(self, *, name: str) -> DatasetORM: ...
 

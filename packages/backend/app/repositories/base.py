@@ -5,10 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 TypeORM = TypeVar("TypeORM")
-TypeDomain = TypeVar("TypeDomain")
 
 
-class BaseRepository(ABC, Generic[TypeORM, TypeDomain]):
+class BaseRepository(ABC, Generic[TypeORM]):
     def __init__(self, session: AsyncSession) -> None:
         super().__init__()
         self._session = session
