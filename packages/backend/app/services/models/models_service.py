@@ -59,10 +59,11 @@ class ModelsService:
                 raise ValueError(f"Model with ID {model_id} not found.")
 
             orm.model_file = model_file_path
+            domain = orm.to_domain()
 
             await uow.models.update(orm)
 
-        return orm.to_domain()
+        return domain
 
     async def get_non_trained_models(
         self,

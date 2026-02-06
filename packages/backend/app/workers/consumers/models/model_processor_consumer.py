@@ -2,8 +2,8 @@ from aio_pika.abc import AbstractIncomingMessage
 
 from app.workers.schemas.base import EventEnvelope
 from app.workers.schemas.start_model_training_event import StartModelTrainingEvent
-from app.services import (DatasetFilesService, get_datasets_service,
-                          get_file_storage, get_model_training_service, get_models_service)
+from app.services import (get_datasets_service,
+                          get_model_training_service, get_models_service)
 from app.api.deps import get_uow
 from app.workers.consumers.datasets.errors.dataset_not_found_error import DatasetNotFoundError
 from app.workers.consumers.models.errors.dataset_not_ready_for_training_error import DatasetNotReadyForTrainingError
@@ -14,10 +14,6 @@ async def handle_model_training_message(message: AbstractIncomingMessage) -> Non
     models_service = get_models_service()
     datasets_service = get_datasets_service()
     model_training_service = get_model_training_service()
-
-    dataset_files_service = DatasetFilesService(
-        file_storage=get_file_storage().scoped("datasets")
-    )
 
     async with message.process():
         event_data = EventEnvelope[StartModelTrainingEvent].model_validate_json(
@@ -44,17 +40,12 @@ async def handle_model_training_message(message: AbstractIncomingMessage) -> Non
         if not dataset.file_path:
             raise DatasetMissingFilePathError(event_data.payload.dataset_id)
 
-        final_path = await dataset_files_service.get_dataset_file_path(
+        final_path = await model_training_service.train_model(
             dataset_id=dataset.id,
-            file_name=dataset.file_path
-        )
-
-        await model_training_service.train_model(
-            file_path=final_path
+            dataset_file_name=dataset.file_path
         )
 
         async with get_uow() as uow:
-            # TODO: model_file_path should not be the full system path, but rather a relative path
             await models_service.update_model_file_path(
                 uow=uow,
                 model_id=model.id,

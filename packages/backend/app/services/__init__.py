@@ -4,6 +4,7 @@ from app.services.models.model_training_service import ModelTrainingService
 from app.infra.file_storage import get_file_storage
 from app.infra.events import get_dataset_events_publisher
 from app.services.datasets.dataset_files_service import DatasetFilesService
+from app.services.models.model_files_service import ModelFilesService
 
 
 def get_datasets_service() -> DatasetsService:
@@ -20,4 +21,13 @@ def get_models_service() -> ModelsService:
 
 
 def get_model_training_service() -> ModelTrainingService:
-    return ModelTrainingService()
+    dataset_files_service = DatasetFilesService(
+        file_storage=get_file_storage().scoped(scope="datasets")
+    )
+
+    return ModelTrainingService(
+        model_files_service=ModelFilesService(
+            dataset_files_service=dataset_files_service
+        ),
+        dataset_files_service=dataset_files_service
+    )
