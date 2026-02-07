@@ -153,6 +153,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "python-json-logger" },
+    { name = "reggression" },
     { name = "sqlalchemy" },
     { name = "uvicorn", extra = ["standard"] },
 ]
@@ -181,6 +182,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "pydantic-settings", specifier = ">=2.12.0" },
     { name = "python-json-logger", specifier = ">=4.0.0" },
+    { name = "reggression", specifier = ">=1.0.10" },
     { name = "sqlalchemy", specifier = ">=2.0.46" },
     { name = "uvicorn", extras = ["standard"] },
 ]
@@ -1722,6 +1724,29 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/da/92/1446574745d74df0c92e6aa4a7b0b3130706a4142b2d1a5869f2eaa423c6/pyyaml-6.0.3-cp314-cp314t-musllinux_1_2_x86_64.whl", hash = "sha256:16249ee61e95f858e83976573de0f5b2893b3677ba71c9dd36b9cf8be9ac6d65", size = 829923, upload-time = "2025-09-25T21:32:54.537Z" },
     { url = "https://files.pythonhosted.org/packages/f0/7a/1c7270340330e575b92f397352af856a8c06f230aa3e76f86b39d01b416a/pyyaml-6.0.3-cp314-cp314t-win_amd64.whl", hash = "sha256:4ad1906908f2f5ae4e5a8ddfce73c320c2a1429ec52eafd27138b7f1cbe341c9", size = 174062, upload-time = "2025-09-25T21:32:55.767Z" },
     { url = "https://files.pythonhosted.org/packages/f1/12/de94a39c2ef588c7e6455cfbe7343d3b2dc9d6b6b2f40c4c6565744c873d/pyyaml-6.0.3-cp314-cp314t-win_arm64.whl", hash = "sha256:ebc55a14a21cb14062aa4162f906cd962b28e2e9ea38f9b4391244cd8de4ae0b", size = 149341, upload-time = "2025-09-25T21:32:56.828Z" },
+]
+
+[[package]]
+name = "reggression"
+version = "1.0.10"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "pandas" },
+    { name = "scikit-learn" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ca/e2/171307310ceacffe5d28639028c9441938a0dd918ed42ff1b8e2dfb4a2bb/reggression-1.0.10.tar.gz", hash = "sha256:ae60134be57fa99ef89e6d0cbea23b9414a958cf69e7ea0e7d1751684c9d49a7", size = 56701, upload-time = "2025-10-28T15:44:02.069Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/41/f3/476668c6418e61979c02826d10f43aac3b0f30e093626192026f9eff3532/reggression-1.0.10-cp312-cp312-macosx_14_0_arm64.whl", hash = "sha256:26efa89cb6406926b5a958c766c2eff851f06e726301c20af78d89d676e152c0", size = 13248226, upload-time = "2025-10-28T15:43:26.208Z" },
+    { url = "https://files.pythonhosted.org/packages/83/93/619ed4f20df30da9d178d5448bd6947042b2a813c58026e477684ed2a8dd/reggression-1.0.10-cp312-cp312-macosx_14_0_x86_64.whl", hash = "sha256:fe43e2b91b5bd27eaf6f8842bddbd1167a2ae58777ecdfbe95d6c199f867a5a8", size = 14337183, upload-time = "2025-10-28T15:43:28.597Z" },
+    { url = "https://files.pythonhosted.org/packages/2c/8b/28c3958bf0457783043c8bce1fff8ba59004f07955bee1ec14c63e926185/reggression-1.0.10-cp312-cp312-manylinux_2_28_aarch64.whl", hash = "sha256:dbaa9852263e0721d2f6c27e55b7f925dc8c649ea52579068721e8dd6823b5de", size = 29180187, upload-time = "2025-10-28T15:43:30.838Z" },
+    { url = "https://files.pythonhosted.org/packages/76/00/aacd5779cccf241e7db026ea5c74c2dd9e99c15baa98015e2cf9af38bcb5/reggression-1.0.10-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:b3038d66fab67abbd20876e2b84aea8ac66df41eea3479804d8a94206288134f", size = 26944135, upload-time = "2025-10-28T15:43:34.131Z" },
+    { url = "https://files.pythonhosted.org/packages/ff/db/70ff591a519aecc82d5215dae7c3d539ae1d2e75530d26382ae95b8aeb29/reggression-1.0.10-cp312-cp312-win_amd64.whl", hash = "sha256:2dd75bff5e3c5344770974a1f92bcdb52a31f9a279d75c9417c88d587c9c75c7", size = 10856272, upload-time = "2025-10-28T15:43:36.393Z" },
+    { url = "https://files.pythonhosted.org/packages/c7/02/7940b8c46048e290ab060dcda2aa8191b7f9f440a0d63f2cef9b201283ef/reggression-1.0.10-cp313-cp313-macosx_14_0_arm64.whl", hash = "sha256:43e1ed7680815dc839acd1907530bd519c4678c5c350955f6adb5fd7c330d15a", size = 13243644, upload-time = "2025-10-28T15:43:38.594Z" },
+    { url = "https://files.pythonhosted.org/packages/e3/ea/a413dbdd8accbb216aa25333e3e4db1eb590d11bfdc362142983ce9b4acf/reggression-1.0.10-cp313-cp313-macosx_14_0_x86_64.whl", hash = "sha256:1fcc0751860b0e81325d948cc6bb29f37b89c7aad1376f91130b20fefd7a1b78", size = 14336240, upload-time = "2025-10-28T15:43:41.201Z" },
+    { url = "https://files.pythonhosted.org/packages/36/78/c6dc373025826bb9859a7a587e0bcbd5bdb2a6f0af3fde7b9372b10bfaa2/reggression-1.0.10-cp313-cp313-manylinux_2_28_aarch64.whl", hash = "sha256:8dab35405366a56350d438341a91bac9b3c9565d78a29a41f1d07fd878aa2ea9", size = 29180137, upload-time = "2025-10-28T15:43:43.406Z" },
+    { url = "https://files.pythonhosted.org/packages/80/2d/9e0294a8d6264a50a63adbfed74a5f46c52d4a2e4f58cd4b3af1a6513a31/reggression-1.0.10-cp313-cp313-manylinux_2_28_x86_64.whl", hash = "sha256:5354ae17757ea0ab95220c6e55e6623d200a3f424c4ec18fc6df6a3334411799", size = 26944116, upload-time = "2025-10-28T15:43:45.938Z" },
+    { url = "https://files.pythonhosted.org/packages/ca/f4/61bc8a1e75604a1ae47bbd40f2601e509586ca3e7edad61ab3ec3d3fd4b4/reggression-1.0.10-cp313-cp313-win_amd64.whl", hash = "sha256:221cd61475b2c0a48605c9c1721c1c559f5270567c750dfa53ec7b69866097c0", size = 10855951, upload-time = "2025-10-28T15:43:48.252Z" },
 ]
 
 [[package]]

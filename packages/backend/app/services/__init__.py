@@ -6,6 +6,7 @@ from app.infra.events import get_dataset_events_publisher
 from app.services.datasets.dataset_files_service import DatasetFilesService
 from app.services.models.model_files_service import ModelFilesService
 from app.services.jobs.jobs_service import JobsService
+from app.services.inference.inference_service import InferenceService
 
 
 def get_datasets_service() -> DatasetsService:
@@ -36,3 +37,20 @@ def get_model_training_service() -> ModelTrainingService:
 
 def get_jobs_service() -> JobsService:
     return JobsService()
+
+
+def get_inference_service() -> InferenceService:
+    dataset_files_service = DatasetFilesService(
+        file_storage=get_file_storage().scoped(scope="datasets")
+    )
+
+    model_files_service = ModelFilesService(
+        dataset_files_service=dataset_files_service
+    )
+
+    return InferenceService(
+        models_service=get_models_service(),
+        datasets_service=get_datasets_service(),
+        model_files_service=model_files_service,
+        dataset_files_service=dataset_files_service,
+    )

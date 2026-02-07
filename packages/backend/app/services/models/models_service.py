@@ -11,6 +11,22 @@ class ModelsService:
     def __init__(self):
         pass
 
+    async def get(
+        self,
+        uow: UnitOfWork,
+        *,
+        model_id: UUID,
+    ) -> Model:
+        async with uow:
+            orm = await uow.models.get_by_id(model_id)
+
+            if not orm:
+                raise ValueError(f"Model with ID {model_id} not found.")
+
+            domain = orm.to_domain()
+
+        return domain
+
     async def create(
         self,
         uow: UnitOfWork,
