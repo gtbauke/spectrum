@@ -88,7 +88,7 @@ class QueryParser(ABC):
         infix_parselet = self._infix_parselets.get(self.peek().kind)
 
         if infix_parselet:
-            return infix_parselet.precedence
+            return infix_parselet.precedence()
 
         return Precedence.NONE
 

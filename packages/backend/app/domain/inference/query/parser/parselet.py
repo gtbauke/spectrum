@@ -26,7 +26,6 @@ class InfixParselet(ABC):
     def parse(self, parser: "QueryParser", left: BaseAstNode,
               token: Token) -> BaseAstNode: ...
 
-    @property
     @abstractmethod
     def precedence(self) -> Precedence: ...
 

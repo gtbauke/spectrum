@@ -8,6 +8,8 @@ class TokenKind(StrEnum):
     EQUAL = "EQUAL"
     GREATER_EQUAL = "GREATER_EQUAL"
     LESS_EQUAL = "LESS_EQUAL"
+    GREATER = "GREATER"
+    LESS = "LESS"
     COMMA = "COMMA"
 
     SELECT = "SELECT"
@@ -18,6 +20,8 @@ class TokenKind(StrEnum):
     ORDER = "ORDER"
     BY = "BY"
     ALL = "ALL"
+    AND = "AND"
+    OR = "OR"
 
     NUMBER = "NUMBER"
     IDENTIFIER = "IDENTIFIER"
@@ -43,6 +47,10 @@ class TokenKind(StrEnum):
                 return TokenKind.BY
             case "ALL":
                 return TokenKind.ALL
+            case "AND":
+                return TokenKind.AND
+            case "OR":
+                return TokenKind.OR
             case _:
                 return TokenKind.IDENTIFIER
 
