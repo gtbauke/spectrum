@@ -66,8 +66,8 @@ class QueryParser(ABC):
 
         raise ExpectedTokenException(kind, self.peek().kind)
 
-    def consume_optional(self, kind: TokenKind) -> Optional[Token]:
-        if self.peek().kind == kind:
+    def consume_optional(self, *kinds: TokenKind) -> Optional[Token]:
+        if self.peek().kind in kinds:
             return self.advance()
 
         return None

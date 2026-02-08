@@ -39,6 +39,7 @@ async def websocket_inference(
                 "model_id": model_id,
                 "raw_message": raw,
                 "ast": ast,
+                "ast_json": ast.to_string(indent=0),
             })
 
             # message = BaseInferenceMessage.model_validate(raw)
@@ -52,7 +53,9 @@ async def websocket_inference(
             # })
 
             # await websocket.send_json(result.model_dump())
-            await websocket.send_json("Inference result is not implemented yet")
+            await websocket.send_json({
+                "ast": ast.to_string(indent=0),
+            })
 
     except WebSocketDisconnect:
         await websocket.close()

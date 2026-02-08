@@ -1,8 +1,9 @@
 from __future__ import annotations
 from enum import StrEnum
 
-from app.domain.inference.query.parser.ast.base import BaseAstNode
+from app.domain.inference.query.parser.ast.base import BaseAstNode, AstNodeKind
 from app.domain.inference.query.tokenizer.token import TokenKind
+from app.domain.inference.query.span import Span
 
 
 class TokenKindConversionException(Exception):
@@ -39,10 +40,16 @@ class BinaryOperator(StrEnum):
 
 
 class BinaryExpression(BaseAstNode):
-    def __init__(self, left: BaseAstNode, operator: BinaryOperator, right: BaseAstNode):
-        self.left = left
-        self.operator = operator
-        self.right = right
+    def __init__(self, left: BaseAstNode, operator: BinaryOperator, right: BaseAstNode, span: Span):
+        self._left = left
+        self._operator = operator
+        self._right = right
+        super().__init__(kind=AstNodeKind.BINARY_EXPRESSION, span=span)
 
-    def __repr__(self):
-        return f"BinaryExpression(left={self.left}, operator='{self.operator}', right={self.right})"
+    def to_string(self, indent: int) -> str:
+        indent_str = " " * indent
+        return f"{indent_str}BinaryExpression(\n" \
+            f"{self._left.to_string(indent + 2)},\n" \
+            f"{indent_str}  Operator: {self._operator},\n" \
+            f"{self._right.to_string(indent + 2)}\n" \
+            f"{indent_str})"

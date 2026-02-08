@@ -23,4 +23,5 @@ class BinaryExpressionParselet(InfixParselet):
         operator = BinaryOperator.from_token_kind(token.kind)
         right = parser.parse_expression(self._precedence)
 
-        return BinaryExpression(left, operator, right)
+        span = left.span.merge(right.span)
+        return BinaryExpression(left, operator, right, span)

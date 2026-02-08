@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from enum import StrEnum
 
 from app.domain.inference.query.span import Span
@@ -20,6 +20,9 @@ class BaseAstNode(ABC):
     def __init__(self, kind: AstNodeKind, span: Span):
         self._kind = kind
         self._span = span
+
+    @abstractmethod
+    def to_string(self, indent: int) -> str: ...
 
     @property
     def kind(self) -> AstNodeKind:
