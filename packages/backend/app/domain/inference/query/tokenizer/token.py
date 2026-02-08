@@ -8,12 +8,16 @@ class TokenKind(StrEnum):
     EQUAL = "EQUAL"
     GREATER_EQUAL = "GREATER_EQUAL"
     LESS_EQUAL = "LESS_EQUAL"
+    COMMA = "COMMA"
 
     SELECT = "SELECT"
     FROM = "FROM"
     TOP = "TOP"
     WHERE = "WHERE"
     NOT = "NOT"
+    ORDER = "ORDER"
+    BY = "BY"
+    ALL = "ALL"
 
     NUMBER = "NUMBER"
     IDENTIFIER = "IDENTIFIER"
@@ -33,6 +37,12 @@ class TokenKind(StrEnum):
                 return TokenKind.WHERE
             case "NOT":
                 return TokenKind.NOT
+            case "ORDER":
+                return TokenKind.ORDER
+            case "BY":
+                return TokenKind.BY
+            case "ALL":
+                return TokenKind.ALL
             case _:
                 return TokenKind.IDENTIFIER
 
@@ -46,3 +56,11 @@ class Token:
     @property
     def kind(self) -> TokenKind:
         return self._kind
+
+    @property
+    def lexeme(self) -> str:
+        return self._lexeme
+
+    @property
+    def span(self) -> Span:
+        return self._span

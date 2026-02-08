@@ -1,4 +1,4 @@
-from app.domain.inference.query.token import Token, TokenKind
+from app.domain.inference.query.tokenizer.token import Token, TokenKind
 from app.domain.inference.query.span import Span
 
 
@@ -85,6 +85,8 @@ class QueryTokenizer:
                     return Token(TokenKind.LESS_EQUAL, "<=", Span(self._start, self._current))
                 else:
                     raise ValueError(f"Unexpected character: {current}")
+            case ",":
+                return Token(TokenKind.COMMA, current, Span(self._start, self._current))
             case _:
                 return self._identifier_number_or_keyword()
 

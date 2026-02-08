@@ -22,5 +22,6 @@ generated/
 .env
 dist
 __pycache__
+.vscode
 
 spectrum_data
