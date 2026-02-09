@@ -16,7 +16,7 @@
 *.ilg
 *.ind
 
-node_modules/
+node_modules
 
 generated/
 .env

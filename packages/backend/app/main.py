@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import v1_router
 from app.infra.events.rabbitmq import rabbitmq_manager
@@ -22,6 +23,13 @@ app = FastAPI(
     description="Backend service for Spectrum application",
     version="1.0.0",
     lifespan=lifespan
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "*"
+    ],
 )
 
 app.add_middleware(CorrelationIdMiddleware)
