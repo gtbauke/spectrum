@@ -1,80 +1,86 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+
 import { useCallback } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+import { createDataset } from "~/api/create-dataset.api";
 import { FormInput } from "~/components/ui/forms/form-input.component";
-import { FormTextArea } from "~/components/ui/forms/form-textarea.component";
 import { useDatasetCreationContext } from "~/contexts/dataset-creation.context";
 import {
-    type CreateDatasetData,
-    createDatasetValidator,
-} from "~s/datasets.validator";
+	type CreateDatasetData,
+	createDatasetSchema,
+} from "~/schemas/dataset.schema";
 
-// TODO: handle API call
 export function DatasetsAsideSection() {
-    const { file } = useDatasetCreationContext();
-    const navigate = useNavigate();
+	const { file } = useDatasetCreationContext();
+	const navigate = useNavigate();
 
-    const {
-        register,
-        handleSubmit,
-        reset,
-        formState: { errors },
-    } = useForm<CreateDatasetData>({
-        defaultValues: {
-            title: file?.originalName || "",
-            description: "",
-        },
-        resolver: zodResolver(createDatasetValidator),
-    });
+	const {
+		register,
+		handleSubmit,
+		reset,
+		formState: { errors },
+	} = useForm<CreateDatasetData>({
+		defaultValues: {
+			name: file?.originalName || "",
+		},
+		resolver: zodResolver(createDatasetSchema),
+	});
 
-    const onCancel = useCallback(() => {
-        reset();
-        navigate("/");
-    }, [reset, navigate]);
+	const onCancel = useCallback(() => {
+		reset();
+		navigate("/");
+	}, [reset, navigate]);
 
-    const onSubmit: SubmitHandler<CreateDatasetData> = (data) => {
-        console.log(errors);
-        console.log(data);
-    };
+	const onSubmit: SubmitHandler<CreateDatasetData> = async (data) => {
+		console.log(errors);
+		console.log(data);
 
-    return (
-        <div className="h-full bg-gray-900 p-4 space-y-8">
-            <h2 className="text-xl font-bold">Configure your dataset</h2>
+		if (!file || !file.upload) {
+			console.error("No file provided for dataset creation");
+			return;
+		}
 
-            <form
-                className="flex flex-col gap-3"
-                onSubmit={handleSubmit(onSubmit)}
-                onReset={onCancel}
-            >
-                <FormInput
-                    label="Dataset name"
-                    error={errors.title}
-                    required
-                    {...register("title", { required: true })}
-                />
+		try {
+			const response = await createDataset(data, file.upload);
+			console.log("Dataset created successfully:", response);
 
-                <FormTextArea
-                    label="Dataset description"
-                    className="min-h-30"
-                    error={errors.description}
-                    {...register("description")}
-                />
+			navigate("/datasets");
+		} catch (error) {
+			console.error("Error creating dataset:", error);
+		}
+	};
 
-                <div className="flex flex-col gap-2">
-                    <input
-                        type="submit"
-                        value="Continue"
-                        className="cursor-pointer p-2 bg-green-600 hover:bg-green-700 active:bg-green-800 rounded-sm font-bold"
-                    />
+	return (
+		<div className="h-full bg-gray-900 p-4 space-y-8">
+			<h2 className="text-xl font-bold">Configure your dataset</h2>
 
-                    <input
-                        type="reset"
-                        value="Cancel"
-                        className="cursor-pointer p-2 bg-red-600 hover:bg-red-700 active:bg-red-800 rounded-sm font-bold"
-                    />
-                </div>
-            </form>
-        </div>
-    );
+			<form
+				className="flex flex-col gap-3"
+				onSubmit={handleSubmit(onSubmit)}
+				onReset={onCancel}
+			>
+				<FormInput
+					label="Dataset name"
+					error={errors.name}
+					required
+					{...register("name", { required: true })}
+				/>
+
+				<div className="flex flex-col gap-2">
+					<input
+						type="submit"
+						value="Continue"
+						className="cursor-pointer p-2 bg-green-600 hover:bg-green-700 active:bg-green-800 rounded-sm font-bold"
+					/>
+
+					<input
+						type="reset"
+						value="Cancel"
+						className="cursor-pointer p-2 bg-red-600 hover:bg-red-700 active:bg-red-800 rounded-sm font-bold"
+					/>
+				</div>
+			</form>
+		</div>
+	);
 }
