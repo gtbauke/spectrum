@@ -38,6 +38,17 @@ To run Spectrum locally, ensure you have the following installed:
 
 ### Running Spectrum
 
+#### Using Docker
+
+1. Ensure you have Docker installed and running on your machine.
+2. From the project root, run the following script:
+
+    ```bash
+    ./scripts/dev.sh
+    ```
+
+#### Manual Execution
+
 1. From the project root, start the backend server:
 
    ```bash
