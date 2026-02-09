@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+set -e
+
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+ENV_FILE="$ROOT_DIR/.env"
+
+echo "Starting Spectrum (local development)..."
+echo "Project Root: $ROOT_DIR"
+
+if [ ! -f "$ENV_FILE" ]; then
+  echo "Error: .env file not found at $ENV_FILE. Please create it based on .env.example and try again."
+  exit 1
+fi
+
+echo "Loading environment variables from $ENV_FILE..."
+set -o allexport
+source "$ENV_FILE"
+set +o allexport
+
+REQUIRED_VARS=(
+    DATABASE_URL
+    RABBITMQ_USER
+    RABBITMQ_PASSWORD
+    RABBITMQ_HOST
+    RABBITMQ_PORT
+)
+
+for var in "${REQUIRED_VARS[@]}"; do
+  if [ -z "${!var}" ]; then
+    echo "Error: Environment variable '$var' is not set. Please check your .env file."
+    exit 1
+  fi
+done
+
+if ! command -v uv > /dev/null 2>&1; then
+  echo "Error: 'uv' command not found. Please install uv with: `pip install uv`"
+  exit 1
+fi
+
+cleanup() {
+    echo ""
+    echo "Shutting down Spectrum..."
+    docker compose down
+    kill $(jobs -p) 2>/dev/null || true
+    exit 0
+}
+
+trap cleanup SIGINT SIGTERM
+
+echo "Starting Postgres and RabbitMQ services with Docker Compose..."
+(
+    cd "$ROOT_DIR"
+    docker compose up -d
+)
+
+echo "Waiting for Postgres and RabbitMQ to be ready..."
+until docker exec spectrum-postgres pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" > /dev/null 2>&1; do
+    echo "Waiting for Postgres to be ready..."
+    sleep 1
+done
+
+echo "Waiting for RabbitMQ to be ready..."
+until docker exec spectrum-rabbitmq rabbitmqctl status > /dev/null 2>&1; do
+    echo "Waiting for RabbitMQ to be ready..."
+    sleep 1
+done
+
+echo "Running database migrations with uv..."
+(
+    cd "$ROOT_DIR/packages/backend"
+    uv run alembic upgrade head
+)
+
+
+echo "Starting backend server with uv..."
+(
+    cd "$ROOT_DIR"
+    uv sync --all-packages
+    uv run --package backend fastapi dev packages/backend/app/main.py
+) &
+
+echo "Starting dataset worker with uv..."
+(
+    cd "$ROOT_DIR/packages/backend"
+    uv run python -m app.workers.orchestrators.datasets.dataset_processing_orchestrator
+) &
+
+echo "Starting model training worker with uv..."
+(
+    cd "$ROOT_DIR/packages/backend"
+    uv run python -m app.workers.orchestrators.models.model_processing_orchestrator
+) &
+
+echo "Starting frontend..."
+(
+    cd "$ROOT_DIR/packages/frontend"
+    npm install
+    npm run dev
+) &
+
+echo "All services started. Press Ctrl+C to stop."
+echo "Backend: http://localhost:8000"
+echo "Frontend: http://localhost:5173"
+
+wait

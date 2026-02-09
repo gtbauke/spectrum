@@ -12,7 +12,9 @@ class Settings(BaseSettings):
     POSTGRES_HOST: str = "localhost"
     POSTGRES_PORT: str = "5432"
     POSTGRES_DB: str = "spectrum"
+
     DATABASE_URL: str = ""
+    DATABASE_URL_SYNC: str = ""
 
     RABBITMQ_USER: str = "guest"
     RABBITMQ_PASSWORD: str = "guest"
