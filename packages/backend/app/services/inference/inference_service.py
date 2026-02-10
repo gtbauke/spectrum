@@ -1,3 +1,4 @@
+import logging
 from uuid import UUID
 
 from app.api.deps import UnitOfWork
@@ -7,6 +8,9 @@ from app.services.models.model_files_service import ModelFilesService
 from app.services.datasets.datasets_service import DatasetsService
 from app.services.datasets.dataset_files_service import DatasetFilesService
 from app.domain.inference.live_model import LiveModel
+
+
+logger = logging.getLogger(__name__)
 
 
 class InferenceService:
@@ -39,13 +43,20 @@ class InferenceService:
 
             model_path = await self._model_files_service.get_model_file_path(
                 dataset_id=dataset.id,
-                file_name=model.model_file
+                job_id=model.job_id,
             )
 
             dataset_path = await self._dataset_files_service.get_dataset_file_path(
                 dataset_id=dataset.id,
                 file_name=dataset.file_path
             )
+
+            logger.info("Creating inference session for model %s and dataset %s", model.id, dataset.id, extra={
+                "model_id": str(model.id),
+                "dataset_id": str(dataset.id),
+                "model_path": model_path,
+                "dataset_path": dataset_path,
+            })
 
             live_model = LiveModel(
                 model=model,

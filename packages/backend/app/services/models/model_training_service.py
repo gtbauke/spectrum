@@ -17,7 +17,7 @@ class ModelTrainingService:
         self._dataset_files_service = dataset_files_service
         self._model_files_service = model_files_service
 
-    async def train_model(self, dataset_id: UUID, dataset_file_name: str) -> str:
+    async def train_model(self, dataset_id: UUID, job_id: UUID, dataset_file_name: str) -> str:
         file_path = await self._dataset_files_service.get_dataset_file_path(
             dataset_id=dataset_id,
             file_name=dataset_file_name
@@ -34,7 +34,7 @@ class ModelTrainingService:
 
         model_path = await self._model_files_service.get_model_file_path(
             dataset_id=dataset_id,
-            file_name=dataset_file_name
+            job_id=job_id,
         )
 
         model_path = Path(model_path)

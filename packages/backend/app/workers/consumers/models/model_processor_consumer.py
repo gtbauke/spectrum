@@ -55,8 +55,11 @@ async def handle_model_training_message(message: AbstractIncomingMessage) -> Non
             raise DatasetMissingFilePathError(event_data.payload.dataset_id)
 
         await jobs_service.update_status(uow=uow, job_id=job.id, status=JobStatus.RUNNING)
+
+        # TODO: model file should be correctly saved
         final_path = await model_training_service.train_model(
             dataset_id=dataset.id,
+            job_id=job.id,
             dataset_file_name=dataset.file_path
         )
 
