@@ -14,6 +14,7 @@ from app.domain.jobs.job import Job
 
 if TYPE_CHECKING:
     from app.db.models.dataset import DatasetORM
+    from app.db.models.model import ModelORM
 
 
 class JobORM(Base):
@@ -45,6 +46,12 @@ class JobORM(Base):
         lazy="selectin",
     )
 
+    models: Mapped[list["ModelORM"]] = relationship(
+        back_populates="job",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
@@ -72,6 +79,7 @@ class JobORM(Base):
             created_at=self.created_at,
             started_at=self.started_at,
             finished_at=self.finished_at,
+            models=[model.to_domain() for model in self.models],
         )
 
     @classmethod
@@ -83,4 +91,5 @@ class JobORM(Base):
             created_at=job.created_at,
             started_at=job.started_at,
             finished_at=job.finished_at,
+            models=[ModelORM.from_domain(model) for model in job.models],
         )

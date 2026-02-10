@@ -9,6 +9,7 @@ from app.domain.jobs.job_status import JobStatus
 
 if TYPE_CHECKING:
     from app.domain.datasets.dataset import Dataset
+    from app.domain.models.model import Model
 
 
 class Job(BaseModel):
@@ -28,6 +29,9 @@ class Job(BaseModel):
         None, description="The timestamp when the job finished, if it has finished"
     )
 
+    models: list["Model"] = Field(...,
+                                  description="The list of models produced by the job")
+
     @classmethod
     def new(cls, dataset: "Dataset") -> Job:
         return cls(
@@ -38,4 +42,5 @@ class Job(BaseModel):
             created_at=datetime.now(),
             started_at=None,
             finished_at=None,
+            models=[],
         )

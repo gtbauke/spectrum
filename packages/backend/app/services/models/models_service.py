@@ -33,6 +33,7 @@ class ModelsService:
         *,
         model_name: str,
         dataset_id: UUID,
+        job_id: UUID,
         version: int,
     ) -> Model:
         async with uow:
@@ -45,6 +46,7 @@ class ModelsService:
                 name=model_name,
                 dataset_id=dataset_id,
                 version=version,
+                job_id=job_id,
             )
 
             orm = await uow.models.add(ModelORM.from_domain(model))

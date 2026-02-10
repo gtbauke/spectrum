@@ -13,6 +13,7 @@ from app.domain.models.model import Model
 
 if TYPE_CHECKING:
     from app.db.models.dataset import DatasetORM
+    from app.db.models.job import JobORM
 
 
 class ModelORM(Base):
@@ -36,6 +37,17 @@ class ModelORM(Base):
 
     dataset: Mapped["DatasetORM"] = relationship(
         back_populates="models",
+    )
+
+    job_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("jobs.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    job: Mapped["JobORM"] = relationship(
+        back_populates="models",
+        lazy="selectin",
     )
 
     version: Mapped[int] = mapped_column(
@@ -70,6 +82,7 @@ class ModelORM(Base):
             model_file=self.model_file,
             created_at=self.created_at,
             updated_at=self.updated_at,
+            job_id=self.job_id,
         )
 
     @classmethod
@@ -82,4 +95,5 @@ class ModelORM(Base):
             model_file=model.model_file,
             created_at=model.created_at,
             updated_at=model.updated_at,
+            job_id=model.job_id,
         )

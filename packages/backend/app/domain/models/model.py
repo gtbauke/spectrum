@@ -11,6 +11,7 @@ class Model(BaseModel):
 
     name: str
     dataset_id: UUID
+    job_id: UUID
     version: int
 
     model_file: Optional[str]
@@ -19,13 +20,14 @@ class Model(BaseModel):
     updated_at: datetime
 
     @classmethod
-    def create(cls, *, name: str, dataset_id: UUID, model_file: Optional[str] = None, version: int = 1) -> Model:
+    def create(cls, *, name: str, dataset_id: UUID, job_id: UUID, model_file: Optional[str] = None, version: int = 1) -> Model:
         now = datetime.now()
 
         return cls(
             id=uuid4(),
             name=name,
             dataset_id=dataset_id,
+            job_id=job_id,
             version=version,
             model_file=model_file,
             created_at=now,
