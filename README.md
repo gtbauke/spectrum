@@ -75,7 +75,7 @@ To run Spectrum locally, ensure you have the following installed:
 
 ## Usage
 
-Once all services are running, open your web browser and navigate to `http://localhost:5173/datasets/create` to access the Spectrum web interface. From here, you can create datasets, train Symbolic Regression models, and perform real-time inference using WebSockets.
+Once all services are running, open your web browser and navigate to `http://localhost:5173` to access the Spectrum web interface. From here, you can create datasets, train Symbolic Regression models, and perform real-time inference using WebSockets.
 
 ## Project Structure
 
