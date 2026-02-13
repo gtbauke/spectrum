@@ -18,8 +18,6 @@ class Job(BaseModel):
         JobStatus.PENDING, description="The current status of the job")
     dataset_id: UUID = Field(
         ..., description="The unique identifier of the dataset associated with the job")
-    dataset: "Dataset" = Field(...,
-                               description="The dataset associated with the job")
     created_at: datetime = Field(...,
                                  description="The creation timestamp of the job")
     started_at: datetime | None = Field(
@@ -38,7 +36,6 @@ class Job(BaseModel):
             id=uuid4(),
             status=JobStatus.PENDING,
             dataset_id=dataset.id,
-            dataset=dataset,
             created_at=datetime.now(),
             started_at=None,
             finished_at=None,

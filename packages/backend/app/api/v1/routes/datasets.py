@@ -1,3 +1,4 @@
+from uuid import UUID
 from fastapi import APIRouter, Depends, Form, UploadFile, File
 
 from app.api.v1.schemas.dataset import CreateDatasetRequest
@@ -66,6 +67,30 @@ async def list_datasets(
         datasets = await service.get_all(uow=uow)
 
     return datasets
+
+
+@datasets_router.get(
+    path="/{dataset_id}",
+    response_model=Dataset,
+)
+async def get_dataset(
+    dataset_id: UUID,
+    uow: UnitOfWork = Depends(get_uow),
+    file_storage: FileStorage = Depends(get_file_storage),
+    datasets_publisher: DatasetsEventsPublisher = Depends(
+        get_dataset_events_publisher)
+):
+    service = DatasetsService(
+        datasets_file_service=DatasetFilesService(
+            file_storage=file_storage
+        ),
+        datasets_event_publisher=datasets_publisher
+    )
+
+    async with uow:
+        dataset = await service.get_by_id(uow=uow, dataset_id=dataset_id)
+
+    return dataset
 
 datasets_router.include_router(
     prefix="/{dataset_id}/jobs",

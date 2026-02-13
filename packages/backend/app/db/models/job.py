@@ -75,7 +75,6 @@ class JobORM(Base):
             id=self.id,
             status=self.status,
             dataset_id=self.dataset_id,
-            dataset=self.dataset.to_domain(),
             created_at=self.created_at,
             started_at=self.started_at,
             finished_at=self.finished_at,

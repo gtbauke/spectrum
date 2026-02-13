@@ -9,7 +9,8 @@ from app.domain.datasets.dataset_status import DatasetStatus
 
 if TYPE_CHECKING:
     from app.domain.datasets.dataset_metadata import DatasetMetadata
-    # from app.domain.jobs.job import Job
+    from app.domain.jobs.job import Job
+    from app.domain.models.model import Model
 
 
 class Dataset(BaseModel):
@@ -27,8 +28,12 @@ class Dataset(BaseModel):
         None, description="The metadata of the dataset, if available"
     )
 
-    # jobs: Optional[list["Job"]] = Field(
-    #     [], description="The list of jobs associated with the dataset")
+    jobs: Optional[list["Job"]] = Field(
+        [], description="The list of jobs associated with the dataset")
+
+    models: list["Model"] = Field(
+        [], description="The list of models associated with the dataset"
+    )
 
     created_at: datetime = Field(...,
                                  description="The creation timestamp of the dataset")
@@ -44,7 +49,8 @@ class Dataset(BaseModel):
             file_path=None,
             checksum=checksum,
             dataset_metadata=None,
-            # jobs=[],
+            jobs=[],
+            models=[],
             created_at=datetime.now(),
             updated_at=datetime.now(),
         )
