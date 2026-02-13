@@ -4,6 +4,6 @@ export default [
 	index("routes/home.tsx"),
 	route("/datasets/create", "routes/dataset-creation.tsx"),
 	route("/datasets", "routes/datasets.tsx"),
-	route("/datasets/:datasetId/jobs", "routes/jobs.tsx"),
+	route("/datasets/:datasetId/jobs", "routes/dataset-info.tsx"),
 	route("/playground/:modelId", "routes/playground.tsx"),
 ] satisfies RouteConfig;

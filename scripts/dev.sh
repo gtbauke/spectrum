@@ -47,6 +47,33 @@ cleanup() {
 
 trap cleanup SIGINT SIGTERM
 
+if nc -z localhost 5432 2>/dev/null; then
+    echo "⚠️  Local Postgres detected on port 5432"
+
+    if command -v systemctl > /dev/null; then
+        echo "🛑 Stopping Postgres via systemctl"
+        sudo systemctl stop postgresql || true
+        sudo systemctl stop postgresql@* || true
+    else
+        echo "⚠️  systemctl not found, skipping Postgres stop"
+    fi
+else
+    echo "✅ No local Postgres running"
+fi
+
+if nc -z localhost 5672 2>/dev/null; then
+    echo "⚠️  Local RabbitMQ detected on port 5672"
+
+    if command -v systemctl > /dev/null; then
+        echo "🛑 Stopping RabbitMQ via systemctl"
+        sudo systemctl stop rabbitmq-server || true
+    else
+        echo "⚠️  systemctl not found, skipping RabbitMQ stop"
+    fi
+else
+    echo "✅ No local RabbitMQ running"
+fi
+
 echo "Starting Postgres and RabbitMQ services with Docker Compose..."
 (
     cd "$ROOT_DIR"

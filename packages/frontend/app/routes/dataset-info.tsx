@@ -1,7 +1,7 @@
 import { FaPlay } from "react-icons/fa";
 import { getAllJobsForDataset } from "~/api/get-all-jobs.api";
 import { MainContainer } from "~/components/layout/main.component";
-import type { Route } from "./+types/jobs";
+import type { Route } from "./+types/dataset-info";
 
 export async function clientLoader({
 	params: { datasetId },
