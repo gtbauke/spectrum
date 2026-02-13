@@ -61,9 +61,13 @@ export default function PlaygroundScreen({
 
 	const onSubmit = (data: PlaygroundFormData) => {
 		console.log("Query submitted:", data);
+
 		if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
 			socketRef.current.send(JSON.stringify(data));
+			return;
 		}
+
+		console.error("WebSocket is not open. Unable to send query.");
 	};
 
 	return (
@@ -91,7 +95,11 @@ export default function PlaygroundScreen({
 							<input
 								type="submit"
 								value="Continue"
-								className="cursor-pointer p-2 bg-green-600 hover:bg-green-700 active:bg-green-800 rounded-sm font-bold"
+								className="cursor-pointer p-2 bg-green-600 hover:bg-green-700 active:bg-green-800 rounded-sm font-bold disabled:cursor-not-allowed disabled:bg-gray-600 disabled:hover:bg-gray-600 disabled:active:bg-gray-600"
+								disabled={
+									socketRef.current?.readyState !== WebSocket.OPEN ||
+									formState.isSubmitting
+								}
 							/>
 
 							<input
