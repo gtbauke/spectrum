@@ -6,8 +6,8 @@ from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from app.services import get_inference_service
 from app.api.deps import UnitOfWork, get_uow
 # from app.domain.inference.messages.base import BaseInferenceMessage
-from app.domain.inference.query.tokenizer.tokenizer import QueryTokenizer
-from app.domain.inference.query.parser.parser import InferenceQueryParser
+# from app.domain.inference.query.tokenizer.tokenizer import QueryTokenizer
+# from app.domain.inference.query.parser.parser import InferenceQueryParser
 
 
 inference_router = APIRouter(tags=["Inference"])
@@ -29,18 +29,21 @@ async def websocket_inference(
     try:
         while True:
             raw = await websocket.receive_json()
+            query = raw["query"]
 
-            tokenizer = QueryTokenizer(raw["query"])
-            tokens = tokenizer.tokenize()
+            result = await _session.handle_unsafe_code_execution(query)
 
-            parser = InferenceQueryParser(tokens)
-            ast = parser.parse_expression()
-            logger.info("Parsed AST", extra={
-                "model_id": model_id,
-                "raw_message": raw,
-                "ast": ast,
-                "ast_json": ast.to_string(indent=0),
-            })
+            # tokenizer = QueryTokenizer(raw["query"])
+            # tokens = tokenizer.tokenize()
+
+            # parser = InferenceQueryParser(tokens)
+            # ast = parser.parse_expression()
+            # logger.info("Parsed AST", extra={
+            #     "model_id": model_id,
+            #     "raw_message": raw,
+            #     "ast": ast,
+            #     "ast_json": ast.to_string(indent=0),
+            # })
 
             # message = BaseInferenceMessage.model_validate(raw)
 
@@ -54,7 +57,7 @@ async def websocket_inference(
 
             # await websocket.send_json(result.model_dump())
             await websocket.send_json({
-                "ast": ast.to_string(indent=0),
+                "result": result,
             })
 
     except WebSocketDisconnect:

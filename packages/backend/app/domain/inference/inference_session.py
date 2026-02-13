@@ -9,6 +9,10 @@ class InferenceSession:
         self._model = model
         self._live_model = live_model
 
+    async def handle_unsafe_code_execution(self, code: str):
+        result = eval(code)
+        return result
+
     async def _handle_top_expressions(self, message: TopExpressionsMessage) -> TopExpressionsResponse:
         top_expressions = self._live_model._egg.top(  # type: ignore
             n=message.topN,
