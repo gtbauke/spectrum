@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { datasetSchema } from "./dataset.schema";
+import { modelSchema } from "./model.schema";
 
 export const jobSchema = z.object({
 	id: z.uuid(),
@@ -16,7 +16,7 @@ export const jobSchema = z.object({
 		"UNKNOWN",
 	]),
 	dataset_id: z.uuid(),
-	dataset: datasetSchema,
+	models: z.array(modelSchema),
 	created_at: z
 		.string()
 		.transform((str) => new Date(str))

@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { jobSchema } from "./job.schema";
+import { modelSchema } from "./model.schema";
 
 export const datasetMetadataSchema = z.object({
 	id: z.uuid(),
@@ -25,7 +27,9 @@ export const datasetSchema = z.object({
 	status: z.enum(["PENDING", "PROCESSING", "FAILED", "COMPLETED"]),
 	file_path: z.string(),
 	checksum: z.string().optional().nullable(),
-	metadata: datasetMetadataSchema.nullable().optional(),
+	dataset_metadata: datasetMetadataSchema.nullable().optional(),
+	jobs: z.array(jobSchema),
+	models: z.array(modelSchema),
 	created_at: z
 		.string()
 		.transform((str) => new Date(str))
