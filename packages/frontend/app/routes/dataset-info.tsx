@@ -1,6 +1,8 @@
 import { FaPencilAlt, FaPlay, FaTrash } from "react-icons/fa";
+import { useNavigate } from "react-router";
 import { getDataset } from "~/api/get-dataset.api";
 import { MainContainer } from "~/components/layout/main.component";
+import type { Job } from "~/schemas/job.schema";
 import type { Route } from "./+types/dataset-info";
 
 export async function clientLoader({
@@ -18,10 +20,19 @@ export function HydrateFallback() {
 	);
 }
 
-export default function JobsScreen({
-	params,
-	loaderData,
-}: Route.ComponentProps) {
+// TODO: add preview of dataset data
+export default function JobsScreen({ loaderData }: Route.ComponentProps) {
+	const navigate = useNavigate();
+
+	const handleEnterPlayground = (job: Job) => {
+		const sortedModels = job.models.sort(
+			(a, b) => b.created_at.getTime() - a.created_at.getTime(),
+		);
+
+		const modelId = sortedModels[0]?.id;
+		navigate(`/playground/${modelId}`);
+	};
+
 	return (
 		<MainContainer>
 			<div className="space-y-6">
@@ -77,14 +88,31 @@ export default function JobsScreen({
 								key={job.id}
 								className="border p-4 rounded shadow space-y-4 border-gray-800 w-full"
 							>
-								<header>
+								<header className="flex items-center justify-between">
 									<button
 										type="button"
 										className="text-green-500 hover:text-green-700 active:text-green-800 cursor-pointer flex items-center space-x-1"
+										onClick={() => handleEnterPlayground(job)}
 									>
 										<p>Enter playground</p>
 										<FaPlay size={12} />
 									</button>
+
+									<div className="flex space-x-2 mt-2">
+										<button
+											type="button"
+											className="text-red-500 hover:text-red-700 active:text-red-800 cursor-pointer"
+										>
+											<FaTrash size={12} />
+										</button>
+
+										<button
+											type="button"
+											className="text-blue-500 hover:text-blue-700 active:text-blue-800 cursor-pointer ml-2"
+										>
+											<FaPencilAlt size={12} />
+										</button>
+									</div>
 								</header>
 
 								<div>
