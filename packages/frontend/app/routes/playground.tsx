@@ -1,10 +1,24 @@
-import { useEffect, useRef } from "react";
+import "katex/dist/katex.min.css";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import * as katex from "react-katex";
 import { API_BASE_URL } from "~/api/base.api";
 import { getModel } from "~/api/get-model.api";
 import { MainContainer } from "~/components/layout/main.component";
 import { FormTextArea } from "~/components/ui/forms/form-textarea.component";
 import type { Route } from "./+types/playground";
+
+// TODO: create a valid solution later
+type QueryResponseElement = {
+	DL: number;
+	Expression: string;
+	Fitness: number;
+	Id: number;
+	Latex: string;
+	Numpy: string;
+	Parameters: number[];
+	Size: number;
+};
 
 type PlaygroundFormData = {
 	query: string;
@@ -20,6 +34,11 @@ export default function PlaygroundScreen({
 	loaderData,
 }: Route.ComponentProps) {
 	const { model } = loaderData;
+
+	const [queryResponse, setQueryResponse] = useState<QueryResponseElement[]>(
+		[],
+	);
+
 	const socketRef = useRef<WebSocket | null>(null);
 
 	useEffect(() => {
@@ -33,6 +52,24 @@ export default function PlaygroundScreen({
 
 		socket.onmessage = (event) => {
 			console.log("Received message:", event.data);
+			const parsed = JSON.parse(event.data);
+			const result = JSON.parse(parsed.result);
+
+			console.log("Parsed query response:", parsed.result);
+			console.log("PARSED PARSED", result);
+
+			setQueryResponse(
+				result.map((item: Record<string, unknown>) => ({
+					DL: item.DL,
+					Expression: item.Expression,
+					Fitness: item.Fitness,
+					Id: item.Id,
+					Latex: item.Latex,
+					Numpy: item.Numpy,
+					Parameters: JSON.parse(item.Parameters as string),
+					Size: item.Size,
+				})),
+			);
 		};
 
 		socket.onerror = (error) => {
@@ -57,6 +94,7 @@ export default function PlaygroundScreen({
 
 	const onCancel = () => {
 		reset();
+		setQueryResponse([]);
 	};
 
 	const onSubmit = (data: PlaygroundFormData) => {
@@ -94,12 +132,9 @@ export default function PlaygroundScreen({
 						<div className="flex flex-col gap-2">
 							<input
 								type="submit"
-								value="Continue"
+								value="Submit"
 								className="cursor-pointer p-2 bg-green-600 hover:bg-green-700 active:bg-green-800 rounded-sm font-bold disabled:cursor-not-allowed disabled:bg-gray-600 disabled:hover:bg-gray-600 disabled:active:bg-gray-600"
-								disabled={
-									socketRef.current?.readyState !== WebSocket.OPEN ||
-									formState.isSubmitting
-								}
+								disabled={formState.isSubmitting}
 							/>
 
 							<input
@@ -114,6 +149,37 @@ export default function PlaygroundScreen({
 
 				<div className="border p-4 rounded shadow space-y-4 border-gray-800">
 					<h2 className="text-xl font-bold">Query Response</h2>
+
+					{queryResponse.length === 0 ? (
+						<p className="text-gray-600">
+							No response yet. Submit a query to see results.
+						</p>
+					) : (
+						queryResponse.map((item) => (
+							<div
+								key={item.Id}
+								className="border p-4 rounded shadow border-gray-800"
+							>
+								<p className="text-sm text-gray-600 mb-2">
+									Expression: {item.Expression}
+								</p>
+
+								<katex.BlockMath math={item.Latex} />
+
+								<div>
+									<p className="text-sm text-gray-600 mt-2">
+										Fitness: {item.Fitness}
+									</p>
+
+									<p className="text-sm text-gray-600">DL: {item.DL}</p>
+									<p className="text-sm text-gray-600">
+										Parameters: {item.Parameters.join(", ")}
+									</p>
+									<p className="text-sm text-gray-600">Size: {item.Size}</p>
+								</div>
+							</div>
+						))
+					)}
 				</div>
 			</div>
 		</MainContainer>
