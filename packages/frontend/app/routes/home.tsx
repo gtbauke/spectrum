@@ -63,7 +63,7 @@ export default function Home() {
 					error: (err) => console.error(err),
 				});
 
-				navigate("/datasets", { replace: true });
+				navigate("/datasets/create", { replace: true });
 			}
 		},
 		[setFile, navigate],

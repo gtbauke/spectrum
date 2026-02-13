@@ -1,4 +1,6 @@
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
+import { API_BASE_URL } from "~/api/base.api";
 import { getModel } from "~/api/get-model.api";
 import { MainContainer } from "~/components/layout/main.component";
 import { FormTextArea } from "~/components/ui/forms/form-textarea.component";
@@ -18,6 +20,33 @@ export default function PlaygroundScreen({
 	loaderData,
 }: Route.ComponentProps) {
 	const { model } = loaderData;
+	const socketRef = useRef<WebSocket | null>(null);
+
+	useEffect(() => {
+		const connectionUrl = `${API_BASE_URL}/inference/${params.modelId}/ws`;
+		const socket = new WebSocket(connectionUrl);
+		socketRef.current = socket;
+
+		socket.onopen = () => {
+			console.log("WebSocket connection established");
+		};
+
+		socket.onmessage = (event) => {
+			console.log("Received message:", event.data);
+		};
+
+		socket.onerror = (error) => {
+			console.error("WebSocket error:", error);
+		};
+
+		socket.onclose = () => {
+			console.log("WebSocket connection closed");
+		};
+
+		return () => {
+			socket.close();
+		};
+	}, [params.modelId]);
 
 	const { formState, reset, register, handleSubmit } =
 		useForm<PlaygroundFormData>({
@@ -32,6 +61,9 @@ export default function PlaygroundScreen({
 
 	const onSubmit = (data: PlaygroundFormData) => {
 		console.log("Query submitted:", data);
+		if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+			socketRef.current.send(JSON.stringify(data));
+		}
 	};
 
 	return (

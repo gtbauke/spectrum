@@ -6,7 +6,7 @@ export const modelSchema = z.object({
 	dataset_id: z.uuid(),
 	job_id: z.uuid(),
 	version: z.number().int(),
-	model_file: z.string(),
+	model_file: z.string().optional().nullable(),
 	created_at: z
 		.string()
 		.transform((str) => new Date(str))
