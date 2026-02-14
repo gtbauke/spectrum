@@ -4,22 +4,28 @@ from app.workers.orchestrators.datasets.dataset_processing_setup import setup_qu
 from app.infra.events.rabbitmq import rabbitmq_manager
 from app.core.logging import setup_logging
 from app.domain.rebuild import rebuild_models
+from app.workers.orchestrators.base import BaseOrchestrator
 
 
-async def main():
-    setup_logging()
-    rebuild_models()
+class DatasetProcessingOrchestrator(BaseOrchestrator):
+    async def setup(self):
+        setup_logging()
+        rebuild_models()
 
-    await rabbitmq_manager.connect()
+        await rabbitmq_manager.connect()
 
-    try:
-        await setup_queues()
-    finally:
-        await rabbitmq_manager.close()
+    async def run(self):
+        try:
+            await setup_queues()
+        finally:
+            await rabbitmq_manager.close()
 
 
 def run():
-    asyncio.run(main())
+    orchestrator = DatasetProcessingOrchestrator()
+
+    asyncio.run(orchestrator.setup())
+    asyncio.run(orchestrator.run())
 
 
 if __name__ == "__main__":
