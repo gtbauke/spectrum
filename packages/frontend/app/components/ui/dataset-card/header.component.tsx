@@ -1,5 +1,6 @@
 import { FaPencilAlt, FaPlay, FaTrash } from "react-icons/fa";
-import { useNavigate } from "react-router";
+import { useNavigate, useRevalidator } from "react-router";
+import { deleteDataset } from "~/api/delete-dataset.api";
 
 type DatasetCardHeaderProps = {
 	id: string;
@@ -13,9 +14,19 @@ export function DatasetCardHeader({
 	id,
 }: DatasetCardHeaderProps) {
 	const navigate = useNavigate();
+	const revalidator = useRevalidator();
 
 	const handlePlayClick = () => {
 		navigate(`/datasets/${id}/jobs`);
+	};
+
+	const handleDeleteClick = async () => {
+		try {
+			await deleteDataset(id);
+			revalidator.revalidate();
+		} catch (error) {
+			console.error("Failed to delete dataset:", error);
+		}
 	};
 
 	return (
@@ -23,11 +34,11 @@ export function DatasetCardHeader({
 			<div className="flex items-center justify-between">
 				<h2 className="text-lg font-semibold">{name}</h2>
 
-				{/* TODO: Add onClick handler */}
 				<div className="flex space-x-2">
 					<button
 						type="button"
 						className="text-red-500 hover:text-red-700 active:text-red-800 cursor-pointer"
+						onClick={handleDeleteClick}
 					>
 						<FaTrash size={12} />
 					</button>

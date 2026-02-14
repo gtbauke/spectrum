@@ -8,7 +8,7 @@ export async function apiRequest<
 >(
 	url: string,
 	method: "GET" | "POST" | "PUT" | "DELETE",
-	responseSchema: TSchema,
+	responseSchema?: TSchema,
 	body?: TBody,
 ): Promise<z.infer<TSchema>> {
 	const response = await fetch(`${API_BASE_URL}${url}`, {
@@ -27,12 +27,16 @@ export async function apiRequest<
 		throw new Error(responseData.message || "API request failed");
 	}
 
-	const parsedData = responseSchema.safeParse(responseData);
+	if (responseSchema) {
+		const parsedData = responseSchema.safeParse(responseData);
 
-	if (!parsedData.success) {
-		console.error("Response validation errors:", parsedData.error.issues);
-		throw new Error("Response validation failed");
+		if (!parsedData.success) {
+			console.error("Response validation errors:", parsedData.error.issues);
+			throw new Error("Response validation failed");
+		}
+
+		return parsedData.data;
 	}
 
-	return parsedData.data;
+	return responseData;
 }
