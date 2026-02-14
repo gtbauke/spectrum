@@ -1,0 +1,2 @@
+class SpectrumError(Exception):
+    pass

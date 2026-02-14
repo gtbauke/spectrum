@@ -92,6 +92,28 @@ async def get_dataset(
 
     return dataset
 
+
+@datasets_router.delete(
+    path="/{dataset_id}",
+    status_code=204,
+)
+async def delete_dataset(
+    dataset_id: UUID,
+    uow: UnitOfWork = Depends(get_uow),
+    file_storage: FileStorage = Depends(get_file_storage),
+    datasets_publisher: DatasetsEventsPublisher = Depends(
+        get_dataset_events_publisher)
+):
+    service = DatasetsService(
+        datasets_file_service=DatasetFilesService(
+            file_storage=file_storage
+        ),
+        datasets_event_publisher=datasets_publisher
+    )
+
+    async with uow:
+        await service.delete(uow=uow, dataset_id=dataset_id)
+
 datasets_router.include_router(
     prefix="/{dataset_id}/jobs",
     router=jobs_router

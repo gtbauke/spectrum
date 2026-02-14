@@ -47,6 +47,9 @@ class SqlAlchemyDatasetsMetadataRepository(DatasetsMetadataRepository):
 
         return metadata_orm
 
+    async def delete(self, obj: DatasetMetadataORM) -> None:
+        await self._session.delete(obj)
+
     async def update(self, obj: DatasetMetadataORM) -> DatasetMetadataORM:
         await self._session.merge(obj)
         return obj

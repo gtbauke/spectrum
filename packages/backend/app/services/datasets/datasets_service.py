@@ -7,6 +7,7 @@ from app.workers.schemas.dataset_processing_event import DatasetProcessingEvent
 from app.db.models.dataset import Dataset, DatasetORM, DatasetStatus
 from app.utils.checksum import calculate_upload_file_checksum
 from app.services.datasets.dataset_files_service import DatasetFilesService
+from app.services.datasets.errors.dataset_not_found_error import DatasetNotFoundError
 
 
 class DatasetsService:
@@ -61,7 +62,7 @@ class DatasetsService:
             dataset_model = await uow.datasets.get_by_id(dataset_id)
 
             if not dataset_model:
-                raise ValueError("Dataset not found after creation")
+                raise DatasetNotFoundError(dataset_id)
 
         event_payload = DatasetProcessingEvent(
             dataset_id=dataset_id,
@@ -85,7 +86,7 @@ class DatasetsService:
             orm = await uow.datasets.get_by_id(dataset_id)
 
             if not orm:
-                raise ValueError("Dataset not found")
+                raise DatasetNotFoundError(dataset_id)
 
             orm.status = status
 
@@ -93,3 +94,12 @@ class DatasetsService:
         async with uow:
             orms = await uow.datasets.list_all()
             return [orm.to_domain() for orm in orms]
+
+    async def delete(self, uow: UnitOfWork, *, dataset_id: UUID) -> None:
+        async with uow:
+            orm = await uow.datasets.get_by_id(dataset_id)
+
+            if not orm:
+                raise DatasetNotFoundError(dataset_id)
+
+            await uow.datasets.delete(orm)

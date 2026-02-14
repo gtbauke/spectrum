@@ -54,6 +54,9 @@ class SqlAlchemyDatasetsRepository(DatasetsRepository):
 
         return orm
 
+    async def delete(self, obj: DatasetORM) -> None:
+        await self._session.delete(obj)
+
     async def list_all(self, where_id: Optional[UUID] = None) -> list[DatasetORM]:
         query = select(DatasetORM)
         if where_id:

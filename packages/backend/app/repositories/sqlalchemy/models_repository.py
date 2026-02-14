@@ -66,3 +66,6 @@ class SqlAlchemyModelsRepository(ModelsRepository):
     async def update(self, obj: ModelORM) -> ModelORM:
         await self._session.merge(obj)
         return obj
+
+    async def delete(self, obj: ModelORM) -> None:
+        await self._session.delete(obj)

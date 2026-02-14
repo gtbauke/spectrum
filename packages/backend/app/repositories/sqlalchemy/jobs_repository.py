@@ -34,6 +34,9 @@ class SQLAlchemyJobsRepository(JobsRepository):
         await self._session.merge(obj)
         return obj
 
+    async def delete(self, obj: JobORM) -> None:
+        await self._session.delete(obj)
+
     async def list_all(self, where_id: Optional[UUID] = None) -> list[JobORM]:
         query = select(JobORM)
         if where_id:

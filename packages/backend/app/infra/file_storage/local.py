@@ -36,3 +36,7 @@ class LocalFileStorage(FileStorage):
 
         full_path = self._base_path / file_path
         return str(full_path)
+
+    async def delete(self, *, file_path: str) -> None:
+        full_path = await self.get_full_path(file_path=file_path)
+        Path(full_path).unlink(missing_ok=True)
