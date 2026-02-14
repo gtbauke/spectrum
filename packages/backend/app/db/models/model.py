@@ -4,7 +4,7 @@ import uuid
 
 from typing import TYPE_CHECKING
 from datetime import datetime
-from sqlalchemy import DateTime, Integer, String, ForeignKey, func
+from sqlalchemy import DateTime, String, ForeignKey, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -50,11 +50,6 @@ class ModelORM(Base):
         lazy="selectin",
     )
 
-    version: Mapped[int] = mapped_column(
-        Integer,
-        nullable=False,
-    )
-
     model_file: Mapped[str | None] = mapped_column(
         String,
         nullable=True,
@@ -78,7 +73,6 @@ class ModelORM(Base):
             id=self.id,
             name=self.name,
             dataset_id=self.dataset_id,
-            version=self.version,
             model_file=self.model_file,
             created_at=self.created_at,
             updated_at=self.updated_at,
@@ -91,7 +85,6 @@ class ModelORM(Base):
             id=model.id,
             name=model.name,
             dataset_id=model.dataset_id,
-            version=model.version,
             model_file=model.model_file,
             created_at=model.created_at,
             updated_at=model.updated_at,

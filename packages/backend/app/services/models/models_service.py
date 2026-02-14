@@ -45,7 +45,6 @@ class ModelsService:
             model = Model.create(
                 name=model_name,
                 dataset_id=dataset_id,
-                version=version,
                 job_id=job_id,
             )
 
