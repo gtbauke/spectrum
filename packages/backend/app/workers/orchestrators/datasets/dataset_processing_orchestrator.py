@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 from app.workers.orchestrators.datasets.dataset_processing_setup import setup_queues
 from app.infra.events.rabbitmq import rabbitmq_manager
@@ -6,9 +7,11 @@ from app.core.logging import setup_logging
 from app.domain.rebuild import rebuild_models
 from app.workers.orchestrators.base import BaseOrchestrator
 
+logger = logging.getLogger(__name__)
+
 
 class DatasetProcessingOrchestrator(BaseOrchestrator):
-    async def setup(self):
+    async def setup(self) -> None:
         setup_logging()
         rebuild_models()
 
@@ -22,10 +25,10 @@ class DatasetProcessingOrchestrator(BaseOrchestrator):
 
 
 def run():
-    orchestrator = DatasetProcessingOrchestrator()
+    logger.info("Starting DatasetProcessingOrchestrator")
 
-    asyncio.run(orchestrator.setup())
-    asyncio.run(orchestrator.run())
+    orchestrator = DatasetProcessingOrchestrator()
+    asyncio.run(orchestrator.execute())
 
 
 if __name__ == "__main__":

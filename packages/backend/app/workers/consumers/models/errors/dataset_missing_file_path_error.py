@@ -1,7 +1,8 @@
 from uuid import UUID
+from app.workers.utils.errors.unretryable_error import UnretryableError
 
 
-class DatasetMissingFilePathError(Exception):
+class DatasetMissingFilePathError(UnretryableError):
     def __init__(self, dataset_id: UUID):
         self._dataset_id = dataset_id
         super().__init__(

@@ -1,5 +1,6 @@
 import logging
 
+from typing import Callable
 from uuid import UUID
 
 from app.api.deps import UnitOfWork
@@ -20,6 +21,26 @@ class JobsService:
             await uow.jobs.add(orm)
 
         return job
+
+    async def update(
+        self,
+        uow: UnitOfWork,
+        *,
+        job_id: UUID,
+        update_func: Callable[[JobORM], None],
+    ) -> Job:
+        async with uow:
+            orm = await uow.jobs.get_for_update(job_id)
+
+            if not orm:
+                raise ValueError(f"Job with id {job_id} not found")
+
+            update_func(orm)
+            await uow.jobs.update(orm)
+
+            domain = orm.to_domain()
+
+        return domain
 
     async def update_status(self, uow: UnitOfWork, *, job_id: UUID, status: JobStatus) -> Job:
         async with uow:

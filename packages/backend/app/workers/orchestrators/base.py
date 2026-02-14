@@ -7,3 +7,7 @@ class BaseOrchestrator(ABC):
 
     @abstractmethod
     async def run(self): ...
+
+    async def execute(self):
+        await self.setup()
+        await self.run()

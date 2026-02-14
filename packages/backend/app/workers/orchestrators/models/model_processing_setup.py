@@ -54,7 +54,7 @@ async def setup_model_processing(channel: aio_pika.abc.AbstractChannel):
 
     async with processing_queue.iterator() as processing_queue_iterator:
         async for message in processing_queue_iterator:
-            await handle_model_training_message(message)
+            await handle_model_training_message(message, channel)
 
     return channel
 

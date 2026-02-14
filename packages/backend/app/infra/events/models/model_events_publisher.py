@@ -9,4 +9,5 @@ class ModelEventsPublisher(EventPublisher):
     async def publish_start_training_event(
         self,
         payload: StartModelTrainingEvent,
+        retry_count: int = 0,
     ) -> None: ...

@@ -22,8 +22,10 @@ class RabbitMQModelEventsPublisher(ModelEventsPublisher):
     async def publish_start_training_event(
         self,
         payload: StartModelTrainingEvent,
+        retry_count: int = 0,
     ) -> None:
         await self.publish(EventMessage(
             event="start_model_training_event",
             payload=payload,
+            retry_count=retry_count,
         ))
