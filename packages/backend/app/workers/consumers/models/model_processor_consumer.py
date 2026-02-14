@@ -47,7 +47,6 @@ async def handle_model_training_message(message: AbstractIncomingMessage) -> Non
                 uow=uow,
                 model_name=f"Model for dataset {dataset.name}",
                 dataset_id=dataset.id,
-                version=1,
                 job_id=job.id,
             )
 

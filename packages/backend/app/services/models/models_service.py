@@ -34,7 +34,6 @@ class ModelsService:
         model_name: str,
         dataset_id: UUID,
         job_id: UUID,
-        version: int,
     ) -> Model:
         async with uow:
             existing_model = await uow.models.get_by_dataset_id(dataset_id)
