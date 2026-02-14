@@ -58,7 +58,7 @@ async def list_datasets(
 ):
     service = DatasetsService(
         datasets_file_service=DatasetFilesService(
-            file_storage=file_storage
+            file_storage=file_storage.scoped("datasets")
         ),
         datasets_event_publisher=datasets_publisher
     )
@@ -82,7 +82,7 @@ async def get_dataset(
 ):
     service = DatasetsService(
         datasets_file_service=DatasetFilesService(
-            file_storage=file_storage
+            file_storage=file_storage.scoped("datasets")
         ),
         datasets_event_publisher=datasets_publisher
     )
@@ -106,7 +106,7 @@ async def delete_dataset(
 ):
     service = DatasetsService(
         datasets_file_service=DatasetFilesService(
-            file_storage=file_storage
+            file_storage=file_storage.scoped("datasets")
         ),
         datasets_event_publisher=datasets_publisher
     )

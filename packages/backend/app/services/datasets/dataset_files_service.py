@@ -36,8 +36,11 @@ class DatasetFilesService:
 
     async def delete_dataset(self, *, dataset_id: UUID) -> None:
         dataset_directory = await self.get_dataset_directory(dataset_id=dataset_id)
+        dataset_directory_path = Path(dataset_directory)
 
-        for file in Path(dataset_directory).glob("*"):
-            await self._file_storage.delete(file_path=str(file))
+        if dataset_directory_path.exists() and dataset_directory_path.is_dir():
+            for file in dataset_directory_path.iterdir():
+                if file.is_file():
+                    await self._file_storage.delete(file_path=str(file))
 
-        Path(dataset_directory).rmdir()
+            dataset_directory_path.rmdir()

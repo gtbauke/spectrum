@@ -103,3 +103,4 @@ class DatasetsService:
                 raise DatasetNotFoundError(dataset_id)
 
             await uow.datasets.delete(orm)
+            await self._datasets_file_service.delete_dataset(dataset_id=dataset_id)
