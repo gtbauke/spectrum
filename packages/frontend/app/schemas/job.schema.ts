@@ -87,6 +87,17 @@ export const jobSchema = z.object({
 	simplify: z.boolean(),
 });
 
+export const editJobSchema = jobSchema.omit({
+	id: true,
+	status: true,
+	dataset_id: true,
+	models: true,
+	created_at: true,
+	started_at: true,
+	finished_at: true,
+});
+
 export type Job = z.infer<typeof jobSchema>;
+export type EditJob = z.infer<typeof editJobSchema>;
 
 export const getJobsForDatasetResponseSchema = z.array(jobSchema);
