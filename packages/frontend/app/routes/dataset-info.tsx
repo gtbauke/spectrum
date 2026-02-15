@@ -1,7 +1,9 @@
-import { FaPencilAlt, FaPlay, FaTrash, FaUndo } from "react-icons/fa";
 import { useNavigate } from "react-router";
 import { getDataset } from "~/api/get-dataset.api";
 import { MainContainer } from "~/components/layout/main.component";
+import { DatasetInfoHeader } from "~/components/sections/datasets-info/dataset-info-header.component";
+import { DatasetMetadata } from "~/components/sections/datasets-info/dataset-metadata.component";
+import { DatasetModels } from "~/components/sections/datasets-info/dataset-models.component";
 import type { Job } from "~/schemas/job.schema";
 import type { Route } from "./+types/dataset-info";
 
@@ -40,54 +42,12 @@ export default function JobsScreen({ loaderData }: Route.ComponentProps) {
 	return (
 		<MainContainer>
 			<div className="space-y-6">
-				<header>
-					<div className="flex items-center justify-between">
-						<h1 className="text-2xl font-bold">{loaderData.name}</h1>
-						<div className="flex space-x-2 mt-2">
-							<button
-								type="button"
-								className="text-red-500 hover:text-red-700 active:text-red-800 cursor-pointer"
-							>
-								<FaTrash size={16} />
-							</button>
+				<DatasetInfoHeader name={loaderData.name} id={loaderData.id} />
+				<DatasetMetadata metadata={loaderData.dataset_metadata} />
+				<DatasetModels models={loaderData.models} />
 
-							<button
-								type="button"
-								className="text-blue-500 hover:text-blue-700 active:text-blue-800 cursor-pointer"
-							>
-								<FaPencilAlt size={16} />
-							</button>
-						</div>
-					</div>
-					<p className="text-xs text-gray-600">{loaderData.id}</p>
-				</header>
-
-				<div className="border p-4 rounded shadow space-y-4 border-gray-800">
-					<h2 className="text-xl font-bold">Dataset Metadata</h2>
-					{loaderData.dataset_metadata ? (
-						<div>
-							<p>Rows: {loaderData.dataset_metadata.num_rows}</p>
-							<p>Features: {loaderData.dataset_metadata.num_features}</p>
-							<p>
-								Processing Attempts:{" "}
-								{loaderData.dataset_metadata.processing_attempts}
-							</p>
-							{loaderData.dataset_metadata.last_processing_error && (
-								<p className="text-red-500">
-									Last Error:{" "}
-									{loaderData.dataset_metadata.last_processing_error}
-								</p>
-							)}
-						</div>
-					) : (
-						<p className="text-gray-500">No metadata available.</p>
-					)}
-				</div>
-
-				<div className="border p-4 rounded shadow space-y-4 border-gray-800">
-					<h2 className="text-xl font-bold">Jobs</h2>
+				{/* <Section title="Models">
 					<ul className="container mx-auto gap-4">
-						{/* TODO: show models with association to their jobs */}
 						{loaderData.jobs.map((job) => (
 							<li
 								key={job.id}
@@ -137,7 +97,7 @@ export default function JobsScreen({ loaderData }: Route.ComponentProps) {
 							</li>
 						))}
 					</ul>
-				</div>
+				</Section> */}
 			</div>
 		</MainContainer>
 	);
