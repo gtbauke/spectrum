@@ -92,6 +92,11 @@ async def handle_start_model_training_event(
             model_file_path=final_path
         )
 
+        await models_service.record_model_job_run(
+            uow=uow,
+            model_id=model.id,
+        )
+
     await jobs_service.update(
         uow=uow,
         job_id=job.id,

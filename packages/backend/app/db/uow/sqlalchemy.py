@@ -9,6 +9,7 @@ from app.repositories.sqlalchemy.datasets_repository import SqlAlchemyDatasetsRe
 from app.repositories.sqlalchemy.datasets_metadata_repository import SqlAlchemyDatasetsMetadataRepository
 from app.repositories.sqlalchemy.models_repository import SqlAlchemyModelsRepository
 from app.repositories.sqlalchemy.jobs_repository import SQLAlchemyJobsRepository
+from app.repositories.sqlalchemy.job_run_repository import SQLAlchemyJobRunRepository
 
 
 class SqlAlchemyUnitOfWork(UnitOfWork):
@@ -25,6 +26,8 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
 
         self.models = SqlAlchemyModelsRepository(self._session)
         self.jobs = SQLAlchemyJobsRepository(self._session)
+
+        self.job_runs = SQLAlchemyJobRunRepository(self._session)
 
         return self
 

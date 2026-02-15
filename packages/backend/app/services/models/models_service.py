@@ -4,6 +4,7 @@ from app.api.deps import UnitOfWork
 from app.domain.models.model import Model
 from app.domain.jobs.job import Job
 from app.db.models.model import ModelORM
+from app.db.models.job_run import JobRunORM
 from app.domain.jobs.job_status import JobStatus
 
 # TODO: better error handling in the Repository layer
@@ -123,3 +124,25 @@ class ModelsService:
             await uow.models.update(orm)
 
         return domain
+
+    async def record_model_job_run(
+        self,
+        uow: UnitOfWork,
+        *,
+        model_id: UUID,
+    ) -> None:
+        async with uow:
+            orm = await uow.models.get_by_id(model_id)
+
+            if not orm:
+                raise ValueError(f"Model with ID {model_id} not found.")
+
+            if not orm.job:
+                raise ValueError(
+                    f"Model with ID {model_id} has no associated job.")
+
+            await uow.job_runs.add(JobRunORM(
+                model_id=model_id,
+                started_at=orm.job.started_at,
+                finished_at=orm.job.finished_at,
+            ))

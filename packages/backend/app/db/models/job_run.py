@@ -1,6 +1,6 @@
 import uuid
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from datetime import datetime
 from sqlalchemy import (DateTime, func, ForeignKey)
 from sqlalchemy.dialects.postgresql import UUID
@@ -28,7 +28,6 @@ class JobRunORM(Base):
     )
 
     model: Mapped["ModelORM"] = relationship(
-        back_populates="job_runs",
         lazy="selectin",
     )
 
@@ -38,12 +37,12 @@ class JobRunORM(Base):
         default=func.now(),
     )
 
-    started_at: Mapped[datetime] = mapped_column(
+    started_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime,
         nullable=True,
     )
 
-    finished_at: Mapped[datetime] = mapped_column(
+    finished_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime,
         nullable=True,
     )

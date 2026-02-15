@@ -7,6 +7,7 @@ from app.repositories.datasets_repository import DatasetsRepository
 from app.repositories.datasets_metadata_repository import DatasetsMetadataRepository
 from app.repositories.models_repository import ModelsRepository
 from app.repositories.jobs_repository import JobsRepository
+from app.repositories.job_run_repository import JobRunRepository
 
 
 class UnitOfWork(ABC):
@@ -14,6 +15,7 @@ class UnitOfWork(ABC):
     datasets_metadata: DatasetsMetadataRepository
     models: ModelsRepository
     jobs: JobsRepository
+    job_runs: JobRunRepository
 
     @abstractmethod
     async def __aenter__(self) -> UnitOfWork: ...
