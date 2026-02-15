@@ -1,6 +1,6 @@
 import { FaPencilAlt, FaTrash } from "react-icons/fa";
 import type { Model } from "~/schemas/model.schema";
-import { JobStatusIndicator } from "./job-status-indicadtor.component";
+import { JobStatusIndicator } from "./job-status-indicator.component";
 
 type ModelCardProps = {
 	model: Model;
