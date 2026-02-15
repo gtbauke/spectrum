@@ -1,4 +1,4 @@
-import { FaPencilAlt, FaTrash } from "react-icons/fa";
+import { FaPencilAlt, FaTrash, FaUndo } from "react-icons/fa";
 import type { Model } from "~/schemas/model.schema";
 import { JobStatusIndicator } from "./job-status-indicator.component";
 
@@ -31,6 +31,13 @@ export function ModelCard({ model }: ModelCardProps) {
 							className="text-blue-500 hover:text-blue-700 active:text-blue-800 cursor-pointer"
 						>
 							<FaPencilAlt size={12} />
+						</button>
+
+						<button
+							type="button"
+							className="text-green-500 hover:text-green-700 active:text-green-800 cursor-pointer"
+						>
+							<FaUndo size={12} />
 						</button>
 					</div>
 				</div>
