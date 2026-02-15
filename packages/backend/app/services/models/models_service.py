@@ -4,6 +4,7 @@ from app.api.deps import UnitOfWork
 from app.domain.models.model import Model
 from app.domain.jobs.job import Job
 from app.db.models.model import ModelORM
+from app.domain.jobs.job_status import JobStatus
 
 # TODO: better error handling in the Repository layer
 
@@ -24,6 +25,24 @@ class ModelsService:
             if not orm:
                 raise ValueError(f"Model with ID {model_id} not found.")
 
+            domain = orm.to_domain()
+
+        return domain
+
+    async def update_model_job_status(
+        self,
+        uow: UnitOfWork,
+        *,
+        model_id: UUID,
+        job_status: JobStatus,
+    ) -> Model:
+        async with uow:
+            orm = await uow.models.get_by_id(model_id)
+
+            if not orm:
+                raise ValueError(f"Model with ID {model_id} not found.")
+
+            orm.job.status = job_status
             domain = orm.to_domain()
 
         return domain

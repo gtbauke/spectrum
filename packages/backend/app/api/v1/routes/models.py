@@ -5,6 +5,7 @@ from app.db.uow.unit_of_work import UnitOfWork
 from app.api.deps import get_uow
 from app.services.models.models_service import ModelsService
 from app.domain.models.model import Model
+from app.domain.jobs.job_status import JobStatus
 from app.infra.events import ModelEventsPublisher, get_model_events_publisher
 from app.infra.events.models.model_events_publisher import StartModelTrainingEvent
 from app.services import get_model_training_service
@@ -56,10 +57,11 @@ async def run_model(
     model_events_publisher: ModelEventsPublisher = Depends(
         get_model_events_publisher)
 ):
-    service = get_model_training_service()
+    training_service = get_model_training_service()
+    models_service = ModelsService()
 
     async with uow:
-        model = await service.can_train_model(uow=uow, model_id=model_id)
+        model = await training_service.can_train_model(uow=uow, model_id=model_id)
 
         # TODO: handle errors
         if not model:
@@ -72,5 +74,7 @@ async def run_model(
                 model_id=model.id,
             )
         )
+
+        model = await models_service.update_model_job_status(model_id=model_id, uow=uow, job_status=JobStatus.QUEUED)
 
     return model
