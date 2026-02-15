@@ -74,6 +74,13 @@ else
     echo "✅ No local RabbitMQ running"
 fi
 
+MIGRATION_MESSAGE="$1"
+
+if [ -z "$MIGRATION_MESSAGE" ]; then
+  echo "Usage: $0 \"migration message\""
+  exit 1
+fi
+
 echo "Starting Postgres and RabbitMQ services with Docker Compose..."
 (
     cd "$ROOT_DIR"
@@ -94,3 +101,12 @@ done
 
 echo "✅ Postgres and RabbitMQ are ready!"
 echo "You can now create your migration"
+
+cd "$ROOT_DIR/packages/backend"
+uv run alembic revision --autogenerate -m "$MIGRATION_MESSAGE"
+
+docker compose down
+cd "$ROOT_DIR"
+
+echo "Migration created successfully! Don't forget to apply it with: uv run alembic upgrade head"
+
