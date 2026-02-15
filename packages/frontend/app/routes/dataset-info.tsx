@@ -33,6 +33,10 @@ export default function JobsScreen({ loaderData }: Route.ComponentProps) {
 		navigate(`/playground/${modelId}`);
 	};
 
+	const handleEditJob = (job: Job) => {
+		navigate(`/datasets/${job.dataset_id}/jobs/${job.id}/edit`);
+	};
+
 	return (
 		<MainContainer>
 			<div className="space-y-6">
@@ -109,6 +113,7 @@ export default function JobsScreen({ loaderData }: Route.ComponentProps) {
 										<button
 											type="button"
 											className="text-blue-500 hover:text-blue-700 active:text-blue-800 cursor-pointer ml-2"
+											onClick={() => handleEditJob(job)}
 										>
 											<FaPencilAlt size={12} />
 										</button>
