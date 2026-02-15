@@ -3,12 +3,14 @@ from fastapi import APIRouter, Depends
 
 from app.db.uow.unit_of_work import UnitOfWork
 from app.api.deps import get_uow
-from app.services.models.models_service import ModelsService
 from app.domain.models.model import Model
 from app.domain.jobs.job_status import JobStatus
+from app.domain.jobs.job_run import JobRun
 from app.infra.events import ModelEventsPublisher, get_model_events_publisher
 from app.infra.events.models.model_events_publisher import StartModelTrainingEvent
+from app.services.models.models_service import ModelsService
 from app.services import get_model_training_service
+from app.services.jobs.job_runs_service import JobRunsService
 
 models_router = APIRouter(tags=["models"])
 
@@ -78,3 +80,16 @@ async def run_model(
         model = await models_service.update_model_job_status(model_id=model_id, uow=uow, job_status=JobStatus.QUEUED)
 
     return model
+
+
+@models_router.get(
+    "/{model_id}/runs",
+    response_model=list[JobRun],
+    status_code=200,
+)
+async def get_model_runs(
+    model_id: UUID,
+    uow: UnitOfWork = Depends(get_uow),
+    job_runs_service: JobRunsService = Depends(JobRunsService)
+):
+    return await job_runs_service.get_runs_for_model(uow=uow, model_id=model_id)

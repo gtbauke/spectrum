@@ -7,6 +7,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+from app.domain.jobs.job_run import JobRun
 
 if TYPE_CHECKING:
     from app.db.models.model import ModelORM
@@ -46,3 +47,12 @@ class JobRunORM(Base):
         DateTime,
         nullable=True,
     )
+
+    def to_domain(self) -> "JobRun":
+        return JobRun(
+            id=self.id,
+            model_id=self.model_id,
+            created_at=self.created_at,
+            started_at=self.started_at,
+            finished_at=self.finished_at,
+        )
