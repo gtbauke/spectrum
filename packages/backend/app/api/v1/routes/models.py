@@ -93,3 +93,16 @@ async def get_model_runs(
     job_runs_service: JobRunsService = Depends(JobRunsService)
 ):
     return await job_runs_service.get_runs_for_model(uow=uow, model_id=model_id)
+
+
+@models_router.delete(
+    "/{model_id}",
+    status_code=204,
+)
+async def delete_model(
+    model_id: UUID,
+    uow: UnitOfWork = Depends(get_uow),
+    models_service: ModelsService = Depends(ModelsService)
+):
+    async with uow:
+        await models_service.delete(model_id=model_id, uow=uow)

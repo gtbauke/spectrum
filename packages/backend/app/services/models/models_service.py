@@ -146,3 +146,17 @@ class ModelsService:
                 started_at=orm.job.started_at,
                 finished_at=orm.job.finished_at,
             ))
+
+    async def delete(
+        self,
+        uow: UnitOfWork,
+        *,
+        model_id: UUID,
+    ) -> None:
+        async with uow:
+            orm = await uow.models.get_by_id(model_id)
+
+            if not orm:
+                raise ValueError(f"Model with ID {model_id} not found.")
+
+            await uow.models.delete(orm)
