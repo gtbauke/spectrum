@@ -14,6 +14,9 @@ class IntegerLiteralAstNode(NumericLiteralAstNode):
     def to_string(self, indent: int) -> str:
         return " " * indent + f"IntegerLiteral(value={self._value})"
 
+    def value(self) -> int:
+        return self._value
+
 
 class FloatLiteralAstNode(NumericLiteralAstNode):
     def __init__(self, value: float, span: Span):
@@ -22,3 +25,6 @@ class FloatLiteralAstNode(NumericLiteralAstNode):
 
     def to_string(self, indent: int) -> str:
         return " " * indent + f"FloatLiteral(value={self._value})"
+
+    def value(self) -> float:
+        return self._value

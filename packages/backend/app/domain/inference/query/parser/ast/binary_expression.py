@@ -53,3 +53,12 @@ class BinaryExpression(BaseAstNode):
             f"{indent_str}  Operator: {self._operator},\n" \
             f"{self._right.to_string(indent + 2)}\n" \
             f"{indent_str})"
+
+    def left(self) -> BaseAstNode:
+        return self._left
+
+    def operator(self) -> BinaryOperator:
+        return self._operator
+
+    def right(self) -> BaseAstNode:
+        return self._right

@@ -22,6 +22,7 @@ class TokenKind(StrEnum):
     ALL = "ALL"
     AND = "AND"
     OR = "OR"
+    PARETO = "PARETO"
 
     NUMBER = "NUMBER"
     IDENTIFIER = "IDENTIFIER"
@@ -51,6 +52,8 @@ class TokenKind(StrEnum):
                 return TokenKind.AND
             case "OR":
                 return TokenKind.OR
+            case "PARETO":
+                return TokenKind.PARETO
             case _:
                 return TokenKind.IDENTIFIER
 
