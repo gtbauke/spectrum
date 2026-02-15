@@ -4,7 +4,8 @@ import uuid
 
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
-from sqlalchemy import DateTime, Enum, func, ForeignKey, Integer, String, Boolean, Float
+from sqlalchemy import (DateTime, Enum, func, ForeignKey,
+                        Integer, String, Boolean, Float)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -12,6 +13,7 @@ from app.db.base import Base
 from app.domain.jobs.job_status import JobStatus
 from app.domain.jobs.job import Job
 from app.domain.jobs.loss_function import LossFunction
+from app.domain.jobs.available_functions import AvailableFunctions
 
 if TYPE_CHECKING:
     from app.db.models.dataset import DatasetORM
@@ -110,7 +112,12 @@ class JobORM(Base):
     non_terminals: Mapped[str] = mapped_column(
         String,
         nullable=False,
-        default="add,sub,mul,div",
+        default=AvailableFunctions.from_list(
+            AvailableFunctions.ADD,
+            AvailableFunctions.SUB,
+            AvailableFunctions.MUL,
+            AvailableFunctions.DIV,
+        ),
     )
 
     loss: Mapped[LossFunction] = mapped_column(
@@ -167,7 +174,7 @@ class JobORM(Base):
             number_of_tournaments=self.number_of_tournaments,
             crossover_probability=self.crossover_probability,
             mutation_probability=self.mutation_probability,
-            non_terminals=self.non_terminals,
+            non_terminals=AvailableFunctions.to_list(self.non_terminals),
             loss=self.loss,
             optimization_iterations=self.optimization_iterations,
             optimization_repeats=self.optimization_repeats,
@@ -192,7 +199,7 @@ class JobORM(Base):
             number_of_tournaments=job.number_of_tournaments,
             crossover_probability=job.crossover_probability,
             mutation_probability=job.mutation_probability,
-            non_terminals=job.non_terminals,
+            non_terminals=AvailableFunctions.from_list(*job.non_terminals),
             loss=job.loss,
             optimization_iterations=job.optimization_iterations,
             optimization_repeats=job.optimization_repeats,

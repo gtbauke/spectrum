@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 from app.domain.jobs.job_status import JobStatus
 from app.domain.jobs.loss_function import LossFunction
+from app.domain.jobs.available_functions import AvailableFunctions
 
 if TYPE_CHECKING:
     from app.domain.datasets.dataset import Dataset
@@ -43,7 +44,7 @@ class Job(BaseModel):
         ..., description="The crossover probability for the genetic algorithm")
     mutation_probability: float = Field(
         ..., description="The mutation probability for the genetic algorithm")
-    non_terminals: str = Field(
+    non_terminals: list[AvailableFunctions] = Field(
         ..., description="The non-terminals to be used in the genetic programming")
     loss: LossFunction = Field(
         ..., description="The loss function to be used for evaluating the models")
@@ -74,7 +75,12 @@ class Job(BaseModel):
             number_of_tournaments=3,
             crossover_probability=0.9,
             mutation_probability=0.3,
-            non_terminals="add,sub,mul,div",
+            non_terminals=[
+                AvailableFunctions.ADD,
+                AvailableFunctions.SUB,
+                AvailableFunctions.MUL,
+                AvailableFunctions.DIV,
+            ],
             loss=LossFunction.MSE,
             optimization_iterations=50,
             optimization_repeats=2,
