@@ -1,4 +1,4 @@
-import { FaPencilAlt, FaPlay, FaTrash } from "react-icons/fa";
+import { FaPencilAlt, FaPlay, FaTrash, FaUndo } from "react-icons/fa";
 import { useNavigate } from "react-router";
 import { getDataset } from "~/api/get-dataset.api";
 import { MainContainer } from "~/components/layout/main.component";
@@ -87,6 +87,7 @@ export default function JobsScreen({ loaderData }: Route.ComponentProps) {
 				<div className="border p-4 rounded shadow space-y-4 border-gray-800">
 					<h2 className="text-xl font-bold">Jobs</h2>
 					<ul className="container mx-auto gap-4">
+						{/* TODO: show models with association to their jobs */}
 						{loaderData.jobs.map((job) => (
 							<li
 								key={job.id}
@@ -102,7 +103,7 @@ export default function JobsScreen({ loaderData }: Route.ComponentProps) {
 										<FaPlay size={12} />
 									</button>
 
-									<div className="flex space-x-2 mt-2">
+									<div className="flex space-x-4">
 										<button
 											type="button"
 											className="text-red-500 hover:text-red-700 active:text-red-800 cursor-pointer"
@@ -112,10 +113,17 @@ export default function JobsScreen({ loaderData }: Route.ComponentProps) {
 
 										<button
 											type="button"
-											className="text-blue-500 hover:text-blue-700 active:text-blue-800 cursor-pointer ml-2"
+											className="text-blue-500 hover:text-blue-700 active:text-blue-800 cursor-pointer"
 											onClick={() => handleEditJob(job)}
 										>
 											<FaPencilAlt size={12} />
+										</button>
+
+										<button
+											type="button"
+											className="text-green-500 hover:text-green-700 active:text-green-800 cursor-pointer"
+										>
+											<FaUndo size={12} />
 										</button>
 									</div>
 								</header>
