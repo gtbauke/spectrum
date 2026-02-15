@@ -1,4 +1,6 @@
 import { FaPencilAlt, FaTrash, FaUndo } from "react-icons/fa";
+import { useRevalidator } from "react-router";
+import { runModel } from "~/api/run-model.api";
 import type { Model } from "~/schemas/model.schema";
 import { JobStatusIndicator } from "./job-status-indicator.component";
 
@@ -7,6 +9,18 @@ type ModelCardProps = {
 };
 
 export function ModelCard({ model }: ModelCardProps) {
+	const revalidator = useRevalidator();
+
+	const handleRunModel = async () => {
+		try {
+			await runModel(model.id);
+			await revalidator.revalidate();
+		} catch (error) {
+			console.error("Error running model:", error);
+			return;
+		}
+	};
+
 	return (
 		<div className="border p-4 rounded shadow space-y-4 border-gray-800 w-full">
 			<header className="space-y-1">
@@ -36,6 +50,7 @@ export function ModelCard({ model }: ModelCardProps) {
 						<button
 							type="button"
 							className="text-green-500 hover:text-green-700 active:text-green-800 cursor-pointer"
+							onClick={handleRunModel}
 						>
 							<FaUndo size={12} />
 						</button>
