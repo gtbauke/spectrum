@@ -71,6 +71,7 @@ async def handle_start_model_training_event(
     )
 
     final_path = await model_training_service.train_model(
+        uow=get_uow(),
         dataset_id=dataset.id,
         job_id=job.id,
         dataset_file_name=dataset.file_path

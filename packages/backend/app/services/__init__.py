@@ -31,7 +31,8 @@ def get_model_training_service() -> ModelTrainingService:
         model_files_service=ModelFilesService(
             dataset_files_service=dataset_files_service
         ),
-        dataset_files_service=dataset_files_service
+        dataset_files_service=dataset_files_service,
+        jobs_service=get_jobs_service(),
     )
 
 
