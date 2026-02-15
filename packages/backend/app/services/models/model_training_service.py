@@ -1,3 +1,4 @@
+import logging
 import pandas as pd
 
 from uuid import UUID
@@ -8,7 +9,12 @@ from app.api.deps import UnitOfWork
 from app.services.models.model_files_service import ModelFilesService
 from app.services.datasets.dataset_files_service import DatasetFilesService
 from app.services.jobs.jobs_service import JobsService
+from app.services.models.models_service import ModelsService
 from app.domain.jobs.available_functions import AvailableFunctions
+from app.domain.jobs.job_status import JobStatus
+
+
+logger = logging.getLogger(__name__)
 
 
 class ModelTrainingService:
@@ -17,10 +23,33 @@ class ModelTrainingService:
         dataset_files_service: DatasetFilesService,
         model_files_service: ModelFilesService,
         jobs_service: JobsService,
+        models_service: ModelsService,
     ):
         self._dataset_files_service = dataset_files_service
         self._model_files_service = model_files_service
         self._jobs_service = jobs_service
+        self._models_service = models_service
+
+    async def can_train_model(
+        self,
+        *,
+        uow: UnitOfWork,
+        model_id: UUID,
+    ):
+        async with uow:
+            model = await self._models_service.get(uow=uow, model_id=model_id)
+
+            if not model:
+                raise ValueError(f"Model with ID {model_id} not found.")
+
+            if not model.job:
+                raise ValueError(
+                    f"Model with ID {model_id} has no associated job.")
+
+            if model.job.status == JobStatus.RUNNING:
+                return None
+
+        return model
 
     async def train_model(
         self,
@@ -58,6 +87,12 @@ class ModelTrainingService:
             if not job:
                 raise ValueError(f"Job with id {job_id} not found")
 
+        logger.info("Non-terminals for job %s: %s", job_id, job.non_terminals, extra={
+            "job_id": job_id,
+            "non_terminals": job.non_terminals,
+            "non_terminals_str": AvailableFunctions.from_list(*job.non_terminals)
+        })
+
         model = EGGP(
             gen=job.generations,
             nPop=job.population,
@@ -75,7 +110,4 @@ class ModelTrainingService:
         )
 
         model.fit(X, y)  # type: ignore
-
-        print(f"Model trained and saved to {model_path}")
-
         return dataset_file_name.replace(".csv", "_model.eggp")

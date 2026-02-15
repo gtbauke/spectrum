@@ -65,25 +65,25 @@ class ModelsService:
             if not existing_job:
                 raise ValueError(f"Job with ID {job_id} not found.")
 
-            model = Model.create(
+            orm = await uow.models.add(ModelORM(
                 name=model_name,
                 dataset_id=dataset_id,
-                job=existing_job.to_domain(),
-            )
+                job_id=job_id,
+            ))
 
-            orm = await uow.models.add(ModelORM.from_domain(model))
             domain = orm.to_domain()
 
         return domain
 
-    async def get_trained_models(
+    async def list(
         self,
         uow: UnitOfWork,
     ) -> list[Model]:
         async with uow:
-            orms = await uow.models.get_all_trained_models()
+            orms = await uow.models.list_all()
+            domains = [orm.to_domain() for orm in orms]
 
-        return [orm.to_domain() for orm in orms]
+        return domains
 
     async def update_model_file_path(
         self,
@@ -104,12 +104,3 @@ class ModelsService:
             await uow.models.update(orm)
 
         return domain
-
-    async def get_non_trained_models(
-        self,
-        uow: UnitOfWork,
-    ) -> list[Model]:
-        async with uow:
-            orms = await uow.models.get_all_non_trained_models()
-
-        return [orm.to_domain() for orm in orms]

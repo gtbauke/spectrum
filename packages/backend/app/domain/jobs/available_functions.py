@@ -40,7 +40,7 @@ class AvailableFunctions(StrEnum):
 
     @staticmethod
     def from_list(*functions: AvailableFunctions) -> str:
-        return ", ".join(functions)
+        return ",".join(functions)
 
     @staticmethod
     def to_list(functions_str: str) -> list[AvailableFunctions]:

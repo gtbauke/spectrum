@@ -17,6 +17,8 @@ from app.workers.utils.errors.unretryable_error import UnretryableError
 from app.infra.events.rabbitmq import rabbitmq_manager
 from app.infra.events.models.rabbit_mq_model_events_publisher import RabbitMQModelEventsPublisher
 from app.db.models.job import JobORM
+from app.workers.consumers.models.errors.model_not_found_error import ModelNotFoundError
+from app.workers.consumers.models.errors.model_has_no_associated_job_error import ModelHasNoAssociatedJobError
 
 logger = logging.getLogger(__name__)
 
@@ -48,24 +50,30 @@ async def handle_start_model_training_event(
             raise DatasetNotReadyForTrainingError(
                 event.dataset_id)
 
-        job = await jobs_service.create(uow=uow, dataset=dataset)
-        logger.info("Job created", extra={
-            "job_id": job.id,
-            "dataset_id": dataset.id,
-        })
+        if event.model_id is None:
+            job = await jobs_service.create(uow=uow, dataset=dataset)
+            model = await models_service.create(
+                uow=uow,
+                model_name=f"Model for dataset {dataset.name}",
+                dataset_id=dataset.id,
+                job_id=job.id,
+            )
+        else:
+            model = await models_service.get(uow=uow, model_id=event.model_id)
 
-        model = await models_service.create(
-            uow=uow,
-            model_name=f"Model for dataset {dataset.name}",
-            dataset_id=dataset.id,
-            job_id=job.id,
-        )
+            if not model:
+                raise ModelNotFoundError(event.model_id)
+
+            if not model.job:
+                raise ModelHasNoAssociatedJobError(event.model_id)
+
+            job = model.job
 
     if not dataset.file_path:
         raise DatasetMissingFilePathError(event.dataset_id)
 
     await jobs_service.update(
-        uow=uow,
+        uow=get_uow(),
         job_id=job.id,
         update_func=_update_job_status_and_start_time
     )
