@@ -1,4 +1,4 @@
-import { FaPencilAlt, FaTrash, FaUndo } from "react-icons/fa";
+import { FaHistory, FaPencilAlt, FaTrash, FaUndo } from "react-icons/fa";
 import { useRevalidator } from "react-router";
 import { runModel } from "~/api/run-model.api";
 import type { Model } from "~/schemas/model.schema";
@@ -25,11 +25,21 @@ export function ModelCard({ model }: ModelCardProps) {
 		<div className="border p-4 rounded shadow space-y-4 border-gray-800 w-full">
 			<header className="space-y-1">
 				<div className="flex items-center justify-between">
-					<div className="flex items-center gap-2">
-						<h3 className="text-lg font-semibold">{model.name}</h3>
-						<p className="text-xs text-gray-500">
-							(Created at {model.created_at.toDateString()})
-						</p>
+					<div className="flex items-center gap-4">
+						<div className="flex items-center gap-2">
+							<h3 className="text-lg font-semibold">{model.name}</h3>
+							<p className="text-xs text-gray-500">
+								(Created at {model.created_at.toDateString()})
+							</p>
+						</div>
+
+						{/* TODO: add job run history route */}
+						<button type="button">
+							<FaHistory
+								size={12}
+								className="text-gray-500 hover:text-gray-700 active:text-gray-800 cursor-pointer"
+							/>
+						</button>
 					</div>
 
 					<div className="flex space-x-4">
