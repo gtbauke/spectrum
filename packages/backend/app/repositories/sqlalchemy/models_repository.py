@@ -5,6 +5,7 @@ from sqlalchemy import select
 
 from app.db.models.model import ModelORM
 from app.repositories.models_repository import ModelsRepository
+from app.db.models.job import JobORM
 
 
 class SqlAlchemyModelsRepository(ModelsRepository):
@@ -69,3 +70,18 @@ class SqlAlchemyModelsRepository(ModelsRepository):
 
     async def delete(self, obj: ModelORM) -> None:
         await self._session.delete(obj)
+
+    async def get_with_job(self, model_id: UUID) -> tuple[ModelORM, JobORM] | None:
+        result = await self._session.execute(
+            select(ModelORM, JobORM)
+            .join(JobORM, ModelORM.job_id == JobORM.id)
+            .where(ModelORM.id == model_id)
+        )
+
+        row = result.one_or_none()
+
+        if row is None:
+            return None
+
+        model_orm, job_orm = row
+        return model_orm, job_orm

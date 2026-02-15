@@ -2,6 +2,7 @@ from uuid import UUID
 
 from app.api.deps import UnitOfWork
 from app.domain.models.model import Model
+from app.domain.jobs.job import Job
 from app.db.models.model import ModelORM
 
 # TODO: better error handling in the Repository layer
@@ -26,6 +27,25 @@ class ModelsService:
             domain = orm.to_domain()
 
         return domain
+
+    async def get_with_job(
+        self,
+        uow: UnitOfWork,
+        *,
+        model_id: UUID,
+    ) -> tuple[Model, Job]:
+        async with uow:
+            result = await uow.models.get_with_job(model_id)
+
+            if not result:
+                raise ValueError(f"Model with ID {model_id} not found.")
+
+            model_orm, job_orm = result
+
+            model_domain = model_orm.to_domain()
+            job_domain = job_orm.to_domain()
+
+        return model_domain, job_domain
 
     async def create(
         self,

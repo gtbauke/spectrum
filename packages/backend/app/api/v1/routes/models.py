@@ -1,8 +1,7 @@
 from uuid import UUID
 from fastapi import APIRouter, Depends
 
-from app.api.v1.schemas.model import GetAllModelsResponse
-from app.domain.models.model import Model
+from app.api.v1.schemas.model import GetAllModelsResponse, GetModelResponse
 from app.db.uow.unit_of_work import UnitOfWork
 from app.api.deps import get_uow
 from app.services.models.models_service import ModelsService
@@ -44,7 +43,7 @@ async def get_all_trained_models(
 
 @models_router.get(
     path="/{model_id}",
-    response_model=Model,
+    response_model=GetModelResponse,
     status_code=200,
 )
 async def get_model_by_id(
@@ -54,6 +53,6 @@ async def get_model_by_id(
     service = ModelsService()
 
     async with uow:
-        model = await service.get(model_id=model_id, uow=uow)
+        model, job = await service.get_with_job(model_id=model_id, uow=uow)
 
-    return model
+    return GetModelResponse(**model.model_dump(), job=job)

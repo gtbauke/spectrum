@@ -4,6 +4,7 @@ from uuid import UUID
 
 from app.repositories.base import BaseRepository
 from app.db.models.model import ModelORM
+from app.db.models.job import JobORM
 
 
 class ModelsRepository(BaseRepository[ModelORM], ABC):
@@ -15,3 +16,7 @@ class ModelsRepository(BaseRepository[ModelORM], ABC):
 
     @abstractmethod
     async def get_all_non_trained_models(self) -> Sequence[ModelORM]: ...
+
+    @abstractmethod
+    async def get_with_job(
+        self, model_id: UUID) -> tuple[ModelORM, JobORM] | None: ...
