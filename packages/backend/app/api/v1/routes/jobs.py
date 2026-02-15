@@ -18,3 +18,15 @@ async def list_jobs(
         jobs = await jobs_service.list_all(uow=uow, dataset_id=dataset_id)
 
     return jobs
+
+
+@jobs_router.get("/{job_id}", response_model=Job)
+async def get_job(
+    job_id: UUID,
+    uow: UnitOfWork = Depends(get_uow),
+    jobs_service: JobsService = Depends(get_jobs_service)
+):
+    async with uow:
+        job = await jobs_service.get_by_id(uow=uow, job_id=job_id)
+
+    return job

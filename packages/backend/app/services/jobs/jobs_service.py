@@ -22,6 +22,17 @@ class JobsService:
 
         return job
 
+    async def get_by_id(self, uow: UnitOfWork, *, job_id: UUID) -> Job:
+        async with uow:
+            orm = await uow.jobs.get_by_id(job_id)
+
+            if not orm:
+                raise ValueError(f"Job with id {job_id} not found")
+
+            domain = orm.to_domain()
+
+        return domain
+
     async def update(
         self,
         uow: UnitOfWork,
