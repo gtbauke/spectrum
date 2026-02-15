@@ -1,5 +1,6 @@
 import { FaPencilAlt, FaTrash } from "react-icons/fa";
 import type { Model } from "~/schemas/model.schema";
+import { JobStatusIndicator } from "./job-status-indicadtor.component";
 
 type ModelCardProps = {
 	model: Model;
@@ -36,6 +37,14 @@ export function ModelCard({ model }: ModelCardProps) {
 
 				<p className="text-xs text-gray-500">{model.id}</p>
 			</header>
+
+			<div>
+				{model.job ? (
+					<JobStatusIndicator status={model.job.status} />
+				) : (
+					<span className="text-sm text-gray-500">No job associated</span>
+				)}
+			</div>
 		</div>
 	);
 }

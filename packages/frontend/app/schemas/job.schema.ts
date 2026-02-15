@@ -39,20 +39,22 @@ export const availableFunctionsSchema = z.enum([
 	"aq",
 ]);
 
+export const jobStatusSchema = z.enum([
+	"PENDING",
+	"QUEUED",
+	"RUNNING",
+	"SUCCEEDED",
+	"FAILED",
+	"CANCELED",
+	"TIMEOUT",
+	"RETRYING",
+	"SKIPPED",
+	"UNKNOWN",
+]);
+
 export const jobSchema = z.object({
 	id: z.uuid(),
-	status: z.enum([
-		"PENDING",
-		"QUEUED",
-		"RUNNING",
-		"SUCCEEDED",
-		"FAILED",
-		"CANCELED",
-		"TIMEOUT",
-		"RETRYING",
-		"SKIPPED",
-		"UNKNOWN",
-	]),
+	status: jobStatusSchema,
 	dataset_id: z.uuid(),
 	created_at: z
 		.string()
@@ -93,6 +95,8 @@ export const editJobSchema = jobSchema.omit({
 	started_at: true,
 	finished_at: true,
 });
+
+export type JobStatus = z.infer<typeof jobStatusSchema>;
 
 export type Job = z.infer<typeof jobSchema>;
 export type EditJob = z.infer<typeof editJobSchema>;
