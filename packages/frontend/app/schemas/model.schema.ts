@@ -1,10 +1,11 @@
 import { z } from "zod";
+import { jobSchema } from "./job.schema";
 
 export const modelSchema = z.object({
 	id: z.uuid(),
 	name: z.string(),
 	dataset_id: z.uuid(),
-	job_id: z.uuid(),
+	job: jobSchema.nullable().optional(),
 	model_file: z.string().optional().nullable(),
 	created_at: z
 		.string()

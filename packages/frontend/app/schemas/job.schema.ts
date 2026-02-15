@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { modelSchema } from "./model.schema";
 
 export const lossFunctionSchema = z.enum([
 	"MSE",
@@ -55,7 +54,6 @@ export const jobSchema = z.object({
 		"UNKNOWN",
 	]),
 	dataset_id: z.uuid(),
-	models: z.array(modelSchema),
 	created_at: z
 		.string()
 		.transform((str) => new Date(str))
@@ -91,7 +89,6 @@ export const editJobSchema = jobSchema.omit({
 	id: true,
 	status: true,
 	dataset_id: true,
-	models: true,
 	created_at: true,
 	started_at: true,
 	finished_at: true,
