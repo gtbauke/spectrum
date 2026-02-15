@@ -2,6 +2,7 @@ import { FaHistory, FaPencilAlt, FaTrash, FaUndo } from "react-icons/fa";
 import { useRevalidator } from "react-router";
 import { runModel } from "~/api/run-model.api";
 import type { Model } from "~/schemas/model.schema";
+import { EnterPlaygroundButton } from "./enter-playground-button.component";
 import { JobStatusIndicator } from "./job-status-indicator.component";
 
 type ModelCardProps = {
@@ -76,6 +77,13 @@ export function ModelCard({ model }: ModelCardProps) {
 				) : (
 					<span className="text-sm text-gray-500">No job associated</span>
 				)}
+			</div>
+
+			<div className="flex justify-end">
+				<EnterPlaygroundButton
+					jobStatus={model.job?.status || "FAILED"}
+					modelId={model.id}
+				/>
 			</div>
 		</div>
 	);
