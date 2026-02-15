@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
 import { getJob } from "~/api/get-job.api";
 import { MainContainer } from "~/components/layout/main.component";
 import { FormInput } from "~/components/ui/forms/form-input.component";
@@ -12,6 +13,7 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
 }
 
 export default function EditJobScreen({ loaderData }: Route.ComponentProps) {
+	const navigate = useNavigate();
 	const { register, handleSubmit, reset } = useForm({
 		defaultValues: {
 			generations: loaderData.job.generations,
@@ -32,6 +34,11 @@ export default function EditJobScreen({ loaderData }: Route.ComponentProps) {
 	});
 
 	const onSubmit = (data: EditJob) => {};
+
+	const onCancel = () => {
+		reset();
+		navigate(`/datasets/${loaderData.job.dataset_id}/jobs`);
+	};
 
 	return (
 		<MainContainer>
@@ -110,6 +117,7 @@ export default function EditJobScreen({ loaderData }: Route.ComponentProps) {
 							{...register("simplify")}
 						/>
 
+						{/* TODO: create select component */}
 						<FormInput label="Loss" type="text" {...register("loss")} />
 
 						{/* TODO: create multiselect component */}
@@ -118,6 +126,21 @@ export default function EditJobScreen({ loaderData }: Route.ComponentProps) {
 							type="text"
 							{...register("non_terminals")}
 						/>
+
+						<div className="flex flex-col gap-2">
+							<input
+								type="submit"
+								value="Submit"
+								className="cursor-pointer p-2 bg-green-600 hover:bg-green-700 active:bg-green-800 rounded-sm font-bold"
+							/>
+
+							<input
+								type="reset"
+								value="Cancel"
+								className="cursor-pointer p-2 bg-red-600 hover:bg-red-700 active:bg-red-800 rounded-sm font-bold"
+								onClick={onCancel}
+							/>
+						</div>
 					</form>
 				</div>
 			</div>
