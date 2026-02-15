@@ -57,14 +57,18 @@ class ModelsService:
     ) -> Model:
         async with uow:
             existing_model = await uow.models.get_by_dataset_id(dataset_id)
+            existing_job = await uow.jobs.get_by_id(job_id)
 
             if existing_model:
                 return existing_model.to_domain()
 
+            if not existing_job:
+                raise ValueError(f"Job with ID {job_id} not found.")
+
             model = Model.create(
                 name=model_name,
                 dataset_id=dataset_id,
-                job_id=job_id,
+                job=existing_job.to_domain(),
             )
 
             orm = await uow.models.add(ModelORM.from_domain(model))

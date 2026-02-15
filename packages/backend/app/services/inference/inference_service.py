@@ -31,7 +31,7 @@ class InferenceService:
             model = await self._models_service.get(uow=uow, model_id=model_id)
             dataset = await self._datasets_service.get_by_id(uow=uow, dataset_id=model.dataset_id)
 
-            if not model or not dataset:
+            if not model or not dataset or not model.job:
                 raise ValueError("Model or Dataset not found")
 
             if model.model_file is None:
@@ -43,7 +43,7 @@ class InferenceService:
 
             model_path = await self._model_files_service.get_model_file_path(
                 dataset_id=dataset.id,
-                job_id=model.job_id,
+                job_id=model.job.id,
             )
 
             dataset_path = await self._dataset_files_service.get_dataset_file_path(

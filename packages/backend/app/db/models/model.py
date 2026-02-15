@@ -77,7 +77,7 @@ class ModelORM(Base):
             model_file=self.model_file,
             created_at=self.created_at,
             updated_at=self.updated_at,
-            job_id=self.job_id,
+            job=self.job.to_domain() if self.job else None,
         )
 
     @classmethod
@@ -89,5 +89,5 @@ class ModelORM(Base):
             model_file=model.model_file,
             created_at=model.created_at,
             updated_at=model.updated_at,
-            job_id=model.job_id,
+            job=model.job if model.job else None,
         )

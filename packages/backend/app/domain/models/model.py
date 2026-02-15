@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from uuid import UUID, uuid4
 from pydantic import BaseModel
+
+if TYPE_CHECKING:
+    from app.domain.jobs.job import Job
 
 
 class Model(BaseModel):
@@ -11,7 +14,7 @@ class Model(BaseModel):
 
     name: str
     dataset_id: UUID
-    job_id: UUID
+    job: Optional["Job"]
 
     model_file: Optional[str]
 
@@ -19,14 +22,14 @@ class Model(BaseModel):
     updated_at: datetime
 
     @classmethod
-    def create(cls, *, name: str, dataset_id: UUID, job_id: UUID, model_file: Optional[str] = None) -> Model:
+    def create(cls, *, name: str, dataset_id: UUID, job: "Job", model_file: Optional[str] = None) -> Model:
         now = datetime.now()
 
         return cls(
             id=uuid4(),
             name=name,
             dataset_id=dataset_id,
-            job_id=job_id,
+            job=job,
             model_file=model_file,
             created_at=now,
             updated_at=now,
