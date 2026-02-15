@@ -43,10 +43,11 @@ class ModelORM(Base):
         UUID(as_uuid=True),
         ForeignKey("jobs.id", ondelete="CASCADE"),
         nullable=False,
+        unique=True,
     )
 
     job: Mapped["JobORM"] = relationship(
-        back_populates="models",
+        back_populates="model",
         lazy="selectin",
     )
 

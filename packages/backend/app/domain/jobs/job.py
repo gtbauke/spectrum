@@ -3,7 +3,7 @@ from __future__ import annotations
 from uuid import UUID, uuid4
 from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from app.domain.jobs.job_status import JobStatus
 from app.domain.jobs.loss_function import LossFunction
@@ -29,8 +29,8 @@ class Job(BaseModel):
         None, description="The timestamp when the job finished, if it has finished"
     )
 
-    models: list["Model"] = Field(...,
-                                  description="The list of models produced by the job")
+    model: Optional["Model"] = Field(None,
+                                     description="The model produced by the job")
 
     generations: int = Field(...,
                              description="The number of generations for the genetic algorithm")
@@ -68,7 +68,7 @@ class Job(BaseModel):
             created_at=datetime.now(),
             started_at=None,
             finished_at=None,
-            models=[],
+            model=None,
             generations=100,
             population=100,
             max_size=15,
