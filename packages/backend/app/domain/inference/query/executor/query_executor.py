@@ -13,6 +13,7 @@ from app.domain.inference.query.parser.ast.top_n import TopNAstNode
 from app.domain.inference.query.parser.ast.number import IntegerLiteralAstNode
 from app.domain.inference.query.parser.ast.binary_expression import BinaryExpression
 from app.domain.inference.query.executor.errors.column_is_not_selectable_error import ColumnIsNotSelectableError
+from app.domain.inference.query.result import InferenceResultList, InferenceResult
 
 
 logger = logging.getLogger(__name__)
@@ -81,7 +82,7 @@ class QueryExecutor:
         return result
 
     # TODO: Implement support for WHERE clause, ORDER BY clause, and other SQL-like features.
-    def execute(self):
+    def execute(self) -> InferenceResultList:
         if not isinstance(self._root_node, SelectClauseAstNode):
             raise RootExpressionShouldBeSelectClauseError()
 
@@ -102,4 +103,11 @@ class QueryExecutor:
         mask = result.columns.str.contains("|".join(subset), case=False)
 
         final_result = result.loc[:, mask]
-        return final_result.to_json(orient="records")  # type: ignore
+        final_result.columns = final_result.columns.str.lower()
+
+        results = [
+            InferenceResult(**item) for  # type: ignore
+            item in final_result.to_dict(orient="records")  # type: ignore
+        ]
+
+        return InferenceResultList(results=results)

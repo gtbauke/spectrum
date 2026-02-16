@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 
 from app.services import get_inference_service
 from app.api.deps import UnitOfWork, get_uow
+from app.domain.inference.query.result import InferenceResultList
 
 
 inference_router = APIRouter(tags=["Inference"])
@@ -37,6 +38,9 @@ async def websocket_inference(
                 })
 
                 continue
+
+            if isinstance(result, InferenceResultList):
+                result = result.model_dump(mode="json")
 
             await websocket.send_json({
                 "result": result,
