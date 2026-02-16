@@ -1,7 +1,8 @@
 from app.domain.models.model import Model
 from app.domain.inference.live_model import LiveModel
-from app.domain.inference.messages.base import BaseInferenceMessage, BaseInferenceResponse
-from app.domain.inference.messages.top_expressions_message import TopExpressionsMessage, TopExpressionsResponse
+from app.domain.inference.query.tokenizer.tokenizer import QueryTokenizer
+from app.domain.inference.query.parser.parser import InferenceQueryParser
+from app.domain.inference.query.executor.query_executor import QueryExecutor
 
 
 class InferenceSession:
@@ -13,20 +14,14 @@ class InferenceSession:
         result = eval(code)
         return result
 
-    async def _handle_top_expressions(self, message: TopExpressionsMessage) -> TopExpressionsResponse:
-        top_expressions = self._live_model._egg.top(  # type: ignore
-            n=message.topN,
-        )
+    async def execute_query(self, query: str):
+        tokenizer = QueryTokenizer(query)
+        tokens = tokenizer.tokenize()
 
-        return TopExpressionsResponse(
-            original_message_type="top_expressions",
-            res=top_expressions.to_dict(orient="records")  # type: ignore
-        )
+        parser = InferenceQueryParser(tokens)
+        root_node = parser.parse_expression()
 
-    async def handle(self, message: BaseInferenceMessage, raw_message: str) -> BaseInferenceResponse:
-        match message.message_type:
-            case "top_expressions":
-                return await self._handle_top_expressions(TopExpressionsMessage.model_validate(raw_message))
-            case _:
-                raise ValueError(
-                    f"Unknown message type: {message.message_type}")
+        executor = QueryExecutor(root_node, self._live_model.reggression)
+        result = executor.execute()
+
+        return result

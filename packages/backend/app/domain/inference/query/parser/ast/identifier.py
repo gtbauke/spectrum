@@ -9,3 +9,6 @@ class IdentifierAstNode(BaseAstNode):
 
     def to_string(self, indent: int) -> str:
         return f"{' ' * indent}Identifier: {self._name}"
+
+    def name(self) -> str:
+        return self._name

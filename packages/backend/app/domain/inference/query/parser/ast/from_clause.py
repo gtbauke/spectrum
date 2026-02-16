@@ -31,3 +31,6 @@ class FromAstNode(BaseAstNode):
             raise ValueError("From clause source is not a Pareto expression")
 
         return self._source
+
+    def source_kind(self) -> AstNodeKind:
+        return self._source.kind

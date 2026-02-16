@@ -1,6 +1,6 @@
 import logging
 
-from typing import Any
+from pandas import DataFrame
 from reggression import Reggression  # type: ignore
 
 from app.domain.inference.query.parser.base import BaseAstNode
@@ -12,17 +12,31 @@ from app.domain.inference.query.executor.errors.root_expression_should_be_select
 from app.domain.inference.query.parser.ast.top_n import TopNAstNode
 from app.domain.inference.query.parser.ast.number import IntegerLiteralAstNode
 from app.domain.inference.query.parser.ast.binary_expression import BinaryExpression
+from app.domain.inference.query.executor.errors.column_is_not_selectable_error import ColumnIsNotSelectableError
 
 
 logger = logging.getLogger(__name__)
 
 
 class QueryExecutor:
+    _QUERYABLE_LITERALS = (
+        "id",
+        "expression",
+        "dl",
+        "fitness",
+        "latex",
+        "numpy",
+        "parameters",
+        "size",
+    )
+
     def __init__(self, root_node: BaseAstNode, reggression: Reggression):
         self._root_node = root_node
         self._reggression = reggression
 
     def _calculate_node_value(self, node: BaseAstNode):
+        logger.info(f"Calculating value for node: {node.to_string(0)}")
+
         if isinstance(node, IntegerLiteralAstNode):
             return node.value()
 
@@ -37,32 +51,55 @@ class QueryExecutor:
 
         n_value = self._calculate_node_value(value)
 
+        logger.info(f"Calculated TOP N value: {n_value}")
+
         if not isinstance(n_value, int):
             raise ValueError("Top N value must be an integer")
 
         return n_value
 
-    def _execute_top_n_expression(self, select_clause: SelectClauseAstNode) -> Any:
+    def _execute_top_n_expression(self, select_clause: SelectClauseAstNode) -> DataFrame:
         top_n_expression = select_clause.from_clause().top_n_expression()
         n = self._calculate_top_n(top_n_expression)
 
         result = self._reggression.top(n=n)  # type: ignore
+        if not isinstance(result, DataFrame):
+            raise ValueError(
+                "Expected a DataFrame as a result of top N expression")
 
         logger.info(f"Executed TOP N expression with n={n}, result: {result}")
 
         return result
 
-    def _execute_pareto_expression(self, select_clause: SelectClauseAstNode) -> Any:
-        raise NotImplementedError(
-            "Pareto expression execution is not implemented yet.")
+    def _execute_pareto_expression(self, select_clause: SelectClauseAstNode) -> DataFrame:
+        result = self._reggression.pareto()  # type: ignore
+        if not isinstance(result, DataFrame):
+            raise ValueError(
+                "Expected a DataFrame as a result of Pareto expression")
 
-    def execute(self) -> Any:
+        logger.info(f"Executed Pareto expression, result: {result}")
+        return result
+
+    # TODO: Implement support for WHERE clause, ORDER BY clause, and other SQL-like features.
+    def execute(self):
         if not isinstance(self._root_node, SelectClauseAstNode):
             raise RootExpressionShouldBeSelectClauseError()
 
-        from_kind = self._root_node.from_clause().kind
+        for column in self._root_node.columns():
+            if column.name().lower() not in self._QUERYABLE_LITERALS:
+                raise ColumnIsNotSelectableError(column.name())
 
+        from_kind = self._root_node.from_clause().source_kind()
         if from_kind == AstNodeKind.TOP_N_EXPRESSION:
-            return self._execute_top_n_expression(self._root_node)
+            result = self._execute_top_n_expression(self._root_node)
+        elif from_kind == AstNodeKind.PARETO_EXPRESSION:
+            result = self._execute_pareto_expression(self._root_node)
+        else:
+            raise ValueError(f"Unknown from kind: {from_kind}")
 
-        return self._execute_pareto_expression(self._root_node)
+        subset = [column.name().lower()
+                  for column in self._root_node.columns()]
+        mask = result.columns.str.contains("|".join(subset), case=False)
+
+        final_result = result.loc[:, mask]
+        return final_result.to_json(orient="records")  # type: ignore

@@ -11,6 +11,7 @@ class TokenKind(StrEnum):
     GREATER = "GREATER"
     LESS = "LESS"
     COMMA = "COMMA"
+    SEMICOLON = "SEMICOLON"
 
     SELECT = "SELECT"
     FROM = "FROM"

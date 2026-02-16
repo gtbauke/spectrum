@@ -1,5 +1,9 @@
+import logging
+
 from app.domain.inference.query.tokenizer.token import Token, TokenKind
 from app.domain.inference.query.span import Span
+
+logger = logging.getLogger(__name__)
 
 
 class QueryTokenizer:
@@ -72,6 +76,10 @@ class QueryTokenizer:
         self._start = self._current
 
         current = self._advance()
+
+        if current.isdigit():
+            return self._number()
+
         match current:
             case "=":
                 return Token(TokenKind.EQUAL, current, Span(self._start, self._current))
@@ -87,6 +95,8 @@ class QueryTokenizer:
                     raise ValueError(f"Unexpected character: {current}")
             case ",":
                 return Token(TokenKind.COMMA, current, Span(self._start, self._current))
+            case ";":
+                return Token(TokenKind.SEMICOLON, current, Span(self._start, self._current))
             case _:
                 return self._identifier_number_or_keyword()
 

@@ -12,3 +12,7 @@ class LiveModel:
             dataset=dataset_path,
             loadFrom=model_path,
         )
+
+    @property
+    def reggression(self) -> Reggression:
+        return self._egg

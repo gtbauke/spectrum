@@ -71,7 +71,7 @@ class SelectClauseParselet(PrefixParselet):
         if where_token:
             where_clause = self._where_parselet.parse(parser, where_token)
 
-        if not isinstance(where_clause, WhereAstNode):
+        if where_clause is not None and not isinstance(where_clause, WhereAstNode):
             raise MissingWhereClauseException()
 
         span = token.span.merge(
