@@ -1,8 +1,9 @@
 from app.domain.models.model import Model
 from app.domain.inference.live_model import LiveModel
-from app.domain.inference.query.tokenizer.tokenizer import QueryTokenizer
-from app.domain.inference.query.parser.parser import InferenceQueryParser
-from app.domain.inference.query.executor.query_executor import QueryExecutor
+
+from iql.tokenizer.tokenizer import QueryTokenizer
+from iql.parser.parser import InferenceQueryParser
+from iql.executor.query_executor import QueryExecutor
 
 
 class InferenceSession:

@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 
 from app.services import get_inference_service
 from app.api.deps import UnitOfWork, get_uow
-from app.domain.inference.query.result import InferenceResultList
+from iql.utils.result import InferenceResultList
 
 
 inference_router = APIRouter(tags=["Inference"])

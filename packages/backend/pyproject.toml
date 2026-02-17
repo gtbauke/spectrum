@@ -10,6 +10,7 @@ dependencies = [
     "dotenv>=0.9.9",
     "eggp>=1.0.16",
     "fastapi[standard]>=0.128.0",
+    "inference-query-language",
     "pandas>=3.0.0",
     "pika>=1.3.2",
     "pydantic>=2.12.5",
@@ -29,3 +30,6 @@ dev-dependencies = [
     "mypy",
     "pre-commit",
 ]
+
+[tool.uv.sources]
+inference-query-language = { workspace = true }
