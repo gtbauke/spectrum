@@ -3,7 +3,7 @@ from iql.utils.span import Span
 
 
 class NumericLiteralAstNode(BaseAstNode):
-    pass
+    def value(self) -> int | float: ...
 
 
 class IntegerLiteralAstNode(NumericLiteralAstNode):

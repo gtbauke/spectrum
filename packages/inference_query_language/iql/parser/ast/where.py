@@ -14,3 +14,6 @@ class WhereAstNode(BaseAstNode):
         )
 
         return f"{indent_str}WHERE\n{conditions_str}"
+
+    def conditions(self) -> list[BaseAstNode]:
+        return self._conditions

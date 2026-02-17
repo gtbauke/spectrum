@@ -21,6 +21,9 @@ class BinaryOperator(StrEnum):
     LESS = "<"
     EQUAL = "="
 
+    def is_boolean_operator(self) -> bool:
+        return self in {BinaryOperator.AND, BinaryOperator.OR}
+
     @staticmethod
     def from_token_kind(token_kind: TokenKind) -> BinaryOperator:
         mapping: dict[TokenKind, BinaryOperator] = {
