@@ -95,6 +95,8 @@ class SelectClauseParselet(PrefixParselet):
 
         return order_by_clause
 
+    # TODO: Right now, PATTERN is being recognized in the WHERE clause, this is probably a precedence issue
+    # TODO: we should add support for parentheses in the WHERE and PATTERN clauses to allow for more complex expressions
     def parse(self, parser: QueryParser, token: Token) -> BaseAstNode:
         results = parser.do_until_matches(
             TokenKind.FROM,

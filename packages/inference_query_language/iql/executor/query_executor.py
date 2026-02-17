@@ -108,10 +108,14 @@ class QueryExecutor:
         order_by_clause = select_clause.order_by_clause()
         criteria = order_by_clause.criteria().name() if order_by_clause else "fitness"
 
+        pattern = select_clause.pattern_matching_expression()
+        pattern_str = pattern.to_string(0) if pattern else "None"
+
         logger.info("Executing TOP N expression", extra={
             "n": n,
             "where_conditions": where_conditions,
             "criteria": criteria,
+            "pattern": pattern_str,
         })
 
         result = self._reggression.top(  # type: ignore
