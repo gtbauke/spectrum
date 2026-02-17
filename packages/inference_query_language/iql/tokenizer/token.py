@@ -5,6 +5,11 @@ from iql.utils.span import Span
 
 
 class TokenKind(StrEnum):
+    PLUS = "PLUS"
+    MINUS = "MINUS"
+    STAR = "STAR"
+    SLASH = "SLASH"
+
     EQUAL = "EQUAL"
     GREATER_EQUAL = "GREATER_EQUAL"
     LESS_EQUAL = "LESS_EQUAL"
@@ -24,6 +29,9 @@ class TokenKind(StrEnum):
     AND = "AND"
     OR = "OR"
     PARETO = "PARETO"
+    PATTERN = "PATTERN"
+    LIKE = "LIKE"
+    IS = "IS"
 
     NUMBER = "NUMBER"
     IDENTIFIER = "IDENTIFIER"
@@ -55,6 +63,12 @@ class TokenKind(StrEnum):
                 return TokenKind.OR
             case "PARETO":
                 return TokenKind.PARETO
+            case "PATTERN":
+                return TokenKind.PATTERN
+            case "LIKE":
+                return TokenKind.LIKE
+            case "IS":
+                return TokenKind.IS
             case _:
                 return TokenKind.IDENTIFIER
 

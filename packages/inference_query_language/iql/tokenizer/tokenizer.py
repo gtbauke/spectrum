@@ -81,6 +81,14 @@ class QueryTokenizer:
             return self._number()
 
         match current:
+            case "+":
+                return Token(TokenKind.PLUS, current, Span(self._start, self._current))
+            case "-":
+                return Token(TokenKind.MINUS, current, Span(self._start, self._current))
+            case "*":
+                return Token(TokenKind.STAR, current, Span(self._start, self._current))
+            case "/":
+                return Token(TokenKind.SLASH, current, Span(self._start, self._current))
             case "=":
                 return Token(TokenKind.EQUAL, current, Span(self._start, self._current))
             case ">":

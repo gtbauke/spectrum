@@ -72,8 +72,8 @@ class QueryParser(ABC):
 
         return None
 
-    def do_until_matches(self, *kinds: TokenKind, func: Callable[[QueryParser], BaseAstNode]):
-        results: list[BaseAstNode] = []
+    def do_until_matches[T: BaseAstNode](self, *kinds: TokenKind, func: Callable[[QueryParser], T]) -> list[T]:
+        results: list[T] = []
 
         while True:
             result = func(self)
