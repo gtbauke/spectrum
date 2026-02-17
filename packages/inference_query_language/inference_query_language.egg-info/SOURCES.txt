@@ -7,10 +7,12 @@ inference_query_language.egg-info/requires.txt
 inference_query_language.egg-info/top_level.txt
 iql/__init__.py
 iql/errors/base.py
+iql/executor/__init__.py
 iql/executor/query_executor.py
 iql/executor/errors/base.py
 iql/executor/errors/column_is_not_selectable_error.py
 iql/executor/errors/root_expression_should_be_select_clause_error.py
+iql/parser/__init__.py
 iql/parser/base.py
 iql/parser/errors.py
 iql/parser/parselet.py
@@ -33,6 +35,9 @@ iql/parser/parselets/where_parselet.py
 iql/tokenizer/__init__.py
 iql/tokenizer/token.py
 iql/tokenizer/tokenizer.py
+iql/tokenizer/errors/__init__.py
 iql/tokenizer/errors/tokenizer_error.py
+iql/tokenizer/errors/unexpected_character_error.py
+iql/utils/__init__.py
 iql/utils/result.py
 iql/utils/span.py
