@@ -5,6 +5,7 @@ from typing import Callable, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.uow.unit_of_work import UnitOfWork
+
 from app.repositories.sqlalchemy.datasets_repository import SqlAlchemyDatasetsRepository
 from app.repositories.sqlalchemy.datasets_metadata_repository import SqlAlchemyDatasetsMetadataRepository
 from app.repositories.sqlalchemy.models_repository import SqlAlchemyModelsRepository
@@ -53,3 +54,7 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
     async def rollback(self) -> None:
         assert self._session is not None
         await self._session.rollback()
+
+    async def flush(self) -> None:
+        assert self._session is not None
+        await self._session.flush()

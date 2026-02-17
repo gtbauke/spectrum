@@ -1,5 +1,6 @@
 from uuid import UUID, uuid4
 from datetime import datetime
+
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import func, DateTime
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
@@ -18,13 +19,13 @@ class Base(DeclarativeBase):
     )
 
     created_at: Mapped[datetime] = mapped_column(
-        DateTime,
+        DateTime(),
         nullable=False,
         default=func.now(),
     )
 
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime,
+        DateTime(),
         nullable=False,
         default=func.now(),
         onupdate=func.now(),

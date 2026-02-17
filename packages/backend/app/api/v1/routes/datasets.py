@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Form, UploadFile, File
 from app.api.v1.schemas.dataset import CreateDatasetRequest
 from app.db.uow.unit_of_work import UnitOfWork
 from app.api.deps import get_uow
-from app.services.datasets.datasets_service import DatasetsService
+from app.services.datasets.datasets_service import CreateDatasetData, DatasetSearchBy, DatasetsService
 from app.infra.file_storage import FileStorage, get_file_storage
 from app.infra.events.datasets.dataset_events_publisher import DatasetsEventsPublisher
 from app.infra.events import get_dataset_events_publisher
@@ -39,8 +39,10 @@ async def create_dataset(
     async with uow:
         dataset = await service.create(
             uow=uow,
-            name=payload.name,
-            file=file
+            data=CreateDatasetData(
+                name=payload.name,
+                file=file,
+            )
         )
 
     return dataset
@@ -88,7 +90,10 @@ async def get_dataset(
     )
 
     async with uow:
-        dataset = await service.get_by_id(uow=uow, dataset_id=dataset_id)
+        dataset = await service.get_unique(
+            uow=uow,
+            where=DatasetSearchBy(dataset_id=dataset_id)
+        )
 
     return dataset
 
@@ -112,7 +117,10 @@ async def delete_dataset(
     )
 
     async with uow:
-        await service.delete(uow=uow, dataset_id=dataset_id)
+        await service.delete_unique(
+            uow=uow,
+            where=DatasetSearchBy(dataset_id=dataset_id)
+        )
 
 datasets_router.include_router(
     prefix="/{dataset_id}/jobs",

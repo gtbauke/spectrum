@@ -5,7 +5,7 @@ from app.api.deps import UnitOfWork
 from app.domain.inference.inference_session import InferenceSession
 from app.services.models.models_service import ModelsService
 from app.services.models.model_files_service import ModelFilesService
-from app.services.datasets.datasets_service import DatasetsService
+from app.services.datasets.datasets_service import DatasetSearchBy, DatasetsService
 from app.services.datasets.dataset_files_service import DatasetFilesService
 from app.domain.inference.live_model import LiveModel
 
@@ -29,7 +29,7 @@ class InferenceService:
     async def create_inference_session(self, uow: UnitOfWork, *, model_id: UUID):
         async with uow:
             model = await self._models_service.get(uow=uow, model_id=model_id)
-            dataset = await self._datasets_service.get_by_id(uow=uow, dataset_id=model.dataset_id)
+            dataset = await self._datasets_service.get_unique(uow=uow, where=DatasetSearchBy(dataset_id=model.dataset_id))
 
             if not model or not dataset or not model.job:
                 raise ValueError("Model or Dataset not found")

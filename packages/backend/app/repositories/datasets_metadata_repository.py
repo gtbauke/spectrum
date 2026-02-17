@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from uuid import UUID
 
 from app.repositories.base import BaseRepository
-from app.db.models.dataset import DatasetMetadataORM
+from app.db.models.dataset_metadata import DatasetMetadataORM
 
 
 class DatasetsMetadataRepository(BaseRepository[DatasetMetadataORM], ABC):

@@ -42,6 +42,7 @@ cleanup() {
     echo "Shutting down Spectrum..."
     docker compose down
     kill $(jobs -p) 2>/dev/null || true
+    clear
     exit 0
 }
 

@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy import select
 
 from app.repositories.datasets_metadata_repository import DatasetsMetadataRepository
-from app.db.models.dataset import DatasetMetadataORM
+from app.db.models.dataset_metadata import DatasetMetadataORM
 
 
 class SqlAlchemyDatasetsMetadataRepository(DatasetsMetadataRepository):

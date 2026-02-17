@@ -19,6 +19,7 @@ from app.infra.events.models.rabbit_mq_model_events_publisher import RabbitMQMod
 from app.db.models.job import JobORM
 from app.workers.consumers.models.errors.model_not_found_error import ModelNotFoundError
 from app.workers.consumers.models.errors.model_has_no_associated_job_error import ModelHasNoAssociatedJobError
+from packages.backend.app.services.datasets.datasets_service import DatasetSearchBy
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +42,10 @@ async def handle_start_model_training_event(
     jobs_service: JobsService,
 ):
     async with get_uow() as uow:
-        dataset = await datasets_service.get_by_id(uow=uow, dataset_id=event.dataset_id)
+        dataset = await datasets_service.get_unique(
+            uow=uow,
+            where=DatasetSearchBy(dataset_id=event.dataset_id)
+        )
 
         if not dataset:
             raise DatasetNotFoundError(event.dataset_id)
