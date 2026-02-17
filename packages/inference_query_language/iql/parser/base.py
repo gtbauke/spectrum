@@ -1,4 +1,7 @@
 from __future__ import annotations
+
+import logging
+
 from abc import ABC
 from typing import Callable, Optional
 
@@ -15,6 +18,9 @@ from iql.parser.parselet import (
 )
 
 
+logger = logging.getLogger(__name__)
+
+
 class QueryParser(ABC):
     def __init__(self, tokens: list[Token]):
         self._tokens = tokens
@@ -25,6 +31,10 @@ class QueryParser(ABC):
 
     def register_infix_parselet(self, kind: TokenKind, parselet: InfixParselet):
         self._infix_parselets[kind] = parselet
+
+    def register_infix_parselets(self, parselet: InfixParselet, *kinds: TokenKind):
+        for kind in kinds:
+            self.register_infix_parselet(kind, parselet)
 
     def register_prefix_parselet(self, kind: TokenKind, parselet: PrefixParselet):
         self._prefix_parselets[kind] = parselet
@@ -85,6 +95,9 @@ class QueryParser(ABC):
         return results
 
     def _get_precedence(self) -> Precedence:
+        if self.peek().kind.is_clause_boundary():
+            return Precedence.NONE
+
         infix_parselet = self._infix_parselets.get(self.peek().kind)
 
         if infix_parselet:

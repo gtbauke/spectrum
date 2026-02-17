@@ -20,6 +20,18 @@ class InferenceQueryParser(QueryParser):
         self.register_prefix_parselet(
             TokenKind.SELECT, SelectClauseParselet())
 
+        self.register_infix_parselets(
+            BinaryExpressionParselet(Precedence.TERM),
+            TokenKind.PLUS,
+            TokenKind.MINUS
+        )
+
+        self.register_infix_parselets(
+            BinaryExpressionParselet(Precedence.FACTOR),
+            TokenKind.STAR,
+            TokenKind.SLASH
+        )
+
         self.register_infix_parselet(
             TokenKind.EQUAL,
             BinaryExpressionParselet(Precedence.EQUALITY))

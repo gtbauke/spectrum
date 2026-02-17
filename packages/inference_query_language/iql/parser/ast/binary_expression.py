@@ -20,9 +20,21 @@ class BinaryOperator(StrEnum):
     GREATER = ">"
     LESS = "<"
     EQUAL = "="
+    PLUS = "+"
+    MINUS = "-"
+    STAR = "*"
+    SLASH = "/"
 
     def is_boolean_operator(self) -> bool:
         return self in {BinaryOperator.AND, BinaryOperator.OR}
+
+    def is_arithmetic_operator(self) -> bool:
+        return self in {
+            BinaryOperator.PLUS,
+            BinaryOperator.MINUS,
+            BinaryOperator.STAR,
+            BinaryOperator.SLASH,
+        }
 
     @staticmethod
     def from_token_kind(token_kind: TokenKind) -> BinaryOperator:
@@ -34,6 +46,10 @@ class BinaryOperator(StrEnum):
             TokenKind.GREATER: BinaryOperator.GREATER,
             TokenKind.LESS: BinaryOperator.LESS,
             TokenKind.EQUAL: BinaryOperator.EQUAL,
+            TokenKind.PLUS: BinaryOperator.PLUS,
+            TokenKind.MINUS: BinaryOperator.MINUS,
+            TokenKind.STAR: BinaryOperator.STAR,
+            TokenKind.SLASH: BinaryOperator.SLASH,
         }
 
         if token_kind in mapping:

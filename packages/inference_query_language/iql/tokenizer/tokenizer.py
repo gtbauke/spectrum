@@ -59,10 +59,7 @@ class QueryTokenizer:
         lexeme = self._query[self._start:self._current]
         return Token(TokenKind.NUMBER, lexeme, Span(self._start, self._current))
 
-    def _identifier_number_or_keyword(self) -> Token:
-        if self._peek().isdigit():
-            return self._number()
-
+    def _identifier_or_keyword(self) -> Token:
         while self._peek().isalnum():
             self._advance()
 
@@ -106,7 +103,7 @@ class QueryTokenizer:
             case ";":
                 return Token(TokenKind.SEMICOLON, current, Span(self._start, self._current))
             case _:
-                return self._identifier_number_or_keyword()
+                return self._identifier_or_keyword()
 
     def tokenize(self) -> list[Token]:
         tokens: list[Token] = []

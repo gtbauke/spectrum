@@ -38,6 +38,15 @@ class TokenKind(StrEnum):
 
     EOF = "EOF"
 
+    def is_clause_boundary(self) -> bool:
+        return self in {
+            TokenKind.SELECT,
+            TokenKind.FROM,
+            TokenKind.WHERE,
+            TokenKind.ORDER,
+            TokenKind.PATTERN,
+        }
+
     @staticmethod
     def keyword_or_identifier(lexeme: str) -> TokenKind:
         match lexeme.upper():

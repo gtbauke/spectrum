@@ -7,7 +7,6 @@ from iql.parser.ast.where import WhereAstNode
 
 class WhereParselet(PrefixParselet):
     def _parse_condition_element(self, parser: QueryParser) -> BaseAstNode:
-        parser.consume_optional(TokenKind.AND, TokenKind.OR)
         condition = parser.parse_expression()
 
         return condition
@@ -15,6 +14,7 @@ class WhereParselet(PrefixParselet):
     def parse(self, parser: QueryParser, token: Token) -> BaseAstNode:
         conditions = parser.do_until_matches(
             TokenKind.ORDER,
+            TokenKind.PATTERN,
             TokenKind.EOF,
             func=self._parse_condition_element
         )

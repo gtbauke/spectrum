@@ -3,17 +3,25 @@ import logging
 from pandas import DataFrame
 from reggression import Reggression  # type: ignore
 
+from iql.executor.errors.invalid_binary_condition_error import InvalidBinaryConditionError
+from iql.executor.errors.invalid_condition_identifier_error import InvalidConditionIdentifierError
+from iql.executor.errors.invalid_from_source_error import InvalidFromSourceError
+from iql.executor.errors.invalid_pattern_error import InvalidPatternError
+from iql.executor.errors.invalid_pattern_matching_operator_error import InvalidPatternMatchingOperatorError
+from iql.executor.errors.invalid_top_n_expression_error import InvalidTopNExpressionError
+from iql.executor.errors.result_should_be_dataframe_error import ResultShouldBeDataFrameError
+from iql.executor.errors.column_is_not_selectable_error import ColumnIsNotSelectableError
+
 from iql.parser.ast.where import WhereAstNode
 from iql.parser.base import BaseAstNode
 from iql.parser.ast.base import AstNodeKind
-from iql.parser.ast.select import IdentifierAstNode, SelectClauseAstNode
+from iql.parser.ast.select import IdentifierAstNode, PatternMatchingExpression, SelectClauseAstNode
 from iql.executor.errors.root_expression_should_be_select_clause_error import (
     RootExpressionShouldBeSelectClauseError,
 )
 from iql.parser.ast.top_n import TopNAstNode
 from iql.parser.ast.number import IntegerLiteralAstNode, NumericLiteralAstNode
 from iql.parser.ast.binary_expression import BinaryExpression
-from iql.executor.errors.column_is_not_selectable_error import ColumnIsNotSelectableError
 from iql.utils.result import InferenceResultList, InferenceResult
 
 
@@ -32,13 +40,17 @@ class QueryExecutor:
         "size",
     )
 
+    _ACCEPTED_WHERE_LITERALS = (
+        "size",
+        "parameters",
+        "cost",
+    )
+
     def __init__(self, root_node: BaseAstNode, reggression: Reggression):
         self._root_node = root_node
         self._reggression = reggression
 
     def _calculate_node_value(self, node: BaseAstNode):
-        logger.info(f"Calculating value for node: {node.to_string(0)}")
-
         if isinstance(node, IntegerLiteralAstNode):
             return node.value()
 
@@ -53,10 +65,8 @@ class QueryExecutor:
 
         n_value = self._calculate_node_value(value)
 
-        logger.info(f"Calculated TOP N value: {n_value}")
-
         if not isinstance(n_value, int):
-            raise ValueError("Top N value must be an integer")
+            raise InvalidTopNExpressionError(type(value))
 
         return n_value
 
@@ -78,24 +88,52 @@ class QueryExecutor:
             right_str = self._get_condition_string(right) \
                 if isinstance(right, BinaryExpression) else str(right)
 
-            return f"({left_str} {operator} {right_str})"
+            return f"{left_str} {operator} {right_str}"
 
         if isinstance(left, IdentifierAstNode) and isinstance(right, NumericLiteralAstNode):
+            if left.name() not in self._ACCEPTED_WHERE_LITERALS:
+                raise InvalidConditionIdentifierError(left.name())
+
             return f"{left.name()} {operator} {right.value()}"
 
-        raise ValueError("Invalid binary expression in WHERE clause")
+        raise InvalidBinaryConditionError()
 
     def _build_where_conditions(self, where_clause: WhereAstNode):
         where_conditions: list[str] = []
 
         for condition in where_clause.conditions():
             if isinstance(condition, BinaryExpression):
-                where_conditions.append(self._get_condition_string(condition))
+                condition = self._get_condition_string(condition)
+
+                if "AND" in condition:
+                    broken_conditions = condition.split("AND")
+                    where_conditions.extend([c.strip()
+                                            for c in broken_conditions])
             else:
-                raise ValueError(
-                    "Only binary expressions are supported in WHERE clause conditions")
+                raise InvalidBinaryConditionError()
 
         return where_conditions
+
+    def _build_pattern_string(self, pattern: BaseAstNode) -> str:
+        if isinstance(pattern, IdentifierAstNode):
+            return pattern.name()
+
+        if isinstance(pattern, BinaryExpression):
+            operator = pattern.operator()
+
+            if not operator.is_arithmetic_operator():
+                raise InvalidPatternMatchingOperatorError(operator)
+
+            left = self._build_pattern_string(pattern.left())
+            right = self._build_pattern_string(pattern.right())
+
+            return f"{left}{operator}{right}"
+
+        raise InvalidPatternError()
+
+    def _build_pattern_matching(self, pattern_matching_clause: PatternMatchingExpression) -> str:
+        pattern = pattern_matching_clause.pattern
+        return self._build_pattern_string(pattern)
 
     def _execute_top_n_expression(self, select_clause: SelectClauseAstNode) -> DataFrame:
         top_n_expression = select_clause.from_clause().top_n_expression()
@@ -105,39 +143,33 @@ class QueryExecutor:
         where_conditions = self._build_where_conditions(
             where_clause) if where_clause else []
 
+        pattern = select_clause.pattern_matching_expression()
+        pattern_str = self._build_pattern_matching(pattern) if pattern else ""
+
         order_by_clause = select_clause.order_by_clause()
         criteria = order_by_clause.criteria().name() if order_by_clause else "fitness"
 
-        pattern = select_clause.pattern_matching_expression()
-        pattern_str = pattern.to_string(0) if pattern else "None"
-
-        logger.info("Executing TOP N expression", extra={
-            "n": n,
-            "where_conditions": where_conditions,
-            "criteria": criteria,
-            "pattern": pattern_str,
-        })
-
         result = self._reggression.top(  # type: ignore
-            n=n, filters=where_conditions, criteria=criteria)
-        if not isinstance(result, DataFrame):
-            raise ValueError(
-                "Expected a DataFrame as a result of top N expression")
+            n=n,
+            filters=where_conditions,
+            criteria=criteria,
+            pattern=pattern_str
+        )
 
-        logger.info(f"Executed TOP N expression with n={n}, result: {result}")
+        if not isinstance(result, DataFrame):
+            raise ResultShouldBeDataFrameError()
 
         return result
 
-    def _execute_pareto_expression(self, select_clause: SelectClauseAstNode) -> DataFrame:
+    def _execute_pareto_expression(self) -> DataFrame:
         result = self._reggression.pareto()  # type: ignore
-        if not isinstance(result, DataFrame):
-            raise ValueError(
-                "Expected a DataFrame as a result of Pareto expression")
 
-        logger.info(f"Executed Pareto expression, result: {result}")
+        if not isinstance(result, DataFrame):
+            raise ResultShouldBeDataFrameError()
+
         return result
 
-    # TODO: Implement support for PATTERN MATCHING, and other SQL-like features.
+    # TODO: Implement support for other SQL-like features.
     # TODO: Implement distribution analysis
     def execute(self) -> InferenceResultList:
         if not isinstance(self._root_node, SelectClauseAstNode):
@@ -148,14 +180,14 @@ class QueryExecutor:
                 raise ColumnIsNotSelectableError(column.name())
 
         from_kind = self._root_node.from_clause().source_kind()
+
         if from_kind == AstNodeKind.TOP_N_EXPRESSION:
             result = self._execute_top_n_expression(
                 select_clause=self._root_node)
-
         elif from_kind == AstNodeKind.PARETO_EXPRESSION:
-            result = self._execute_pareto_expression(self._root_node)
+            result = self._execute_pareto_expression()
         else:
-            raise ValueError(f"Unknown from kind: {from_kind}")
+            raise InvalidFromSourceError(from_kind)
 
         subset = [column.name().lower()
                   for column in self._root_node.columns()]
