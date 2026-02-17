@@ -11,4 +11,4 @@ class IdentifierAstNode(BaseAstNode):
         return f"{' ' * indent}Identifier: {self._name}"
 
     def name(self) -> str:
-        return self._name
+        return self._name.lower()

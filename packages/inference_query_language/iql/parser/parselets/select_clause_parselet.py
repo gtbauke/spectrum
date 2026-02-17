@@ -4,13 +4,14 @@ from iql.parser.parselet import PrefixParselet
 from iql.parser.base import QueryParser
 from iql.parser.ast.base import BaseAstNode, AstNodeKind
 from iql.parser.ast.identifier import IdentifierAstNode
-from iql.parser.ast.select import SelectClauseAstNode
+from iql.parser.ast.select import OrderByClauseAstNode, SelectClauseAstNode
 from iql.parser.ast.from_clause import FromAstNode
 from iql.parser.ast.where import WhereAstNode
 from iql.tokenizer.token import Token, TokenKind
 
 from iql.parser.parselets.from_clause_parselet import FromClauseParselet
 from iql.parser.parselets.where_parselet import WhereParselet
+from iql.parser.parselets.order_by_clause_parselet import OrderByClauseParselet
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +36,7 @@ class SelectClauseParselet(PrefixParselet):
     def __init__(self):
         self._from_clause_parselet = FromClauseParselet()
         self._where_parselet = WhereParselet()
+        self._order_by_clause_parselet = OrderByClauseParselet()
 
     def _parse_select_list_element(self, parser: QueryParser) -> BaseAstNode:
         parser.consume_optional(TokenKind.COMMA)
@@ -49,6 +51,7 @@ class SelectClauseParselet(PrefixParselet):
         results = parser.do_until_matches(
             TokenKind.FROM,
             TokenKind.WHERE,
+            TokenKind.ORDER,
             TokenKind.EOF,
             func=self._parse_select_list_element,
         )
@@ -74,14 +77,28 @@ class SelectClauseParselet(PrefixParselet):
         if where_clause is not None and not isinstance(where_clause, WhereAstNode):
             raise MissingWhereClauseException()
 
-        span = token.span.merge(
-            from_clause.span if not where_clause
-            else where_clause.span
+        order_token = parser.matches_and_return(TokenKind.ORDER)
+        order_by_clause = None
+
+        if order_token:
+            order_by_clause = self._order_by_clause_parselet.parse(
+                parser, order_token)
+
+        if order_by_clause is not None and not isinstance(order_by_clause, OrderByClauseAstNode):
+            raise ValueError(
+                f"Expected ORDER BY clause, but got {order_by_clause.kind}"
+            )
+
+        span = token.span.merge_with_last_non_none(
+            from_clause.span,
+            where_clause.span if where_clause else None,
+            order_by_clause.span if order_by_clause else None
         )
 
         return SelectClauseAstNode(
             columns=identifier_results,
             from_clause=from_clause,
             where_clause=where_clause,
+            order_by_clause=order_by_clause,
             span=span
         )

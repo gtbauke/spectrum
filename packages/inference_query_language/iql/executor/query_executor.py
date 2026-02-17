@@ -97,12 +97,25 @@ class QueryExecutor:
 
         return where_conditions
 
-    def _execute_top_n_expression(self, select_clause: SelectClauseAstNode, where_conditions: list[str]) -> DataFrame:
+    def _execute_top_n_expression(self, select_clause: SelectClauseAstNode) -> DataFrame:
         top_n_expression = select_clause.from_clause().top_n_expression()
         n = self._calculate_top_n(top_n_expression)
 
+        where_clause = select_clause.where_clause()
+        where_conditions = self._build_where_conditions(
+            where_clause) if where_clause else []
+
+        order_by_clause = select_clause.order_by_clause()
+        criteria = order_by_clause.criteria().name() if order_by_clause else "fitness"
+
+        logger.info("Executing TOP N expression", extra={
+            "n": n,
+            "where_conditions": where_conditions,
+            "criteria": criteria,
+        })
+
         result = self._reggression.top(  # type: ignore
-            n=n, filters=where_conditions)
+            n=n, filters=where_conditions, criteria=criteria)
         if not isinstance(result, DataFrame):
             raise ValueError(
                 "Expected a DataFrame as a result of top N expression")
@@ -120,7 +133,8 @@ class QueryExecutor:
         logger.info(f"Executed Pareto expression, result: {result}")
         return result
 
-    # TODO: Implement support for ORDER BY clause, and other SQL-like features.
+    # TODO: Implement support for PATTERN MATCHING, and other SQL-like features.
+    # TODO: Implement distribution analysis
     def execute(self) -> InferenceResultList:
         if not isinstance(self._root_node, SelectClauseAstNode):
             raise RootExpressionShouldBeSelectClauseError()
@@ -129,14 +143,10 @@ class QueryExecutor:
             if column.name().lower() not in self._QUERYABLE_LITERALS:
                 raise ColumnIsNotSelectableError(column.name())
 
-        where_clause = self._root_node.where_clause()
-        where_conditions = self._build_where_conditions(
-            where_clause) if where_clause else []
-
         from_kind = self._root_node.from_clause().source_kind()
         if from_kind == AstNodeKind.TOP_N_EXPRESSION:
             result = self._execute_top_n_expression(
-                select_clause=self._root_node, where_conditions=where_conditions)
+                select_clause=self._root_node)
 
         elif from_kind == AstNodeKind.PARETO_EXPRESSION:
             result = self._execute_pareto_expression(self._root_node)
