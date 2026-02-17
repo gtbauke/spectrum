@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
-from uuid import UUID, uuid4
+from uuid import uuid4
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import Field
 
+from app.domain.base import BaseDomainModel
 from app.domain.datasets.dataset_status import DatasetStatus
 
 if TYPE_CHECKING:
@@ -12,15 +13,17 @@ if TYPE_CHECKING:
     from app.domain.models.model import Model
 
 
-class Dataset(BaseModel):
-    id: UUID = Field(..., description="The unique identifier of the dataset")
+class Dataset(BaseDomainModel):
     name: str = Field(..., description="The name of the dataset")
+
     status: DatasetStatus = Field(..., description="The status of the dataset")
+
     file_path: Optional[str] = Field(
         None, description="The file path of the dataset, if available"
     )
-    checksum: Optional[str] = Field(
-        None, description="The checksum of the dataset, if available"
+
+    checksum: str = Field(
+        ..., description="The checksum of the dataset, if available"
     )
 
     dataset_metadata: Optional["DatasetMetadata"] = Field(
@@ -30,11 +33,6 @@ class Dataset(BaseModel):
     models: list["Model"] = Field(
         [], description="The list of models associated with the dataset"
     )
-
-    created_at: datetime = Field(...,
-                                 description="The creation timestamp of the dataset")
-    updated_at: datetime = Field(...,
-                                 description="The last update timestamp of the dataset")
 
     @classmethod
     def start_upload(cls, *, name: str, checksum: str) -> Dataset:

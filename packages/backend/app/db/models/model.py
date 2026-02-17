@@ -1,11 +1,9 @@
 from __future__ import annotations
+from uuid import UUID
+from typing import Optional, TYPE_CHECKING
 
-import uuid
-
-from typing import TYPE_CHECKING
-from datetime import datetime
-from sqlalchemy import DateTime, String, ForeignKey, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import String, ForeignKey
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -19,18 +17,13 @@ if TYPE_CHECKING:
 class ModelORM(Base):
     __tablename__ = "models"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        primary_key=True,
-        default=uuid.uuid4,
-    )
-
     name: Mapped[str] = mapped_column(
         String,
         nullable=False,
     )
 
-    dataset_id: Mapped[uuid.UUID] = mapped_column(
+    dataset_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
         ForeignKey("datasets.id"),
         nullable=False,
     )
@@ -39,8 +32,8 @@ class ModelORM(Base):
         back_populates="models",
     )
 
-    job_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
+    job_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
         ForeignKey("jobs.id", ondelete="CASCADE"),
         nullable=False,
         unique=True,
@@ -51,22 +44,9 @@ class ModelORM(Base):
         lazy="selectin",
     )
 
-    model_file: Mapped[str | None] = mapped_column(
+    model_file: Mapped[Optional[str]] = mapped_column(
         String,
         nullable=True,
-    )
-
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime,
-        nullable=False,
-        default=func.now(),
-    )
-
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime,
-        nullable=False,
-        default=func.now(),
-        onupdate=func.now(),
     )
 
     def to_domain(self) -> Model:

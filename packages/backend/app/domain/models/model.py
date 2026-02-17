@@ -3,23 +3,26 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Optional, TYPE_CHECKING
 from uuid import UUID, uuid4
-from pydantic import BaseModel
+from pydantic import Field
+
+from app.domain.base import BaseDomainModel
 
 if TYPE_CHECKING:
     from app.domain.jobs.job import Job
 
 
-class Model(BaseModel):
-    id: UUID
+class Model(BaseDomainModel):
+    name: str = Field(..., description="The name of the model.")
 
-    name: str
-    dataset_id: UUID
-    job: Optional["Job"]
+    dataset_id: UUID = Field(
+        ..., description="The unique identifier of the dataset associated with the model.")
 
-    model_file: Optional[str]
+    job: Optional["Job"] = Field(
+        None, description="The job associated with the model.")
 
-    created_at: datetime
-    updated_at: datetime
+    model_file: Optional[str] = Field(
+        None, description="The file path to the model artifacts, if available."
+    )
 
     @classmethod
     def create(cls, *, name: str, dataset_id: UUID, job: "Job", model_file: Optional[str] = None) -> Model:
