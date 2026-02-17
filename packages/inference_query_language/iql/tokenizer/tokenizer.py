@@ -1,5 +1,6 @@
 import logging
 
+from iql.tokenizer.errors.unexpected_character_error import UnexpectedCharacterError
 from iql.tokenizer.token import Token, TokenKind
 from iql.utils.span import Span
 
@@ -87,12 +88,14 @@ class QueryTokenizer:
                 if self._matches("="):
                     return Token(TokenKind.GREATER_EQUAL, ">=", Span(self._start, self._current))
                 else:
-                    raise ValueError(f"Unexpected character: {current}")
+                    raise UnexpectedCharacterError(
+                        ">", Span(self._start, self._current))
             case "<":
                 if self._matches("="):
                     return Token(TokenKind.LESS_EQUAL, "<=", Span(self._start, self._current))
                 else:
-                    raise ValueError(f"Unexpected character: {current}")
+                    raise UnexpectedCharacterError(
+                        "<", Span(self._start, self._current))
             case ",":
                 return Token(TokenKind.COMMA, current, Span(self._start, self._current))
             case ";":
