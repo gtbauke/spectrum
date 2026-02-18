@@ -3,7 +3,7 @@ from typing import Optional, Sequence
 from pydantic import BaseModel
 
 from app.utils.exactly_one_model import ExactlyOneModel
-from app.domain.base import BaseDomainModel
+from core.models.base import BaseDomainModel
 from app.api.deps import UnitOfWork
 
 

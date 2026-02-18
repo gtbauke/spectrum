@@ -2,12 +2,12 @@ import logging
 from uuid import UUID
 
 from app.api.deps import UnitOfWork
-from app.domain.inference.inference_session import InferenceSession
+from core.models.inference.inference_session import InferenceSession
 from app.services.models.models_service import ModelsService
 from app.services.models.model_files_service import ModelFilesService
 from app.services.datasets.datasets_service import DatasetSearchBy, DatasetsService
 from app.services.datasets.dataset_files_service import DatasetFilesService
-from app.domain.inference.live_model import LiveModel
+from core.models.inference.live_model import LiveModel
 
 
 logger = logging.getLogger(__name__)

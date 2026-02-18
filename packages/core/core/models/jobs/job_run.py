@@ -3,7 +3,7 @@ from pydantic import Field
 from uuid import UUID
 from datetime import datetime
 
-from app.domain.base import BaseDomainModel
+from core.models.base import BaseDomainModel
 
 
 class JobRun(BaseDomainModel):

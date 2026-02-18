@@ -1,7 +1,7 @@
 from reggression import Reggression  # type: ignore
 
-from app.domain.models.model import Model
-from app.domain.datasets.dataset import Dataset
+from core.models.models.model import Model
+from core.models.datasets.dataset import Dataset
 
 
 class LiveModel:

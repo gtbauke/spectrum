@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from app.repositories.base import BaseRepository
 from app.db.models import DatasetORM
-from app.domain.datasets.dataset import Dataset
+from core.models.datasets.dataset import Dataset
 
 # TODO: clean up this class
 

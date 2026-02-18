@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from app.domain.models.model import Model
+from core.models.models.model import Model
 
 
 class GetAllModelsResponse(BaseModel):

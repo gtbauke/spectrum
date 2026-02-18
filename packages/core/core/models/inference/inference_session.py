@@ -1,5 +1,5 @@
-from app.domain.models.model import Model
-from app.domain.inference.live_model import LiveModel
+from core.models.models.model import Model
+from core.models.inference.live_model import LiveModel
 
 from iql.tokenizer.tokenizer import QueryTokenizer
 from iql.parser.parser import InferenceQueryParser

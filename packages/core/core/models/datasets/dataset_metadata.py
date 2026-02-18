@@ -4,7 +4,7 @@ from typing import Optional
 from uuid import UUID
 from pydantic import Field
 
-from app.domain.base import BaseDomainModel
+from core.models.base import BaseDomainModel
 
 
 class DatasetMetadata(BaseDomainModel):

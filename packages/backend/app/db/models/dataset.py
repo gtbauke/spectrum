@@ -5,8 +5,8 @@ from sqlalchemy import String, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
-from app.domain.datasets.dataset import Dataset
-from app.domain.datasets.dataset_status import DatasetStatus
+from core.models.datasets.dataset import Dataset
+from core.models.datasets.dataset_status import DatasetStatus
 
 if TYPE_CHECKING:
     from app.db.models.model import ModelORM

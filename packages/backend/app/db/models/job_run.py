@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
-from app.domain.jobs.job_run import JobRun
+from core.models.jobs.job_run import JobRun
 
 if TYPE_CHECKING:
     from app.db.models.model import ModelORM

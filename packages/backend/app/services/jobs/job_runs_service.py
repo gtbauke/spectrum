@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from app.api.deps import UnitOfWork
-from app.domain.jobs.job_run import JobRun
+from core.models.jobs.job_run import JobRun
 
 
 class JobRunsService:

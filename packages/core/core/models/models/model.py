@@ -5,10 +5,10 @@ from typing import Optional, TYPE_CHECKING
 from uuid import UUID, uuid4
 from pydantic import Field
 
-from app.domain.base import BaseDomainModel
+from core.models.base import BaseDomainModel
 
 if TYPE_CHECKING:
-    from app.domain.jobs.job import Job
+    from core.models.jobs.job import Job
 
 
 class Model(BaseDomainModel):

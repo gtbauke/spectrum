@@ -2,7 +2,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from app.services import get_jobs_service, JobsService
 from app.api.deps import UnitOfWork, get_uow
-from app.domain.jobs.job import Job
+from core.models.jobs.job import Job
 
 
 jobs_router = APIRouter(tags=["jobs"])

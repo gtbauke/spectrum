@@ -5,12 +5,12 @@ from uuid import uuid4
 from datetime import datetime
 from pydantic import Field
 
-from app.domain.base import BaseDomainModel
-from app.domain.datasets.dataset_status import DatasetStatus
+from core.models.base import BaseDomainModel
+from core.models.datasets.dataset_status import DatasetStatus
 
 if TYPE_CHECKING:
-    from app.domain.datasets.dataset_metadata import DatasetMetadata
-    from app.domain.models.model import Model
+    from core.models.datasets.dataset_metadata import DatasetMetadata
+    from core.models.models.model import Model
 
 
 class Dataset(BaseDomainModel):

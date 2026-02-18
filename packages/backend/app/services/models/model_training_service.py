@@ -10,8 +10,8 @@ from app.services.models.model_files_service import ModelFilesService
 from app.services.datasets.dataset_files_service import DatasetFilesService
 from app.services.jobs.jobs_service import JobsService
 from app.services.models.models_service import ModelsService
-from app.domain.jobs.available_functions import AvailableFunctions
-from app.domain.jobs.job_status import JobStatus
+from core.models.jobs.available_functions import AvailableFunctions
+from core.models.jobs.job_status import JobStatus
 
 
 logger = logging.getLogger(__name__)

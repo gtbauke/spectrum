@@ -5,13 +5,13 @@ from pydantic import Field
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
-from app.domain.base import BaseDomainModel
-from app.domain.jobs.job_status import JobStatus
-from app.domain.jobs.loss_function import LossFunction
-from app.domain.jobs.available_functions import AvailableFunctions
+from core.models.base import BaseDomainModel
+from core.models.jobs.job_status import JobStatus
+from core.models.jobs.loss_function import LossFunction
+from core.models.jobs.available_functions import AvailableFunctions
 
 if TYPE_CHECKING:
-    from app.domain.datasets.dataset import Dataset
+    from core.models.datasets.dataset import Dataset
 
 
 class Job(BaseDomainModel):

@@ -10,7 +10,7 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 
-from app.domain.jobs.job_status import JobStatus
+from core.models.jobs.job_status import JobStatus
 
 
 # revision identifiers, used by Alembic.

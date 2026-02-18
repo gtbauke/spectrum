@@ -1,0 +1,10 @@
+Metadata-Version: 2.4
+Name: core
+Version: 0.1.0
+Summary: Add your description here
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+Requires-Dist: inference-query-language
+Requires-Dist: pydantic>=2.12.5
+Requires-Dist: pydantic-settings>=2.12.0
+Requires-Dist: reggression>=1.0.10

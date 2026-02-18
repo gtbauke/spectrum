@@ -1,11 +1,12 @@
 from uuid import UUID
 from fastapi import APIRouter, Depends
 
+from core.models.models.model import Model
+from core.models.jobs.job_status import JobStatus
+from core.models.jobs.job_run import JobRun
+
 from app.db.uow.unit_of_work import UnitOfWork
 from app.api.deps import get_uow
-from app.domain.models.model import Model
-from app.domain.jobs.job_status import JobStatus
-from app.domain.jobs.job_run import JobRun
 from app.infra.events import ModelEventsPublisher, get_model_events_publisher
 from app.infra.events.models.model_events_publisher import StartModelTrainingEvent
 from app.services.models.models_service import ModelsService

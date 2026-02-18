@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from app.db.models import DatasetORM
-from app.domain.datasets.dataset import Dataset
+from core.models.datasets.dataset import Dataset
 from app.repositories.datasets_repository import DatasetsRepository
 
 

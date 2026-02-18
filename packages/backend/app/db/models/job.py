@@ -9,10 +9,10 @@ from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
-from app.domain.jobs.job_status import JobStatus
-from app.domain.jobs.job import Job
-from app.domain.jobs.loss_function import LossFunction
-from app.domain.jobs.available_functions import AvailableFunctions
+from core.models.jobs.job_status import JobStatus
+from core.models.jobs.job import Job
+from core.models.jobs.loss_function import LossFunction
+from core.models.jobs.available_functions import AvailableFunctions
 
 if TYPE_CHECKING:
     from app.db.models.dataset import DatasetORM

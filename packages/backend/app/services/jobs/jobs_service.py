@@ -5,9 +5,9 @@ from uuid import UUID
 
 from app.api.deps import UnitOfWork
 from app.db.models.job import JobORM
-from app.domain.jobs.job import Job
-from app.domain.datasets.dataset import Dataset
-from app.domain.jobs.job_status import JobStatus
+from core.models.jobs.job import Job
+from core.models.datasets.dataset import Dataset
+from core.models.jobs.job_status import JobStatus
 
 logger = logging.getLogger(__name__)
 

@@ -1,11 +1,11 @@
 from uuid import UUID
 
 from app.api.deps import UnitOfWork
-from app.domain.models.model import Model
-from app.domain.jobs.job import Job
+from core.models.models.model import Model
+from core.models.jobs.job import Job
 from app.db.models.model import ModelORM
 from app.db.models.job_run import JobRunORM
-from app.domain.jobs.job_status import JobStatus
+from core.models.jobs.job_status import JobStatus
 
 # TODO: better error handling in the Repository layer
 

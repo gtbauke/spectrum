@@ -11,7 +11,7 @@ from app.api.deps import get_uow
 from app.workers.consumers.datasets.errors.dataset_not_found_error import DatasetNotFoundError
 from app.workers.consumers.models.errors.dataset_not_ready_for_training_error import DatasetNotReadyForTrainingError
 from app.workers.consumers.models.errors.dataset_missing_file_path_error import DatasetMissingFilePathError
-from app.domain.jobs.job_status import JobStatus
+from core.models.jobs.job_status import JobStatus
 from app.workers.utils.errors.retryable_error import RetryableError
 from app.workers.utils.errors.unretryable_error import UnretryableError
 from app.infra.events.rabbitmq import rabbitmq_manager

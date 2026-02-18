@@ -2,7 +2,7 @@ import logging
 from uuid import UUID
 
 from app.api.deps import UnitOfWork
-from app.domain.datasets.dataset_status import DatasetStatus
+from core.models.datasets.dataset_status import DatasetStatus
 
 
 logger = logging.getLogger(__name__)
