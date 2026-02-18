@@ -27,6 +27,18 @@ class LocalTransactionalFileStorage(TransactionalFileStorage):
         self._operations.append((staged_path, final_path))
         return destination
 
+    async def stage_delete(self, *, file_path: str) -> None:
+        final_path = self._base_path / file_path
+        staged_path = self._staging_path / file_path
+
+        if final_path.exists():
+            staged_path.parent.mkdir(parents=True, exist_ok=True)
+            final_path.rename(staged_path)
+            self._operations.append((staged_path, final_path))
+        else:
+            # If the file doesn't exist, we can just ignore it or log a warning
+            pass
+
     async def commit(self) -> None:
         for staged_path, final_path in self._operations:
             final_path.parent.mkdir(parents=True, exist_ok=True)

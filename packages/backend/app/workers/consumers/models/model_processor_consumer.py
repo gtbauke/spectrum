@@ -11,27 +11,31 @@ from app.api.deps import get_uow
 from app.workers.consumers.datasets.errors.dataset_not_found_error import DatasetNotFoundError
 from app.workers.consumers.models.errors.dataset_not_ready_for_training_error import DatasetNotReadyForTrainingError
 from app.workers.consumers.models.errors.dataset_missing_file_path_error import DatasetMissingFilePathError
+from core.models.jobs.job import Job
 from core.models.jobs.job_status import JobStatus
 from app.workers.utils.errors.retryable_error import RetryableError
 from app.workers.utils.errors.unretryable_error import UnretryableError
 from app.infra.events.rabbitmq import rabbitmq_manager
 from app.infra.events.models.rabbit_mq_model_events_publisher import RabbitMQModelEventsPublisher
-from app.db.models.job import JobORM
 from app.workers.consumers.models.errors.model_not_found_error import ModelNotFoundError
 from app.workers.consumers.models.errors.model_has_no_associated_job_error import ModelHasNoAssociatedJobError
-from packages.backend.app.services.datasets.datasets_service import DatasetSearchBy
+from app.services.datasets.datasets_service import DatasetSearchBy
 
 logger = logging.getLogger(__name__)
 
 
-def _update_job_status_and_start_time(orm: JobORM):
-    orm.status = JobStatus.RUNNING
-    orm.started_at = datetime.now()
+def _update_job_status_and_start_time(model: Job) -> Job:
+    return model.model_copy(update={
+        "status": JobStatus.RUNNING,
+        "started_at": datetime.now(),
+    })
 
 
-def _update_job_status_and_end_time(orm: JobORM):
-    orm.status = JobStatus.SUCCEEDED
-    orm.finished_at = datetime.now()
+def _update_job_status_and_end_time(model: Job) -> Job:
+    return model.model_copy(update={
+        "status": JobStatus.SUCCEEDED,
+        "finished_at": datetime.now(),
+    })
 
 
 async def handle_start_model_training_event(

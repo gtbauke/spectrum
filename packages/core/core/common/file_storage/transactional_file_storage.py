@@ -13,6 +13,13 @@ class TransactionalFileStorage(ABC):
         ...
 
     @abstractmethod
+    async def stage_delete(self, *, file_path: str) -> None:
+        """
+        Stages a file for deletion by marking it in a temporary location.
+        """
+        ...
+
+    @abstractmethod
     async def commit(self) -> None:
         """
         Moves the file from the temporary location to the final location.

@@ -6,12 +6,13 @@ from pathlib import Path
 from eggp import EGGP  # type: ignore
 
 from app.api.deps import UnitOfWork
-from app.services.models.model_files_service import ModelFilesService
 from app.services.datasets.dataset_files_service import DatasetFilesService
 from app.services.jobs.jobs_service import JobsService
 from app.services.models.models_service import ModelsService
+
 from core.models.jobs.available_functions import AvailableFunctions
 from core.models.jobs.job_status import JobStatus
+from core.models.models.model_file import ModelFile
 
 
 logger = logging.getLogger(__name__)
@@ -21,12 +22,10 @@ class ModelTrainingService:
     def __init__(
         self,
         dataset_files_service: DatasetFilesService,
-        model_files_service: ModelFilesService,
         jobs_service: JobsService,
         models_service: ModelsService,
     ):
         self._dataset_files_service = dataset_files_service
-        self._model_files_service = model_files_service
         self._jobs_service = jobs_service
         self._models_service = models_service
 
@@ -59,12 +58,12 @@ class ModelTrainingService:
         job_id: UUID,
         dataset_file_name: str
     ) -> str:
-        file_path = await self._dataset_files_service.get_dataset_file_path(
+        model_file = ModelFile.new_model_file(
             dataset_id=dataset_id,
-            file_name=dataset_file_name
+            job_id=job_id,
         )
 
-        data = pd.read_csv(file_path)  # type: ignore
+        data = pd.read_csv(model_file.relative_path)  # type: ignore
 
         independent_variables = [
             col for col in data.columns if col != "target"
@@ -73,12 +72,7 @@ class ModelTrainingService:
         X = data[independent_variables]
         y = data["target"]
 
-        model_path = await self._model_files_service.get_model_file_path(
-            dataset_id=dataset_id,
-            job_id=job_id,
-        )
-
-        model_path = Path(model_path)
+        model_path = Path(model_file.relative_path)
         model_path.touch(exist_ok=True)
 
         async with uow:

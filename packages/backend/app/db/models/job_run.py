@@ -46,3 +46,14 @@ class JobRunORM(Base):
             updated_at=self.updated_at,
             finished_at=self.finished_at,
         )
+
+    @staticmethod
+    def from_domain(domain: JobRun) -> "JobRunORM":
+        return JobRunORM(
+            id=domain.id,
+            model_id=domain.model_id,
+            created_at=domain.created_at,
+            started_at=domain.started_at,
+            updated_at=domain.updated_at,
+            finished_at=domain.finished_at,
+        )

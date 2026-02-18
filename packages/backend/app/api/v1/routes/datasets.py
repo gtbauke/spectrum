@@ -2,15 +2,13 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Form, UploadFile, File
 
 from app.api.v1.schemas.dataset import CreateDatasetRequest
-from app.db.uow.unit_of_work import UnitOfWork
 from app.api.deps import get_uow
+from app.services import get_datasets_service
 from app.services.datasets.datasets_service import CreateDatasetData, DatasetSearchBy, DatasetsService
-from app.infra.file_storage import FileStorage, get_file_storage
-from app.infra.events.datasets.dataset_events_publisher import DatasetsEventsPublisher
-from app.infra.events import get_dataset_events_publisher
-from app.services.datasets.dataset_files_service import DatasetFilesService
-from core.models.datasets.dataset import Dataset
 from app.api.v1.routes.jobs import jobs_router
+
+from core.ports.unit_of_work import UnitOfWork
+from core.models.datasets.dataset import Dataset
 
 datasets_router = APIRouter(tags=["datasets"])
 
@@ -24,20 +22,12 @@ async def create_dataset(
     name: str = Form(...),
     file: UploadFile = File(...),
     uow: UnitOfWork = Depends(get_uow),
-    file_storage: FileStorage = Depends(get_file_storage),
-    datasets_publisher: DatasetsEventsPublisher = Depends(
-        get_dataset_events_publisher)
+    datasets_service: DatasetsService = Depends(get_datasets_service),
 ):
     payload = CreateDatasetRequest(name=name)
-    service = DatasetsService(
-        datasets_file_service=DatasetFilesService(
-            file_storage=file_storage.scoped("datasets")
-        ),
-        datasets_event_publisher=datasets_publisher
-    )
 
     async with uow:
-        dataset = await service.create(
+        dataset = await datasets_service.create(
             uow=uow,
             data=CreateDatasetData(
                 name=payload.name,
@@ -54,21 +44,12 @@ async def create_dataset(
 )
 async def list_datasets(
     uow: UnitOfWork = Depends(get_uow),
-    file_storage: FileStorage = Depends(get_file_storage),
-    datasets_publisher: DatasetsEventsPublisher = Depends(
-        get_dataset_events_publisher)
+    datasets_service: DatasetsService = Depends(get_datasets_service),
 ):
-    service = DatasetsService(
-        datasets_file_service=DatasetFilesService(
-            file_storage=file_storage.scoped("datasets")
-        ),
-        datasets_event_publisher=datasets_publisher
-    )
-
     async with uow:
-        datasets = await service.get_all(uow=uow)
+        datasets = await datasets_service.get_all(uow=uow)
 
-    return datasets
+    return list(datasets)
 
 
 @datasets_router.get(
@@ -78,19 +59,10 @@ async def list_datasets(
 async def get_dataset(
     dataset_id: UUID,
     uow: UnitOfWork = Depends(get_uow),
-    file_storage: FileStorage = Depends(get_file_storage),
-    datasets_publisher: DatasetsEventsPublisher = Depends(
-        get_dataset_events_publisher)
+    datasets_service: DatasetsService = Depends(get_datasets_service),
 ):
-    service = DatasetsService(
-        datasets_file_service=DatasetFilesService(
-            file_storage=file_storage.scoped("datasets")
-        ),
-        datasets_event_publisher=datasets_publisher
-    )
-
     async with uow:
-        dataset = await service.get_unique(
+        dataset = await datasets_service.get_unique(
             uow=uow,
             where=DatasetSearchBy(dataset_id=dataset_id)
         )
@@ -105,19 +77,10 @@ async def get_dataset(
 async def delete_dataset(
     dataset_id: UUID,
     uow: UnitOfWork = Depends(get_uow),
-    file_storage: FileStorage = Depends(get_file_storage),
-    datasets_publisher: DatasetsEventsPublisher = Depends(
-        get_dataset_events_publisher)
+    datasets_service: DatasetsService = Depends(get_datasets_service),
 ):
-    service = DatasetsService(
-        datasets_file_service=DatasetFilesService(
-            file_storage=file_storage.scoped("datasets")
-        ),
-        datasets_event_publisher=datasets_publisher
-    )
-
     async with uow:
-        await service.delete_unique(
+        await datasets_service.delete_unique(
             uow=uow,
             where=DatasetSearchBy(dataset_id=dataset_id)
         )

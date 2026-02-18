@@ -50,3 +50,9 @@ class Dataset(BaseDomainModel):
 
     def is_ready_for_model_training(self) -> bool:
         return self.status == DatasetStatus.COMPLETED
+
+    def attach_file(self, *, file_name: str) -> Dataset:
+        return self.model_copy(update={
+            "file_path": file_name,
+            "updated_at": datetime.now()
+        })

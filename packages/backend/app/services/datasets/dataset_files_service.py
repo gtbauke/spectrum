@@ -1,46 +1,54 @@
 import logging
 
+from typing import BinaryIO
 from uuid import UUID
-from fastapi import UploadFile
-from datetime import datetime
-from pathlib import Path
 
-from app.infra.file_storage.base import FileStorage
+from core.ports.unit_of_work import UnitOfWork
+from core.common.file_storage.transactional_file_storage import TransactionalFileStorage
+from core.models.datasets.dataset_file import DatasetFile
 
 logger = logging.getLogger(__name__)
 
 
 class DatasetFilesService:
-    def __init__(
+    async def save_dataset_file(
         self,
-        file_storage: FileStorage
-    ):
-        self._file_storage = file_storage
+        *,
+        uow: UnitOfWork,
+        storage: TransactionalFileStorage,
+        dataset_id: UUID,
+        content: BinaryIO,
+        original_file_name: str,
+    ) -> str:
+        uow.register(storage)
 
-    async def get_dataset_directory(self, *, dataset_id: UUID) -> str:
-        dataset_directory = await self._file_storage.get_full_path(file_path=str(dataset_id))
-        Path(dataset_directory).mkdir(parents=True, exist_ok=True)
+        raw_file = DatasetFile.new_raw_file(
+            dataset_id=dataset_id,
+            original_file_name=original_file_name,
+        )
 
-        return dataset_directory
+        await storage.stage(
+            content=content,
+            destination=raw_file.relative_path
+        )
 
-    async def save_dataset_file(self, *, file: UploadFile, dataset_id: UUID):
-        file_name = f"{datetime.now().timestamp()}_{file.filename}"
-        final_path = await self.get_dataset_file_path(file_name=file_name, dataset_id=dataset_id)
+        return raw_file.file_name
 
-        await self._file_storage.save(file=file, destination=str(final_path))
-        return file_name
+    async def delete_dataset_file(
+        self,
+        *,
+        uow: UnitOfWork,
+        storage: TransactionalFileStorage,
+        dataset_id: UUID,
+        file_name: str,
+    ) -> None:
+        uow.register(storage)
 
-    async def get_dataset_file_path(self, file_name: str, dataset_id: UUID) -> str:
-        dataset_directory = await self.get_dataset_directory(dataset_id=dataset_id)
-        return str(Path(dataset_directory) / file_name)
+        raw_file = DatasetFile.new_raw_file(
+            dataset_id=dataset_id,
+            original_file_name=file_name,
+        )
 
-    async def delete_dataset(self, *, dataset_id: UUID) -> None:
-        dataset_directory = await self.get_dataset_directory(dataset_id=dataset_id)
-        dataset_directory_path = Path(dataset_directory)
-
-        if dataset_directory_path.exists() and dataset_directory_path.is_dir():
-            for file in dataset_directory_path.iterdir():
-                if file.is_file():
-                    await self._file_storage.delete(file_path=str(file))
-
-            dataset_directory_path.rmdir()
+        await storage.stage_delete(
+            file_path=raw_file.relative_path
+        )

@@ -6,17 +6,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.ports.unit_of_work import UnitOfWork
 
-from app.repositories.sqlalchemy.datasets_repository import SqlAlchemyDatasetsRepository
-from app.repositories.sqlalchemy.datasets_metadata_repository import SqlAlchemyDatasetsMetadataRepository
-from app.repositories.sqlalchemy.models_repository import SqlAlchemyModelsRepository
-from app.repositories.sqlalchemy.jobs_repository import SQLAlchemyJobsRepository
-from app.repositories.sqlalchemy.job_run_repository import SQLAlchemyJobRunRepository
+from app.repositories.datasets_repository import SqlAlchemyDatasetsRepository
+from app.repositories.datasets_metadata_repository import SqlAlchemyDatasetsMetadataRepository
+from app.repositories.models_repository import SqlAlchemyModelsRepository
+from app.repositories.jobs_repository import SQLAlchemyJobsRepository
+from app.repositories.job_run_repository import SQLAlchemyJobRunRepository
 
 
 class SqlAlchemyUnitOfWork(UnitOfWork):
     def __init__(self, session_factory: Callable[[], AsyncSession]) -> None:
         self._session_factory = session_factory
         self._session: Optional[AsyncSession] = None
+        super().__init__()
 
     async def __aenter__(self) -> UnitOfWork:
         self._session = self._session_factory()
@@ -42,10 +43,19 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
 
         if exc:
             await self.rollback()
-        else:
+            return
+
+        try:
             await self.commit()
 
-        await self._session.close()
+            for hook in self._on_commit_hooks:
+                await hook()
+        except Exception:
+            await self.rollback()
+            raise
+        finally:
+            await self._session.close()
+            self._on_commit_hooks.clear()
 
     async def commit(self) -> None:
         assert self._session is not None

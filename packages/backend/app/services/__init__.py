@@ -1,20 +1,18 @@
 from app.services.datasets.datasets_service import DatasetsService
 from app.services.models.models_service import ModelsService
 from app.services.models.model_training_service import ModelTrainingService
-from app.infra.file_storage import get_file_storage
+from app.infra.file_storage import get_transactional_file_storage
 from app.infra.events import get_dataset_events_publisher
 from app.services.datasets.dataset_files_service import DatasetFilesService
-from app.services.models.model_files_service import ModelFilesService
 from app.services.jobs.jobs_service import JobsService
 from app.services.inference.inference_service import InferenceService
 
 
 def get_datasets_service() -> DatasetsService:
     return DatasetsService(
-        datasets_file_service=DatasetFilesService(
-            file_storage=get_file_storage().scoped(scope="datasets")
-        ),
-        datasets_event_publisher=get_dataset_events_publisher()
+        datasets_file_service=DatasetFilesService(),
+        datasets_event_publisher=get_dataset_events_publisher(),
+        storage=get_transactional_file_storage(),
     )
 
 
@@ -23,14 +21,9 @@ def get_models_service() -> ModelsService:
 
 
 def get_model_training_service() -> ModelTrainingService:
-    dataset_files_service = DatasetFilesService(
-        file_storage=get_file_storage().scoped(scope="datasets")
-    )
+    dataset_files_service = DatasetFilesService()
 
     return ModelTrainingService(
-        model_files_service=ModelFilesService(
-            dataset_files_service=dataset_files_service
-        ),
         dataset_files_service=dataset_files_service,
         jobs_service=get_jobs_service(),
         models_service=get_models_service(),
@@ -42,17 +35,10 @@ def get_jobs_service() -> JobsService:
 
 
 def get_inference_service() -> InferenceService:
-    dataset_files_service = DatasetFilesService(
-        file_storage=get_file_storage().scoped(scope="datasets")
-    )
-
-    model_files_service = ModelFilesService(
-        dataset_files_service=dataset_files_service
-    )
+    dataset_files_service = DatasetFilesService()
 
     return InferenceService(
         models_service=get_models_service(),
         datasets_service=get_datasets_service(),
-        model_files_service=model_files_service,
         dataset_files_service=dataset_files_service,
     )

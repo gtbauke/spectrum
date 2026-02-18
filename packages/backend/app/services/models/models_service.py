@@ -1,10 +1,9 @@
 from uuid import UUID
 
 from app.api.deps import UnitOfWork
+
+from core.models.jobs.job_run import JobRun
 from core.models.models.model import Model
-from core.models.jobs.job import Job
-from app.db.models.model import ModelORM
-from app.db.models.job_run import JobRunORM
 from core.models.jobs.job_status import JobStatus
 
 # TODO: better error handling in the Repository layer
@@ -21,14 +20,12 @@ class ModelsService:
         model_id: UUID,
     ) -> Model:
         async with uow:
-            orm = await uow.models.get_by_id(model_id)
+            model = await uow.models.get_by_id(model_id)
 
-            if not orm:
+            if not model:
                 raise ValueError(f"Model with ID {model_id} not found.")
 
-            domain = orm.to_domain()
-
-        return domain
+            return model
 
     async def update_model_job_status(
         self,
@@ -38,34 +35,19 @@ class ModelsService:
         job_status: JobStatus,
     ) -> Model:
         async with uow:
-            orm = await uow.models.get_by_id(model_id)
+            model = await uow.models.get_for_update(model_id)
 
-            if not orm:
+            if not model:
                 raise ValueError(f"Model with ID {model_id} not found.")
 
-            orm.job.status = job_status
-            domain = orm.to_domain()
+            updated_model = model.model_copy(
+                update={
+                    "status": job_status,
+                }
+            )
 
-        return domain
-
-    async def get_with_job(
-        self,
-        uow: UnitOfWork,
-        *,
-        model_id: UUID,
-    ) -> tuple[Model, Job]:
-        async with uow:
-            result = await uow.models.get_with_job(model_id)
-
-            if not result:
-                raise ValueError(f"Model with ID {model_id} not found.")
-
-            model_orm, job_orm = result
-
-            model_domain = model_orm.to_domain()
-            job_domain = job_orm.to_domain()
-
-        return model_domain, job_domain
+            await uow.models.update(updated_model)
+            return updated_model
 
     async def create(
         self,
@@ -80,30 +62,26 @@ class ModelsService:
             existing_job = await uow.jobs.get_by_id(job_id)
 
             if existing_model:
-                return existing_model.to_domain()
+                return existing_model
 
             if not existing_job:
                 raise ValueError(f"Job with ID {job_id} not found.")
 
-            orm = await uow.models.add(ModelORM(
+            model = Model.create(
                 name=model_name,
                 dataset_id=dataset_id,
-                job_id=job_id,
-            ))
+                job=existing_job,
+            )
 
-            domain = orm.to_domain()
-
-        return domain
+            await uow.models.add(model)
+            return model
 
     async def list(
         self,
         uow: UnitOfWork,
     ) -> list[Model]:
         async with uow:
-            orms = await uow.models.list_all()
-            domains = [orm.to_domain() for orm in orms]
-
-        return domains
+            return await uow.models.list_all()
 
     async def update_model_file_path(
         self,
@@ -113,17 +91,19 @@ class ModelsService:
         model_file_path: str,
     ) -> Model:
         async with uow:
-            orm = await uow.models.get_by_id(model_id)
+            model = await uow.models.get_by_id(model_id)
 
-            if not orm:
+            if not model:
                 raise ValueError(f"Model with ID {model_id} not found.")
 
-            orm.model_file = model_file_path
-            domain = orm.to_domain()
+            updated_model = model.model_copy(
+                update={
+                    "model_file": model_file_path,
+                }
+            )
 
-            await uow.models.update(orm)
-
-        return domain
+            await uow.models.update(updated_model)
+            return updated_model
 
     async def record_model_job_run(
         self,
@@ -132,20 +112,22 @@ class ModelsService:
         model_id: UUID,
     ) -> None:
         async with uow:
-            orm = await uow.models.get_by_id(model_id)
+            model = await uow.models.get_by_id(model_id)
 
-            if not orm:
+            if not model:
                 raise ValueError(f"Model with ID {model_id} not found.")
 
-            if not orm.job:
+            if not model.job:
                 raise ValueError(
                     f"Model with ID {model_id} has no associated job.")
 
-            await uow.job_runs.add(JobRunORM(
+            job_run = JobRun.create(
                 model_id=model_id,
-                started_at=orm.job.started_at,
-                finished_at=orm.job.finished_at,
-            ))
+                started_at=model.job.started_at,
+                finished_at=model.job.finished_at,
+            )
+
+            await uow.job_runs.add(job_run)
 
     async def delete(
         self,
@@ -154,9 +136,4 @@ class ModelsService:
         model_id: UUID,
     ) -> None:
         async with uow:
-            orm = await uow.models.get_by_id(model_id)
-
-            if not orm:
-                raise ValueError(f"Model with ID {model_id} not found.")
-
-            await uow.models.delete(orm)
+            await uow.models.delete(model_id)

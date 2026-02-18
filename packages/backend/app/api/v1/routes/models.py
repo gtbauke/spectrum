@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends
 from core.models.models.model import Model
 from core.models.jobs.job_status import JobStatus
 from core.models.jobs.job_run import JobRun
+from core.ports.unit_of_work import UnitOfWork
 
-from app.db.uow.unit_of_work import UnitOfWork
 from app.api.deps import get_uow
 from app.infra.events import ModelEventsPublisher, get_model_events_publisher
 from app.infra.events.models.model_events_publisher import StartModelTrainingEvent
