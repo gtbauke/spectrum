@@ -1,9 +1,10 @@
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import Field
 from uuid import UUID, uuid4
 from datetime import datetime
 
 from core.tasks.base import TaskEnvelope
+from core.tasks.datasets.payload import DatasetProcessTaskPayload
 from core.tasks.retry import RetryPolicy
 from core.tasks.types import TaskType
 
@@ -15,11 +16,6 @@ DATASET_RETRY_DELAYS = {
     4: 600_000,
     5: 1_800_000,
 }
-
-
-class DatasetProcessTaskPayload(BaseModel):
-    dataset_id: UUID = Field(...,
-                             description="The ID of the dataset to process")
 
 
 class DatasetProcessTask(TaskEnvelope[DatasetProcessTaskPayload]):

@@ -2,8 +2,8 @@ from aio_pika import ExchangeType
 from aio_pika.abc import AbstractChannel, AbstractExchange
 
 from core.infra.tasks import TaskInfraLookup
-from core.tasks.dataset import DATASET_RETRY_DELAYS
-from core.tasks.training import TRAINING_RETRY_DELAYS
+from core.tasks.datasets.task import DATASET_RETRY_DELAYS
+from core.tasks.training.task import TRAINING_RETRY_DELAYS
 
 
 class WorkersQueueSetupResult:
