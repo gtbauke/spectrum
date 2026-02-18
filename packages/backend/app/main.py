@@ -4,9 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import v1_router
 from app.infra.events.rabbitmq import rabbitmq_manager
-from app.api.middlewares.correlation_id_middleware import CorrelationIdMiddleware
-from app.core.logging import setup_logging
 from app.utils.rebuild import rebuild_models
+
+from core.common.logging import setup_logging
 
 
 @asynccontextmanager
@@ -34,5 +34,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.add_middleware(CorrelationIdMiddleware)
 app.include_router(v1_router)

@@ -3,7 +3,7 @@ import logging
 
 from app.workers.orchestrators.models.model_processing_setup import setup_queues
 from app.infra.events.rabbitmq import rabbitmq_manager
-from app.core.logging import setup_logging
+from core.common.logging import setup_logging
 from app.utils.rebuild import rebuild_models
 from app.workers.orchestrators.base import BaseOrchestrator
 

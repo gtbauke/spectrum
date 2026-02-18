@@ -1,42 +1,37 @@
-import logging
+from __future__ import annotations
+
 import aiofiles
 
-from fastapi import UploadFile
 from pathlib import Path
+from typing import BinaryIO
 
-from app.core.config import ROOT_PATH
-from app.infra.file_storage.base import FileStorage
-
-logger = logging.getLogger(__name__)
+from core.common.file_storage.base import AbstractFileStorage
+from core.common.config import ROOT_PATH
 
 
-class LocalFileStorage(FileStorage):
-    _FILE_STORAGE_ROOT_PATH = ROOT_PATH
+class LocalFileStorage(AbstractFileStorage):
+    def __init__(self, base_path: Path):
+        self._base_path = base_path
 
-    def __init__(self, base_path: str = "storage"):
-        full_base_path = Path(self._FILE_STORAGE_ROOT_PATH) / base_path
-        super().__init__(base_path=str(full_base_path))
+    @classmethod
+    def default(cls) -> LocalFileStorage:
+        return cls(base_path=ROOT_PATH / "storage")
 
-    async def save(self, *, file: UploadFile, destination: str) -> str:
-        parent_folder = Path(destination).parent
-        parent_folder.mkdir(parents=True, exist_ok=True)
+    async def save(self, *, content: BinaryIO, destination: str) -> str:
+        full_path = self._base_path / destination
+        full_path.parent.mkdir(parents=True, exist_ok=True)
 
-        async with aiofiles.open(destination, 'wb') as out_file:
-            while chunk := await file.read(1024):
-                await out_file.write(chunk)
+        async with aiofiles.open(full_path, mode="wb") as f:
+            while chunk := content.read(1024):
+                await f.write(chunk)
 
-        await file.close()
-        return str(destination)
-
-    async def get_full_path(self, *, file_path: str) -> str:
-        logger.info("get_full_path", extra={
-            "file_path": file_path,
-            "base_path": self._base_path,
-        })
-
-        full_path = self._base_path / file_path
-        return str(full_path)
+        return destination
 
     async def delete(self, *, file_path: str) -> None:
-        full_path = await self.get_full_path(file_path=file_path)
-        Path(full_path).unlink(missing_ok=True)
+        full_path = self._base_path / file_path
+
+        if full_path.exists():
+            full_path.unlink()
+
+    async def with_scope(self, scope: str) -> LocalFileStorage:
+        return LocalFileStorage(base_path=self._base_path / scope)

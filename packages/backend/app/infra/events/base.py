@@ -5,14 +5,11 @@ from aio_pika.abc import AbstractConnection, AbstractChannel
 from aio_pika import Message
 from pydantic import BaseModel
 
-from app.core.correlation import correlation_id_ctx
-
 
 class EventMessage(Message):
     def __init__(self, event: str, payload: BaseModel, retry_count: int = 0):
         self._event = event
         self._payload = payload
-        self._correlation_id = correlation_id_ctx.get()
         self._retry_count = retry_count
 
     def to_message(self) -> Message:
@@ -22,7 +19,6 @@ class EventMessage(Message):
                 "payload": self._payload.model_dump(mode="json"),
             }).encode("utf-8"),
             headers={
-                "correlation_id": self._correlation_id,
                 "x-retry-count": self._retry_count,
             },
         )
