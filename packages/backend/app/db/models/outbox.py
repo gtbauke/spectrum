@@ -107,7 +107,7 @@ class OutboxORM(Base):
             aggregate_id=outbox.aggregate_id,
             event_type=outbox.event_type,
             event_version=outbox.event_version,
-            payload=outbox.payload.model_dump(),
+            payload=outbox.payload.model_dump(mode="json"),
             status=outbox.status,
             attempts=outbox.attempts,
             last_error=outbox.last_error,

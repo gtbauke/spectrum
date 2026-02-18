@@ -1,10 +1,11 @@
+from datetime import datetime
 from typing import Optional, Sequence
 
+from app.db.models.outbox import AggregateType
+from app.services.outbox.outbox_service import CreateOutboxData, OutboxService
 from app.utils.checksum import calculate_upload_file_checksum
 
 from app.db.models.dataset import Dataset
-from app.infra.events.datasets.dataset_events_publisher import DatasetsEventsPublisher
-from app.workers.schemas.dataset_processing_event import DatasetProcessingEvent
 
 from app.services.datasets.dataset_files_service import DatasetFilesService
 from app.services.datasets.errors.dataset_not_found_error import DatasetNotFoundError
@@ -15,6 +16,8 @@ from app.services.datasets.utils.update_dataset import UpdateDatasetData
 from core.common.file_storage.transactional_file_storage import TransactionalFileStorage
 from core.ports.unit_of_work import UnitOfWork
 from core.services.base import BaseService
+from core.tasks.datasets.payload import DatasetProcessTaskPayload
+from core.tasks.types import TaskType
 
 
 class DatasetsService(BaseService[
@@ -26,11 +29,11 @@ class DatasetsService(BaseService[
     def __init__(
         self,
         datasets_file_service: DatasetFilesService,
-        datasets_event_publisher: DatasetsEventsPublisher,
-        storage: TransactionalFileStorage
+        outbox_service: OutboxService[DatasetProcessTaskPayload],
+        storage: TransactionalFileStorage,
     ):
         self._datasets_file_service = datasets_file_service
-        self._datasets_event_publisher = datasets_event_publisher
+        self._outbox_service = outbox_service
         self._storage = storage
 
     async def get_unique(self, *, uow: UnitOfWork, where: DatasetSearchBy) -> Optional[Dataset]:
@@ -53,11 +56,17 @@ class DatasetsService(BaseService[
             dataset = dataset.attach_file(file_name=file_name)
             await uow.datasets.add(dataset)
 
-            uow.on_commit(
-                lambda: self._datasets_event_publisher.publish_dataset_processing_event(
-                    DatasetProcessingEvent(
+            # TODO: create worker for publishing events
+            await self._outbox_service.create(
+                uow=uow,
+                data=CreateOutboxData[DatasetProcessTaskPayload](
+                    aggregate_type=AggregateType.DATASET,
+                    aggregate_id=dataset.id,
+                    event_type=TaskType.DATASET_PROCESSING,
+                    event_version=1,
+                    available_at=datetime.now(),
+                    payload=DatasetProcessTaskPayload(
                         dataset_id=dataset.id,
-                        file_path=file_name,
                     )
                 )
             )
