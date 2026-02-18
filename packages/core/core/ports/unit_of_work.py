@@ -1,0 +1,13 @@
+from types import TracebackType
+from typing import Optional, Protocol, Type
+
+
+class UnitOfWork(Protocol):
+    async def __aenter__(self): ...
+
+    async def __aexit__(self, exc_type: Optional[Type[BaseException]],
+                        exc: Optional[BaseException],
+                        tb: Optional[TracebackType],): ...
+
+    async def commit(self) -> None: ...
+    async def rollback(self) -> None: ...

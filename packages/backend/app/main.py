@@ -6,7 +6,7 @@ from app.api.v1.router import v1_router
 from app.infra.events.rabbitmq import rabbitmq_manager
 from app.api.middlewares.correlation_id_middleware import CorrelationIdMiddleware
 from app.core.logging import setup_logging
-from app.domain.rebuild import rebuild_models
+from app.utils.rebuild import rebuild_models
 
 
 @asynccontextmanager

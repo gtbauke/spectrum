@@ -4,7 +4,7 @@ import logging
 from app.workers.orchestrators.datasets.dataset_processing_setup import setup_queues
 from app.infra.events.rabbitmq import rabbitmq_manager
 from app.core.logging import setup_logging
-from app.domain.rebuild import rebuild_models
+from app.utils.rebuild import rebuild_models
 from app.workers.orchestrators.base import BaseOrchestrator
 
 logger = logging.getLogger(__name__)
