@@ -19,6 +19,7 @@ from core.models.datasets.dataset_file import DatasetFile
 logger = logging.getLogger(__name__)
 
 # TODO: handle exceptions, retry logic and status updates in case of failure
+# TODO: refactor all logic to standalone package
 
 
 async def handle_dataset_processing_message(
