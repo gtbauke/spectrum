@@ -1,10 +1,9 @@
-from pydantic import BaseModel, Field
+from pydantic import Field
 from typing import Optional
 from datetime import datetime
 from enum import StrEnum
-from uuid import UUID
 
-from core.tasks.types import TaskType
+from core.tasks.event import AbstractTaskEvent
 
 
 class TaskFailureReason(StrEnum):
@@ -15,12 +14,7 @@ class TaskFailureReason(StrEnum):
     DEPENDENCY_FAILURE = "dependency_failure"
 
 
-class TaskFailure(BaseModel):
-    task_id: UUID = Field(...,
-                          description="Unique identifier of the failed task")
-
-    task_type: TaskType = Field(..., description="Type of the failed task")
-
+class AbstractTaskFailureEvent(AbstractTaskEvent):
     attempt: int = Field(..., ge=1,
                          description="Attempt number at which the task failed")
 

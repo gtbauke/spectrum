@@ -36,7 +36,7 @@ class ModelTrainTask(TaskEnvelope[ModelTrainTaskPayload]):
             task_id=uuid4(),
             task_type=TaskType.MODEL_TRAINING,
             payload=payload,
-            created_at=datetime.now(),
+            timestamp=datetime.now(),
             deduplication_key=deduplication_key,
             correlation_id=correlation_id,
             retry_policy=retry_policy
