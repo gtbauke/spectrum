@@ -2370,6 +2370,7 @@ name = "workers"
 version = "0.1.0"
 source = { virtual = "packages/workers" }
 dependencies = [
+    { name = "aio-pika" },
     { name = "core" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
@@ -2377,6 +2378,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "aio-pika", specifier = ">=9.5.8" },
     { name = "core", editable = "packages/core" },
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "pydantic-settings", specifier = ">=2.12.0" },
