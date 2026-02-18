@@ -1,9 +1,11 @@
 from __future__ import annotations
 from types import TracebackType
 from typing import Callable, Optional
+from pydantic import BaseModel
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.repositories.outbox_repository import SqlAlchemyOutboxRepository
 from core.ports.unit_of_work import UnitOfWork
 
 from app.repositories.datasets_repository import SqlAlchemyDatasetsRepository
@@ -30,6 +32,7 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
         self.jobs = SQLAlchemyJobsRepository(self._session)
 
         self.job_runs = SQLAlchemyJobRunRepository(self._session)
+        self.outbox = SqlAlchemyOutboxRepository[BaseModel](self._session)
 
         return self
 

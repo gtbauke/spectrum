@@ -100,7 +100,7 @@ class OutboxORM(Base):
     )
 
     @classmethod
-    def from_domain(cls, outbox: Outbox[BaseModel]) -> OutboxORM:
+    def from_domain[T: BaseModel](cls, outbox: Outbox[T]) -> OutboxORM:
         return cls(
             id=outbox.id,
             aggregate_type=outbox.aggregate_type,

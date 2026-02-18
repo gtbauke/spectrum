@@ -3,7 +3,9 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from types import TracebackType
 from typing import Awaitable, Callable, Optional, Type
+from pydantic import BaseModel
 
+from app.repositories.outbox_repository import OutboxRepository
 from core.ports.transactional_resource import TransactionalResource
 from core.repositories.datasets_repository import DatasetsRepository
 from core.repositories.datasets_metadata_repository import DatasetsMetadataRepository
@@ -18,6 +20,7 @@ class UnitOfWork(ABC):
     models: ModelsRepository
     jobs: JobsRepository
     job_runs: JobRunRepository
+    outbox: OutboxRepository[BaseModel]
 
     def __init__(self) -> None:
         self._resources: list[TransactionalResource] = []
