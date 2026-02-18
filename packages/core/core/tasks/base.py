@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 from uuid import UUID
 from datetime import datetime
 
+from core.tasks.retry import RetryPolicy
 from core.tasks.types import TaskType
 
 
@@ -27,6 +28,11 @@ class TaskEnvelope[T: BaseModel](BaseModel):
 
     correlation_id: Optional[UUID] = Field(
         None, description="Correlation ID for tracing the task across services")
+
+    attempt: int = Field(
+        default=1, ge=1, description="Current attempt number for the task")
+    retry_policy: Optional[RetryPolicy] = Field(None,
+                                                description="Retry policy for the task")
 
     @classmethod
     @abstractmethod

@@ -4,6 +4,7 @@ from typing import Optional
 from datetime import datetime
 
 from core.tasks.base import TaskEnvelope
+from core.tasks.retry import RetryPolicy
 from core.tasks.types import TaskType
 
 
@@ -29,7 +30,8 @@ class ModelTrainTask(TaskEnvelope[ModelTrainTaskPayload]):
         cls,
         payload: ModelTrainTaskPayload,
         deduplication_key: Optional[str] = None,
-        correlation_id: Optional[UUID] = None
+        correlation_id: Optional[UUID] = None,
+        retry_policy: Optional[RetryPolicy] = None
     ) -> TaskEnvelope[ModelTrainTaskPayload]:
         return cls(
             task_id=uuid4(),
@@ -38,4 +40,5 @@ class ModelTrainTask(TaskEnvelope[ModelTrainTaskPayload]):
             created_at=datetime.now(),
             deduplication_key=deduplication_key,
             correlation_id=correlation_id,
+            retry_policy=retry_policy
         )
