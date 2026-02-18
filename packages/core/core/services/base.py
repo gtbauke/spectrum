@@ -2,9 +2,9 @@ from abc import ABC, abstractmethod
 from typing import Optional, Sequence
 from pydantic import BaseModel
 
-from app.utils.exactly_one_model import ExactlyOneModel
+from core.utils.exactly_one_model import ExactlyOneModel
 from core.models.base import BaseDomainModel
-from app.api.deps import UnitOfWork
+from core.ports.unit_of_work import UnitOfWork
 
 
 class BaseService[

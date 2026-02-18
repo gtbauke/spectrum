@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from app.utils.exactly_one_model import ExactlyOneModel
+from core.utils.exactly_one_model import ExactlyOneModel
 
 
 class DatasetSearchBy(ExactlyOneModel):

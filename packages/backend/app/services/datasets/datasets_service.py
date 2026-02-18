@@ -6,7 +6,6 @@ from app.db.models.dataset import Dataset
 from app.infra.events.datasets.dataset_events_publisher import DatasetsEventsPublisher
 from app.workers.schemas.dataset_processing_event import DatasetProcessingEvent
 
-from app.services.base import BaseService
 from app.services.datasets.dataset_files_service import DatasetFilesService
 from app.services.datasets.errors.dataset_not_found_error import DatasetNotFoundError
 from app.services.datasets.utils.dataset_search_by import DatasetSearchBy
@@ -15,6 +14,7 @@ from app.services.datasets.utils.update_dataset import UpdateDatasetData
 
 from core.common.file_storage.transactional_file_storage import TransactionalFileStorage
 from core.ports.unit_of_work import UnitOfWork
+from core.services.base import BaseService
 
 
 class DatasetsService(BaseService[
@@ -42,8 +42,6 @@ class DatasetsService(BaseService[
 
         async with uow:
             dataset = Dataset.start_upload(name=data.name, checksum=checksum)
-            await uow.datasets.add(dataset)
-
             file_name = await self._datasets_file_service.save_dataset_file(
                 uow=uow,
                 content=data.file.file,
@@ -53,7 +51,7 @@ class DatasetsService(BaseService[
             )
 
             dataset = dataset.attach_file(file_name=file_name)
-            await uow.datasets.update(dataset)
+            await uow.datasets.add(dataset)
 
             uow.on_commit(
                 lambda: self._datasets_event_publisher.publish_dataset_processing_event(
