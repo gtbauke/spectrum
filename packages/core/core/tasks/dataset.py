@@ -8,6 +8,15 @@ from core.tasks.retry import RetryPolicy
 from core.tasks.types import TaskType
 
 
+DATASET_RETRY_DELAYS = {
+    1: 10_000,
+    2: 30_000,
+    3: 120_000,
+    4: 600_000,
+    5: 1_800_000,
+}
+
+
 class DatasetProcessTaskPayload(BaseModel):
     dataset_id: UUID = Field(...,
                              description="The ID of the dataset to process")

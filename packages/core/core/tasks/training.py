@@ -8,6 +8,15 @@ from core.tasks.retry import RetryPolicy
 from core.tasks.types import TaskType
 
 
+TRAINING_RETRY_DELAYS = {
+    1: 30_000,
+    2: 120_000,
+    3: 600_000,
+    4: 1_800_000,
+    5: 3_600_000,
+}
+
+
 class ModelTrainTaskPayload(BaseModel):
     dataset_id: UUID = Field(...,
                              description="ID of the dataset to be used for training")
