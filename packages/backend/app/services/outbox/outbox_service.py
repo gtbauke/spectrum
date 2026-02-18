@@ -1,3 +1,4 @@
+from typing import Sequence
 from pydantic import BaseModel
 
 from app.services.outbox.utils.create_outbox import CreateOutboxData
@@ -9,16 +10,19 @@ from core.ports.unit_of_work import UnitOfWork
 from core.services.base import BaseService
 
 
-# TODO: implement actual typed service
-class OutboxService(BaseService[
-    Outbox[BaseModel],
+class OutboxService[T: BaseModel](BaseService[
+    Outbox[T],
     OutboxSearchBy,
-    CreateOutboxData[BaseModel],
-    UpdateOutboxData[BaseModel],
+    CreateOutboxData[T],
+    UpdateOutboxData[T],
 ]):
     """
     Service for handling outbox messages.
     """
+
+    def __init__(self, model_type: type[T]) -> None:
+        super().__init__()
+        self._model_type = model_type
 
     # TODO: implement get_unique in repository
     # and resolve the where parameter to filter
@@ -28,11 +32,47 @@ class OutboxService(BaseService[
         *,
         uow: UnitOfWork,
         where: OutboxSearchBy
-    ) -> Outbox[BaseModel] | None:
+    ) -> Outbox[T] | None:
         async with uow:
-            return await uow.outbox.get_by_id(id=where.resolve())
+            repo = await uow.get_outbox_repository(self._model_type)
+            return await repo.get_by_id(id=where.resolve())
 
-    # TODO: implement create method
-    # TODO: implement update_unique method
-    # TODO: implement delete_unique method
-    # TODO: implement get_all method
+    async def create(self, *, uow: UnitOfWork, data: CreateOutboxData[T]) -> Outbox[T]:
+        async with uow:
+            repo = await uow.get_outbox_repository(self._model_type)
+
+            outbox = Outbox[T].create(
+                aggregate_type=data.aggregate_type,
+                aggregate_id=data.aggregate_id,
+                event_type=data.event_type,
+                event_version=data.event_version,
+                payload=data.payload,
+                available_at=data.available_at,
+            )
+
+            await repo.add(outbox)
+            return outbox
+
+    async def update_unique(self, *, uow: UnitOfWork, where: OutboxSearchBy, data: UpdateOutboxData[T]) -> Outbox[T]:
+        async with uow:
+            repo = await uow.get_outbox_repository(self._model_type)
+            outbox = await repo.get_by_id(id=where.resolve())
+
+            if not outbox:
+                raise ValueError("Outbox message not found")
+
+            updated_outbox = outbox.model_copy(
+                update=data.model_dump(exclude_unset=True))
+
+            await repo.update(updated_outbox)
+            return updated_outbox
+
+    async def delete_unique(self, *, uow: UnitOfWork, where: OutboxSearchBy):
+        async with uow:
+            repo = await uow.get_outbox_repository(self._model_type)
+            await repo.delete(id=where.resolve())
+
+    async def get_all(self, *, uow: UnitOfWork) -> Sequence[Outbox[T]]:
+        async with uow:
+            repo = await uow.get_outbox_repository(self._model_type)
+            return await repo.list_all()

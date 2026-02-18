@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from datetime import datetime
 from typing import Optional
-from uuid import UUID
+from uuid import UUID, uuid4
 from pydantic import BaseModel, Field
 
 from core.models.base import BaseDomainModel
@@ -61,3 +63,30 @@ class Outbox[Payload: BaseModel](BaseDomainModel):
         self.last_error = error_message
 
         self.updated_at = datetime.now()
+
+    @classmethod
+    def create(
+        cls,
+        *,
+        aggregate_type: AggregateType,
+        aggregate_id: UUID,
+        event_type: TaskType,
+        event_version: int,
+        payload: Payload,
+        available_at: datetime,
+    ) -> Outbox[Payload]:
+        return cls(
+            id=uuid4(),
+            aggregate_type=aggregate_type,
+            aggregate_id=aggregate_id,
+            event_type=event_type,
+            event_version=event_version,
+            payload=payload,
+            status=OutboxStatus.PENDING,
+            attempts=0,
+            last_error=None,
+            available_at=available_at,
+            published_at=None,
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+        )

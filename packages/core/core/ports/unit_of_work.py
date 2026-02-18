@@ -20,7 +20,6 @@ class UnitOfWork(ABC):
     models: ModelsRepository
     jobs: JobsRepository
     job_runs: JobRunRepository
-    outbox: OutboxRepository[BaseModel]
 
     def __init__(self) -> None:
         self._resources: list[TransactionalResource] = []
@@ -57,3 +56,7 @@ class UnitOfWork(ABC):
 
     @abstractmethod
     async def rollback(self) -> None: ...
+
+    @abstractmethod
+    async def get_outbox_repository[T: BaseModel](
+        self, model_type: type[T]) -> OutboxRepository[T]: ...
