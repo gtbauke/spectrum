@@ -107,17 +107,23 @@ echo "Starting backend server with uv..."
     uv run --package backend fastapi dev packages/backend/app/main.py
 ) &
 
-echo "Starting dataset worker with uv..."
+echo "Starting outbox worker with uv"
 (
-    cd "$ROOT_DIR/packages/backend"
-    uv run python -m app.workers.orchestrators.datasets.dataset_processing_orchestrator
+    cd "$ROOT_DIR"
+    uv run python packages/workers/main.py outbox_worker
 ) &
 
-echo "Starting model training worker with uv..."
-(
-    cd "$ROOT_DIR/packages/backend"
-    uv run python -m app.workers.orchestrators.models.model_processing_orchestrator
-) &
+# echo "Starting dataset worker with uv..."
+# (
+#     cd "$ROOT_DIR/packages/backend"
+#     uv run python -m app.workers.orchestrators.datasets.dataset_processing_orchestrator
+# ) &
+
+# echo "Starting model training worker with uv..."
+# (
+#     cd "$ROOT_DIR/packages/backend"
+#     uv run python -m app.workers.orchestrators.models.model_processing_orchestrator
+# ) &
 
 echo "Starting frontend..."
 (

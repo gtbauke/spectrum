@@ -48,6 +48,10 @@ class Outbox[Payload: BaseModel](BaseDomainModel):
     published_at: Optional[datetime] = Field(
         None, description="The timestamp when the message was successfully published, if applicable.")
 
+    model_config = {
+        "from_attributes": True,
+    }
+
     def publish(self):
         """Marks the message as published and sets the published_at timestamp."""
         self.status = OutboxStatus.PROCESSED

@@ -5,8 +5,8 @@ from types import TracebackType
 from typing import Awaitable, Callable, Optional, Type
 from pydantic import BaseModel
 
-from app.repositories.outbox_repository import OutboxRepository
 from core.ports.transactional_resource import TransactionalResource
+from core.repositories.outbox_repository import OutboxRepository
 from core.repositories.datasets_repository import DatasetsRepository
 from core.repositories.datasets_metadata_repository import DatasetsMetadataRepository
 from core.repositories.jobs_repository import JobsRepository

@@ -17,7 +17,7 @@ class DatasetProcessingOrchestrator(BaseOrchestrator):
 
         await rabbitmq_manager.connect()
 
-    async def run(self):
+    async def run(self) -> None:
         try:
             await setup_queues()
         finally:

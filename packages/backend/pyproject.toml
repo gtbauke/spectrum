@@ -35,3 +35,6 @@ dev-dependencies = [
 [tool.uv.sources]
 inference-query-language = { workspace = true }
 core = { workspace = true }
+
+[tool.setuptools.packages.find]
+where = ["app"]

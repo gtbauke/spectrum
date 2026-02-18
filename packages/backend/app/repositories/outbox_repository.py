@@ -7,11 +7,6 @@ from app.db.models.outbox import OutboxORM
 from core.models.outbox.outbox import Outbox
 from core.repositories.outbox_repository import OutboxRepository
 
-# TODO: remove type ignore in list_all method
-# to do that, we need to pass the payload type on repository __init__
-# this means we actually need a repository factory in the unit of work
-# or we need different repositories for different payload types, what could be overkill
-
 
 class SqlAlchemyOutboxRepository[T: BaseModel](OutboxRepository[T]):
     """SQLAlchemy implementation of the OutboxRepository."""
@@ -50,5 +45,5 @@ class SqlAlchemyOutboxRepository[T: BaseModel](OutboxRepository[T]):
 
         result = await self._session.execute(query)
 
-        return [obj.to_domain(T)  # type: ignore
+        return [obj.to_domain(self._model_type)
                 for obj in result.scalars().all()]

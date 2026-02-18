@@ -27,6 +27,10 @@ class TaskEnvelope[T: BaseModel](AbstractTaskEvent):
     retry_policy: Optional[RetryPolicy] = Field(None,
                                                 description="Retry policy for the task")
 
+    model_config = {
+        "from_attributes": True,
+    }
+
     @classmethod
     @abstractmethod
     def create(cls, payload: T,

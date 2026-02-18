@@ -24,6 +24,10 @@ class DatasetProcessTask(TaskEnvelope[DatasetProcessTaskPayload]):
 
     payload: DatasetProcessTaskPayload = Field(..., description="Task payload")
 
+    model_config = {
+        "from_attributes": True,
+    }
+
     @classmethod
     def create(
         cls,

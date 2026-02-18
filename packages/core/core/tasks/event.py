@@ -12,3 +12,7 @@ class AbstractTaskEvent(BaseModel):
 
     timestamp: datetime = Field(default_factory=datetime.now,
                                 description="Timestamp when the event occurred")
+
+    model_config = {
+        "from_attributes": True,
+    }
