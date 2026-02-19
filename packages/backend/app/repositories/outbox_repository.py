@@ -2,8 +2,8 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from sqlalchemy import select, delete
-from app.db.models.outbox import OutboxORM
 
+from db.models.outbox import OutboxORM
 from core.models.outbox.outbox import Outbox
 from core.repositories.outbox_repository import OutboxRepository
 

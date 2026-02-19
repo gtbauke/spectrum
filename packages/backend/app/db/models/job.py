@@ -8,7 +8,7 @@ from sqlalchemy import (DateTime, Enum, ForeignKey,
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.base import Base
+from db.base import Base
 from core.models.jobs.job_status import JobStatus
 from core.models.jobs.job import Job
 from core.models.jobs.loss_function import LossFunction

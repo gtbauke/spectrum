@@ -6,10 +6,10 @@ from alembic import context
 
 from sqlalchemy.engine import Connection
 
-from app.db.base import Base
-from app.db.session import engine
-from app.db.models import *
+from db.base import Base
+from db.session import engine
 
+from app.db.models import *
 from app.core.config import settings
 
 # this is the Alembic Config object, which provides

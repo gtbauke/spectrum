@@ -1,19 +1,12 @@
 [project]
-name = "workers"
+name = "db-core"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "aio-pika>=9.5.8",
-    "asyncio>=4.0.0",
     "core",
-    "db-core",
-    "pydantic>=2.12.5",
-    "pydantic-settings>=2.12.0",
-    "sqlalchemy>=2.0.46",
 ]
 
 [tool.uv.sources]
 core = { workspace = true }
-db-core = { workspace = true }

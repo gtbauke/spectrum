@@ -9,11 +9,11 @@ from sqlalchemy import DateTime, Integer, String, Enum, Text, Index
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 
-from workers.infra.db.base import Base
-
 from core.models.outbox.outbox import AggregateType, Outbox
 from core.models.outbox.outbox_status import OutboxStatus
 from core.tasks.types import TaskType
+
+from db.base import Base
 
 
 class OutboxORM(Base):

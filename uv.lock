@@ -14,6 +14,7 @@ resolution-markers = [
 members = [
     "backend",
     "core",
+    "db-core",
     "inference-query-language",
     "spectrum",
     "workers",
@@ -158,6 +159,7 @@ dependencies = [
     { name = "alembic" },
     { name = "asyncpg" },
     { name = "core" },
+    { name = "db-core" },
     { name = "dotenv" },
     { name = "eggp" },
     { name = "fastapi", extra = ["standard"] },
@@ -189,6 +191,7 @@ requires-dist = [
     { name = "alembic", specifier = ">=1.18.3" },
     { name = "asyncpg", specifier = ">=0.31.0" },
     { name = "core", editable = "packages/core" },
+    { name = "db-core", editable = "packages/db_core" },
     { name = "dotenv", specifier = ">=0.9.9" },
     { name = "eggp", specifier = ">=1.0.16" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.128.0" },
@@ -345,6 +348,17 @@ sdist = { url = "https://files.pythonhosted.org/packages/a9/95/a3dbbb5028f35eafb
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e7/05/c19819d5e3d95294a6f5947fb9b9629efb316b96de511b418c53d245aae6/cycler-0.12.1-py3-none-any.whl", hash = "sha256:85cef7cff222d8644161529808465972e51340599459b8ac3ccbac5a854e0d30", size = 8321, upload-time = "2023-10-07T05:32:16.783Z" },
 ]
+
+[[package]]
+name = "db-core"
+version = "0.1.0"
+source = { editable = "packages/db_core" }
+dependencies = [
+    { name = "core" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "core", editable = "packages/core" }]
 
 [[package]]
 name = "distlib"
@@ -2382,6 +2396,7 @@ dependencies = [
     { name = "aio-pika" },
     { name = "asyncio" },
     { name = "core" },
+    { name = "db-core" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "sqlalchemy" },
@@ -2392,6 +2407,7 @@ requires-dist = [
     { name = "aio-pika", specifier = ">=9.5.8" },
     { name = "asyncio", specifier = ">=4.0.0" },
     { name = "core", editable = "packages/core" },
+    { name = "db-core", editable = "packages/db_core" },
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "pydantic-settings", specifier = ">=2.12.0" },
     { name = "sqlalchemy", specifier = ">=2.0.46" },

@@ -1,4 +1,4 @@
-from workers.infra.db.session import AsyncSessionLocal
+from db.session import AsyncSessionLocal
 from workers.infra.unit_of_work import WorkerUnitOfWork
 
 

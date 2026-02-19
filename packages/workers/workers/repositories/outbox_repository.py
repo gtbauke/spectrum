@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from sqlalchemy import func, select
 
-from workers.infra.db.models.outbox import OutboxORM
+from db.models.outbox import OutboxORM
 
 from core.models.outbox.outbox import Outbox
 from core.models.outbox.outbox_status import OutboxStatus

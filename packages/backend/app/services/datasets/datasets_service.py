@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Optional, Sequence
 
-from app.db.models.outbox import AggregateType
 from app.services.outbox.outbox_service import CreateOutboxData, OutboxService
 from app.utils.checksum import calculate_upload_file_checksum
 
@@ -18,6 +17,7 @@ from core.ports.unit_of_work import UnitOfWork
 from core.services.base import BaseService
 from core.tasks.datasets.payload import DatasetProcessTaskPayload
 from core.tasks.types import TaskType
+from core.models.outbox.aggregate_type import AggregateType
 
 
 class DatasetsService(BaseService[
@@ -56,7 +56,6 @@ class DatasetsService(BaseService[
             dataset = dataset.attach_file(file_name=file_name)
             await uow.datasets.add(dataset)
 
-            # TODO: create worker for publishing events
             await self._outbox_service.create(
                 uow=uow,
                 data=CreateOutboxData[DatasetProcessTaskPayload](
