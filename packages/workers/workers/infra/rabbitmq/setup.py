@@ -2,8 +2,7 @@ from aio_pika import ExchangeType
 from aio_pika.abc import AbstractChannel, AbstractExchange
 
 from core.infra.tasks import TaskInfraLookup
-from core.tasks.datasets.task import DATASET_RETRY_DELAYS
-from core.tasks.training.task import TRAINING_RETRY_DELAYS
+from core.tasks.types import TaskType
 
 
 class WorkersQueueSetupResult:
@@ -55,58 +54,30 @@ async def setup_rabbitmq(channel: AbstractChannel) -> WorkersQueueSetupResult:
 
 async def setup_dataset_processing(channel: AbstractChannel) -> None:
     exchange = await channel.get_exchange(TaskInfraLookup.MAIN_EXCHANGE)
-    retry_exchange = await channel.get_exchange(TaskInfraLookup.RETRY_EXCHANGE)
 
     queue = await channel.declare_queue(
-        TaskInfraLookup.DATASET_PROCESSING,
+        TaskType.DATASET_PROCESSING,
         durable=True,
         arguments={
             "x-dead-letter-exchange": TaskInfraLookup.DLX_EXCHANGE,
         }
     )
 
-    await queue.bind(exchange, routing_key=TaskInfraLookup.DATASET_PROCESSING)
-
-    for attempt, delay in DATASET_RETRY_DELAYS.items():
-        retry_queue = await channel.declare_queue(
-            f"{TaskInfraLookup.DATASET_PROCESSING_RETRY}.{attempt}",
-            durable=True,
-            arguments={
-                "x-dead-letter-exchange": TaskInfraLookup.MAIN_EXCHANGE,
-                "x-message-ttl": delay,
-                "x-dead-letter-routing-key": TaskInfraLookup.DATASET_PROCESSING,
-            }
-        )
-
-        await retry_queue.bind(retry_exchange, routing_key=f"{TaskInfraLookup.DATASET_PROCESSING_RETRY}.{attempt}")
+    await queue.bind(exchange, routing_key=TaskType.DATASET_PROCESSING)
 
 
 async def setup_model_training(channel: AbstractChannel) -> None:
     exchange = await channel.get_exchange(TaskInfraLookup.MAIN_EXCHANGE)
-    retry_exchange = await channel.get_exchange(TaskInfraLookup.RETRY_EXCHANGE)
 
     queue = await channel.declare_queue(
-        TaskInfraLookup.MODEL_TRAINING,
+        TaskType.MODEL_TRAINING,
         durable=True,
         arguments={
             "x-dead-letter-exchange": TaskInfraLookup.DLX_EXCHANGE,
         }
     )
 
-    await queue.bind(exchange, routing_key=TaskInfraLookup.MODEL_TRAINING)
-
-    for attempt, delay in TRAINING_RETRY_DELAYS.items():
-        retry_queue = await channel.declare_queue(
-            f"{TaskInfraLookup.MODEL_TRAINING_RETRY}.{attempt}",
-            durable=True,
-            arguments={
-                "x-dead-letter-exchange": TaskInfraLookup.MAIN_EXCHANGE,
-                "x-message-ttl": delay,
-                "x-dead-letter-routing-key": TaskInfraLookup.MODEL_TRAINING,
-            }
-        )
-
-        await retry_queue.bind(retry_exchange, routing_key=f"{TaskInfraLookup.MODEL_TRAINING_RETRY}.{attempt}")
+    await queue.bind(exchange, routing_key=TaskType.MODEL_TRAINING)
 
 
 async def setup_all(channel: AbstractChannel) -> None:

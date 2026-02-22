@@ -6,7 +6,10 @@ type Provider[T] = Union[
     Callable[[], Awaitable[T]],
 ]
 
-type Factory[T, D] = Union[
+type Factory[T, D] = Callable[[D], T]
+type AsyncFactory[T, D] = Callable[[D], Awaitable[T]]
+
+type AnyFactory[T, D] = Union[
     Callable[[D], T],
     Callable[[D], Awaitable[T]],
 ]
