@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from abc import abstractmethod
 from typing import Optional
 from pydantic import BaseModel, Field
 from uuid import UUID
@@ -31,12 +30,6 @@ class TaskEnvelope[T: BaseModel](AbstractTaskEvent):
     model_config = {
         "from_attributes": True,
     }
-
-    @classmethod
-    @abstractmethod
-    def create(cls, payload: T,
-               deduplication_key: Optional[str] = None,
-               correlation_id: Optional[UUID] = None) -> TaskEnvelope[T]: ...
 
     @classmethod
     def create_unknown(

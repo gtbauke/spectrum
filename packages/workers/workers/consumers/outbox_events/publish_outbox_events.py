@@ -19,8 +19,14 @@ logger = logging.getLogger(__name__)
 class OutboxConsumer(AbstractConsumer[Outbox[BaseModel]]):
     def __init__(self, outbox_task_publisher_factory: Factory[OutboxTaskPublisher, AbstractChannel]) -> None:
         super().__init__()
-        self._outbox_task_publisher = outbox_task_publisher_factory(
+        self._outbox_task_publisher_factory = outbox_task_publisher_factory
+
+    async def __aenter__(self):
+        await super().__aenter__()
+
+        self._outbox_task_publisher = self._outbox_task_publisher_factory(
             self._channel)
+        return self
 
     async def consume(self, event: Outbox[BaseModel]):
         logger.info(
@@ -51,5 +57,8 @@ async def publish_outbox_events():
 
             for event in events:
                 await consumer.consume(event)
+
+            await consumer.outbox.batch_mark_as_published([event.id for event in events])
+            await consumer.uow.commit()
 
             await asyncio.sleep(ACTIVE_SLEEP)

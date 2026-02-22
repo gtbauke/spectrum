@@ -1,5 +1,7 @@
+from uuid import UUID
+
 from pydantic import BaseModel
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 
 from db.models.outbox import OutboxORM
 
@@ -30,3 +32,13 @@ class WorkerOutboxRepository(AbstractWorkerOutboxRepository):
 
         outbox_orms = result.scalars().all()
         return [Outbox[BaseModel].model_validate(outbox_orm) for outbox_orm in outbox_orms]
+
+    async def batch_mark_as_published(self, ids: list[UUID]) -> None:
+        await self._session.execute(
+            update(OutboxORM)
+            .where(OutboxORM.id.in_(ids))
+            .values(
+                status=OutboxStatus.PROCESSED,
+                published_at=func.now()
+            )
+        )

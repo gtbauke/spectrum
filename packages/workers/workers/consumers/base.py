@@ -16,7 +16,7 @@ class AbstractConsumer[Event: BaseModel](ABC):
         await setup_all(self._channel)
 
         self._unit_of_work = WorkerUnitOfWork(AsyncSessionLocal)
-        self._uow = await self._unit_of_work.__aenter__()
+        self.uow = await self._unit_of_work.__aenter__()
 
         return self
 
@@ -30,7 +30,7 @@ class AbstractConsumer[Event: BaseModel](ABC):
 
     @property
     def outbox(self):
-        return self._uow.outbox
+        return self.uow.outbox
 
     @abstractmethod
     async def consume(self, event: Event): ...

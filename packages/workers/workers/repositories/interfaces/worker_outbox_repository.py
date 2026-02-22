@@ -44,3 +44,12 @@ class AbstractWorkerOutboxRepository(OutboxRepository[BaseModel]):
         that is efficient for the worker's processing needs.
         """
         pass
+
+    @abstractmethod
+    async def batch_mark_as_published(self, ids: list[UUID]) -> None:
+        """
+        Mark a batch of Outbox messages as published. This method should be
+        implemented by the concrete repository to update the status of messages
+        after they have been successfully published.
+        """
+        pass
