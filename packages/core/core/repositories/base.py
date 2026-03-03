@@ -4,6 +4,7 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models.base import BaseDomainModel
+from core.utils.where import BaseWhere
 
 
 class BaseRepository[DomainType: BaseDomainModel](ABC):
@@ -12,7 +13,7 @@ class BaseRepository[DomainType: BaseDomainModel](ABC):
         self._session = session
 
     @abstractmethod
-    async def get_by_id(self, id: UUID) -> Optional[DomainType]: ...
+    async def get_unique(self, where: BaseWhere) -> Optional[DomainType]: ...
 
     @abstractmethod
     async def get_for_update(self, id: UUID) -> Optional[DomainType]: ...

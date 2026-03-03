@@ -107,11 +107,11 @@ echo "Starting backend server with uv..."
     uv run --package backend fastapi dev packages/backend/app/main.py
 ) &
 
-echo "Starting outbox worker with uv"
-(
-    cd "$ROOT_DIR"
-    uv run python packages/workers/main.py outbox_worker
-) &
+# echo "Starting outbox worker with uv"
+# (
+#     cd "$ROOT_DIR"
+#     uv run python packages/workers/main.py outbox_worker
+# ) &
 
 # echo "Starting dataset worker with uv..."
 # (

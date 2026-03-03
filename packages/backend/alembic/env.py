@@ -9,7 +9,9 @@ from sqlalchemy.engine import Connection
 from db.base import Base
 from db.session import engine
 
-from app.db.models import *
+from app.features.users.models import *
+from app.features.profiles.models import *
+
 from app.core.config import settings
 
 # this is the Alembic Config object, which provides
