@@ -1,9 +1,8 @@
 from typing import Optional
-from argon2 import PasswordHasher
-from pydantic import SecretStr
 
 from app.features.users.dtos.create_user import CreateUserDTO
 from app.features.users.dtos.update_user import UpdateUserDTO
+from app.services.encryption import EncryptionService
 
 from .where import UsersWhere
 
@@ -17,6 +16,9 @@ class UsersService(BaseService[
     CreateUserDTO,
     UpdateUserDTO,
 ]):
+    def __init__(self, encryption_service: EncryptionService):
+        self._encryption_service = encryption_service
+
     async def get_unique(
         self,
         *,
@@ -31,15 +33,14 @@ class UsersService(BaseService[
         uow: UnitOfWork,
         data: CreateUserDTO,
     ) -> User:
-        ph = PasswordHasher()
-        hashed = ph.hash(data.password)
+        hashed = self._encryption_service.hash_password(data.password)
 
         return await uow.users.add(
             User.new(
                 first_name=data.first_name,
                 last_name=data.last_name,
                 email=data.email,
-                password_hash=SecretStr(hashed),
+                password_hash=hashed,
             )
         )
 
@@ -58,9 +59,9 @@ class UsersService(BaseService[
         update_data = data.model_dump(exclude_unset=True)
 
         if "password" in update_data:
-            ph = PasswordHasher()
-            update_data["password_hash"] = SecretStr(
-                ph.hash(update_data.pop("password")))
+            update_data["password_hash"] = self._encryption_service.hash_password(
+                update_data.pop("password")
+            )
 
         updated_user = user.model_copy(
             update=update_data
