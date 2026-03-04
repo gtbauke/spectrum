@@ -25,7 +25,6 @@ class UsersRepository(BaseUsersRepository):
         self._session.add(UserORM.from_domain(obj))
 
         await self._session.commit()
-
         return obj
 
     async def update(self, obj: User) -> User:
