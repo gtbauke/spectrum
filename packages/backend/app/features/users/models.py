@@ -38,6 +38,7 @@ class UserORM(Base):
         "OwnerORM",
         back_populates="user",
         uselist=False,
+        cascade="all, delete-orphan",
     )
 
     @classmethod

@@ -3,11 +3,11 @@ from abc import ABC, abstractmethod
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.models.base import BaseDomainModel
+from core.models.base import RootDomainModel
 from core.utils.where import BaseWhere
 
 
-class BaseRepository[DomainType: BaseDomainModel](ABC):
+class BaseRepository[DomainType: RootDomainModel](ABC):
     def __init__(self, session: AsyncSession) -> None:
         super().__init__()
         self._session = session

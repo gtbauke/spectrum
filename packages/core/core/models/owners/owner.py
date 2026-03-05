@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from pydantic import Field, model_validator
 from typing import Optional
-from uuid import UUID
+from uuid import UUID, uuid4
+from datetime import datetime, timezone
 
 from core.models.base import BaseImmutableDomainModel
 from core.models.owners.errors.invalid_owner_attachment import InvalidOwnerAttachment
@@ -27,3 +30,13 @@ class Owner(BaseImmutableDomainModel):
                 owner_type=OwnerType.USER, received=None)
 
         return self
+
+    @classmethod
+    def new_user(cls, *, user_id: UUID) -> Owner:
+        return cls(
+            id=uuid4(),
+            timestamp=datetime.now(timezone.utc),
+            version=1,
+            owner_type=OwnerType.USER,
+            user_id=user_id,
+        )
