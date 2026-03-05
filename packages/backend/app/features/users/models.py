@@ -21,6 +21,17 @@ from core.models.users.user import User
 if TYPE_CHECKING:
     from app.features.owners.models import OwnerORM
 
+# TODO: enable email reuse after soft deletion using where-like unique constraints
+# we should also change the logic of retrieving a unique user to search only for active users (deleted_at is None)
+# __table_args__ = (
+#     Index(
+#         "uq_users_email_active",
+#         "email",
+#         unique=True,
+#         postgresql_where=(deleted_at.is_(None)),
+#     ),
+# )
+
 
 class UserORM(Base):
     __tablename__ = "users"
