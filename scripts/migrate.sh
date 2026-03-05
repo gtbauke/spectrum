@@ -68,7 +68,7 @@ fi
 echo "Starting Postgres with Docker Compose..."
 (
     cd "$ROOT_DIR"
-    docker compose up -d --build spectrum-postgres
+    docker compose up -d --build postgres
 )
 
 echo "Waiting for Postgres and RabbitMQ to be ready..."
