@@ -19,10 +19,6 @@ set +o allexport
 
 REQUIRED_VARS=(
     DATABASE_URL
-    RABBITMQ_USER
-    RABBITMQ_PASSWORD
-    RABBITMQ_HOST
-    RABBITMQ_PORT
 )
 
 for var in "${REQUIRED_VARS[@]}"; do
@@ -62,19 +58,6 @@ else
     echo "✅ No local Postgres running"
 fi
 
-if nc -z localhost 5672 2>/dev/null; then
-    echo "⚠️  Local RabbitMQ detected on port 5672"
-
-    if command -v systemctl > /dev/null; then
-        echo "🛑 Stopping RabbitMQ via systemctl"
-        sudo systemctl stop rabbitmq-server || true
-    else
-        echo "⚠️  systemctl not found, skipping RabbitMQ stop"
-    fi
-else
-    echo "✅ No local RabbitMQ running"
-fi
-
 MIGRATION_MESSAGE="$1"
 
 if [ -z "$MIGRATION_MESSAGE" ]; then
@@ -82,10 +65,10 @@ if [ -z "$MIGRATION_MESSAGE" ]; then
   exit 1
 fi
 
-echo "Starting Postgres and RabbitMQ services with Docker Compose..."
+echo "Starting Postgres with Docker Compose..."
 (
     cd "$ROOT_DIR"
-    docker compose up -d
+    docker compose up -d --build spectrum-postgres
 )
 
 echo "Waiting for Postgres and RabbitMQ to be ready..."
@@ -94,13 +77,7 @@ until docker exec spectrum-postgres pg_isready -U "$POSTGRES_USER" -d "$POSTGRES
     sleep 1
 done
 
-echo "Waiting for RabbitMQ to be ready..."
-until docker exec spectrum-rabbitmq rabbitmqctl status > /dev/null 2>&1; do
-    echo "Waiting for RabbitMQ to be ready..."
-    sleep 1
-done
-
-echo "✅ Postgres and RabbitMQ are ready!"
+echo "✅ Postgres is ready!"
 echo "You can now create your migration"
 
 cd "$ROOT_DIR/packages/backend"
