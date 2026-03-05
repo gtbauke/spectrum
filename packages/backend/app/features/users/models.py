@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from pydantic import SecretStr
 
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
+    relationship,
 )
 
 from sqlalchemy import (
@@ -16,6 +17,9 @@ from sqlalchemy import (
 
 from db.base import Base
 from core.models.users.user import User
+
+if TYPE_CHECKING:
+    from app.features.owners.models import OwnerORM
 
 
 class UserORM(Base):
@@ -29,6 +33,12 @@ class UserORM(Base):
 
     deleted_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), nullable=True)
+
+    owner: Mapped[OwnerORM] = relationship(
+        "OwnerORM",
+        back_populates="user",
+        uselist=False,
+    )
 
     @classmethod
     def from_domain(cls, domain_user: User) -> UserORM:

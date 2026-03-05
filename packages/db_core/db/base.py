@@ -2,11 +2,31 @@ from uuid import UUID, uuid4
 from datetime import datetime
 
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, declared_attr
-from sqlalchemy import func, DateTime, UniqueConstraint, Index, Boolean
+from sqlalchemy import func, DateTime, UniqueConstraint, Index, Boolean, MetaData
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
 
-class Base(DeclarativeBase):
+convention = {
+    "ix": "ix_%(column_0_label)s",
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s",
+}
+
+metadata = MetaData(naming_convention=convention)
+
+
+class RootBase(DeclarativeBase):
+    """
+    Root base class for all ORM models in the application.
+    This class serves as the foundation for both mutable and immutable models, providing common functionality that can be shared across all ORM models.
+    """
+    __abstract__ = True
+    metadata = metadata
+
+
+class Base(RootBase):
     """
     Base class for all ORM models in the application.
     This class provides common functionality that can be shared across all ORM models, such as automatic timestamping of created and updated records.
@@ -46,7 +66,7 @@ class SoftDeleteMixin:
     )
 
 
-class ImmutableBase(DeclarativeBase):
+class ImmutableBase(RootBase):
     """
     This class is a base class for all immutable models that require timestamping of creation time.
     It provides a `timestamp` field that is automatically set to the current time when a new record is created.
