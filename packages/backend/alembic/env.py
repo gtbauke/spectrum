@@ -10,6 +10,7 @@ from db.base import Base
 from db.session import engine
 
 from app.features.users.models import *
+from app.features.auth.models import *
 from app.features.profiles.models import *
 
 from app.core.config import settings

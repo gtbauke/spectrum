@@ -5,11 +5,13 @@ from types import TracebackType
 from typing import Awaitable, Callable, Optional, Type
 
 from core.ports.transactional_resource import TransactionalResource
+from core.repositories.auth import BaseAuthRepository
 from core.repositories.users import BaseUsersRepository
 
 
 class UnitOfWork(ABC):
     users: BaseUsersRepository
+    auth: BaseAuthRepository
 
     def __init__(self) -> None:
         self._resources: list[TransactionalResource] = []

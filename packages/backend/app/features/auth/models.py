@@ -20,7 +20,8 @@ class RefreshTokenORM(Base):
     )
 
     token_hash: Mapped[str] = mapped_column(String, nullable=False)
-    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False)
     revoked: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False)
 

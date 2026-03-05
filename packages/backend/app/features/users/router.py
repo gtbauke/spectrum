@@ -2,16 +2,10 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
-from .service import CreateUserDTO, UpdateUserDTO, UsersService, UsersWhere
-from app.services.encryption import EncryptionService
+from .service import CreateUserDTO, UpdateUserDTO, UsersService, UsersWhere, get_users_service
 from core.ports.unit_of_work import UnitOfWork
 
 from app.api.unit_of_work import get_uow
-
-
-def get_users_service() -> UsersService:
-    encryption_service = EncryptionService()
-    return UsersService(encryption_service=encryption_service)
 
 
 users_router = APIRouter(tags=["users"])

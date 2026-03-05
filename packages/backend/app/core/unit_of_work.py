@@ -4,6 +4,7 @@ from typing import Callable, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.features.auth.repository import AuthRepository
 from app.features.users.repository import UsersRepository
 from core.ports.unit_of_work import UnitOfWork
 
@@ -19,6 +20,7 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
 
         # TODO: initialize repositories
         self.users = UsersRepository(session=self._session)
+        self.auth = AuthRepository(session=self._session)
 
         return self
 

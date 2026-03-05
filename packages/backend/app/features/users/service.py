@@ -7,10 +7,10 @@ from app.services.encryption import EncryptionService
 from .where import UsersWhere
 
 from core.models.users.user import User
-from core.services.base import BaseService, UnitOfWork
+from core.services.base import BaseCRUDService, UnitOfWork
 
 
-class UsersService(BaseService[
+class UsersService(BaseCRUDService[
     User,
     UsersWhere,
     CreateUserDTO,
@@ -88,3 +88,8 @@ class UsersService(BaseService[
         uow: UnitOfWork,
     ) -> list[User]:
         return await uow.users.list_all()
+
+
+def get_users_service() -> UsersService:
+    encryption_service = EncryptionService()
+    return UsersService(encryption_service=encryption_service)
