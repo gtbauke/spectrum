@@ -1,6 +1,7 @@
 from uuid import UUID
 from typing import Optional
-from sqlalchemy import select, delete
+from sqlalchemy import select, update
+from datetime import datetime, timezone
 
 
 from .models import UserORM
@@ -33,9 +34,12 @@ class UsersRepository(BaseUsersRepository):
 
         return obj
 
-    async def delete(self, id: UUID) -> None:
-        statement = delete(UserORM).where(UserORM.id == id)
+    async def delete(self, where: BaseWhere) -> None:
+        statement = update(UserORM).where(where.resolve(UserORM)).values(
+            deleted_at=datetime.now(timezone.utc))
+
         await self._session.execute(statement)
+        await self._session.commit()
 
     async def list_all(self, where_id: Optional[UUID] = None) -> list[User]:
         if where_id:

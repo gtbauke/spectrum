@@ -35,8 +35,10 @@ class AuthRepository(BaseAuthRepository):
 
         return obj
 
-    async def delete(self, id: UUID) -> None:
-        statement = delete(RefreshTokenORM).where(RefreshTokenORM.id == id)
+    async def delete(self, where: BaseWhere) -> None:
+        statement = delete(RefreshTokenORM).where(
+            where.resolve(RefreshTokenORM))
+
         await self._session.execute(statement)
         await self._session.commit()
 

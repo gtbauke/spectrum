@@ -30,12 +30,7 @@ class OwnersService(BaseCRService[
             f"Owner type {data.owner_type} is not supported yet")
 
     async def delete_unique(self, *, uow: UnitOfWork, where: OwnersWhere):
-        owner = await uow.owners.get_unique(where=where)
-
-        if not owner:
-            raise ValueError("Owner not found")
-
-        await uow.owners.delete(owner.id)
+        await uow.owners.delete(where)
 
     async def get_all(self, *, uow: UnitOfWork) -> Sequence[Owner]:
         return await uow.owners.list_all()

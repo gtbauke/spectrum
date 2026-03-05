@@ -23,6 +23,9 @@ class Owner(BaseImmutableDomainModel):
     user_id: Optional[UUID] = Field(
         None, description="The ID of the user if the owner is a USER")
 
+    deleted_at: Optional[datetime] = Field(
+        None, description="The timestamp when the owner was deleted, if applicable")
+
     @model_validator(mode="after")
     def validate_owner_identity(self):
         if self.owner_type == OwnerType.USER and not self.user_id:
@@ -39,4 +42,5 @@ class Owner(BaseImmutableDomainModel):
             version=1,
             owner_type=OwnerType.USER,
             user_id=user_id,
+            deleted_at=None,
         )

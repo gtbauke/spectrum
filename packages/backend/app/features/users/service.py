@@ -10,9 +10,6 @@ from .where import UsersWhere
 from core.models.users.user import User
 from core.services.base import BaseCRUDService, UnitOfWork
 
-# TODO: users have a deleted_at flag, but we don't use it. We should update it on delete call
-# we should also add deleted_at to owners and update it on delete call, and then filter out deleted users/owners in get_all calls
-
 
 class UsersService(BaseCRUDService[
     User,
@@ -92,12 +89,7 @@ class UsersService(BaseCRUDService[
         uow: UnitOfWork,
         where: UsersWhere,
     ):
-        user = await uow.users.get_unique(where=where)
-
-        if not user:
-            raise ValueError("User not found")
-
-        await uow.users.delete(user.id)
+        await uow.users.delete(where=where)
 
     async def get_all(
         self,

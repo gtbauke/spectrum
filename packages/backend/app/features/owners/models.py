@@ -1,8 +1,10 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID
+from datetime import datetime
 
-from sqlalchemy import Enum, ForeignKey
+from sqlalchemy import Enum, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.models.owners.owner import Owner
@@ -23,6 +25,12 @@ class OwnerORM(ImmutableBase):
         default=OwnerType.USER,
     )
 
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        default=None,
+    )
+
     user_id: Mapped[Optional[UUID]] = mapped_column(
         ForeignKey("users.id"),
         nullable=True,
@@ -40,6 +48,7 @@ class OwnerORM(ImmutableBase):
             version=owner.version,
             user_id=owner.user_id,
             timestamp=owner.timestamp,
+            deleted_at=owner.deleted_at,
         )
 
     def to_domain(self) -> Owner:
@@ -49,4 +58,5 @@ class OwnerORM(ImmutableBase):
             version=self.version,
             timestamp=self.timestamp,
             user_id=self.user_id,
+            deleted_at=self.deleted_at,
         )
