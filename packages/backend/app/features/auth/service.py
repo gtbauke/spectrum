@@ -36,8 +36,7 @@ class AuthService(BaseService):
         return jwt.encode(to_encode, settings.SECRET_KEY)
 
     async def revoke_refresh_token(self, *, uow: UnitOfWork, token_str: str) -> RefreshToken:
-        token_hash = self.hash_token(token_str)
-        token = await uow.auth.get_unique(where=AuthWhere(token_hash=token_hash))
+        token = await uow.auth.get_unique(where=AuthWhere(token_hash=token_str))
 
         if not token or token.revoked:
             raise InvalidTokenException()

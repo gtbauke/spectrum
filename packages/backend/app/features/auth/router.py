@@ -1,3 +1,5 @@
+import logging
+
 from datetime import timedelta
 from uuid import UUID
 
@@ -14,6 +16,8 @@ from core.ports.unit_of_work import UnitOfWork
 from .guards.get_current_user import get_current_user
 from .dtos.auth_credentials import AuthCredentials
 from .service import AuthService
+
+logger = logging.getLogger(__name__)
 
 # TODO: handle errors and return appropriate status codes and messages
 # right now, invalid credentials are breaking the app
@@ -65,6 +69,7 @@ async def refresh(
     uow: UnitOfWork = Depends(get_uow),
     auth_service: AuthService = Depends(get_auth_service),
 ):
+    logger.info("Refreshing access token for refresh token: %s", refresh_token)
     revoked_token = await auth_service.revoke_refresh_token(uow=uow, token_str=refresh_token)
 
     new_refresh_token = await auth_service.generate_refresh_token(uow=uow, user_id=revoked_token.user_id)
