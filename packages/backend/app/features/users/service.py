@@ -6,6 +6,7 @@ from app.services.encryption import EncryptionService
 from app.features.owners.service import CreateOwnerDTO, OwnersService
 
 from .where import UsersWhere
+from .errors.email_already_in_use import EmailAlreadyInUse
 
 from core.models.users.user import User
 from core.services.base import BaseCRUDService, UnitOfWork
@@ -40,6 +41,13 @@ class UsersService(BaseCRUDService[
         uow: UnitOfWork,
         data: CreateUserDTO,
     ) -> User:
+        existing_user = await uow.users.get_unique(
+            where=UsersWhere(email=data.email)
+        )
+
+        if existing_user:
+            raise EmailAlreadyInUse(email=data.email)
+
         hashed = self._encryption_service.hash_password(data.password)
 
         user = await uow.users.add(
