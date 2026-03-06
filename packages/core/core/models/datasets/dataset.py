@@ -16,6 +16,10 @@ class Dataset(BaseTimestampDomainModel):
     owner_id: UUID = Field(...,
                            description="The ID of the user who owns the dataset")
 
+    deleted_at: Optional[datetime] = Field(
+        None, description="The timestamp when the dataset was deleted, if applicable"
+    )
+
     @classmethod
     def new(
         cls,
@@ -29,5 +33,6 @@ class Dataset(BaseTimestampDomainModel):
             name=name,
             description=description,
             owner_id=owner_id,
-            timestamp=datetime.now(timezone.utc)
+            timestamp=datetime.now(timezone.utc),
+            deleted_at=None
         )

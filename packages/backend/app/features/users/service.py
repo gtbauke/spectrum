@@ -5,9 +5,9 @@ from app.features.users.dtos.update_user import UpdateUserDTO
 from app.services.encryption import EncryptionService
 from app.features.owners.service import CreateOwnerDTO, OwnersService
 
-from .where import UsersWhere
 from .errors.email_already_in_use import EmailAlreadyInUse
 
+from core.models.users.where import UsersWhere
 from core.models.users.user import User
 from core.services.base import BaseCRUDService, UnitOfWork
 

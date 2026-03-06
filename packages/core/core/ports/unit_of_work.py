@@ -8,12 +8,16 @@ from core.ports.transactional_resource import TransactionalResource
 from core.repositories.auth import BaseAuthRepository
 from core.repositories.users import BaseUsersRepository
 from core.repositories.owners import BaseOwnersRepository
+from core.repositories.datasets import BaseDatasetsRepository, BaseDatasetVersionsRepository, BaseDatasetArtifactsRepository
 
 
 class UnitOfWork(ABC):
     users: BaseUsersRepository
     auth: BaseAuthRepository
     owners: BaseOwnersRepository
+    datasets: BaseDatasetsRepository
+    dataset_versions: BaseDatasetVersionsRepository
+    dataset_artifacts: BaseDatasetArtifactsRepository
 
     def __init__(self) -> None:
         self._resources: list[TransactionalResource] = []

@@ -8,9 +8,9 @@ from fastapi import APIRouter, Response, Depends, Cookie
 from app.api.unit_of_work import get_uow
 from app.features.auth.responses.login import LoginResponse
 from app.features.users.service import UsersService, get_users_service
-from app.features.users.where import UsersWhere
 from app.services.encryption import EncryptionService
 
+from core.models.users.where import UsersWhere
 from core.ports.unit_of_work import UnitOfWork
 
 from .guards.get_current_user import get_current_user

@@ -1,9 +1,9 @@
 from typing import Optional
 from uuid import UUID
 
-from core.utils.where import BaseWhere
+from core.utils.where import BaseUniqueWhere
 
 
-class UsersWhere(BaseWhere):
+class UsersWhere(BaseUniqueWhere):
     id: Optional[UUID] = None
     email: Optional[str] = None

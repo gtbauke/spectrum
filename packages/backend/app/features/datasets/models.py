@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
 from uuid import UUID
+from datetime import datetime
 
-from sqlalchemy import String, ForeignKey, Integer, Enum
+from sqlalchemy import String, ForeignKey, Integer, Enum, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
@@ -31,6 +32,12 @@ class DatasetORM(TimestampBase):
         nullable=False
     )
 
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        default=None,
+    )
+
     @classmethod
     def from_domain(cls, dataset: Dataset) -> DatasetORM:
         return cls(
@@ -38,7 +45,8 @@ class DatasetORM(TimestampBase):
             name=dataset.name,
             description=dataset.description,
             owner_id=dataset.owner_id,
-            timestamp=dataset.timestamp
+            timestamp=dataset.timestamp,
+            deleted_at=dataset.deleted_at
         )
 
     def to_domain(self) -> Dataset:
@@ -47,7 +55,8 @@ class DatasetORM(TimestampBase):
             name=self.name,
             description=self.description,
             owner_id=self.owner_id,
-            timestamp=self.timestamp
+            timestamp=self.timestamp,
+            deleted_at=self.deleted_at
         )
 
 

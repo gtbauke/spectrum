@@ -3,24 +3,30 @@ from typing import Optional
 from sqlalchemy import select, update
 from datetime import datetime, timezone
 
+from core.models.users.where import UsersWhere
+
 
 from .models import UserORM
 
-from core.utils.where import BaseWhere
 from core.repositories.users import BaseUsersRepository
 from core.models.users.user import User
 
 
 class UsersRepository(BaseUsersRepository):
-    async def get_unique(self, where: BaseWhere) -> Optional[User]:
+    async def get_unique(self, where: UsersWhere) -> Optional[User]:
         statement = select(UserORM).where(where.resolve(UserORM))
         result = await self._session.execute(statement)
 
         user_orm = result.scalar_one_or_none()
         return user_orm.to_domain() if user_orm else None
 
-    async def get_for_update(self, id: UUID) -> Optional[User]:
-        return await self._session.get(User, id, with_for_update=True)
+    async def get_for_update(self, where: UsersWhere) -> Optional[User]:
+        statement = select(UserORM).where(
+            where.resolve(UserORM)).with_for_update()
+        result = await self._session.execute(statement)
+
+        user_orm = result.scalar_one_or_none()
+        return user_orm.to_domain() if user_orm else None
 
     async def add(self, obj: User) -> User:
         self._session.add(UserORM.from_domain(obj))
@@ -34,7 +40,7 @@ class UsersRepository(BaseUsersRepository):
 
         return obj
 
-    async def delete(self, where: BaseWhere) -> None:
+    async def delete(self, where: UsersWhere) -> None:
         statement = update(UserORM).where(where.resolve(UserORM)).values(
             deleted_at=datetime.now(timezone.utc))
 

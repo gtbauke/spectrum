@@ -1,9 +1,9 @@
 from typing import Optional, Sequence
 
 from app.features.owners.dtos.create_owner import CreateOwnerDTO
-from app.features.owners.where import OwnersWhere
 
 from core.models.owners.owner import Owner
+from core.models.owners.where import OwnersWhere
 from core.models.owners.owner_type import OwnerType
 from core.services.base import BaseCRService
 from core.ports.unit_of_work import UnitOfWork

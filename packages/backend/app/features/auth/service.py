@@ -8,14 +8,14 @@ from datetime import datetime, timedelta, timezone
 
 from app.core.config import settings
 from app.features.auth.errors.invalid_token import InvalidTokenException
-from app.features.auth.where import AuthWhere
-from app.features.users.where import UsersWhere
 from app.services.encryption import EncryptionService
 
 from .dtos.auth_credentials import AuthCredentials
 from .errors.invalid_credentials import InvalidCredentials
 
 from core.ports.unit_of_work import UnitOfWork
+from core.models.auth.where import AuthWhere
+from core.models.users.where import UsersWhere
 from core.models.users.user import User
 from core.models.auth.refresh_token import RefreshToken
 from core.services.base import BaseService

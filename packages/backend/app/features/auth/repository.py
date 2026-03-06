@@ -6,12 +6,12 @@ from sqlalchemy import select, delete
 from .models import RefreshTokenORM
 
 from core.repositories.auth import BaseAuthRepository
-from core.utils.where import BaseWhere
 from core.models.auth.refresh_token import RefreshToken
+from core.models.auth.where import AuthWhere
 
 
 class AuthRepository(BaseAuthRepository):
-    async def get_unique(self, where: BaseWhere) -> Optional[RefreshToken]:
+    async def get_unique(self, where: AuthWhere) -> Optional[RefreshToken]:
         statement = select(RefreshTokenORM).where(
             where.resolve(RefreshTokenORM))
         result = await self._session.execute(statement)
@@ -19,8 +19,12 @@ class AuthRepository(BaseAuthRepository):
         refresh_token_orm = result.scalar_one_or_none()
         return refresh_token_orm.to_domain() if refresh_token_orm else None
 
-    async def get_for_update(self, id: UUID) -> Optional[RefreshToken]:
-        refresh_token_orm = await self._session.get(RefreshTokenORM, id, with_for_update=True)
+    async def get_for_update(self, where: AuthWhere) -> Optional[RefreshToken]:
+        statement = select(RefreshTokenORM).where(
+            where.resolve(RefreshTokenORM)).with_for_update()
+        result = await self._session.execute(statement)
+
+        refresh_token_orm = result.scalar_one_or_none()
         return refresh_token_orm.to_domain() if refresh_token_orm else None
 
     async def add(self, obj: RefreshToken) -> RefreshToken:
@@ -35,7 +39,7 @@ class AuthRepository(BaseAuthRepository):
 
         return obj
 
-    async def delete(self, where: BaseWhere) -> None:
+    async def delete(self, where: AuthWhere) -> None:
         statement = delete(RefreshTokenORM).where(
             where.resolve(RefreshTokenORM))
 

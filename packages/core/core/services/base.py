@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Optional, Sequence
 from pydantic import BaseModel
 
-from core.utils.where import BaseWhere
+from core.utils.where import BaseUniqueWhere
 from core.models.base import RootDomainModel
 from core.ports.unit_of_work import UnitOfWork
 
@@ -15,7 +15,7 @@ class BaseService(ABC):
 
 class BaseCRUDService[
     ReturnType: RootDomainModel,
-    WhereType: BaseWhere,
+    WhereType: BaseUniqueWhere,
     CreateType: BaseModel,
     UpdateType: BaseModel,
 ](BaseService):
@@ -46,7 +46,7 @@ class BaseCRUDService[
 
 class BaseCRService[
     ReturnType: RootDomainModel,
-    WhereType: BaseWhere,
+    WhereType: BaseUniqueWhere,
     CreateType: BaseModel,
 ](BaseService):
     @abstractmethod

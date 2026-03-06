@@ -5,21 +5,26 @@ from datetime import datetime, timezone
 
 from .models import OwnerORM
 
-from core.utils.where import BaseWhere
 from core.repositories.owners import BaseOwnersRepository
 from core.models.owners.owner import Owner
+from core.models.owners.where import OwnersWhere
 
 
 class OwnersRepository(BaseOwnersRepository):
-    async def get_unique(self, where: BaseWhere) -> Optional[Owner]:
+    async def get_unique(self, where: OwnersWhere) -> Optional[Owner]:
         statement = select(OwnerORM).where(where.resolve(OwnerORM))
         result = await self._session.execute(statement)
 
         owner_orm = result.scalar_one_or_none()
         return owner_orm.to_domain() if owner_orm else None
 
-    async def get_for_update(self, id: UUID) -> Optional[Owner]:
-        return await self._session.get(Owner, id, with_for_update=True)
+    async def get_for_update(self, where: OwnersWhere) -> Optional[Owner]:
+        statement = select(OwnerORM).where(
+            where.resolve(OwnerORM)).with_for_update()
+        result = await self._session.execute(statement)
+
+        owner_orm = result.scalar_one_or_none()
+        return owner_orm.to_domain() if owner_orm else None
 
     async def add(self, obj: Owner) -> Owner:
         self._session.add(OwnerORM.from_domain(obj))
@@ -33,7 +38,7 @@ class OwnersRepository(BaseOwnersRepository):
 
         return obj
 
-    async def delete(self, where: BaseWhere) -> None:
+    async def delete(self, where: OwnersWhere) -> None:
         statement = update(OwnerORM).where(where.resolve(OwnerORM)).values(
             deleted_at=datetime.now(timezone.utc))
 
