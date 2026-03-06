@@ -67,7 +67,51 @@ class SoftDeleteMixin:
     )
 
 
-class ImmutableBase(RootBase):
+class TimestampBase(RootBase):
+    __abstract__ = True
+
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid4,
+    )
+
+    timestamp: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=func.now(),
+    )
+
+
+class VersionedBase(RootBase):
+    """
+    Mixin class for versioning of records.
+    This class provides a `version` field that can be used for optimistic concurrency control, allowing multiple versions of a record to exist while ensuring that updates are applied to the correct version.
+    """
+    __abstract__ = True
+
+    version: Mapped[int] = mapped_column(
+        nullable=False,
+        default=1,
+    )
+
+    is_latest: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        nullable=False,
+    )
+
+    @declared_attr.directive
+    def __table_args__(cls) -> Any:
+        return (
+            UniqueConstraint(
+                "id", "version", name=f"uq_{cls.__tablename__}_id_version"),
+            Index(f"idx_{cls.__tablename__}_id_version", "id", "version"),
+            Index(f"idx_{cls.__tablename__}_is_latest", "is_latest"),
+        )
+
+
+class ImmutableBase(TimestampBase, VersionedBase):
     """
     This class is a base class for all immutable models that require timestamping of creation time.
     It provides a `timestamp` field that is automatically set to the current time when a new record is created.
@@ -85,34 +129,17 @@ class ImmutableBase(RootBase):
     """
     __abstract__ = True
 
-    id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
-        primary_key=True,
-        default=uuid4,
-    )
-
-    version: Mapped[int] = mapped_column(
-        nullable=False,
-        default=1,
-    )
-
-    is_latest: Mapped[bool] = mapped_column(
-        Boolean,
-        default=True,
-        nullable=False,
-    )
-
-    timestamp: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        nullable=False,
-        default=func.now(),
-    )
-
     @declared_attr.directive
     def __table_args__(cls) -> Any:
+        parent_args = (
+            *(TimestampBase.__table_args__ if hasattr(TimestampBase,
+              "__table_args__") else ()),
+            *(VersionedBase.__table_args__ if hasattr(VersionedBase,
+              "__table_args__") else ()),
+        )
+
         return (
+            *parent_args,
             UniqueConstraint(
                 "id", "version", name=f"uq_{cls.__tablename__}_id_version"),
-            Index(f"idx_{cls.__tablename__}_id_version", "id", "version"),
-            Index(f"idx_{cls.__tablename__}_is_latest", "is_latest"),
         )
