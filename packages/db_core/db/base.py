@@ -1,3 +1,4 @@
+from typing import Any
 from uuid import UUID, uuid4
 from datetime import datetime
 
@@ -108,7 +109,7 @@ class ImmutableBase(RootBase):
     )
 
     @declared_attr.directive
-    def __table_args__(cls):
+    def __table_args__(cls) -> Any:
         return (
             UniqueConstraint(
                 "id", "version", name=f"uq_{cls.__tablename__}_id_version"),

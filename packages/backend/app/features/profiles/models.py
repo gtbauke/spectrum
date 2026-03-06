@@ -1,8 +1,8 @@
 from typing import Optional
 from uuid import UUID
 
-from sqlalchemy import String, Text, Enum, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String, Text, Enum, ForeignKey, Index
+from sqlalchemy.orm import Mapped, mapped_column, declared_attr
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
 from core.models.profiles.profile_status import ProfileStatus
@@ -37,3 +37,15 @@ class ProfileORM(ImmutableBase):
         ForeignKey("owners.id", ondelete="CASCADE"),
         nullable=False,
     )
+
+    @declared_attr.directive
+    def __table_args__(cls):
+        base_args = super().__table_args__ if hasattr(super(), "__table_args__") else ()
+
+        return (
+            *base_args,
+            Index("ix_profiles_owner_id", "owner_id"),
+            Index("ix_profiles_status", "status"),
+            Index("ix_profiles_visibility", "visibility"),
+            Index("ix_profiles_owner_visibility", "owner_id", "visibility")
+        )
