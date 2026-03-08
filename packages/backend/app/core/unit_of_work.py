@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from types import TracebackType
 from typing import Callable, Optional
 
@@ -7,6 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.features.auth.repository import AuthRepository
 from app.features.users.repository import UsersRepository
 from app.features.owners.repository import OwnersRepository
+from app.features.datasets.repository import DatasetsRepository
+from app.features.datasets.versions.repository import DatasetVersionsRepository
+from app.features.datasets.artifacts.repository import DatasetArtifactsRepository
 
 from core.ports.unit_of_work import UnitOfWork
 
@@ -24,6 +28,11 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
         self.users = UsersRepository(session=self._session)
         self.auth = AuthRepository(session=self._session)
         self.owners = OwnersRepository(session=self._session)
+        self.datasets = DatasetsRepository(session=self._session)
+        self.dataset_versions = DatasetVersionsRepository(
+            session=self._session)
+        self.dataset_artifacts = DatasetArtifactsRepository(
+            session=self._session)
 
         return self
 
