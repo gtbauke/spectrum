@@ -6,7 +6,7 @@ from core.services.base import BaseService
 from core.models.datasets.dataset_artifact import DatasetArtifact
 from core.models.datasets.where import DatasetArtifactsWhere, DatasetArtifactsFilter
 
-from ..dto.create_artifact import CreateArtifactDTO
+from .dto.create_artifact import CreateArtifactDTO
 from ..utils.checksum import checksum_and_size
 
 
@@ -30,7 +30,7 @@ class DatasetArtifactsService(BaseService):
             file_path=file_path,
         )
 
-        return artifact
+        return await uow.dataset_artifacts.add(artifact)
 
     async def delete_unique(self, *, uow: UnitOfWork, where: DatasetArtifactsWhere):
         await uow.dataset_artifacts.delete(where=where)

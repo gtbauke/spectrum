@@ -16,12 +16,12 @@ async def is_dataset_owner(
     uow: UnitOfWork = Depends(get_uow),
     current_owner: UUID = Depends(get_current_owner),
 ):
-    dataset = await uow.datasets.get_unique(where=DatasetsWhere(id=dataset_id))
+    owner_id = await uow.datasets.get_owner_id(where=DatasetsWhere(id=dataset_id))
 
-    if not dataset:
+    if not owner_id:
         raise DatasetNotFound(dataset_id=dataset_id)
 
-    if dataset.owner_id != current_owner:
+    if owner_id != current_owner:
         raise Forbidden()
 
-    return dataset
+    return owner_id

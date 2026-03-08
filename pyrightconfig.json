@@ -1,0 +1,21 @@
+{
+    "exclude": [
+        "**/.*",
+        "**/node_modules",
+        "**/__pycache__",
+        ".venv",
+        "venv",
+        "build",
+        "dist"
+    ],
+    "include": [
+        "packages/backend",
+        "packages/core",
+        "packages/db_core",
+        "packages/inference_query_language",
+        "packages/workers"
+    ],
+    "ignore": [
+        "scripts/*.py"
+    ]
+}

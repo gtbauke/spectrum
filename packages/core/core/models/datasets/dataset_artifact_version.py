@@ -1,5 +1,6 @@
-from uuid import UUID
+from uuid import UUID, uuid4
 from pydantic import Field
+from datetime import datetime, timezone
 
 from core.models.base import BaseImmutableDomainModel
 
@@ -15,3 +16,22 @@ class DatasetArtifactVersion(BaseImmutableDomainModel):
 
     artifact_type: ArtifactType = Field(
         ..., description="Type of the artifact, e.g., data, schema, stats, etc.")
+
+    @classmethod
+    def new(
+        cls,
+        *,
+        dataset_version_id: UUID,
+        dataset_artifact_id: UUID,
+        artifact_type: ArtifactType,
+        version: int = 1,
+    ) -> "DatasetArtifactVersion":
+        return cls(
+            id=uuid4(),
+            dataset_version_id=dataset_version_id,
+            dataset_artifact_id=dataset_artifact_id,
+            artifact_type=artifact_type,
+            timestamp=datetime.now(timezone.utc),
+            version=version,
+            is_latest=True,
+        )

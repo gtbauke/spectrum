@@ -45,3 +45,6 @@ class Dataset(BaseMutableDomainModel):
             updated_at=datetime.now(timezone.utc),
             versions=[],
         )
+
+    def add_version(self, version: DatasetVersion):
+        self.versions.append(version)

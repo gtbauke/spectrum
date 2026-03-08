@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional, Any
 from abc import ABC, abstractmethod
 from pydantic import BaseModel
+from uuid import UUID
 
 from sqlalchemy.sql import ColumnElement
 
@@ -90,5 +91,5 @@ class DateTimeFilter(NumberFilter[datetime]):
     pass
 
 
-class UUIDFilter(BaseFieldFilter[str]):
+class UUIDFilter(BaseFieldFilter[UUID]):
     pass

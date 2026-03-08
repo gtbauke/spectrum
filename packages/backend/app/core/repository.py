@@ -1,3 +1,5 @@
+import logging
+
 from typing import Optional, Type
 from abc import ABC
 from datetime import datetime, timezone
@@ -12,6 +14,8 @@ from core.utils.where import BaseUniqueWhere
 from core.utils.filters.base import BaseFilter
 from core.utils.pagination.base import Pagination
 
+logger = logging.getLogger(__name__)
+
 
 class BaseRepositoryImplementation[
     DomainType: RootDomainModel,
@@ -20,6 +24,10 @@ class BaseRepositoryImplementation[
     FilterType: BaseFilter,
 ](BaseRepository[DomainType, WhereType, FilterType], ABC):
     orm_model: Type[OrmType]
+
+    @property
+    def session(self):
+        return self._session
 
     async def get_unique(self, where: WhereType) -> Optional[DomainType]:
         statement = select(self.orm_model).where(where.resolve(self.orm_model))
@@ -38,15 +46,19 @@ class BaseRepositoryImplementation[
 
         return obj_orm.to_domain() if obj_orm else None
 
-    async def add(self, obj: DomainType) -> DomainType:
+    async def add(self, obj: DomainType, commit: bool = True) -> DomainType:
         self._session.add(self.orm_model.from_domain(obj))
 
-        await self._session.commit()
+        if commit:
+            await self._session.commit()
+
         return obj
 
-    async def update(self, obj: DomainType) -> DomainType:
+    async def update(self, obj: DomainType, commit: bool = True) -> DomainType:
         await self._session.merge(self.orm_model.from_domain(obj))
-        await self._session.commit()
+
+        if commit:
+            await self._session.commit()
 
         return obj
 
@@ -70,6 +82,11 @@ class BaseRepositoryImplementation[
             statement = pagination.apply(statement)
 
         result = await self._session.execute(statement)
+        logger.info("LIST ALL", extra={
+            "where": where,
+            "statement": statement,
+        })
+
         return [obj_orm.to_domain() for obj_orm in result.scalars().all()]
 
 
@@ -79,6 +96,6 @@ class BaseImmutableRepositoryImplementation[
     WhereType: BaseUniqueWhere,
     FilterType: BaseFilter,
 ](BaseRepositoryImplementation[DomainType, OrmType, WhereType, FilterType], ABC):
-    async def update(self, obj: DomainType) -> DomainType:
+    async def update(self, obj: DomainType, commit: bool = True) -> DomainType:
         raise NotImplementedError(
             "Update operation is not supported for immutable entities.")

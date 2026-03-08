@@ -13,22 +13,16 @@ class DatasetVersion(BaseImmutableDomainModel):
     dataset_id: UUID = Field(...,
                              description="Unique identifier for the dataset")
 
-    row_count: int = Field(..., description="Number of rows in the dataset")
-    column_count: int = Field(...,
-                              description="Number of columns in the dataset")
-
     artifacts: list[DatasetArtifactVersion] = Field(
         ...,
         description="List of artifacts associated with this dataset version"
     )
 
     @classmethod
-    def new(cls, *, dataset_id: UUID, row_count: int, column_count: int, version: int) -> DatasetVersion:
+    def new(cls, *, dataset_id: UUID, version: int) -> DatasetVersion:
         return cls(
             id=uuid4(),
             dataset_id=dataset_id,
-            row_count=row_count,
-            column_count=column_count,
             version=version,
             timestamp=datetime.now(timezone.utc),
             is_latest=True,

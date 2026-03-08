@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 from uuid import UUID
 from datetime import datetime
 
-from sqlalchemy import String, ForeignKey, Integer, Enum, DateTime, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column, relationship, declared_attr
+from sqlalchemy import String, ForeignKey, Integer, Enum, DateTime
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
 from db.immutable import ImmutableBase
@@ -14,6 +14,7 @@ from db.mutable import MutableBase
 from core.models.datasets.dataset import Dataset
 from core.models.datasets.dataset_version import DatasetVersion
 from core.models.datasets.dataset_artifact import DatasetArtifact
+from core.models.datasets.dataset_artifact_version import DatasetArtifactVersion
 from core.models.datasets.artifact_type import ArtifactType
 
 if TYPE_CHECKING:
@@ -42,7 +43,7 @@ class DatasetORM(MutableBase):
     versions: Mapped[list["DatasetVersionORM"]] = relationship(
         "DatasetVersionORM",
         back_populates="dataset",
-        lazy="selectin",
+        lazy="select",
         cascade="all, delete-orphan"
     )
 
@@ -82,9 +83,6 @@ class DatasetVersionORM(ImmutableBase):
         nullable=False
     )
 
-    row_count: Mapped[int] = mapped_column(Integer, nullable=False)
-    column_count: Mapped[int] = mapped_column(Integer, nullable=False)
-
     profiles: Mapped[list["ProfileORM"]] = relationship(
         "ProfileORM",
         secondary="profile_dataset_versions",
@@ -109,8 +107,6 @@ class DatasetVersionORM(ImmutableBase):
         return cls(
             id=domain_obj.id,
             dataset_id=domain_obj.dataset_id,
-            row_count=domain_obj.row_count,
-            column_count=domain_obj.column_count,
             version=domain_obj.version,
             timestamp=domain_obj.timestamp,
             is_latest=domain_obj.is_latest,
@@ -122,8 +118,6 @@ class DatasetVersionORM(ImmutableBase):
         return DatasetVersion(
             id=self.id,
             dataset_id=self.dataset_id,
-            row_count=self.row_count,
-            column_count=self.column_count,
             version=self.version,
             timestamp=self.timestamp,
             is_latest=self.is_latest,
@@ -208,13 +202,25 @@ class DatasetVersionArtifactAssociationORM(ImmutableBase):
         lazy="selectin"
     )
 
-    @declared_attr.directive
-    def __table_args__(cls) -> Any:
-        parent_args = super().__table_args__ if hasattr(
-            super(), "__table_args__") else ()
+    @classmethod
+    def from_domain(cls, domain_obj: DatasetArtifactVersion) -> DatasetVersionArtifactAssociationORM:
+        return cls(
+            id=domain_obj.id,
+            dataset_version_id=domain_obj.dataset_version_id,
+            dataset_artifact_id=domain_obj.dataset_artifact_id,
+            artifact_type=domain_obj.artifact_type,
+            version=domain_obj.version,
+            timestamp=domain_obj.timestamp,
+            is_latest=domain_obj.is_latest,
+        )
 
-        return (
-            *parent_args,
-            UniqueConstraint(
-                "dataset_version_id", "artifact_type"),
+    def to_domain(self) -> DatasetArtifactVersion:
+        return DatasetArtifactVersion(
+            id=self.id,
+            dataset_version_id=self.dataset_version_id,
+            dataset_artifact_id=self.dataset_artifact_id,
+            artifact_type=self.artifact_type,
+            version=self.version,
+            timestamp=self.timestamp,
+            is_latest=self.is_latest,
         )
