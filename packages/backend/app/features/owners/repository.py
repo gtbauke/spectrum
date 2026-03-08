@@ -7,6 +7,7 @@ from .models import OwnerORM
 from core.repositories.owners import BaseOwnersRepository
 from core.models.owners.owner import Owner
 from core.models.owners.where import OwnersFilter, OwnersWhere
+from core.utils.pagination.base import Pagination
 
 
 class OwnersRepository(BaseOwnersRepository):
@@ -44,13 +45,17 @@ class OwnersRepository(BaseOwnersRepository):
         await self._session.execute(statement)
         await self._session.commit()
 
-    async def list_all(self, where: Optional[OwnersFilter] = None) -> list[Owner]:
+    async def list_all(self, where: Optional[OwnersFilter] = None,
+                       pagination: Optional[Pagination] = None) -> list[Owner]:
         statement = select(OwnerORM)
 
         if where:
             conditions = where.resolve(OwnerORM)
             if len(conditions) > 0:
                 statement = statement.where(*conditions)
+
+        if pagination:
+            statement = pagination.apply(statement)
 
         result = await self._session.execute(statement)
 

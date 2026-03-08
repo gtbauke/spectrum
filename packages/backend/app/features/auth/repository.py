@@ -7,6 +7,7 @@ from .models import RefreshTokenORM
 from core.repositories.auth import BaseAuthRepository
 from core.models.auth.refresh_token import RefreshToken
 from core.models.auth.where import AuthFilter, AuthWhere
+from core.utils.pagination.base import Pagination
 
 
 class AuthRepository(BaseAuthRepository):
@@ -45,8 +46,16 @@ class AuthRepository(BaseAuthRepository):
         await self._session.execute(statement)
         await self._session.commit()
 
-    async def list_all(self, where: Optional[AuthFilter] = None) -> list[RefreshToken]:
+    async def list_all(self, where: Optional[AuthFilter] = None,
+                       pagination: Optional[Pagination] = None) -> list[RefreshToken]:
         statement = select(RefreshTokenORM)
+
+        if where:
+            statement = statement.where(*where.resolve(RefreshTokenORM))
+
+        if pagination:
+            statement = pagination.apply(statement)
+
         result = await self._session.execute(statement)
 
         return [refresh_token_orm.to_domain() for refresh_token_orm in result.scalars().all()]

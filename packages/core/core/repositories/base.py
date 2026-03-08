@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.models.base import RootDomainModel
 from core.utils.where import BaseUniqueWhere
 from core.utils.filters.base import BaseFilter
+from core.utils.pagination.base import Pagination
 
 
 class BaseRepository[
@@ -34,5 +35,5 @@ class BaseRepository[
     async def delete(self, where: WhereType) -> None: ...
 
     @abstractmethod
-    async def list_all(
-        self, where: Optional[FilterType] = None) -> list[DomainType]: ...
+    async def list_all(self, where: Optional[FilterType] = None,
+                       pagination: Optional[Pagination] = None) -> list[DomainType]: ...

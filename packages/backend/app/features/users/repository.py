@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from core.models.users.where import UsersFilter, UsersWhere
 from core.repositories.users import BaseUsersRepository
 from core.models.users.user import User
+from core.utils.pagination.base import Pagination
 
 from .models import UserORM
 
@@ -44,13 +45,17 @@ class UsersRepository(BaseUsersRepository):
         await self._session.execute(statement)
         await self._session.commit()
 
-    async def list_all(self, where: Optional[UsersFilter] = None) -> list[User]:
+    async def list_all(self, where: Optional[UsersFilter] = None,
+                       pagination: Optional[Pagination] = None) -> list[User]:
         statement = select(UserORM)
 
         if where:
             conditions = where.resolve(UserORM)
             if len(conditions) > 0:
                 statement = statement.where(*conditions)
+
+        if pagination:
+            statement = pagination.apply(statement)
 
         result = await self._session.execute(statement)
 

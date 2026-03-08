@@ -8,6 +8,7 @@ from .models import DatasetORM
 from core.models.datasets.where import DatasetsFilter, DatasetsWhere
 from core.models.datasets.dataset import Dataset
 from core.repositories.datasets import BaseDatasetsRepository
+from core.utils.pagination.base import Pagination
 
 
 class DatasetsRepository(BaseDatasetsRepository):
@@ -45,13 +46,17 @@ class DatasetsRepository(BaseDatasetsRepository):
         await self._session.execute(query)
         await self._session.commit()
 
-    async def list_all(self, where: Optional[DatasetsFilter] = None) -> list[Dataset]:
+    async def list_all(self, where: Optional[DatasetsFilter] = None,
+                       pagination: Optional[Pagination] = None) -> list[Dataset]:
         statement = select(DatasetORM)
 
         if where:
             conditions = where.resolve(DatasetORM)
             if len(conditions) > 0:
                 statement = statement.where(*conditions)
+
+        if pagination:
+            statement = pagination.apply(statement)
 
         result = await self._session.execute(statement)
 
