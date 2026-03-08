@@ -10,7 +10,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from core.models.owners.owner import Owner
 from core.models.owners.owner_type import OwnerType
 
-from db.base import ImmutableBase
+from db.immutable import ImmutableBase
 
 if TYPE_CHECKING:
     from app.features.users.models import UserORM
@@ -49,6 +49,7 @@ class OwnerORM(ImmutableBase):
             user_id=domain_obj.user_id,
             timestamp=domain_obj.timestamp,
             deleted_at=domain_obj.deleted_at,
+            is_latest=domain_obj.is_latest,
         )
 
     def to_domain(self) -> Owner:
@@ -59,4 +60,5 @@ class OwnerORM(ImmutableBase):
             timestamp=self.timestamp,
             user_id=self.user_id,
             deleted_at=self.deleted_at,
+            is_latest=self.is_latest,
         )

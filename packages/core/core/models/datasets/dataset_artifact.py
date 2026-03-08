@@ -4,12 +4,12 @@ from uuid import UUID, uuid4
 from pydantic import Field
 from datetime import datetime, timezone
 
-from core.models.base import BaseTimestampDomainModel
+from core.models.base import BaseImmutableDomainModel
 
 from .artifact_type import ArtifactType
 
 
-class DatasetArtifact(BaseTimestampDomainModel):
+class DatasetArtifact(BaseImmutableDomainModel):
     dataset_version_id: UUID = Field(
         ..., description="ID of the dataset version this artifact belongs to")
 
@@ -41,5 +41,7 @@ class DatasetArtifact(BaseTimestampDomainModel):
             file_path=file_path,
             size_in_bytes=size_in_bytes,
             checksum=checksum,
-            timestamp=datetime.now(timezone.utc)
+            timestamp=datetime.now(timezone.utc),
+            version=1,
+            is_latest=True,
         )

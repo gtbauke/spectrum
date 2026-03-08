@@ -8,10 +8,10 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
 from core.repositories.auth import RefreshToken
-from db.base import Base
+from db.mutable import MutableBase
 
 
-class RefreshTokenORM(Base):
+class RefreshTokenORM(MutableBase):
     __tablename__ = "refresh_tokens"
 
     user_id: Mapped[UUID] = mapped_column(

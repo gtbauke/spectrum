@@ -6,7 +6,7 @@ from alembic import context
 
 from sqlalchemy.engine import Connection
 
-from db.base import RootBase
+from db.root import RootBase
 from db.session import engine
 
 from app.features.models import *

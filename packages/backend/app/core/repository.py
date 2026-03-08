@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy import select, update
 
-from db.base import RootBase
+from db.root import RootBase
 
 from core.repositories.base import BaseRepository
 from core.models.base import RootDomainModel
@@ -71,3 +71,14 @@ class BaseRepositoryImplementation[
 
         result = await self._session.execute(statement)
         return [obj_orm.to_domain() for obj_orm in result.scalars().all()]
+
+
+class BaseImmutableRepositoryImplementation[
+    DomainType: RootDomainModel,
+    OrmType: RootBase,
+    WhereType: BaseUniqueWhere,
+    FilterType: BaseFilter,
+](BaseRepositoryImplementation[DomainType, OrmType, WhereType, FilterType], ABC):
+    async def update(self, obj: DomainType) -> DomainType:
+        raise NotImplementedError(
+            "Update operation is not supported for immutable entities.")

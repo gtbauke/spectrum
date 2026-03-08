@@ -8,7 +8,7 @@ from sqlalchemy import String, ForeignKey, Integer, Enum, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
-from db.base import TimestampBase, ImmutableBase
+from db.immutable import ImmutableBase
 
 from core.models.datasets.dataset import Dataset
 from core.models.datasets.dataset_version import DatasetVersion
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from app.features.profiles.models import ProfileORM
 
 
-class DatasetORM(TimestampBase):
+class DatasetORM(ImmutableBase):
     __tablename__ = "datasets"
 
     name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -46,7 +46,9 @@ class DatasetORM(TimestampBase):
             description=domain_obj.description,
             owner_id=domain_obj.owner_id,
             timestamp=domain_obj.timestamp,
-            deleted_at=domain_obj.deleted_at
+            deleted_at=domain_obj.deleted_at,
+            version=domain_obj.version,
+            is_latest=domain_obj.is_latest,
         )
 
     def to_domain(self) -> Dataset:
@@ -56,7 +58,9 @@ class DatasetORM(TimestampBase):
             description=self.description,
             owner_id=self.owner_id,
             timestamp=self.timestamp,
-            deleted_at=self.deleted_at
+            deleted_at=self.deleted_at,
+            version=self.version,
+            is_latest=self.is_latest,
         )
 
 
@@ -87,7 +91,8 @@ class DatasetVersionORM(ImmutableBase):
             row_count=domain_obj.row_count,
             column_count=domain_obj.column_count,
             version=domain_obj.version,
-            timestamp=domain_obj.timestamp
+            timestamp=domain_obj.timestamp,
+            is_latest=domain_obj.is_latest,
         )
 
     def to_domain(self) -> DatasetVersion:
@@ -97,11 +102,12 @@ class DatasetVersionORM(ImmutableBase):
             row_count=self.row_count,
             column_count=self.column_count,
             version=self.version,
-            timestamp=self.timestamp
+            timestamp=self.timestamp,
+            is_latest=self.is_latest
         )
 
 
-class DatasetArtifactORM(TimestampBase):
+class DatasetArtifactORM(ImmutableBase):
     __tablename__ = "dataset_artifacts"
 
     dataset_version_id: Mapped[UUID] = mapped_column(
@@ -127,7 +133,9 @@ class DatasetArtifactORM(TimestampBase):
             file_path=domain_obj.file_path,
             size_in_bytes=domain_obj.size_in_bytes,
             checksum=domain_obj.checksum,
-            timestamp=domain_obj.timestamp
+            timestamp=domain_obj.timestamp,
+            version=domain_obj.version,
+            is_latest=domain_obj.is_latest,
         )
 
     def to_domain(self) -> DatasetArtifact:
@@ -138,5 +146,7 @@ class DatasetArtifactORM(TimestampBase):
             file_path=self.file_path,
             size_in_bytes=self.size_in_bytes,
             checksum=self.checksum,
-            timestamp=self.timestamp
+            timestamp=self.timestamp,
+            version=self.version,
+            is_latest=self.is_latest,
         )

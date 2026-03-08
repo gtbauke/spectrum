@@ -8,7 +8,7 @@ from sqlalchemy import and_, or_, not_
 from sqlalchemy.sql import ColumnElement
 
 from pydantic import BaseModel
-from db.base import RootBase
+from db.root import RootBase
 
 from .field_filter import BaseFieldFilter
 

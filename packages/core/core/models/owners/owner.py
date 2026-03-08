@@ -43,4 +43,5 @@ class Owner(BaseImmutableDomainModel):
             owner_type=OwnerType.USER,
             user_id=user_id,
             deleted_at=None,
+            is_latest=True,
         )

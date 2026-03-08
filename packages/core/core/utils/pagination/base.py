@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import Select
 from typing import Tuple
 
-from db.base import RootBase
+from db.root import RootBase
 
 
 class Pagination(BaseModel):

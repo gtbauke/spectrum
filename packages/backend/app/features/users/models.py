@@ -15,7 +15,7 @@ from sqlalchemy import (
     DateTime,
 )
 
-from db.base import Base
+from db.mutable import MutableBase
 from core.models.users.user import User
 
 if TYPE_CHECKING:
@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 # )
 
 
-class UserORM(Base):
+class UserORM(MutableBase):
     __tablename__ = "users"
 
     first_name: Mapped[str] = mapped_column(String, nullable=False)

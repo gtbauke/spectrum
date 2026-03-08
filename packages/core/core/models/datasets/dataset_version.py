@@ -23,5 +23,6 @@ class DatasetVersion(BaseImmutableDomainModel):
             row_count=row_count,
             column_count=column_count,
             version=1,
-            timestamp=datetime.now(timezone.utc)
+            timestamp=datetime.now(timezone.utc),
+            is_latest=True,
         )

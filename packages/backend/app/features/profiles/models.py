@@ -9,7 +9,7 @@ from core.models.profiles.profile_status import ProfileStatus
 from core.models.profiles.profile_visibility import ProfileVisibility
 from core.models.profiles.profile_dataset_role import ProfileDatasetRole
 
-from db.base import ImmutableBase, RootBase
+from db.immutable import ImmutableBase
 
 if TYPE_CHECKING:
     from app.features.datasets.models import DatasetVersionORM
@@ -59,7 +59,7 @@ class ProfileORM(ImmutableBase):
         )
 
 
-class ProfileDatasetVersionORM(RootBase):
+class ProfileDatasetVersionORM(ImmutableBase):
     __tablename__ = "profile_dataset_versions"
 
     profile_id: Mapped[UUID] = mapped_column(
@@ -81,8 +81,13 @@ class ProfileDatasetVersionORM(RootBase):
         nullable=False,
     )
 
-    __table_args__ = (
-        Index("ix_profile_dataset_versions_profile_id", "profile_id"),
-        Index("ix_profile_dataset_versions_dataset_version_id",
-              "dataset_version_id"),
-    )
+    @declared_attr.directive
+    def __table_args__(cls):
+        base_args = super().__table_args__ if hasattr(super(), "__table_args__") else ()
+
+        return (
+            *base_args,
+            Index("ix_profile_dataset_versions_profile_id", "profile_id"),
+            Index("ix_profile_dataset_versions_dataset_version_id",
+                  "dataset_version_id"),
+        )
