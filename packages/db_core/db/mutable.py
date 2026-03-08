@@ -2,7 +2,7 @@ from uuid import UUID
 from datetime import datetime
 
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import func, DateTime
+from sqlalchemy import func, DateTime, text
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
 from .root import RootBase
@@ -18,7 +18,7 @@ class MutableBase(RootBase):
     id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         primary_key=True,
-        server_default="gen_random_uuid()",
+        server_default=text("gen_random_uuid()"),
     )
 
     created_at: Mapped[datetime] = mapped_column(

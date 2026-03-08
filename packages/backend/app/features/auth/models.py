@@ -19,6 +19,11 @@ class RefreshTokenORM(MutableBase):
         ForeignKey("users.id", ondelete="CASCADE"),
     )
 
+    owner_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("owners.id", ondelete="CASCADE"),
+    )
+
     token_hash: Mapped[str] = mapped_column(String, nullable=False)
     expires_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False)
@@ -38,6 +43,7 @@ class RefreshTokenORM(MutableBase):
             revoked=self.revoked,
             created_at=self.created_at,
             updated_at=self.updated_at,
+            owner_id=self.owner_id,
         )
 
     @classmethod
@@ -50,4 +56,5 @@ class RefreshTokenORM(MutableBase):
             revoked=domain_obj.revoked,
             created_at=domain_obj.created_at,
             updated_at=domain_obj.updated_at,
+            owner_id=domain_obj.owner_id,
         )

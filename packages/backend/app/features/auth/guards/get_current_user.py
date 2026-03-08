@@ -30,3 +30,22 @@ def get_current_user(
             status_code=401, detail="Invalid authentication credentials")
 
     return UUID(user_id)
+
+
+def get_current_owner(
+    token: HTTPAuthorizationCredentials = Depends(security)
+):
+    try:
+        payload = jwt.decode(
+            token.credentials, settings.SECRET_KEY, algorithms=["HS256"])
+    except JWTError as e:
+        logger.error(f"Error decoding JWT: {e}")
+        raise HTTPException(
+            status_code=401, detail="Invalid authentication credentials")
+
+    owner_id = payload.get("owner_id")
+    if owner_id is None:
+        raise HTTPException(
+            status_code=401, detail="Invalid authentication credentials")
+
+    return UUID(owner_id)

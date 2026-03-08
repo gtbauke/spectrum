@@ -28,18 +28,18 @@ class ImmutableBase(RootBase):
     id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         primary_key=True,
-        server_default="gen_random_uuid()",
+        server_default=text("gen_random_uuid()"),
     )
 
     version: Mapped[int] = mapped_column(
         nullable=False,
         primary_key=True,
-        server_default="1",
+        default=1,
     )
 
     is_latest: Mapped[bool] = mapped_column(
         Boolean,
-        server_default="true",
+        default=True,
         nullable=False,
     )
 

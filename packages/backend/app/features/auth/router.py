@@ -6,7 +6,8 @@ from uuid import UUID
 from fastapi import APIRouter, Response, Depends, Cookie
 
 from app.api.unit_of_work import get_uow
-from app.features.auth.responses.login import LoginResponse
+from app.features.auth.results.login import LoginResponse
+from app.features.owners.service import OwnersService
 from app.features.users.service import UsersService, get_users_service
 from app.services.encryption import EncryptionService
 
@@ -25,7 +26,10 @@ auth_router = APIRouter(tags=["auth"])
 
 
 def get_auth_service() -> AuthService:
-    return AuthService(EncryptionService())
+    return AuthService(
+        encryption_service=EncryptionService(),
+        owners_service=OwnersService()
+    )
 
 
 @auth_router.post("/login", response_model=LoginResponse)
@@ -35,11 +39,11 @@ async def login(
     uow: UnitOfWork = Depends(get_uow),
     auth_service: AuthService = Depends(get_auth_service)
 ):
-    user = await auth_service.authenticate(uow=uow, credentials=credentials)
+    result = await auth_service.authenticate(uow=uow, credentials=credentials)
 
     access_token = auth_service.create_access_token(
-        user_id=user.id, expires_delta=timedelta(minutes=15))
-    refresh_token = await auth_service.generate_refresh_token(uow=uow, user_id=user.id)
+        user_id=result.user.id, expires_delta=timedelta(minutes=15), owner_id=result.owner.id)
+    refresh_token = await auth_service.generate_refresh_token(uow=uow, user_id=result.user.id, owner_id=result.owner.id)
 
     response.set_cookie(
         key="refresh_token",
@@ -72,9 +76,9 @@ async def refresh(
     logger.info("Refreshing access token for refresh token: %s", refresh_token)
     revoked_token = await auth_service.revoke_refresh_token(uow=uow, token_str=refresh_token)
 
-    new_refresh_token = await auth_service.generate_refresh_token(uow=uow, user_id=revoked_token.user_id)
+    new_refresh_token = await auth_service.generate_refresh_token(uow=uow, user_id=revoked_token.user_id, owner_id=revoked_token.owner_id)
     access_token = auth_service.create_access_token(
-        user_id=revoked_token.user_id, expires_delta=timedelta(minutes=15))
+        user_id=revoked_token.user_id, expires_delta=timedelta(minutes=15), owner_id=revoked_token.owner_id)
 
     response.set_cookie(
         key="refresh_token",

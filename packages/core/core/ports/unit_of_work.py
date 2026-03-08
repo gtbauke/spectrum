@@ -5,6 +5,9 @@ from types import TracebackType
 from typing import Awaitable, Callable, Optional, Type
 
 from core.ports.transactional_resource import TransactionalResource
+
+from core.ports.storage.file_storage import FileStorage
+
 from core.repositories.auth import BaseAuthRepository
 from core.repositories.users import BaseUsersRepository
 from core.repositories.owners import BaseOwnersRepository
@@ -18,6 +21,8 @@ class UnitOfWork(ABC):
     datasets: BaseDatasetsRepository
     dataset_versions: BaseDatasetVersionsRepository
     dataset_artifacts: BaseDatasetArtifactsRepository
+
+    file_storage: FileStorage
 
     def __init__(self) -> None:
         self._resources: list[TransactionalResource] = []
