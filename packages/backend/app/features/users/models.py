@@ -53,16 +53,16 @@ class UserORM(Base):
     )
 
     @classmethod
-    def from_domain(cls, domain_user: User) -> UserORM:
+    def from_domain(cls, domain_obj: User) -> UserORM:
         return cls(
-            id=domain_user.id,
-            first_name=domain_user.first_name,
-            last_name=domain_user.last_name,
-            email=domain_user.email,
-            password_hash=domain_user.password_hash.get_secret_value(),
-            created_at=domain_user.created_at,
-            updated_at=domain_user.updated_at,
-            deleted_at=domain_user.deleted_at,
+            id=domain_obj.id,
+            first_name=domain_obj.first_name,
+            last_name=domain_obj.last_name,
+            email=domain_obj.email,
+            password_hash=domain_obj.password_hash.get_secret_value(),
+            created_at=domain_obj.created_at,
+            updated_at=domain_obj.updated_at,
+            deleted_at=domain_obj.deleted_at,
         )
 
     def to_domain(self) -> User:

@@ -39,14 +39,14 @@ class DatasetORM(TimestampBase):
     )
 
     @classmethod
-    def from_domain(cls, dataset: Dataset) -> DatasetORM:
+    def from_domain(cls, domain_obj: Dataset) -> DatasetORM:
         return cls(
-            id=dataset.id,
-            name=dataset.name,
-            description=dataset.description,
-            owner_id=dataset.owner_id,
-            timestamp=dataset.timestamp,
-            deleted_at=dataset.deleted_at
+            id=domain_obj.id,
+            name=domain_obj.name,
+            description=domain_obj.description,
+            owner_id=domain_obj.owner_id,
+            timestamp=domain_obj.timestamp,
+            deleted_at=domain_obj.deleted_at
         )
 
     def to_domain(self) -> Dataset:
@@ -80,14 +80,14 @@ class DatasetVersionORM(ImmutableBase):
     )
 
     @classmethod
-    def from_domain(cls, dataset_version: DatasetVersion) -> DatasetVersionORM:
+    def from_domain(cls, domain_obj: DatasetVersion) -> DatasetVersionORM:
         return cls(
-            id=dataset_version.id,
-            dataset_id=dataset_version.dataset_id,
-            row_count=dataset_version.row_count,
-            column_count=dataset_version.column_count,
-            version=dataset_version.version,
-            timestamp=dataset_version.timestamp
+            id=domain_obj.id,
+            dataset_id=domain_obj.dataset_id,
+            row_count=domain_obj.row_count,
+            column_count=domain_obj.column_count,
+            version=domain_obj.version,
+            timestamp=domain_obj.timestamp
         )
 
     def to_domain(self) -> DatasetVersion:
@@ -119,15 +119,15 @@ class DatasetArtifactORM(TimestampBase):
     checksum: Mapped[str] = mapped_column(String, nullable=False)
 
     @classmethod
-    def from_domain(cls, dataset_artifact: DatasetArtifact) -> DatasetArtifactORM:
+    def from_domain(cls, domain_obj: DatasetArtifact) -> DatasetArtifactORM:
         return cls(
-            id=dataset_artifact.id,
-            dataset_version_id=dataset_artifact.dataset_version_id,
-            artifact_type=dataset_artifact.artifact_type,
-            file_path=dataset_artifact.file_path,
-            size_in_bytes=dataset_artifact.size_in_bytes,
-            checksum=dataset_artifact.checksum,
-            timestamp=dataset_artifact.timestamp
+            id=domain_obj.id,
+            dataset_version_id=domain_obj.dataset_version_id,
+            artifact_type=domain_obj.artifact_type,
+            file_path=domain_obj.file_path,
+            size_in_bytes=domain_obj.size_in_bytes,
+            checksum=domain_obj.checksum,
+            timestamp=domain_obj.timestamp
         )
 
     def to_domain(self) -> DatasetArtifact:

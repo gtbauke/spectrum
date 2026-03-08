@@ -26,6 +26,11 @@ class RootBase(DeclarativeBase):
     __abstract__ = True
     metadata = metadata
 
+    def to_domain(self) -> Any: ...
+
+    @classmethod
+    def from_domain(cls, domain_obj: Any) -> Any: ...
+
 
 class Base(RootBase):
     """

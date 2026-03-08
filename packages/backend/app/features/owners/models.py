@@ -41,14 +41,14 @@ class OwnerORM(ImmutableBase):
         "UserORM", back_populates="owner", uselist=False)
 
     @classmethod
-    def from_domain(cls, owner: Owner) -> OwnerORM:
+    def from_domain(cls, domain_obj: Owner) -> OwnerORM:
         return cls(
-            id=owner.id,
-            owner_type=owner.owner_type,
-            version=owner.version,
-            user_id=owner.user_id,
-            timestamp=owner.timestamp,
-            deleted_at=owner.deleted_at,
+            id=domain_obj.id,
+            owner_type=domain_obj.owner_type,
+            version=domain_obj.version,
+            user_id=domain_obj.user_id,
+            timestamp=domain_obj.timestamp,
+            deleted_at=domain_obj.deleted_at,
         )
 
     def to_domain(self) -> Owner:

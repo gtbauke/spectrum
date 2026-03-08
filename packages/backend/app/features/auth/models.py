@@ -41,13 +41,13 @@ class RefreshTokenORM(Base):
         )
 
     @classmethod
-    def from_domain(cls, refresh_token: RefreshToken) -> RefreshTokenORM:
+    def from_domain(cls, domain_obj: RefreshToken) -> RefreshTokenORM:
         return cls(
-            id=refresh_token.id,
-            user_id=refresh_token.user_id,
-            token_hash=refresh_token.token_hash,
-            expires_at=refresh_token.expires_at,
-            revoked=refresh_token.revoked,
-            created_at=refresh_token.created_at,
-            updated_at=refresh_token.updated_at,
+            id=domain_obj.id,
+            user_id=domain_obj.user_id,
+            token_hash=domain_obj.token_hash,
+            expires_at=domain_obj.expires_at,
+            revoked=domain_obj.revoked,
+            created_at=domain_obj.created_at,
+            updated_at=domain_obj.updated_at,
         )
