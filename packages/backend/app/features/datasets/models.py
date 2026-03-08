@@ -9,6 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
 from db.immutable import ImmutableBase
+from db.mutable import MutableBase
 
 from core.models.datasets.dataset import Dataset
 from core.models.datasets.dataset_version import DatasetVersion
@@ -19,7 +20,7 @@ if TYPE_CHECKING:
     from app.features.profiles.models import ProfileORM
 
 
-class DatasetORM(ImmutableBase):
+class DatasetORM(MutableBase):
     __tablename__ = "datasets"
 
     name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -45,10 +46,9 @@ class DatasetORM(ImmutableBase):
             name=domain_obj.name,
             description=domain_obj.description,
             owner_id=domain_obj.owner_id,
-            timestamp=domain_obj.timestamp,
             deleted_at=domain_obj.deleted_at,
-            version=domain_obj.version,
-            is_latest=domain_obj.is_latest,
+            created_at=domain_obj.created_at,
+            updated_at=domain_obj.updated_at,
         )
 
     def to_domain(self) -> Dataset:
@@ -57,10 +57,9 @@ class DatasetORM(ImmutableBase):
             name=self.name,
             description=self.description,
             owner_id=self.owner_id,
-            timestamp=self.timestamp,
             deleted_at=self.deleted_at,
-            version=self.version,
-            is_latest=self.is_latest,
+            created_at=self.created_at,
+            updated_at=self.updated_at,
         )
 
 

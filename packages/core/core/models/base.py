@@ -7,7 +7,7 @@ class RootDomainModel(BaseModel):
     pass
 
 
-class BaseDomainModel(RootDomainModel):
+class BaseMutableDomainModel(RootDomainModel):
     """
     Base class for all domain models in the application.
     This class provides common functionality that can be shared across all domain models, such as automatic timestamping of created and updated records.

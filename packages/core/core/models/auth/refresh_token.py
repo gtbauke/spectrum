@@ -2,10 +2,10 @@ from uuid import UUID
 from pydantic import Field
 from datetime import datetime
 
-from core.models.base import BaseDomainModel
+from core.models.base import BaseMutableDomainModel
 
 
-class RefreshToken(BaseDomainModel):
+class RefreshToken(BaseMutableDomainModel):
     user_id: UUID = Field(...,
                           description="ID of the user associated with the refresh token")
 

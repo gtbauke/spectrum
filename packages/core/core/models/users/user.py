@@ -3,10 +3,10 @@ from typing import Optional
 from uuid import uuid4
 
 from pydantic import Field, EmailStr, SecretStr
-from ..base import BaseDomainModel
+from ..base import BaseMutableDomainModel
 
 
-class User(BaseDomainModel):
+class User(BaseMutableDomainModel):
     first_name: str = Field(..., description="The user's first name")
 
     last_name: str = Field(..., description="The user's last name")

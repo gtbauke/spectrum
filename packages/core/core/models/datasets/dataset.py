@@ -4,10 +4,10 @@ from typing import Optional
 from pydantic import Field
 from uuid import UUID, uuid4
 
-from core.models.base import BaseImmutableDomainModel
+from core.models.base import BaseMutableDomainModel
 
 
-class Dataset(BaseImmutableDomainModel):
+class Dataset(BaseMutableDomainModel):
     name: str = Field(..., description="The name of the dataset")
 
     description: Optional[str] = Field(
@@ -33,8 +33,7 @@ class Dataset(BaseImmutableDomainModel):
             name=name,
             description=description,
             owner_id=owner_id,
-            timestamp=datetime.now(timezone.utc),
             deleted_at=None,
-            version=1,
-            is_latest=True,
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
         )
