@@ -25,7 +25,7 @@ async def get_users(
     return await service.get_all(
         uow=uow,
         filter=UsersFilter(
-            deleted_at=DateTimeFilter(is_null=False)
+            deleted_at=DateTimeFilter(is_null=True)
         )
     )
 
