@@ -6,6 +6,8 @@ from uuid import UUID, uuid4
 
 from core.models.base import BaseMutableDomainModel
 
+from .dataset_version import DatasetVersion
+
 
 class Dataset(BaseMutableDomainModel):
     name: str = Field(..., description="The name of the dataset")
@@ -18,6 +20,11 @@ class Dataset(BaseMutableDomainModel):
 
     deleted_at: Optional[datetime] = Field(
         None, description="The timestamp when the dataset was deleted, if applicable"
+    )
+
+    versions: list[DatasetVersion] = Field(
+        ...,
+        description="List of versions associated with this dataset"
     )
 
     @classmethod
@@ -36,4 +43,5 @@ class Dataset(BaseMutableDomainModel):
             deleted_at=None,
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc),
+            versions=[],
         )

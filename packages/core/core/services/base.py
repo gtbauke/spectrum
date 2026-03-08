@@ -47,7 +47,7 @@ class BaseCRUDService[
                       filter: Optional[FilterType] = None) -> Sequence[ReturnType]: ...
 
 
-class BaseCRService[
+class BaseCRDService[
     ReturnType: RootDomainModel,
     WhereType: BaseUniqueWhere,
     CreateType: BaseModel,

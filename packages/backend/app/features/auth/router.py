@@ -41,8 +41,9 @@ async def login(
 ):
     result = await auth_service.authenticate(uow=uow, credentials=credentials)
 
+    expires_in = timedelta(minutes=15)
     access_token = auth_service.create_access_token(
-        user_id=result.user.id, expires_delta=timedelta(minutes=15), owner_id=result.owner.id)
+        user_id=result.user.id, expires_delta=expires_in, owner_id=result.owner.id)
     refresh_token = await auth_service.generate_refresh_token(uow=uow, user_id=result.user.id, owner_id=result.owner.id)
 
     response.set_cookie(
@@ -54,7 +55,7 @@ async def login(
         max_age=7 * 24 * 60 * 60,  # 7 days in seconds
     )
 
-    return LoginResponse(access_token=access_token)
+    return LoginResponse(access_token=access_token, expires_in=expires_in)
 
 
 @auth_router.get("/me")
@@ -77,8 +78,10 @@ async def refresh(
     revoked_token = await auth_service.revoke_refresh_token(uow=uow, token_str=refresh_token)
 
     new_refresh_token = await auth_service.generate_refresh_token(uow=uow, user_id=revoked_token.user_id, owner_id=revoked_token.owner_id)
+
+    expires_in = timedelta(minutes=15)
     access_token = auth_service.create_access_token(
-        user_id=revoked_token.user_id, expires_delta=timedelta(minutes=15), owner_id=revoked_token.owner_id)
+        user_id=revoked_token.user_id, expires_delta=expires_in, owner_id=revoked_token.owner_id)
 
     response.set_cookie(
         key="refresh_token",
@@ -89,7 +92,7 @@ async def refresh(
         max_age=7 * 24 * 60 * 60,  # 7 days in seconds
     )
 
-    return LoginResponse(access_token=access_token)
+    return LoginResponse(access_token=access_token, expires_in=expires_in)
 
 
 @auth_router.post("/logout")

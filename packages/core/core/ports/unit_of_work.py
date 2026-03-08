@@ -11,7 +11,12 @@ from core.ports.storage.file_storage import FileStorage
 from core.repositories.auth import BaseAuthRepository
 from core.repositories.users import BaseUsersRepository
 from core.repositories.owners import BaseOwnersRepository
-from core.repositories.datasets import BaseDatasetsRepository, BaseDatasetVersionsRepository, BaseDatasetArtifactsRepository
+from core.repositories.datasets import (
+    BaseDatasetsRepository,
+    BaseDatasetVersionsRepository,
+    BaseDatasetArtifactsRepository,
+    BaseDatasetArtifactVersionsRepository,
+)
 
 
 class UnitOfWork(ABC):
@@ -21,6 +26,7 @@ class UnitOfWork(ABC):
     datasets: BaseDatasetsRepository
     dataset_versions: BaseDatasetVersionsRepository
     dataset_artifacts: BaseDatasetArtifactsRepository
+    dataset_artifact_versions: BaseDatasetArtifactVersionsRepository
 
     file_storage: FileStorage
 

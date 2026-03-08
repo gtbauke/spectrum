@@ -1,64 +1,34 @@
-import pandas as pd
-
-from typing import Optional, BinaryIO
+from typing import Optional
 
 from core.ports.unit_of_work import UnitOfWork
-from core.services.base import BaseService
+from core.services.base import BaseCRUDService
 
 from core.models.datasets.dataset import Dataset
-from core.models.datasets.dataset_version import DatasetVersion
-from core.models.datasets.dataset_artifact import DatasetArtifact
-from core.models.datasets.artifact_type import ArtifactType
 from core.models.datasets.where import DatasetsWhere, DatasetsFilter
 
 from .dto.create_dataset import CreateDatasetDTO
 from .dto.update_dataset import UpdateDatasetDTO
-from .results.create_dataset import CreateDatasetResult
 from .errors.dataset_not_found import DatasetNotFound
 
 
-class DatasetsService(BaseService):
+class DatasetsService(BaseCRUDService[
+    Dataset,
+    DatasetsWhere,
+    CreateDatasetDTO,
+    UpdateDatasetDTO,
+    DatasetsFilter,
+]):
     async def get_unique(self, *, uow: UnitOfWork, where: DatasetsWhere) -> Optional[Dataset]:
         return await uow.datasets.get_unique(where=where)
 
-    # TODO: check if user uploaded CSV file
-    async def create(self, *, uow: UnitOfWork, data: CreateDatasetDTO, file: BinaryIO) -> CreateDatasetResult:
+    async def create(self, *, uow: UnitOfWork, data: CreateDatasetDTO) -> Dataset:
         dataset = await uow.datasets.add(Dataset.new(
             name=data.name,
             description=data.description,
             owner_id=data.owner_id
         ))
 
-        df = pd.read_csv(file)
-
-        row_count = len(df)
-        column_count = len(df.columns)
-
-        dataset_version = await uow.dataset_versions.add(DatasetVersion.new(
-            dataset_id=dataset.id,
-            row_count=row_count,
-            column_count=column_count,
-        ))
-
-        storage_path = f"datasets/{dataset.id}/v{dataset_version.version}/data.csv"
-        result = await uow.file_storage.upload(
-            path=storage_path,
-            file=file,
-        )
-
-        dataset_artifact = await uow.dataset_artifacts.add(DatasetArtifact.new(
-            dataset_version_id=dataset_version.id,
-            artifact_type=ArtifactType.DATA,
-            file_path=storage_path,
-            size_in_bytes=result.size,
-            checksum=result.checksum,
-        ))
-
-        return CreateDatasetResult(
-            dataset=dataset,
-            dataset_version=dataset_version,
-            dataset_artifact=dataset_artifact,
-        )
+        return dataset
 
     async def update_unique(self, *, uow: UnitOfWork, where: DatasetsWhere, data: UpdateDatasetDTO) -> Dataset:
         dataset = await uow.datasets.get_unique(where=where)

@@ -7,3 +7,4 @@ class ArtifactType(StrEnum):
     STATS = "stats"
     PREVIEW = "preview"
     FEATURES = "features"
+    MANIFEST = "manifest"

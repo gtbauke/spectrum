@@ -5,11 +5,11 @@ from app.features.owners.dtos.create_owner import CreateOwnerDTO
 from core.models.owners.owner import Owner
 from core.models.owners.where import OwnersWhere, OwnersFilter
 from core.models.owners.owner_type import OwnerType
-from core.services.base import BaseCRService
+from core.services.base import BaseCRDService
 from core.ports.unit_of_work import UnitOfWork
 
 
-class OwnersService(BaseCRService[
+class OwnersService(BaseCRDService[
     Owner,
     OwnersWhere,
     CreateOwnerDTO,

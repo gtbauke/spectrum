@@ -8,8 +8,12 @@ class UploadResult:
         self._checksum = checksum
 
     @property
-    def path(self) -> SpectrumPath:
+    def spectrum_path(self) -> SpectrumPath:
         return self._path
+
+    @property
+    def path(self) -> str:
+        return self._path.path.as_posix()
 
     @property
     def size(self) -> int:

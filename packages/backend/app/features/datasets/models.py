@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import Optional, TYPE_CHECKING
+from typing import Any, Optional, TYPE_CHECKING
 from uuid import UUID
 from datetime import datetime
 
-from sqlalchemy import String, ForeignKey, Integer, Enum, DateTime
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import String, ForeignKey, Integer, Enum, DateTime, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column, relationship, declared_attr
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
 from db.immutable import ImmutableBase
@@ -39,6 +39,13 @@ class DatasetORM(MutableBase):
         default=None,
     )
 
+    versions: Mapped[list["DatasetVersionORM"]] = relationship(
+        "DatasetVersionORM",
+        back_populates="dataset",
+        lazy="selectin",
+        cascade="all, delete-orphan"
+    )
+
     @classmethod
     def from_domain(cls, domain_obj: Dataset) -> DatasetORM:
         return cls(
@@ -49,6 +56,8 @@ class DatasetORM(MutableBase):
             deleted_at=domain_obj.deleted_at,
             created_at=domain_obj.created_at,
             updated_at=domain_obj.updated_at,
+            versions=[DatasetVersionORM.from_domain(
+                version) for version in domain_obj.versions]
         )
 
     def to_domain(self) -> Dataset:
@@ -60,6 +69,7 @@ class DatasetORM(MutableBase):
             deleted_at=self.deleted_at,
             created_at=self.created_at,
             updated_at=self.updated_at,
+            versions=[version.to_domain() for version in self.versions]
         )
 
 
@@ -82,6 +92,18 @@ class DatasetVersionORM(ImmutableBase):
         lazy="selectin"
     )
 
+    dataset: Mapped["DatasetORM"] = relationship(
+        "DatasetORM",
+        back_populates="versions",
+        lazy="selectin"
+    )
+
+    artifacts: Mapped[list["DatasetVersionArtifactAssociationORM"]] = relationship(
+        "DatasetVersionArtifactAssociationORM",
+        back_populates="dataset_version",
+        lazy="selectin",
+    )
+
     @classmethod
     def from_domain(cls, domain_obj: DatasetVersion) -> DatasetVersionORM:
         return cls(
@@ -92,6 +114,8 @@ class DatasetVersionORM(ImmutableBase):
             version=domain_obj.version,
             timestamp=domain_obj.timestamp,
             is_latest=domain_obj.is_latest,
+            artifacts=[DatasetVersionArtifactAssociationORM.from_domain(
+                artifact) for artifact in domain_obj.artifacts]
         )
 
     def to_domain(self) -> DatasetVersion:
@@ -102,33 +126,37 @@ class DatasetVersionORM(ImmutableBase):
             column_count=self.column_count,
             version=self.version,
             timestamp=self.timestamp,
-            is_latest=self.is_latest
+            is_latest=self.is_latest,
+            artifacts=[assoc.to_domain() for assoc in self.artifacts]
         )
 
 
 class DatasetArtifactORM(ImmutableBase):
     __tablename__ = "dataset_artifacts"
 
-    dataset_version_id: Mapped[UUID] = mapped_column(
+    dataset_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
-        ForeignKey("dataset_versions.id"),
-        nullable=False
+        ForeignKey("datasets.id"),
+        nullable=False,
     )
-
-    artifact_type: Mapped[ArtifactType] = mapped_column(
-        Enum(ArtifactType), nullable=False)
 
     file_path: Mapped[str] = mapped_column(String, nullable=False)
     size_in_bytes: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    checksum: Mapped[str] = mapped_column(String, nullable=False)
+    checksum: Mapped[str] = mapped_column(String, nullable=False, unique=True)
+
+    versions: Mapped[list["DatasetVersionArtifactAssociationORM"]] = relationship(
+        "DatasetVersionArtifactAssociationORM",
+        back_populates="dataset_artifact",
+        lazy="selectin",
+        cascade="all, delete-orphan"
+    )
 
     @classmethod
     def from_domain(cls, domain_obj: DatasetArtifact) -> DatasetArtifactORM:
         return cls(
             id=domain_obj.id,
-            dataset_version_id=domain_obj.dataset_version_id,
-            artifact_type=domain_obj.artifact_type,
+            dataset_id=domain_obj.dataset_id,
             file_path=domain_obj.file_path,
             size_in_bytes=domain_obj.size_in_bytes,
             checksum=domain_obj.checksum,
@@ -140,12 +168,53 @@ class DatasetArtifactORM(ImmutableBase):
     def to_domain(self) -> DatasetArtifact:
         return DatasetArtifact(
             id=self.id,
-            dataset_version_id=self.dataset_version_id,
-            artifact_type=self.artifact_type,
+            dataset_id=self.dataset_id,
             file_path=self.file_path,
             size_in_bytes=self.size_in_bytes,
             checksum=self.checksum,
             timestamp=self.timestamp,
             version=self.version,
             is_latest=self.is_latest,
+        )
+
+
+class DatasetVersionArtifactAssociationORM(ImmutableBase):
+    __tablename__ = "dataset_version_artifacts"
+
+    dataset_version_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("dataset_versions.id"),
+        nullable=False
+    )
+
+    dataset_artifact_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("dataset_artifacts.id"),
+        nullable=False
+    )
+
+    artifact_type: Mapped[ArtifactType] = mapped_column(
+        Enum(ArtifactType), nullable=False)
+
+    dataset_version: Mapped["DatasetVersionORM"] = relationship(
+        "DatasetVersionORM",
+        back_populates="artifacts",
+        lazy="selectin"
+    )
+
+    dataset_artifact: Mapped["DatasetArtifactORM"] = relationship(
+        "DatasetArtifactORM",
+        back_populates="versions",
+        lazy="selectin"
+    )
+
+    @declared_attr.directive
+    def __table_args__(cls) -> Any:
+        parent_args = super().__table_args__ if hasattr(
+            super(), "__table_args__") else ()
+
+        return (
+            *parent_args,
+            UniqueConstraint(
+                "dataset_version_id", "artifact_type"),
         )
