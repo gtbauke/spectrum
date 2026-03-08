@@ -2,8 +2,14 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
-from .service import CreateUserDTO, UpdateUserDTO, UsersService, UsersWhere, get_users_service
+from core.utils.filters.field_filter import DateTimeFilter
+
+from .service import UsersService, get_users_service
+from .dtos.create_user import CreateUserDTO
+from .dtos.update_user import UpdateUserDTO
+
 from core.ports.unit_of_work import UnitOfWork
+from core.models.users.where import UsersWhere, UsersFilter
 
 from app.api.unit_of_work import get_uow
 
@@ -16,7 +22,12 @@ async def get_users(
     uow: UnitOfWork = Depends(get_uow),
     service: UsersService = Depends(get_users_service),
 ):
-    return await service.get_all(uow=uow)
+    return await service.get_all(
+        uow=uow,
+        filter=UsersFilter(
+            deleted_at=DateTimeFilter(is_null=False)
+        )
+    )
 
 
 @users_router.post("/")

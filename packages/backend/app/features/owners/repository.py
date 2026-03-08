@@ -1,4 +1,3 @@
-from uuid import UUID
 from typing import Optional
 from sqlalchemy import select, update
 from datetime import datetime, timezone
@@ -7,7 +6,7 @@ from .models import OwnerORM
 
 from core.repositories.owners import BaseOwnersRepository
 from core.models.owners.owner import Owner
-from core.models.owners.where import OwnersWhere
+from core.models.owners.where import OwnersFilter, OwnersWhere
 
 
 class OwnersRepository(BaseOwnersRepository):
@@ -45,12 +44,14 @@ class OwnersRepository(BaseOwnersRepository):
         await self._session.execute(statement)
         await self._session.commit()
 
-    async def list_all(self, where_id: Optional[UUID] = None) -> list[Owner]:
-        if where_id:
-            raise ValueError(
-                "Filtering by ID is not supported for list_all method.")
-
+    async def list_all(self, where: Optional[OwnersFilter] = None) -> list[Owner]:
         statement = select(OwnerORM)
+
+        if where:
+            conditions = where.resolve(OwnerORM)
+            if len(conditions) > 0:
+                statement = statement.where(*conditions)
+
         result = await self._session.execute(statement)
 
         return [owner_orm.to_domain() for owner_orm in result.scalars().all()]

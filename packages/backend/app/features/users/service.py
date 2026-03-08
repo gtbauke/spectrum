@@ -7,7 +7,7 @@ from app.features.owners.service import CreateOwnerDTO, OwnersService
 
 from .errors.email_already_in_use import EmailAlreadyInUse
 
-from core.models.users.where import UsersWhere
+from core.models.users.where import UsersWhere, UsersFilter
 from core.models.users.user import User
 from core.services.base import BaseCRUDService, UnitOfWork
 
@@ -17,6 +17,7 @@ class UsersService(BaseCRUDService[
     UsersWhere,
     CreateUserDTO,
     UpdateUserDTO,
+    UsersFilter
 ]):
     def __init__(
         self,
@@ -103,8 +104,9 @@ class UsersService(BaseCRUDService[
         self,
         *,
         uow: UnitOfWork,
+        filter: Optional[UsersFilter] = None
     ) -> list[User]:
-        return await uow.users.list_all()
+        return await uow.users.list_all(where=filter)
 
 
 def get_users_service() -> UsersService:

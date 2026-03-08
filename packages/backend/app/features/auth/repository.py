@@ -1,5 +1,4 @@
 from typing import Optional
-from uuid import UUID
 
 from sqlalchemy import select, delete
 
@@ -7,7 +6,7 @@ from .models import RefreshTokenORM
 
 from core.repositories.auth import BaseAuthRepository
 from core.models.auth.refresh_token import RefreshToken
-from core.models.auth.where import AuthWhere
+from core.models.auth.where import AuthFilter, AuthWhere
 
 
 class AuthRepository(BaseAuthRepository):
@@ -46,11 +45,7 @@ class AuthRepository(BaseAuthRepository):
         await self._session.execute(statement)
         await self._session.commit()
 
-    async def list_all(self, where_id: Optional[UUID] = None) -> list[RefreshToken]:
-        if where_id:
-            raise ValueError(
-                "Filtering by ID is not supported for list_all method.")
-
+    async def list_all(self, where: Optional[AuthFilter] = None) -> list[RefreshToken]:
         statement = select(RefreshTokenORM)
         result = await self._session.execute(statement)
 

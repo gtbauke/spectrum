@@ -3,6 +3,7 @@ from typing import Optional, Sequence
 from pydantic import BaseModel
 
 from core.utils.where import BaseUniqueWhere
+from core.utils.filters.base import BaseFilter
 from core.models.base import RootDomainModel
 from core.ports.unit_of_work import UnitOfWork
 
@@ -18,6 +19,7 @@ class BaseCRUDService[
     WhereType: BaseUniqueWhere,
     CreateType: BaseModel,
     UpdateType: BaseModel,
+    FilterType: BaseFilter,
 ](BaseService):
     """
     Base class for all services in the application. This class defines the interface that all services must implement.
@@ -41,13 +43,15 @@ class BaseCRUDService[
                             where: WhereType): ...
 
     @abstractmethod
-    async def get_all(self, *, uow: UnitOfWork) -> Sequence[ReturnType]: ...
+    async def get_all(self, *, uow: UnitOfWork,
+                      filter: Optional[FilterType] = None) -> Sequence[ReturnType]: ...
 
 
 class BaseCRService[
     ReturnType: RootDomainModel,
     WhereType: BaseUniqueWhere,
     CreateType: BaseModel,
+    FilterType: BaseFilter,
 ](BaseService):
     @abstractmethod
     async def get_unique(
@@ -62,4 +66,5 @@ class BaseCRService[
                             where: WhereType): ...
 
     @abstractmethod
-    async def get_all(self, *, uow: UnitOfWork) -> Sequence[ReturnType]: ...
+    async def get_all(self, *, uow: UnitOfWork,
+                      filter: Optional[FilterType] = None) -> Sequence[ReturnType]: ...

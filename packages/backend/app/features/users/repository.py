@@ -1,15 +1,12 @@
-from uuid import UUID
 from typing import Optional
 from sqlalchemy import select, update
 from datetime import datetime, timezone
 
-from core.models.users.where import UsersWhere
-
-
-from .models import UserORM
-
+from core.models.users.where import UsersFilter, UsersWhere
 from core.repositories.users import BaseUsersRepository
 from core.models.users.user import User
+
+from .models import UserORM
 
 
 class UsersRepository(BaseUsersRepository):
@@ -47,12 +44,14 @@ class UsersRepository(BaseUsersRepository):
         await self._session.execute(statement)
         await self._session.commit()
 
-    async def list_all(self, where_id: Optional[UUID] = None) -> list[User]:
-        if where_id:
-            raise ValueError(
-                "Filtering by ID is not supported for list_all method.")
-
+    async def list_all(self, where: Optional[UsersFilter] = None) -> list[User]:
         statement = select(UserORM)
+
+        if where:
+            conditions = where.resolve(UserORM)
+            if len(conditions) > 0:
+                statement = statement.where(*conditions)
+
         result = await self._session.execute(statement)
 
         return [user_orm.to_domain() for user_orm in result.scalars().all()]

@@ -5,18 +5,21 @@ from core.models.datasets.dataset_version import DatasetVersion
 from core.models.datasets.dataset_artifact import DatasetArtifact
 from core.models.datasets.where import (
     DatasetsWhere,
+    DatasetsFilter,
     DatasetVersionsWhere,
-    DatasetArtifactsWhere
+    DatasetVersionsFilter,
+    DatasetArtifactsWhere,
+    DatasetArtifactsFilter
 )
 
 
-class BaseDatasetsRepository(BaseRepository[Dataset, DatasetsWhere]):
+class BaseDatasetsRepository(BaseRepository[Dataset, DatasetsWhere, DatasetsFilter]):
     pass
 
 
-class BaseDatasetVersionsRepository(BaseRepository[DatasetVersion, DatasetVersionsWhere]):
+class BaseDatasetVersionsRepository(BaseRepository[DatasetVersion, DatasetVersionsWhere, DatasetVersionsFilter]):
     pass
 
 
-class BaseDatasetArtifactsRepository(BaseRepository[DatasetArtifact, DatasetArtifactsWhere]):
+class BaseDatasetArtifactsRepository(BaseRepository[DatasetArtifact, DatasetArtifactsWhere, DatasetArtifactsFilter]):
     pass

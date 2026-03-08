@@ -1,15 +1,17 @@
 from typing import Optional
 from abc import ABC, abstractmethod
-from uuid import UUID
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models.base import RootDomainModel
 from core.utils.where import BaseUniqueWhere
+from core.utils.filters.base import BaseFilter
 
 
 class BaseRepository[
     DomainType: RootDomainModel,
-    WhereType: BaseUniqueWhere
+    WhereType: BaseUniqueWhere,
+    FilterType: BaseFilter,
 ](ABC):
     def __init__(self, session: AsyncSession) -> None:
         super().__init__()
@@ -33,4 +35,4 @@ class BaseRepository[
 
     @abstractmethod
     async def list_all(
-        self, where_id: Optional[UUID] = None) -> list[DomainType]: ...
+        self, where: Optional[FilterType] = None) -> list[DomainType]: ...

@@ -1,4 +1,3 @@
-from uuid import UUID
 from sqlalchemy import select, update
 from typing import Optional
 from datetime import datetime, timezone
@@ -6,7 +5,7 @@ from datetime import datetime, timezone
 
 from .models import DatasetORM
 
-from core.models.datasets.where import DatasetsWhere
+from core.models.datasets.where import DatasetsFilter, DatasetsWhere
 from core.models.datasets.dataset import Dataset
 from core.repositories.datasets import BaseDatasetsRepository
 
@@ -46,13 +45,14 @@ class DatasetsRepository(BaseDatasetsRepository):
         await self._session.execute(query)
         await self._session.commit()
 
-    async def list_all(self, where_id: Optional[UUID] = None) -> list[Dataset]:
-        if where_id:
-            raise ValueError(
-                "Filtering by ID is not supported for list_all method.")
+    async def list_all(self, where: Optional[DatasetsFilter] = None) -> list[Dataset]:
+        statement = select(DatasetORM)
 
-        statement = select(DatasetORM).where(
-            DatasetORM.deleted_at.is_not(None))
+        if where:
+            conditions = where.resolve(DatasetORM)
+            if len(conditions) > 0:
+                statement = statement.where(*conditions)
+
         result = await self._session.execute(statement)
 
         return [dataset_orm.to_domain() for dataset_orm in result.scalars().all()]

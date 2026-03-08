@@ -3,7 +3,7 @@ from typing import Optional, Sequence
 from app.features.owners.dtos.create_owner import CreateOwnerDTO
 
 from core.models.owners.owner import Owner
-from core.models.owners.where import OwnersWhere
+from core.models.owners.where import OwnersWhere, OwnersFilter
 from core.models.owners.owner_type import OwnerType
 from core.services.base import BaseCRService
 from core.ports.unit_of_work import UnitOfWork
@@ -12,7 +12,8 @@ from core.ports.unit_of_work import UnitOfWork
 class OwnersService(BaseCRService[
     Owner,
     OwnersWhere,
-    CreateOwnerDTO
+    CreateOwnerDTO,
+    OwnersFilter
 ]):
     async def get_unique(self, *, uow: UnitOfWork, where: OwnersWhere) -> Optional[Owner]:
         return await uow.owners.get_unique(where=where)
@@ -32,8 +33,8 @@ class OwnersService(BaseCRService[
     async def delete_unique(self, *, uow: UnitOfWork, where: OwnersWhere):
         await uow.owners.delete(where)
 
-    async def get_all(self, *, uow: UnitOfWork) -> Sequence[Owner]:
-        return await uow.owners.list_all()
+    async def get_all(self, *, uow: UnitOfWork, filter: Optional[OwnersFilter] = None) -> Sequence[Owner]:
+        return await uow.owners.list_all(where=filter)
 
 
 def get_owners_service() -> OwnersService:
