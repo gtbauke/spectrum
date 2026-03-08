@@ -6,8 +6,11 @@ from typing import Optional, Union
 
 from sqlalchemy import and_, or_, not_
 from sqlalchemy.sql import ColumnElement
+
 from pydantic import BaseModel
 from db.base import RootBase
+
+from .field_filter import BaseFieldFilter
 
 
 logger = logging.getLogger(__name__)
@@ -64,7 +67,25 @@ class BaseFilter(BaseModel):
                         f"Model '{model.__name__}' has no field '{field}'")
 
                 column = getattr(model, field)
-                conditions.extend(value.resolve(column))  # type: ignore
+
+                if isinstance(value, BaseFieldFilter):
+                    conditions.extend(value.resolve(column))  # type: ignore
+                elif isinstance(value, BaseFilter):
+                    related_model = column.property.mapper.class_
+                    nested_conditions = value.resolve(related_model)
+
+                    if column.property.uselist:
+                        conditions.append(
+                            column.any(and_(*nested_conditions))
+                        )
+                    else:
+                        conditions.append(
+                            column.has(and_(*nested_conditions))
+                        )
+                else:
+                    raise TypeError(
+                        f"Invalid filter value for field '{field}': {value}"
+                    )
 
         return conditions
 
