@@ -9,7 +9,8 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { DatasetCreationProvider } from "./contexts/dataset-creation.context";
+
+import { ActivityProvider } from "./contexts/activity-view.context";
 
 export const links: Route.LinksFunction = () => [
     { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -37,11 +38,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Links />
             </head>
             <body>
-                <DatasetCreationProvider>
+                <ActivityProvider>
                     {children}
                     <ScrollRestoration />
                     <Scripts />
-                </DatasetCreationProvider>
+                </ActivityProvider>
             </body>
         </html>
     );
