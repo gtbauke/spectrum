@@ -15,7 +15,7 @@ class DatasetArtifactsService(BaseService):
     async def get_unique(self, *, uow: UnitOfWork, where: DatasetArtifactsWhere) -> Optional[DatasetArtifact]:
         return await uow.dataset_artifacts.get_unique(where=where)
 
-    async def create(self, *, uow: UnitOfWork, data: CreateArtifactDTO, file: BinaryIO) -> DatasetArtifact:
+    async def create(self, *, uow: UnitOfWork, data: CreateArtifactDTO, file: BinaryIO) -> tuple[DatasetArtifact, bool]:
         checksum, size = await checksum_and_size(file)
 
         existing = await uow.dataset_artifacts.get_unique(
@@ -24,7 +24,7 @@ class DatasetArtifactsService(BaseService):
         )
 
         if existing:
-            return existing
+            return existing, False
 
         file_path = f"datasets/{data.dataset_id}/artifacts/{checksum}"
         await uow.file_storage.upload(
@@ -39,7 +39,7 @@ class DatasetArtifactsService(BaseService):
             file_path=file_path,
         )
 
-        return await uow.dataset_artifacts.add(artifact)
+        return await uow.dataset_artifacts.add(artifact), True
 
     async def delete_unique(self, *, uow: UnitOfWork, where: DatasetArtifactsWhere):
         await uow.dataset_artifacts.delete(where=where)

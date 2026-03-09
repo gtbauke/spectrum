@@ -125,7 +125,7 @@ class DatasetVersionORM(ImmutableVersionedBase):
         )
 
 
-class DatasetArtifactORM(ImmutableVersionedBase):
+class DatasetArtifactORM(ImmutableBase):
     __tablename__ = "dataset_artifacts"
 
     dataset_id: Mapped[UUID] = mapped_column(
@@ -155,8 +155,6 @@ class DatasetArtifactORM(ImmutableVersionedBase):
             size_in_bytes=domain_obj.size_in_bytes,
             checksum=domain_obj.checksum,
             timestamp=domain_obj.timestamp,
-            version=domain_obj.version,
-            is_latest=domain_obj.is_latest,
         )
 
     def to_domain(self) -> DatasetArtifact:
@@ -167,8 +165,6 @@ class DatasetArtifactORM(ImmutableVersionedBase):
             size_in_bytes=self.size_in_bytes,
             checksum=self.checksum,
             timestamp=self.timestamp,
-            version=self.version,
-            is_latest=self.is_latest,
         )
 
 

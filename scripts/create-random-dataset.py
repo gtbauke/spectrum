@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 
+from datetime import datetime
+
 
 def main():
     num_features = int(input("Enter the number of features: "))
@@ -12,7 +14,7 @@ def main():
     for col in columns:
         df[col] = pd.Series(np.random.rand(num_rows))
 
-    df.to_csv("examples/random_dataset.csv", index=False)
+    df.to_csv(f"examples/{datetime.now()}_random_dataset.csv", index=False)
 
 
 main()

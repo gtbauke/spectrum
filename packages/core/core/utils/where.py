@@ -1,10 +1,10 @@
 from sqlalchemy.orm import DeclarativeBase as Base
 from sqlalchemy import and_
 
-from .exactly_one_model import ExactlyOneModel
+from .at_least_one_model import AtLeastOneModel
 
 
-class BaseUniqueWhere(ExactlyOneModel):
+class BaseUniqueWhere(AtLeastOneModel):
     def resolve(self, model: type[Base]):
         present = self.model_dump(exclude_unset=True)
 

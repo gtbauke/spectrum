@@ -1,6 +1,5 @@
 from uuid import UUID
-
-from fastapi import APIRouter, Depends, status, File, UploadFile
+from fastapi import APIRouter, Depends, status, File, UploadFile, Response
 
 from app.api.unit_of_work import get_uow
 from app.features.datasets.guards import is_dataset_owner
@@ -46,13 +45,19 @@ async def check_dataset_artifact_exists(
 )
 async def upload_dataset_artifact(
     dataset_id: UUID,
+    response: Response,
     uow: UnitOfWork = Depends(get_uow),
     file: UploadFile = File(...),
     dataset_artifacts_service: DatasetArtifactsService = Depends(
         get_dataset_artifacts_service),
 ):
     data = CreateArtifactDTO(dataset_id=dataset_id)
-    return await dataset_artifacts_service.create(uow=uow, data=data, file=file.file)
+    artifact, was_created = await dataset_artifacts_service.create(uow=uow, data=data, file=file.file)
+
+    if not was_created:
+        response.status_code = status.HTTP_200_OK
+
+    return artifact
 
 
 @dataset_artifacts_router.get(
