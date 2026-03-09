@@ -37,8 +37,11 @@ class AuthService(BaseService):
 
     def create_access_token(self, *, user_id: UUID, expires_delta: timedelta, owner_id: UUID):
         expire = datetime.now(timezone.utc) + expires_delta
-        to_encode: dict[str, str | datetime] = {
-            "sub": str(user_id), "exp": expire, "owner_id": str(owner_id)}
+        to_encode: dict[str, str | int] = {
+            "sub": str(user_id),
+            "exp": int(expire.timestamp()),
+            "owner_id": str(owner_id)
+        }
 
         return jwt.encode(to_encode, settings.SECRET_KEY)
 
