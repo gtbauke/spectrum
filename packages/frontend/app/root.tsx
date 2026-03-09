@@ -11,6 +11,7 @@ import type { Route } from "./+types/root";
 import "./app.css";
 
 import { ActivityProvider } from "./contexts/activity-view.context";
+import { ProfileTabsProvider } from "./contexts/profile-tabs.context";
 
 export const links: Route.LinksFunction = () => [
     { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -39,9 +40,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </head>
             <body>
                 <ActivityProvider>
-                    {children}
-                    <ScrollRestoration />
-                    <Scripts />
+                    <ProfileTabsProvider>
+                        {children}
+                        <ScrollRestoration />
+                        <Scripts />
+                    </ProfileTabsProvider>
                 </ActivityProvider>
             </body>
         </html>
