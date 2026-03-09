@@ -28,6 +28,8 @@ class DatasetVersionsService(BaseCRDService[
         return await uow.dataset_versions.get_unique(where=where)
 
     async def create(self, *, uow: UnitOfWork, data: CreateDatasetVersionDTO) -> DatasetVersion:
+        await uow.dataset_versions.unset_latest_version(where=DatasetVersionsWhere(dataset_id=data.dataset_id))
+
         return await uow.dataset_versions.add(DatasetVersion.new(
             dataset_id=data.dataset_id,
             version=data.version

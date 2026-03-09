@@ -13,6 +13,40 @@ class ImmutableBase(RootBase):
     """
     Base class for all immutable ORM models in the application.
     This class provides common functionality that can be shared across all immutable ORM models, such as automatic
+    timestamping of created records.
+
+    Defined properties:
+    - `id`: A unique identifier for each record, generated using PostgreSQL's `gen_random_uuid()` function.
+    - `timestamp`: A timestamp indicating when the record was created, automatically set to the current time when the record is inserted into the database.
+
+    The class also defines a unique constraint on the `id` field and an index on the `timestamp` field to optimize query performance.
+    """
+    __abstract__ = True
+
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+        server_default=text("gen_random_uuid()"),
+    )
+
+    timestamp: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+
+    @declared_attr.directive
+    def __table_args__(cls) -> Any:
+        return (
+            UniqueConstraint("id", name=f"uq_{cls.__tablename__}_id"),
+            Index(f"idx_{cls.__tablename__}_timestamp", "timestamp"),
+        )
+
+
+class ImmutableVersionedBase(RootBase):
+    """
+    Base class for all immutable ORM models in the application.
+    This class provides common functionality that can be shared across all immutable ORM models, such as automatic
     timestamping of created records and versioning for optimistic concurrency control.
 
     Defined properties:

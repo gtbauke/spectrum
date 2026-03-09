@@ -5,12 +5,12 @@ from typing import Optional
 from uuid import UUID, uuid4
 from datetime import datetime, timezone
 
-from core.models.base import BaseImmutableDomainModel
+from core.models.base import BaseImmutableVersionedDomainModel
 from core.models.owners.errors.invalid_owner_attachment import InvalidOwnerAttachment
 from core.models.owners.owner_type import OwnerType
 
 
-class Owner(BaseImmutableDomainModel):
+class Owner(BaseImmutableVersionedDomainModel):
     """
     The `Owner` class represents an entity that can own resources within the system. It is designed to be flexible and can represent different types of owners, such as users, teams, or organizations.
 

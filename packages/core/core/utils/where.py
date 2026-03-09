@@ -1,4 +1,5 @@
 from sqlalchemy.orm import DeclarativeBase as Base
+from sqlalchemy import and_
 
 from .exactly_one_model import ExactlyOneModel
 
@@ -6,6 +7,10 @@ from .exactly_one_model import ExactlyOneModel
 class BaseUniqueWhere(ExactlyOneModel):
     def resolve(self, model: type[Base]):
         present = self.model_dump(exclude_unset=True)
-        condition = next(iter(present.items()))
 
-        return getattr(model, condition[0]) == condition[1]
+        filters = [
+            getattr(model, field) == value
+            for field, value in present.items()
+        ]
+
+        return and_(*filters) if len(filters) > 1 else filters[0]

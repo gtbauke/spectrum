@@ -22,6 +22,7 @@ class DatasetsFilter(BaseFilter):
 
 class DatasetVersionsWhere(BaseUniqueWhere):
     id: Optional[UUID] = None
+    dataset_id: Optional[UUID] = None
     version: Optional[int] = None
 
 
@@ -31,8 +32,9 @@ class DatasetVersionsFilter(BaseFilter):
 
 
 class DatasetArtifactsWhere(BaseUniqueWhere):
-    id: UUID = Field(...,
-                     description="The unique identifier of the dataset artifact")
+    id: Optional[UUID] = None
+    dataset_id: Optional[UUID] = None
+    checksum: Optional[str] = None
 
 
 class DatasetArtifactsFilter(BaseFilter):

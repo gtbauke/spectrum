@@ -4,12 +4,12 @@ from uuid import UUID, uuid4
 from pydantic import Field
 from datetime import datetime, timezone
 
-from core.models.base import BaseImmutableDomainModel
+from core.models.base import BaseImmutableVersionedDomainModel
 
 from .dataset_artifact_version import DatasetArtifactVersion
 
 
-class DatasetVersion(BaseImmutableDomainModel):
+class DatasetVersion(BaseImmutableVersionedDomainModel):
     dataset_id: UUID = Field(...,
                              description="Unique identifier for the dataset")
 

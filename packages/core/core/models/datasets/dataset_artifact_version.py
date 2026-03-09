@@ -24,7 +24,6 @@ class DatasetArtifactVersion(BaseImmutableDomainModel):
         dataset_version_id: UUID,
         dataset_artifact_id: UUID,
         artifact_type: ArtifactType,
-        version: int = 1,
     ) -> "DatasetArtifactVersion":
         return cls(
             id=uuid4(),
@@ -32,6 +31,4 @@ class DatasetArtifactVersion(BaseImmutableDomainModel):
             dataset_artifact_id=dataset_artifact_id,
             artifact_type=artifact_type,
             timestamp=datetime.now(timezone.utc),
-            version=version,
-            is_latest=True,
         )

@@ -7,6 +7,7 @@ from core.models.datasets.dataset_artifact import DatasetArtifact
 from core.models.datasets.where import DatasetArtifactsWhere, DatasetArtifactsFilter
 
 from .dto.create_artifact import CreateArtifactDTO
+from .dto.exists import DatasetArtifactExistsDTO
 from ..utils.checksum import checksum_and_size
 
 
@@ -16,8 +17,16 @@ class DatasetArtifactsService(BaseService):
 
     async def create(self, *, uow: UnitOfWork, data: CreateArtifactDTO, file: BinaryIO) -> DatasetArtifact:
         checksum, size = await checksum_and_size(file)
-        file_path = f"datasets/{data.dataset_id}/artifacts/{checksum}"
 
+        existing = await uow.dataset_artifacts.get_unique(
+            where=DatasetArtifactsWhere(
+                dataset_id=data.dataset_id, checksum=checksum)
+        )
+
+        if existing:
+            return existing
+
+        file_path = f"datasets/{data.dataset_id}/artifacts/{checksum}"
         await uow.file_storage.upload(
             file=file,
             path=file_path
@@ -37,6 +46,14 @@ class DatasetArtifactsService(BaseService):
 
     async def get_all(self, *, uow: UnitOfWork, filter: Optional[DatasetArtifactsFilter] = None) -> list[DatasetArtifact]:
         return await uow.dataset_artifacts.list_all(where=filter)
+
+    async def already_exists(self, *, uow: UnitOfWork, data: DatasetArtifactExistsDTO) -> bool:
+        existing = await uow.dataset_artifacts.get_unique(
+            where=DatasetArtifactsWhere(
+                dataset_id=data.dataset_id, checksum=data.checksum)
+        )
+
+        return existing is not None
 
 
 def get_dataset_artifacts_service() -> DatasetArtifactsService:

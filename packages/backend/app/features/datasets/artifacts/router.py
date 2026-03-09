@@ -13,9 +13,28 @@ from .service import DatasetArtifactsService, get_dataset_artifacts_service
 
 from ..guards.is_dataset_owner import is_dataset_owner
 from .dto.create_artifact import CreateArtifactDTO
+from .dto.exists import DatasetArtifactExistsDTO
 
 
 dataset_artifacts_router = APIRouter(tags=["dataset_artifacts"])
+
+
+@dataset_artifacts_router.post(
+    path="/check",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(is_dataset_owner)]
+)
+async def check_dataset_artifact_exists(
+    dataset_id: UUID,
+    checksum: str,
+    uow: UnitOfWork = Depends(get_uow),
+    dataset_artifacts_service: DatasetArtifactsService = Depends(
+        get_dataset_artifacts_service),
+):
+    return await dataset_artifacts_service.already_exists(
+        uow=uow,
+        data=DatasetArtifactExistsDTO(dataset_id=dataset_id, checksum=checksum)
+    )
 
 
 @dataset_artifacts_router.post(

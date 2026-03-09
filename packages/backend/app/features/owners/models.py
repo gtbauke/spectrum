@@ -10,13 +10,13 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from core.models.owners.owner import Owner
 from core.models.owners.owner_type import OwnerType
 
-from db.immutable import ImmutableBase
+from db.immutable import ImmutableVersionedBase
 
 if TYPE_CHECKING:
     from app.features.users.models import UserORM
 
 
-class OwnerORM(ImmutableBase):
+class OwnerORM(ImmutableVersionedBase):
     __tablename__ = "owners"
 
     owner_type: Mapped[OwnerType] = mapped_column(

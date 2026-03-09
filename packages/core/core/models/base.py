@@ -29,6 +29,17 @@ class BaseImmutableDomainModel(RootDomainModel):
     """
     id: UUID = Field(uuid4(), description="Unique identifier for the model")
 
+    timestamp: datetime = Field(datetime.now(timezone.utc),
+                                description="Timestamp when the model was created")
+
+
+class BaseImmutableVersionedDomainModel(RootDomainModel):
+    """
+    Base class for all immutable domain models in the application.
+    This class is intended for models that should not be modified after creation, such as value objects or read-only representations of data.
+    """
+    id: UUID = Field(uuid4(), description="Unique identifier for the model")
+
     version: int = Field(1,
                          description="Version number for optimistic concurrency control")
 

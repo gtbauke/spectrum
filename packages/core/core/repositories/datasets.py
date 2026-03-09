@@ -31,7 +31,9 @@ class BaseDatasetsRepository(BaseRepository[Dataset, DatasetsWhere, DatasetsFilt
 
 
 class BaseDatasetVersionsRepository(BaseRepository[DatasetVersion, DatasetVersionsWhere, DatasetVersionsFilter]):
-    pass
+    @abstractmethod
+    async def unset_latest_version(self, *, where: DatasetVersionsWhere):
+        ...
 
 
 class BaseDatasetArtifactsRepository(BaseRepository[DatasetArtifact, DatasetArtifactsWhere, DatasetArtifactsFilter]):

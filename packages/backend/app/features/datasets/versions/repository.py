@@ -1,3 +1,5 @@
+from sqlalchemy import update
+
 from app.core.repository import BaseRepositoryImplementation
 
 from ..models import DatasetVersionORM
@@ -14,3 +16,13 @@ class DatasetVersionsRepository(BaseDatasetVersionsRepository, BaseRepositoryImp
     DatasetVersionsFilter
 ]):
     orm_model = DatasetVersionORM
+
+    async def unset_latest_version(self, *, where: DatasetVersionsWhere):
+        await self._session.execute(
+            update(self.orm_model)
+            .where(
+                where.resolve(self.orm_model),
+                self.orm_model.is_latest == True
+            )
+            .values(is_latest=False)
+        )

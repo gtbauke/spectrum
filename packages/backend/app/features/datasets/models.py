@@ -8,7 +8,7 @@ from sqlalchemy import String, ForeignKey, Integer, Enum, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
-from db.immutable import ImmutableBase
+from db.immutable import ImmutableBase, ImmutableVersionedBase
 from db.mutable import MutableBase
 
 from core.models.datasets.dataset import Dataset
@@ -74,7 +74,7 @@ class DatasetORM(MutableBase):
         )
 
 
-class DatasetVersionORM(ImmutableBase):
+class DatasetVersionORM(ImmutableVersionedBase):
     __tablename__ = "dataset_versions"
 
     dataset_id: Mapped[UUID] = mapped_column(
@@ -125,7 +125,7 @@ class DatasetVersionORM(ImmutableBase):
         )
 
 
-class DatasetArtifactORM(ImmutableBase):
+class DatasetArtifactORM(ImmutableVersionedBase):
     __tablename__ = "dataset_artifacts"
 
     dataset_id: Mapped[UUID] = mapped_column(
@@ -209,9 +209,7 @@ class DatasetVersionArtifactAssociationORM(ImmutableBase):
             dataset_version_id=domain_obj.dataset_version_id,
             dataset_artifact_id=domain_obj.dataset_artifact_id,
             artifact_type=domain_obj.artifact_type,
-            version=domain_obj.version,
             timestamp=domain_obj.timestamp,
-            is_latest=domain_obj.is_latest,
         )
 
     def to_domain(self) -> DatasetArtifactVersion:
@@ -220,7 +218,5 @@ class DatasetVersionArtifactAssociationORM(ImmutableBase):
             dataset_version_id=self.dataset_version_id,
             dataset_artifact_id=self.dataset_artifact_id,
             artifact_type=self.artifact_type,
-            version=self.version,
             timestamp=self.timestamp,
-            is_latest=self.is_latest,
         )

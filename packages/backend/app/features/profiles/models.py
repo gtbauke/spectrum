@@ -9,13 +9,13 @@ from core.models.profiles.profile_status import ProfileStatus
 from core.models.profiles.profile_visibility import ProfileVisibility
 from core.models.profiles.profile_dataset_role import ProfileDatasetRole
 
-from db.immutable import ImmutableBase
+from db.immutable import ImmutableVersionedBase
 
 if TYPE_CHECKING:
     from app.features.datasets.models import DatasetVersionORM
 
 
-class ProfileORM(ImmutableBase):
+class ProfileORM(ImmutableVersionedBase):
     __tablename__ = "profiles"
 
     name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -59,7 +59,7 @@ class ProfileORM(ImmutableBase):
         )
 
 
-class ProfileDatasetVersionORM(ImmutableBase):
+class ProfileDatasetVersionORM(ImmutableVersionedBase):
     __tablename__ = "profile_dataset_versions"
 
     profile_id: Mapped[UUID] = mapped_column(
