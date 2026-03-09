@@ -1,7 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { Logo } from "~/components/ui/brand/logo.component";
 import { Button } from "~/components/ui/buttons/button.component";
 import { TextInput } from "~/components/ui/forms/input/text-input.component";
+import { RedirectLink } from "~/components/ui/redirects/redirect-link.component";
 import { loginSchema } from "~/schemas/login.schema";
 
 export default function Login() {
@@ -25,9 +27,7 @@ export default function Login() {
         <div className="flex h-screen w-full bg-background text-white">
             <div className="hidden lg:flex flex-1 relative flex-col justify-between p-10 bg-[radial-gradient(#2D3343_1px,transparent_1px)] bg-size-[40px_40px]">
                 <div className="z-10">
-                    <h1 className="text-2xl font-bold tracking-tighter text-primary">
-                        SPECTRUM
-                    </h1>
+                    <Logo />
                     <p className="mt-2 text-gray-400 max-w-sm">
                         Explore, visualize, and derive insights from your data with Symbolic
                         Regression.
@@ -75,12 +75,9 @@ export default function Login() {
                     </form>
 
                     <div className="mt-8 pt-8 border-t border-border flex justify-center space-x-4">
-                        <button
-                            type="button"
-                            className="text-xs text-gray-500 hover:text-white transition cursor-pointer"
-                        >
+                        <RedirectLink to="/signup" className="text-xs text-gray-500 hover:text-white transition cursor-pointer">
                             Create Account
-                        </button>
+                        </RedirectLink>
                     </div>
                 </div>
             </div>

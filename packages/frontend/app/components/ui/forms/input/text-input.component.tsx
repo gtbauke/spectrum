@@ -2,6 +2,7 @@ import type React from "react";
 import { forwardRef, useState } from "react";
 import type { FieldError } from "react-hook-form";
 import { VscEye, VscEyeClosed } from "react-icons/vsc";
+import { RedirectLink } from "~/components/ui/redirects/redirect-link.component";
 import { cn } from "~/utils/classname.util";
 
 export type TextInputProps = {
@@ -40,12 +41,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
                         </div>
 
                         {redirect && redirectHref && (
-                            <a
-                                href={redirectHref}
-                                className="text-xs text-violet-400 hover:text-violet-300 hover:underline transition-colors"
-                            >
-                                {redirect}
-                            </a>
+                            <RedirectLink to={redirectHref} className="text-sm">{redirect}</RedirectLink>
                         )}
                     </div>
 
