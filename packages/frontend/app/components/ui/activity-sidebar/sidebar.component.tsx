@@ -5,25 +5,25 @@ import {
     Timer,
     Workflow,
 } from "lucide-react";
-import { ActivityIcon } from "./icon.component";
+import { ActivityButton } from "./activity-button.component";
 
 export function ActivitySidebar() {
     return (
         <aside className="w-16 flex flex-col items-center py-4 bg-background-bg-conic-0 border-r border-border shrink-0">
             <nav className="flex flex-col space-y-4">
-                <ActivityIcon
+                <ActivityButton
                     Icon={Workflow}
                     label="Profiles"
                     activityView="profiles"
                 />
 
-                <ActivityIcon
+                <ActivityButton
                     Icon={FolderSearch}
                     label="Global Datasets"
                     activityView="datasets"
                 />
 
-                <ActivityIcon
+                <ActivityButton
                     Icon={Timer}
                     label="Job Monitor"
                     activityView="jobs"
@@ -31,13 +31,13 @@ export function ActivitySidebar() {
             </nav>
 
             <div className="mt-auto flex flex-col space-y-4">
-                <ActivityIcon
+                <ActivityButton
                     Icon={CircleUserRound}
                     label="My account"
                     activityView="account"
                 />
 
-                <ActivityIcon
+                <ActivityButton
                     Icon={Settings}
                     label="Settings"
                     activityView="settings"

@@ -19,6 +19,8 @@ export type ProfileTabsContextType = {
     openTab: (profileTab: ProfileTab) => void;
     closeTab: (id: string) => void;
     setActiveTab: (id: string) => void;
+
+    updateTab: (id: string, updates: Partial<ProfileTab>) => void;
 };
 
 const ProfileTabsContext = createContext<ProfileTabsContextType | null>(null);
@@ -58,6 +60,10 @@ export function ProfileTabsProvider({ children }: PropsWithChildren) {
         [activeTabId],
     );
 
+    const updateTab = useCallback((id: string, updates: Partial<ProfileTab>) => {
+        setTabs(prev => prev.map(tab => tab.id === id ? { ...tab, ...updates } : tab));
+    }, []);
+
     return (
         <ProfileTabsContext.Provider
             value={{
@@ -66,6 +72,7 @@ export function ProfileTabsProvider({ children }: PropsWithChildren) {
                 openTab,
                 closeTab,
                 setActiveTab: setActiveTabId,
+                updateTab,
             }}
         >
             {children}

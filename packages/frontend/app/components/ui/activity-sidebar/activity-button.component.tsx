@@ -4,17 +4,17 @@ import {
     useActivity,
 } from "~/contexts/activity-view.context";
 
-type ActivityIconProps = {
+type ActivityButtonProps = {
     Icon: LucideIcon;
     label: string;
     activityView: ActivityView;
 };
 
-export function ActivityIcon({
+export function ActivityButton({
     Icon,
     label,
     activityView,
-}: ActivityIconProps) {
+}: ActivityButtonProps) {
     const { setActiveView, activeView } = useActivity();
     const active = activeView === activityView;
 
