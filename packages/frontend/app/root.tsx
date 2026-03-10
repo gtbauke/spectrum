@@ -1,3 +1,5 @@
+import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
     isRouteErrorResponse,
     Links,
@@ -10,6 +12,7 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 
+import { queryClient } from "./api/client.api";
 import { ActivityProvider } from "./contexts/activity-view.context";
 import { ProfileTabsProvider } from "./contexts/profile-tabs.context";
 
@@ -31,21 +34,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <html lang="en">
             <head>
                 <meta charSet="utf-8" />
-                <meta
-                    name="viewport"
-                    content="width=device-width, initial-scale=1"
-                />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <Meta />
                 <Links />
             </head>
             <body>
-                <ActivityProvider>
-                    <ProfileTabsProvider>
-                        {children}
-                        <ScrollRestoration />
-                        <Scripts />
-                    </ProfileTabsProvider>
-                </ActivityProvider>
+                <QueryClientProvider client={queryClient}>
+                    <ActivityProvider>
+                        <ProfileTabsProvider>
+                            {children}
+                            <ScrollRestoration />
+                            <Scripts />
+                        </ProfileTabsProvider>
+                    </ActivityProvider>
+
+                    <ReactQueryDevtools initialIsOpen={false} />
+                </QueryClientProvider>
             </body>
         </html>
     );
