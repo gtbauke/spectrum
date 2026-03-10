@@ -29,6 +29,10 @@ class BaseDatasetsRepository(BaseRepository[Dataset, DatasetsWhere, DatasetsFilt
     async def get_owner_id(self, *, where: DatasetsWhere) -> Optional[UUID]:
         ...
 
+    @abstractmethod
+    async def get_paginated(self, *, filter: DatasetsFilter, limit: int = 20, offset: int = 0) -> tuple[list[Dataset], int]:
+        ...
+
 
 class BaseDatasetVersionsRepository(BaseRepository[DatasetVersion, DatasetVersionsWhere, DatasetVersionsFilter]):
     @abstractmethod

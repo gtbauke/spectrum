@@ -36,6 +36,9 @@ class BaseFilter(BaseModel):
         })
 
         for field, value in values.items():
+            if value is None:
+                continue
+
             logger.info("RESOLVING FILTER FIELD", extra={
                 "model_name": model.__name__,
                 "field": field,

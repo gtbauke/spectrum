@@ -75,6 +75,9 @@ class DatasetsService(BaseCRUDService[
     async def get_all(self, *, uow: UnitOfWork, filter: Optional[DatasetsFilter] = None) -> list[Dataset]:
         return await uow.datasets.list_all(where=filter)
 
+    async def get_paginated(self, *, uow: UnitOfWork, filter: DatasetsFilter, limit: int = 20, offset: int = 0) -> tuple[list[Dataset], int]:
+        return await uow.datasets.get_paginated(filter=filter, limit=limit, offset=offset)
+
 
 def get_datasets_service() -> DatasetsService:
     versions_service = get_dataset_versions_service()

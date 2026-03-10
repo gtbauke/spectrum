@@ -1,11 +1,13 @@
+from __future__ import annotations
 from typing import Optional
 
 from pydantic import Field
 from uuid import UUID
 
+from core.models.datasets.artifact_type import ArtifactType
 from core.utils.where import BaseUniqueWhere
 from core.utils.filters.base import BaseFilter
-from core.utils.filters.field_filter import UUIDFilter, DateTimeFilter
+from core.utils.filters.field_filter import EnumFilter, StringFilter, UUIDFilter, DateTimeFilter, NumberFilter
 
 
 class DatasetsWhere(BaseUniqueWhere):
@@ -13,11 +15,11 @@ class DatasetsWhere(BaseUniqueWhere):
 
 
 class DatasetsFilter(BaseFilter):
-    owner_id: Optional[UUIDFilter] = Field(
-        None, description="The unique identifier of the owner associated with the dataset")
-
-    deleted_at: Optional[DateTimeFilter] = Field(
-        None, description="The timestamp when the dataset was deleted. Null if not deleted")
+    owner_id: Optional[UUIDFilter] = None
+    deleted_at: Optional[DateTimeFilter] = None
+    name: Optional[StringFilter] = None
+    description: Optional[StringFilter] = None
+    versions: Optional[DatasetVersionsFilter] = None
 
 
 class DatasetVersionsWhere(BaseUniqueWhere):
@@ -27,8 +29,8 @@ class DatasetVersionsWhere(BaseUniqueWhere):
 
 
 class DatasetVersionsFilter(BaseFilter):
-    dataset_id: Optional[UUIDFilter] = Field(
-        None, description="The unique identifier of the dataset associated with the dataset version")
+    dataset_id: Optional[UUIDFilter] = None
+    artifacts: Optional[DatasetArtifactVersionsFilter] = None
 
 
 class DatasetArtifactsWhere(BaseUniqueWhere):
@@ -38,8 +40,9 @@ class DatasetArtifactsWhere(BaseUniqueWhere):
 
 
 class DatasetArtifactsFilter(BaseFilter):
-    dataset_id: Optional[UUIDFilter] = Field(
-        None, description="The unique identifier of the dataset associated with the dataset artifact")
+    dataset_id: Optional[UUIDFilter] = None
+    size_in_bytes: Optional[NumberFilter[int]] = None
+    checksum: Optional[StringFilter] = None
 
 
 class DatasetArtifactVersionsWhere(BaseUniqueWhere):
@@ -48,5 +51,6 @@ class DatasetArtifactVersionsWhere(BaseUniqueWhere):
 
 
 class DatasetArtifactVersionsFilter(BaseFilter):
-    dataset_artifact_id: Optional[UUIDFilter] = Field(
-        None, description="The unique identifier of the dataset artifact associated with the dataset artifact version")
+    dataset_artifact_id: Optional[UUIDFilter] = None
+    artifact_type: Optional[EnumFilter[ArtifactType]] = None
+    dataset_artifact: Optional[DatasetArtifactsFilter] = None

@@ -93,3 +93,7 @@ class DateTimeFilter(NumberFilter[datetime]):
 
 class UUIDFilter(BaseFieldFilter[UUID]):
     pass
+
+
+class EnumFilter[T](BaseFieldFilter[T]):
+    pass

@@ -206,6 +206,8 @@ class DatasetVersionArtifactAssociationORM(ImmutableBase):
             dataset_artifact_id=domain_obj.dataset_artifact_id,
             artifact_type=domain_obj.artifact_type,
             timestamp=domain_obj.timestamp,
+            dataset_artifact=DatasetArtifactORM.from_domain(
+                domain_obj.dataset_artifact) if domain_obj.dataset_artifact else None,
         )
 
     def to_domain(self) -> DatasetArtifactVersion:
@@ -214,5 +216,6 @@ class DatasetVersionArtifactAssociationORM(ImmutableBase):
             dataset_version_id=self.dataset_version_id,
             dataset_artifact_id=self.dataset_artifact_id,
             artifact_type=self.artifact_type,
+            dataset_artifact=self.dataset_artifact.to_domain(),
             timestamp=self.timestamp,
         )
