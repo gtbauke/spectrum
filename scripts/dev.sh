@@ -99,6 +99,13 @@ echo "Running database migrations with uv..."
     uv run alembic upgrade head
 )
 
+echo "Generating Zod schemas from domain models..."
+(
+    cd "$ROOT_DIR"
+    uv sync --all-packages
+    cd "$ROOT_DIR/packages/core"
+    uv run python scripts/generate_zod_schemas.py
+)
 
 echo "Starting backend server with uv..."
 (
