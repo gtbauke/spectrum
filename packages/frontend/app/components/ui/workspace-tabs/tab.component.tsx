@@ -1,4 +1,4 @@
-import { MdClose, MdOutlineFolderOpen } from "react-icons/md";
+import { Folder, X } from "lucide-react";
 import { useProfileTabs } from "~/contexts/profile-tabs.context";
 import { cn } from "~/utils/classname.util";
 
@@ -18,7 +18,7 @@ export function Tab({ id, profileName }: TabProps) {
         )}>
             <div className="flex items-center gap-2">
                 <span className="text-primary-400">
-                    <MdOutlineFolderOpen size={16} />
+                    <Folder size={16} />
                 </span>
                 <span>{profileName}</span>
             </div>
@@ -28,7 +28,7 @@ export function Tab({ id, profileName }: TabProps) {
                 className="opacity-0 group-hover:opacity-100 hover:text-red-400 cursor-pointer"
                 onClick={() => closeTab(id)}
             >
-                <MdClose size={16} />
+                <X size={16} />
             </button>
         </div>
     )

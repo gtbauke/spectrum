@@ -1,4 +1,4 @@
-import { MdAdd } from "react-icons/md";
+import { Plus } from "lucide-react";
 import { useProfileTabs } from "~/contexts/profile-tabs.context";
 
 export function NewTabButton() {
@@ -10,7 +10,7 @@ export function NewTabButton() {
             className="px-3 h-full text-gray-400 hover:text-white hover:bg-white/5 transition cursor-pointer"
             onClick={() => openTab({ id: crypto.randomUUID(), name: "New Tab" })}
         >
-            <MdAdd size={20} />
+            <Plus size={20} />
         </button>
     )
 }

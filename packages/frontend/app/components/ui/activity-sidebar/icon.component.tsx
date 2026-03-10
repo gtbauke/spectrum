@@ -1,11 +1,11 @@
-import type { IconType } from "react-icons";
+import type { LucideIcon } from "lucide-react";
 import {
     type ActivityView,
     useActivity,
 } from "~/contexts/activity-view.context";
 
 type ActivityIconProps = {
-    Icon: IconType;
+    Icon: LucideIcon;
     label: string;
     activityView: ActivityView;
 };

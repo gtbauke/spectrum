@@ -25,10 +25,12 @@ export function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
 
                 {isSidebarOpen && <InnerSidebar />}
 
-                <main className="flex-1 relative bg-[radial-gradient(#2D3343_1px,transparent_1px)] bg-size-[24px_24px]">
+                <div className="flex-1 flex flex-col overflow-hidden">
                     <TabBar />
-                    {children}
-                </main>
+                    <main className="flex-1 relative bg-[radial-gradient(#2D3343_1px,transparent_1px)] bg-size-[24px_24px] overflow-auto">
+                        {children}
+                    </main>
+                </div>
             </div>
         </div>
     );
