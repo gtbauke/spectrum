@@ -1,7 +1,7 @@
+import { Eye, EyeClosed } from "lucide-react";
 import type React from "react";
 import { forwardRef, useState } from "react";
 import type { FieldError } from "react-hook-form";
-import { VscEye, VscEyeClosed } from "react-icons/vsc";
 import { RedirectLink } from "~/components/ui/redirects/redirect-link.component";
 import { cn } from "~/utils/classname.util";
 
@@ -41,7 +41,9 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
                         </div>
 
                         {redirect && redirectHref && (
-                            <RedirectLink to={redirectHref} className="text-sm">{redirect}</RedirectLink>
+                            <RedirectLink to={redirectHref} className="text-sm">
+                                {redirect}
+                            </RedirectLink>
                         )}
                     </div>
 
@@ -69,11 +71,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
                                 className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-gray-500 hover:text-primary-400 transition-colors cursor-pointer"
                                 tabIndex={-1}
                             >
-                                {showPassword ? (
-                                    <VscEyeClosed size={20} />
-                                ) : (
-                                    <VscEye size={20} />
-                                )}
+                                {showPassword ? <EyeClosed size={20} /> : <Eye size={20} />}
                             </button>
                         )}
                     </div>
