@@ -26,6 +26,7 @@ class DatasetVersionsWhere(BaseUniqueWhere):
     id: Optional[UUID] = None
     dataset_id: Optional[UUID] = None
     version: Optional[int] = None
+    is_latest: Optional[bool] = None
 
 
 class DatasetVersionsFilter(BaseFilter):

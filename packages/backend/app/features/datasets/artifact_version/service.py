@@ -8,6 +8,8 @@ from core.models.datasets.dataset_artifact_version import DatasetArtifactVersion
 from ..versions.dto.associate_artifacts import AssociateArtifactsDTO
 from .results.bulk_create import BulkCreateAssociationResult, AssociationErrorReason, AssociationError
 
+# TODO: FIX THIS FUNCTION THAT CANNOT CREATE BULK ASSOCIATIONS
+
 
 class DatasetArtifactVersionService(BaseService):
     async def create_bulk_association(
@@ -17,45 +19,44 @@ class DatasetArtifactVersionService(BaseService):
         dataset_version_id: UUID,
         data: AssociateArtifactsDTO,
     ) -> BulkCreateAssociationResult:
-        associations = [
-            DatasetArtifactVersion.new(
-                dataset_artifact_id=d.artifact_id,
-                artifact_type=d.artifact_type,
-                dataset_version_id=dataset_version_id,
-            ) for d in data.associations
-        ]
-
         successful_associations: list[DatasetArtifactVersion] = []
         unsuccessful_associations: list[AssociationError] = []
 
-        for association in associations:
+        to_add: list[DatasetArtifactVersion] = []
+
+        for d in data.associations:
             artifact = await uow.dataset_artifacts.get_unique(
-                where=DatasetArtifactsWhere(
-                    id=association.dataset_artifact_id,
-                )
+                where=DatasetArtifactsWhere(id=d.artifact_id)
             )
 
             if not artifact:
                 unsuccessful_associations.append(AssociationError(
                     dataset_version_id=dataset_version_id,
-                    artifact_id=association.dataset_artifact_id,
-                    artifact_type=association.artifact_type,
+                    artifact_id=d.artifact_id,
+                    artifact_type=d.artifact_type,
                     error_reason=AssociationErrorReason.ARTIFACT_DOES_NOT_EXIST,
                 ))
-
                 continue
 
             if artifact.dataset_id != data.dataset_id:
                 unsuccessful_associations.append(AssociationError(
                     dataset_version_id=dataset_version_id,
-                    artifact_id=association.dataset_artifact_id,
-                    artifact_type=association.artifact_type,
+                    artifact_id=d.artifact_id,
+                    artifact_type=d.artifact_type,
                     error_reason=AssociationErrorReason.ARTIFACT_DOES_NOT_BELONG_TO_DATASET,
                 ))
-
                 continue
 
-            result = await uow.dataset_artifact_versions.add(association, commit=False)
+            association = DatasetArtifactVersion.new(
+                dataset_artifact_id=artifact.id,
+                artifact_type=d.artifact_type,
+                dataset_version_id=dataset_version_id,
+            )
+
+            to_add.append(association)
+
+        for value in to_add:
+            result = await uow.dataset_artifact_versions.add(value)
             successful_associations.append(result)
 
         return BulkCreateAssociationResult(

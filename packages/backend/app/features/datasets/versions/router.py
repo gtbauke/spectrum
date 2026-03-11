@@ -17,6 +17,22 @@ dataset_versions_router = APIRouter(
 
 
 @dataset_versions_router.post(
+    path="/",
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_version(
+    dataset_id: UUID,
+    uow: UnitOfWork = Depends(get_uow),
+    versions_service: DatasetVersionsService = Depends(
+        get_dataset_versions_service),
+):
+    return await versions_service.create_new_version(
+        dataset_id=dataset_id,
+        uow=uow,
+    )
+
+
+@dataset_versions_router.post(
     path="/{version}/artifacts",
     status_code=status.HTTP_201_CREATED,
 )

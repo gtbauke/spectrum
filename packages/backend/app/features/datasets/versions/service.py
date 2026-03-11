@@ -1,4 +1,5 @@
 from typing import Optional
+from uuid import UUID
 
 from core.ports.unit_of_work import UnitOfWork
 from core.services.base import BaseCRDService
@@ -33,6 +34,15 @@ class DatasetVersionsService(BaseCRDService[
         return await uow.dataset_versions.add(DatasetVersion.new(
             dataset_id=data.dataset_id,
             version=data.version
+        ))
+
+    async def create_new_version(self, *, uow: UnitOfWork, dataset_id: UUID) -> DatasetVersion:
+        latest_version = await uow.dataset_versions.get_unique(where=DatasetVersionsWhere(dataset_id=dataset_id, is_latest=True))
+        new_version_number = 1 if not latest_version else latest_version.version + 1
+
+        return await self.create(uow=uow, data=CreateDatasetVersionDTO(
+            dataset_id=dataset_id,
+            version=new_version_number,
         ))
 
     async def delete_unique(self, *, uow: UnitOfWork, where: DatasetVersionsWhere):
