@@ -18,6 +18,12 @@ from core.repositories.datasets import (
     BaseDatasetArtifactVersionsRepository,
 )
 
+from core.repositories.profiles import (
+    BaseProfilesRepository,
+    BaseProfileVersionsRepository,
+    BaseProfileDatasetAssociationsRepository,
+)
+
 
 class UnitOfWork(ABC):
     users: BaseUsersRepository
@@ -27,6 +33,9 @@ class UnitOfWork(ABC):
     dataset_versions: BaseDatasetVersionsRepository
     dataset_artifacts: BaseDatasetArtifactsRepository
     dataset_artifact_versions: BaseDatasetArtifactVersionsRepository
+    profiles: BaseProfilesRepository
+    profile_versions: BaseProfileVersionsRepository
+    profile_dataset_associations: BaseProfileDatasetAssociationsRepository
 
     file_storage: FileStorage
 

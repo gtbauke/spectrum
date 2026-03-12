@@ -12,6 +12,8 @@ from app.features.datasets.repository import DatasetsRepository
 from app.features.datasets.versions.repository import DatasetVersionsRepository
 from app.features.datasets.artifacts.repository import DatasetArtifactsRepository
 from app.features.datasets.artifact_version.repository import DatasetArtifactVersionsRepository
+from app.features.profiles.repository import ProfilesRepository
+from app.features.profiles.versions.repository import ProfileVersionsRepository
 from app.adapters.storage.local_storage import LocalStorage
 
 from core.ports.unit_of_work import UnitOfWork
@@ -36,6 +38,10 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
         self.dataset_artifacts = DatasetArtifactsRepository(
             session=self._session)
         self.dataset_artifact_versions = DatasetArtifactVersionsRepository(
+            session=self._session)
+
+        self.profiles = ProfilesRepository(session=self._session)
+        self.profile_versions = ProfileVersionsRepository(
             session=self._session)
 
         self.file_storage = LocalStorage()

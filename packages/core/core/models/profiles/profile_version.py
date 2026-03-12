@@ -1,21 +1,56 @@
+from __future__ import annotations
+
 from uuid import UUID
 from pydantic import Field
 from typing import TYPE_CHECKING, Optional
+from datetime import datetime, timezone
 
 from core.models.base import BaseImmutableVersionedDomainModel
+from core.models.profiles.profile_status import ProfileStatus
+from core.models.profiles.profile_visibility import ProfileVisibility
 
 
 if TYPE_CHECKING:
-    from core.models.profiles.profile import Profile
     from core.models.profiles.profile_dataset_association import ProfileDatasetAssociation
 
 
 class ProfileVersion(BaseImmutableVersionedDomainModel):
+    name: str = Field(..., max_length=255,
+                      description="The name of the profile")
+
+    description: Optional[str] = Field(
+        None, description="A brief description of the profile")
+
+    status: ProfileStatus = Field(..., description="The status of the profile")
+
+    visibility: ProfileVisibility = Field(...,
+                                          description="The visibility of the profile")
+
     profile_id: UUID = Field(...,
                              description="The ID of the profile this version belongs to")
 
-    profile: Optional["Profile"] = Field(...,
-                                         description="The profile this version belongs to")
-
     datasets: list[ProfileDatasetAssociation] = Field(
         ..., description="The datasets associated with this profile version")
+
+    @classmethod
+    def new(
+        cls,
+        *,
+        name: str,
+        description: Optional[str],
+        visibility: ProfileVisibility,
+        profile_id: UUID,
+        version: int,
+        is_latest: bool
+    ) -> "ProfileVersion":
+        return cls(
+            name=name,
+            description=description,
+            visibility=visibility,
+            profile_id=profile_id,
+            status=ProfileStatus.ACTIVE,
+            datasets=[],
+            version=version,
+            is_latest=is_latest,
+            timestamp=datetime.now(timezone.utc),
+        )

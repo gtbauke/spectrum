@@ -6,6 +6,7 @@ from core.common.logging import setup_logging
 from .api.v1 import api_router
 
 from app.features.models import *
+from app.utils.rebuild import *
 
 
 @asynccontextmanager

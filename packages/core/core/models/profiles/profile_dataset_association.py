@@ -1,11 +1,14 @@
+from __future__ import annotations
+
 from uuid import UUID
 from pydantic import Field
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from core.models.base import BaseImmutableDomainModel
 from core.models.profiles.profile_dataset_role import ProfileDatasetRole
 
-from core.models.datasets.dataset_version import DatasetVersion
+if TYPE_CHECKING:
+    from core.models.datasets.dataset_version import DatasetVersion
 
 
 class ProfileDatasetAssociation(BaseImmutableDomainModel):
@@ -18,5 +21,5 @@ class ProfileDatasetAssociation(BaseImmutableDomainModel):
     role: ProfileDatasetRole = Field(
         ..., description="The role of the dataset in the profile version")
 
-    dataset_version: Optional[DatasetVersion] = Field(
+    dataset_version: Optional["DatasetVersion"] = Field(
         None, description="The dataset version this association belongs to")

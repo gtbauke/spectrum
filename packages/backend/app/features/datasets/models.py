@@ -18,7 +18,7 @@ from core.models.datasets.dataset_artifact_version import DatasetArtifactVersion
 from core.models.datasets.artifact_type import ArtifactType
 
 if TYPE_CHECKING:
-    from app.features.profiles.models import ProfileORM
+    from app.features.profiles.models import ProfileDatasetAssociationORM
 
 
 class DatasetORM(MutableBase):
@@ -83,13 +83,6 @@ class DatasetVersionORM(ImmutableVersionedBase):
         nullable=False
     )
 
-    profiles: Mapped[list["ProfileORM"]] = relationship(
-        "ProfileORM",
-        secondary="profile_dataset_versions",
-        back_populates="dataset_versions",
-        lazy="selectin"
-    )
-
     dataset: Mapped["DatasetORM"] = relationship(
         "DatasetORM",
         back_populates="versions",
@@ -100,6 +93,12 @@ class DatasetVersionORM(ImmutableVersionedBase):
         "DatasetVersionArtifactAssociationORM",
         back_populates="dataset_version",
         lazy="selectin",
+    )
+
+    profile_associations: Mapped[list["ProfileDatasetAssociationORM"]] = relationship(
+        "ProfileDatasetAssociationORM",
+        back_populates="dataset_version",
+        lazy="selectin"
     )
 
     @classmethod

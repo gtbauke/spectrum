@@ -37,6 +37,10 @@ class ProfileVersionWhere(BaseUniqueWhere):
 
 class ProfileVersionFilter(BaseFilter):
     id: Optional[UUIDFilter] = None
+    name: Optional[StringFilter] = None
+    description: Optional[StringFilter] = None
+    status: Optional[EnumFilter[ProfileStatus]] = None
+    visibility: Optional[EnumFilter[ProfileVisibility]] = None
     profile_id: Optional[UUIDFilter] = None
     version: Optional[NumberFilter[int]] = None
     is_latest: Optional[bool] = None
@@ -54,11 +58,6 @@ class ProfilesFilter(BaseFilter):
     version: Optional[NumberFilter[int]] = None
     is_latest: Optional[bool] = None
     timestamp: Optional[DateTimeFilter] = None
-
-    name: Optional[StringFilter] = None
-    description: Optional[StringFilter] = None
-    status: Optional[EnumFilter[ProfileStatus]] = None
-    visibility: Optional[EnumFilter[ProfileVisibility]] = None
 
     owner_id: Optional[UUIDFilter] = None
     versions: Optional[ProfileVersionFilter] = None

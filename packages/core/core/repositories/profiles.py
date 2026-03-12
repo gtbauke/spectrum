@@ -1,3 +1,7 @@
+from abc import abstractmethod
+from uuid import UUID
+from typing import Optional
+
 from .base import BaseRepository
 
 from core.models.profiles.where import (
@@ -14,7 +18,9 @@ from core.models.profiles.profile_dataset_association import ProfileDatasetAssoc
 
 
 class BaseProfilesRepository(BaseRepository[Profile, ProfilesWhere, ProfilesFilter]):
-    pass
+    @abstractmethod
+    async def get_owner_id(self, where: ProfilesWhere) -> Optional[UUID]:
+        pass
 
 
 class BaseProfileVersionsRepository(BaseRepository[
