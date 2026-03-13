@@ -52,7 +52,8 @@ class ProfilesRepository(BaseProfilesRepository, BaseRepositoryImplementation[
         query = (
             select(self.orm_model)
             .options(
-                selectinload(self.orm_model.versions)
+                selectinload(self.orm_model.versions.and_(
+                    ProfileVersionORM.is_latest == True))
                 .selectinload(ProfileVersionORM.datasets)
                 .selectinload(ProfileDatasetAssociationORM.dataset_version)
             )

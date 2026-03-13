@@ -4,8 +4,10 @@ from fastapi import APIRouter, Depends, status
 from app.features.auth.guards.get_current_user import get_current_owner
 from app.api.unit_of_work import get_uow
 
+from core.models.profiles.profile_visibility import ProfileVisibility
 from core.ports.unit_of_work import UnitOfWork
-from core.models.profiles.where import ProfilesWhere
+from core.models.profiles.where import ProfileVersionFilter, ProfilesFilter, ProfilesWhere
+from core.utils.filters.field_filter import EnumFilter, UUIDFilter
 
 from .service import ProfilesService, get_profiles_service
 from .dto.create_profile import CreateProfileDTO, CreateProfileRouteDTO
@@ -75,8 +77,23 @@ async def get_profile(
 async def get_profiles(
     uow: UnitOfWork = Depends(get_uow),
     profiles_service: ProfilesService = Depends(get_profiles_service),
+    owner_id: UUID = Depends(get_current_owner),
 ):
-    return await profiles_service.get_all(uow=uow)
+    filter = ProfilesFilter(
+        OR=[
+            ProfilesFilter(
+                versions=ProfileVersionFilter(
+                    visibility=EnumFilter[ProfileVisibility](
+                        eq=ProfileVisibility.PUBLIC)
+                )
+            ),
+            ProfilesFilter(
+                owner_id=UUIDFilter(eq=owner_id)
+            )
+        ]
+    )
+
+    return await profiles_service.get_all(uow=uow, filter=filter)
 
 
 @profiles_router.post(
