@@ -1,10 +1,20 @@
 from uuid import UUID
-from pydantic import BaseModel
 from typing import Optional
+from pydantic import BaseModel, Field
 
-from ..versions.dto.update_profile_version import UpdateProfileVersionDTO
+from core.models.profiles.profile_visibility import ProfileVisibility
+
+
+class UpdateProfileVersionWithProfileDTO(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    visibility: Optional[ProfileVisibility] = None
 
 
 class UpdateProfileDTO(BaseModel):
     owner_id: UUID
-    version: Optional[UpdateProfileVersionDTO] = None
+    version: Optional[UpdateProfileVersionWithProfileDTO] = None
+
+
+class UpdateProfileRouteDTO(BaseModel):
+    version: Optional[UpdateProfileVersionWithProfileDTO] = None

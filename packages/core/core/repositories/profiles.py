@@ -2,7 +2,7 @@ from abc import abstractmethod
 from uuid import UUID
 from typing import Optional
 
-from .base import BaseRepository
+from .base import BaseRepository, BaseVersionedRepository
 
 from core.models.profiles.where import (
     ProfilesWhere,
@@ -23,7 +23,7 @@ class BaseProfilesRepository(BaseRepository[Profile, ProfilesWhere, ProfilesFilt
         pass
 
 
-class BaseProfileVersionsRepository(BaseRepository[
+class BaseProfileVersionsRepository(BaseVersionedRepository[
     ProfileVersion,
     ProfileVersionWhere,
     ProfileVersionFilter

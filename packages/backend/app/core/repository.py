@@ -1,10 +1,11 @@
 import logging
 
-from typing import Optional, Type
+from typing import Any, Literal, Optional, Type, Union
 from abc import ABC
 from datetime import datetime, timezone
 
 from sqlalchemy import select, update
+from sqlalchemy.orm import selectinload, QueryableAttribute
 
 from db.root import RootBase
 
@@ -16,6 +17,8 @@ from core.utils.pagination.base import Pagination
 
 logger = logging.getLogger(__name__)
 
+_AttrType = Union[Literal["*"], QueryableAttribute[Any]]
+
 
 class BaseRepositoryImplementation[
     DomainType: RootDomainModel,
@@ -24,6 +27,7 @@ class BaseRepositoryImplementation[
     FilterType: BaseFilter,
 ](BaseRepository[DomainType, WhereType, FilterType], ABC):
     orm_model: Type[OrmType]
+    join_on_fields: list[_AttrType] = []
 
     @property
     def session(self):
@@ -31,6 +35,9 @@ class BaseRepositoryImplementation[
 
     async def get_unique(self, where: WhereType) -> Optional[DomainType]:
         statement = select(self.orm_model).where(where.resolve(self.orm_model))
+        for model in self.join_on_fields:
+            statement = statement.options(selectinload(model))
+
         result = await self._session.execute(statement)
 
         obj_orm = result.scalar_one_or_none()
@@ -88,14 +95,3 @@ class BaseRepositoryImplementation[
         })
 
         return [obj_orm.to_domain() for obj_orm in result.scalars().all()]
-
-
-class BaseImmutableRepositoryImplementation[
-    DomainType: RootDomainModel,
-    OrmType: RootBase,
-    WhereType: BaseUniqueWhere,
-    FilterType: BaseFilter,
-](BaseRepositoryImplementation[DomainType, OrmType, WhereType, FilterType], ABC):
-    async def update(self, obj: DomainType, commit: bool = True) -> DomainType:
-        raise NotImplementedError(
-            "Update operation is not supported for immutable entities.")

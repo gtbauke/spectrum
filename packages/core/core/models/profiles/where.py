@@ -33,6 +33,7 @@ class ProfileVersionWhere(BaseUniqueWhere):
     id: Optional[UUID] = None
     profile_id: Optional[UUID] = None
     version: Optional[int] = None
+    is_latest: Optional[bool] = None
 
 
 class ProfileVersionFilter(BaseFilter):
@@ -51,6 +52,7 @@ class ProfileVersionFilter(BaseFilter):
 
 class ProfilesWhere(BaseUniqueWhere):
     id: UUID
+    is_latest: Optional[bool] = None
 
 
 class ProfilesFilter(BaseFilter):

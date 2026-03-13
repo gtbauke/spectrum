@@ -39,3 +39,15 @@ class BaseRepository[
     @abstractmethod
     async def list_all(self, where: Optional[FilterType] = None,
                        pagination: Optional[Pagination] = None) -> list[DomainType]: ...
+
+
+class BaseVersionedRepository[
+    DomainType: RootDomainModel,
+    WhereType: BaseUniqueWhere,
+    FilterType: BaseFilter,
+](BaseRepository[DomainType, WhereType, FilterType]):
+    @abstractmethod
+    async def unset_latest(self, where: WhereType) -> Optional[DomainType]: ...
+
+    @abstractmethod
+    async def get_latest_version_number(self, where: WhereType) -> int: ...

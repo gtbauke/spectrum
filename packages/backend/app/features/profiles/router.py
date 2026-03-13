@@ -9,7 +9,8 @@ from core.models.profiles.where import ProfilesWhere
 
 from .service import ProfilesService, get_profiles_service
 from .dto.create_profile import CreateProfileDTO, CreateProfileRouteDTO
-from .dto.update_profile import UpdateProfileDTO
+from .dto.update_profile import UpdateProfileDTO, UpdateProfileRouteDTO
+
 from .guards.is_profile_owner import is_profile_owner
 
 profiles_router = APIRouter(
@@ -32,18 +33,23 @@ async def create_profile(
 
 @profiles_router.put(
     path="/{profile_id}",
-    status_code=status.HTTP_200_OK,
+    status_code=status.HTTP_201_CREATED,
     dependencies=[
         Depends(is_profile_owner)
     ]
 )
 async def update_profile(
     profile_id: UUID,
-    data: UpdateProfileDTO,
+    data: UpdateProfileRouteDTO,
     uow: UnitOfWork = Depends(get_uow),
     profiles_service: ProfilesService = Depends(get_profiles_service),
+    owner_id: UUID = Depends(get_current_owner),
 ):
-    return await profiles_service.update_unique(uow=uow, data=data, where=ProfilesWhere(id=profile_id))
+    return await profiles_service.create_new_version(
+        uow=uow,
+        data=UpdateProfileDTO(owner_id=owner_id, version=data.version),
+        where=ProfilesWhere(id=profile_id)
+    )
 
 
 @profiles_router.get(

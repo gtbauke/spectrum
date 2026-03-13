@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 from core.utils.where import BaseUniqueWhere
 from core.utils.filters.base import BaseFilter
+from core.utils.pagination.base import Pagination
 from core.models.base import RootDomainModel
 from core.ports.unit_of_work import UnitOfWork
 
@@ -68,3 +69,36 @@ class BaseCRDService[
     @abstractmethod
     async def get_all(self, *, uow: UnitOfWork,
                       filter: Optional[FilterType] = None) -> Sequence[ReturnType]: ...
+
+
+class BaseImmutableVersionedService[
+    ReturnType: RootDomainModel,
+    WhereType: BaseUniqueWhere,
+    CreateType: BaseModel,
+    UpdateType: BaseModel,
+    FilterType: BaseFilter,
+](BaseService):
+    """
+    Base class for all versioned entities in the application. This class defines the interface that all versioned entities must implement.
+    """
+
+    @abstractmethod
+    async def get_unique(self, *, uow: UnitOfWork, where: WhereType) -> Optional[ReturnType]:
+        ...
+
+    @abstractmethod
+    async def get_latest(self, *, uow: UnitOfWork, where: WhereType) -> Optional[ReturnType]:
+        ...
+
+    @abstractmethod
+    async def create(self, *, uow: UnitOfWork, data: CreateType, version: int = 1) -> ReturnType:
+        ...
+
+    @abstractmethod
+    async def create_new_version(self, *, uow: UnitOfWork, data: UpdateType, where: WhereType) -> ReturnType:
+        ...
+
+    @abstractmethod
+    async def get_all(self, *, uow: UnitOfWork, filter: Optional[FilterType] = None,
+                      pagination: Optional[Pagination] = None) -> Sequence[ReturnType]:
+        ...

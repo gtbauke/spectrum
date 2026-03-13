@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from types import TracebackType
-from typing import Awaitable, Callable, Optional, Type
+from typing import Awaitable, Callable, Optional, Type, Literal, Union
 
 from core.ports.transactional_resource import TransactionalResource
 
@@ -23,6 +23,19 @@ from core.repositories.profiles import (
     BaseProfileVersionsRepository,
     BaseProfileDatasetAssociationsRepository,
 )
+
+UnitOfWorkResources = Union[
+    Literal["users"],
+    Literal["auth"],
+    Literal["owners"],
+    Literal["datasets"],
+    Literal["dataset_versions"],
+    Literal["dataset_artifacts"],
+    Literal["dataset_artifact_versions"],
+    Literal["profiles"],
+    Literal["profile_versions"],
+    Literal["profile_dataset_associations"],
+]
 
 
 class UnitOfWork(ABC):
