@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from uuid import UUID
 from pydantic import Field
 from typing import Optional, TYPE_CHECKING
@@ -9,6 +11,8 @@ from core.models.profiles.profile_dataset_role import ProfileDatasetRole
 
 if TYPE_CHECKING:
     from core.models.datasets.dataset_version import DatasetVersion
+
+logger = logging.getLogger(__name__)
 
 
 class ProfileDatasetAssociation(BaseImmutableDomainModel):
@@ -23,3 +27,14 @@ class ProfileDatasetAssociation(BaseImmutableDomainModel):
 
     dataset_version: Optional["DatasetVersion"] = Field(
         None, description="The dataset version this association belongs to")
+
+    @classmethod
+    def new(cls, *, profile_version_id: UUID, dataset_version_id: UUID, role: ProfileDatasetRole) -> "ProfileDatasetAssociation":
+        _class = cls(
+            profile_version_id=profile_version_id,
+            dataset_version_id=dataset_version_id,
+            role=role,
+            dataset_version=None,
+        )
+
+        return _class

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from typing import Optional, TYPE_CHECKING
 from uuid import UUID
 
@@ -19,6 +21,9 @@ from db.mutable import MutableBase
 
 if TYPE_CHECKING:
     from app.features.datasets.models import DatasetVersionORM
+
+
+logger = logging.getLogger(__name__)
 
 
 class ProfileORM(MutableBase):
@@ -154,12 +159,10 @@ class ProfileDatasetAssociationORM(ImmutableBase):
             profile_version_id=domain_obj.profile_version_id,
             dataset_version_id=domain_obj.dataset_version_id,
             role=domain_obj.role,
-            dataset_version=DatasetVersionORM.from_domain(
-                domain_obj.dataset_version) if domain_obj.dataset_version else None
         )
 
     def to_domain(self) -> ProfileDatasetAssociation:
-        return ProfileDatasetAssociation(
+        profile_dataset_association = ProfileDatasetAssociation(
             id=self.id,
             timestamp=self.timestamp,
             profile_version_id=self.profile_version_id,
@@ -167,3 +170,10 @@ class ProfileDatasetAssociationORM(ImmutableBase):
             role=self.role,
             dataset_version=self.dataset_version.to_domain() if self.dataset_version else None,
         )
+
+        logger.info("ProfileDatasetAssociation::to_domain", extra={
+            "self": self,
+            "profile_dataset_association": profile_dataset_association.model_dump(),
+        })
+
+        return profile_dataset_association

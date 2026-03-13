@@ -14,6 +14,7 @@ from app.features.datasets.artifacts.repository import DatasetArtifactsRepositor
 from app.features.datasets.artifact_version.repository import DatasetArtifactVersionsRepository
 from app.features.profiles.repository import ProfilesRepository
 from app.features.profiles.versions.repository import ProfileVersionsRepository
+from app.features.profiles.associations.repository import ProfileDatasetAssociationsRepository
 from app.adapters.storage.local_storage import LocalStorage
 
 from core.ports.unit_of_work import UnitOfWork
@@ -42,6 +43,8 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
 
         self.profiles = ProfilesRepository(session=self._session)
         self.profile_versions = ProfileVersionsRepository(
+            session=self._session)
+        self.profile_dataset_associations = ProfileDatasetAssociationsRepository(
             session=self._session)
 
         self.file_storage = LocalStorage()

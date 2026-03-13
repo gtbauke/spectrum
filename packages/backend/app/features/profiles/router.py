@@ -10,6 +10,7 @@ from core.models.profiles.where import ProfilesWhere
 from .service import ProfilesService, get_profiles_service
 from .dto.create_profile import CreateProfileDTO, CreateProfileRouteDTO
 from .dto.update_profile import UpdateProfileDTO, UpdateProfileRouteDTO
+from .associations.dto.create_association import CreateAssociationDTO, CreateAssociationRouteDTO
 
 from .guards.is_profile_owner import is_profile_owner
 
@@ -76,3 +77,26 @@ async def get_profiles(
     profiles_service: ProfilesService = Depends(get_profiles_service),
 ):
     return await profiles_service.get_all(uow=uow)
+
+
+@profiles_router.post(
+    path="/{profile_id}/{profile_version_id}/datasets",
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[
+        Depends(is_profile_owner)
+    ]
+)
+async def associate_dataset(
+    profile_version_id: UUID,
+    data: CreateAssociationRouteDTO,
+    uow: UnitOfWork = Depends(get_uow),
+    profiles_service: ProfilesService = Depends(get_profiles_service),
+):
+    return await profiles_service.associate_dataset(
+        uow=uow,
+        data=CreateAssociationDTO(
+            profile_version_id=profile_version_id,
+            dataset_version_id=data.dataset_version_id,
+            role=data.role
+        )
+    )

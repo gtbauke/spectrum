@@ -7,6 +7,7 @@ from core.ports.unit_of_work import UnitOfWork
 from core.services.base import BaseImmutableVersionedService
 from core.models.profiles.profile import Profile
 from core.models.profiles.profile_version import ProfileVersion
+from core.models.profiles.profile_dataset_association import ProfileDatasetAssociation
 from core.models.profiles.where import ProfileVersionWhere, ProfilesWhere, ProfilesFilter
 from core.utils.pagination.base import Pagination
 
@@ -15,6 +16,8 @@ from .dto.update_profile import UpdateProfileDTO
 
 from .versions.errors.profile_version_not_found import ProfileVersionNotFound
 from .errors.profile_not_found import ProfileNotFound
+
+from .associations.dto.create_association import CreateAssociationDTO
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +86,15 @@ class ProfilesService(BaseImmutableVersionedService[
     async def get_all(self, *, uow: UnitOfWork, filter: Optional[ProfilesFilter] = None,
                       pagination: Optional[Pagination] = None) -> list[Profile]:
         return await uow.profiles.list_all(where=filter, pagination=pagination)
+
+    async def associate_dataset(self, *, uow: UnitOfWork, data: CreateAssociationDTO) -> ProfileDatasetAssociation:
+        association = ProfileDatasetAssociation.new(
+            dataset_version_id=data.dataset_version_id,
+            profile_version_id=data.profile_version_id,
+            role=data.role
+        )
+
+        return await uow.profile_dataset_associations.add(association)
 
 
 def get_profiles_service() -> ProfilesService:
