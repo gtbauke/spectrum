@@ -5,7 +5,7 @@ import { cn } from "~/utils/classname.util";
 export type ButtonProps = PropsWithChildren<{
 	className?: string;
 	type: "button" | "submit" | "reset";
-	isLoading: boolean;
+	isLoading?: boolean;
 }> &
 	React.InputHTMLAttributes<HTMLButtonElement>;
 
@@ -13,7 +13,7 @@ export function Button({
 	className,
 	children,
 	type,
-	isLoading,
+	isLoading = false,
 	disabled,
 	...props
 }: ButtonProps) {
@@ -27,7 +27,7 @@ export function Button({
 			className={cn(
 				// Base styles
 				"relative w-full font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2",
-				"bg-primary-600 text-white shadow-lg shadow-primary-500/10",
+				"bg-primary-600 text-white",
 
 				// Active/Hover states
 				"hover:bg-primary-700 active:scale-[0.98] cursor-pointer",

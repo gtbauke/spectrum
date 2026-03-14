@@ -45,6 +45,39 @@ body {
     }
 }
 
+@layer base {
+    /* Target ALL elements to apply the scrollbar globally */
+    * {
+        /* Standard syntax (Firefox) */
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+    }
+
+    /* WebKit syntax (Chrome, Safari, Edge) */
+    *::-webkit-scrollbar {
+        width: 6px;  /* Vertical scrollbar width */
+        height: 6px; /* Horizontal scrollbar height */
+    }
+
+    /* The track (background) */
+    *::-webkit-scrollbar-track {
+        background: transparent;
+        border-radius: 10px;
+    }
+
+    /* The thumb (draggable part) */
+    *::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    /* Thumb hover state */
+    *::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+}
+
 @layer utilities {
   /* Standard syntax (Firefox) */
   .custom-scrollbar {

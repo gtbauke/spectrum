@@ -4,6 +4,7 @@ import { WelcomeTabContent } from "~/components/tabs/welcome-tab/welcome-tab-con
 import { ProfileEditor } from "~/components/ui/notebook/editor.component";
 import { useProfileTabs } from "~/contexts/profile-tabs.context";
 import type { Route } from "./+types/home";
+import UploadDatasetTabContent from "~/components/tabs/upload-tab/upload-tab.component";
 
 export function meta(_: Route.MetaArgs) {
     return [
@@ -19,14 +20,22 @@ export default function Home() {
     const { activeTabId, tabs } = useProfileTabs();
     const activeTab = tabs.find((tab) => tab.id === activeTabId);
 
+    const handleActiveTab = () => {
+        if (!activeTab) {
+            return <WelcomeTabContent/>
+        }
+
+        if (activeTab.type === "profile") {
+            return <ProfileEditor version={activeTab.profileVersion} />
+        }
+
+        return <UploadDatasetTabContent/>
+    };
+
     return (
         <AuthGuard>
             <WorkspaceLayout>
-                {activeTab === null || activeTab === undefined ? (
-                    <WelcomeTabContent />
-                ) : (
-                    <ProfileEditor version={activeTab.profileVersion} />
-                )}
+                {handleActiveTab()}
             </WorkspaceLayout>
         </AuthGuard>
     );
