@@ -96,6 +96,9 @@ class ProfilesService(BaseImmutableVersionedService[
 
         return await uow.profile_dataset_associations.add(association)
 
+    async def get_paginated(self, *, uow: UnitOfWork, filter: ProfilesFilter, limit: int = 20, offset: int = 0) -> tuple[list[Profile], int]:
+        return await uow.profiles.get_paginated(filter=filter, limit=limit, offset=offset)
+
 
 def get_profiles_service() -> ProfilesService:
     return ProfilesService()

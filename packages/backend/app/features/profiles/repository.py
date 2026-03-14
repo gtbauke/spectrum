@@ -1,6 +1,6 @@
 from typing import Optional
 from uuid import UUID
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 
 from app.core.repository import BaseRepositoryImplementation
@@ -69,3 +69,30 @@ class ProfilesRepository(BaseProfilesRepository, BaseRepositoryImplementation[
 
         result = await self._session.execute(query)
         return [obj_orm.to_domain() for obj_orm in result.scalars().all()]
+
+    async def get_paginated(self, *, filter: ProfilesFilter, limit: int = 20, offset: int = 0) -> tuple[list[Profile], int]:
+        conditions = filter.resolve(self.orm_model)
+
+        count_query = select(func.count()).select_from(
+            self.orm_model).where(*conditions)
+
+        total = await self._session.execute(count_query)
+        total_count = total.scalar_one() or 0
+
+        query = (
+            select(self.orm_model)
+            .options(
+                selectinload(self.orm_model.versions)
+                .selectinload(ProfileVersionORM.datasets)
+                .selectinload(ProfileDatasetAssociationORM.dataset_version)
+            )
+            .where(*conditions)
+            .limit(limit)
+            .offset(offset)
+            .distinct()
+        )
+
+        result = await self._session.execute(query)
+        obj_orms = result.scalars().all()
+
+        return [obj_orm.to_domain() for obj_orm in obj_orms], total_count

@@ -1,6 +1,6 @@
 import logging
 
-from typing import Any
+from typing import Any, Optional
 from uuid import UUID
 from jose import jwt, JWTError
 
@@ -12,7 +12,9 @@ from .errors.invalid_jwt_token import InvalidJWTToken
 
 
 logger = logging.getLogger(__name__)
+
 security = HTTPBearer()
+optional_security = HTTPBearer(auto_error=False)
 
 
 def decode_jwt_token(token: str) -> dict[str, Any | None]:
@@ -46,3 +48,21 @@ def get_current_owner(
         raise InvalidJWTToken()
 
     return UUID(owner_id)
+
+
+def get_optional_current_owner(
+    token: Optional[HTTPAuthorizationCredentials] = Depends(optional_security)
+):
+    if token is None:
+        return None
+
+    try:
+        payload = decode_jwt_token(token.credentials)
+
+        owner_id = payload.get("owner_id")
+        if owner_id is None:
+            return None
+
+        return UUID(owner_id)
+    except InvalidJWTToken:
+        return None

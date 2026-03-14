@@ -57,9 +57,5 @@ class ProfilesWhere(BaseUniqueWhere):
 
 class ProfilesFilter(BaseFilter):
     id: Optional[UUIDFilter] = None
-    version: Optional[NumberFilter[int]] = None
-    is_latest: Optional[bool] = None
-    timestamp: Optional[DateTimeFilter] = None
-
     owner_id: Optional[UUIDFilter] = None
     versions: Optional[ProfileVersionFilter] = None

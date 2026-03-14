@@ -1,13 +1,17 @@
+from typing import Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 
-from app.features.auth.guards.get_current_user import get_current_owner
+from app.api.response import PaginatedResponse
+from app.features.auth.guards.get_current_user import get_optional_current_owner, get_current_owner
 from app.api.unit_of_work import get_uow
 
+from core.models.profiles.profile_dataset_role import ProfileDatasetRole
+from core.models.profiles.profile_status import ProfileStatus
 from core.models.profiles.profile_visibility import ProfileVisibility
 from core.ports.unit_of_work import UnitOfWork
-from core.models.profiles.where import ProfileVersionFilter, ProfilesFilter, ProfilesWhere
-from core.utils.filters.field_filter import EnumFilter, UUIDFilter
+from core.models.profiles.where import ProfileDatasetAssociationFilter, ProfileVersionFilter, ProfilesFilter, ProfilesWhere
+from core.utils.filters.field_filter import EnumFilter, NumberFilter, StringFilter, UUIDFilter
 
 from .service import ProfilesService, get_profiles_service
 from .dto.create_profile import CreateProfileDTO, CreateProfileRouteDTO
@@ -71,29 +75,75 @@ async def get_profile(
 
 
 @profiles_router.get(
-    path="/",
+    path="",
     status_code=status.HTTP_200_OK,
 )
 async def get_profiles(
     uow: UnitOfWork = Depends(get_uow),
     profiles_service: ProfilesService = Depends(get_profiles_service),
-    owner_id: UUID = Depends(get_current_owner),
+    owner_id: Optional[UUID] = Depends(get_optional_current_owner),
+    size: int = Query(20, ge=1, le=100),
+    page: int = Query(1, ge=1),
+    version: Optional[int] = Query(None),
+    name: Optional[str] = Query(None),
+    description: Optional[str] = Query(None),
+    status: ProfileStatus = Query(ProfileStatus.ACTIVE),
+    visibility: ProfileVisibility = Query(ProfileVisibility.PUBLIC),
+    role: Optional[ProfileDatasetRole] = Query(None),
+    only_me: bool = Query(False),
 ):
+    has_profile_version_dataset_filter = any([
+        role is not None,
+    ])
+
+    has_profile_version_filter = any([
+        version is not None,
+        name is not None,
+        description is not None,
+        status is not None,
+        visibility is not None,
+        has_profile_version_dataset_filter,
+    ])
+
+    versions_filter = ProfileVersionFilter(
+        version=NumberFilter[int](eq=version),
+        name=StringFilter(ilike=f"%{name}%") if name else None,
+        description=StringFilter(
+            ilike=f"%{description}%") if description else None,
+        status=EnumFilter[ProfileStatus](eq=status),
+        visibility=EnumFilter[ProfileVisibility](eq=visibility),
+        datasets=ProfileDatasetAssociationFilter(
+            role=EnumFilter[ProfileDatasetRole](eq=role) if role else None,
+        ) if has_profile_version_dataset_filter else None,
+    ) if has_profile_version_filter else None
+
     filter = ProfilesFilter(
         OR=[
             ProfilesFilter(
-                versions=ProfileVersionFilter(
-                    visibility=EnumFilter[ProfileVisibility](
-                        eq=ProfileVisibility.PUBLIC)
-                )
+                owner_id=UUIDFilter(eq=owner_id) if only_me else None,
+                versions=versions_filter,
             ),
             ProfilesFilter(
-                owner_id=UUIDFilter(eq=owner_id)
+                owner_id=UUIDFilter(eq=owner_id) if only_me else None,
+                versions=versions_filter.model_copy(
+                    update={
+                        "visibility": None,
+                    }
+                ) if versions_filter is not None else None,
             )
         ]
     )
 
-    return await profiles_service.get_all(uow=uow, filter=filter)
+    offset = (page - 1) * size
+    items, total = await profiles_service.get_paginated(uow=uow, filter=filter, limit=size, offset=offset)
+
+    return PaginatedResponse(
+        items=items,
+        total=total,
+        page=page,
+        size=size,
+        pages=(total + size - 1) // size
+    )
 
 
 @profiles_router.post(

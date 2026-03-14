@@ -22,6 +22,10 @@ class BaseProfilesRepository(BaseRepository[Profile, ProfilesWhere, ProfilesFilt
     async def get_owner_id(self, where: ProfilesWhere) -> Optional[UUID]:
         pass
 
+    @abstractmethod
+    async def get_paginated(self, *, filter: ProfilesFilter, limit: int = 20, offset: int = 0) -> tuple[list[Profile], int]:
+        ...
+
 
 class BaseProfileVersionsRepository(BaseVersionedRepository[
     ProfileVersion,

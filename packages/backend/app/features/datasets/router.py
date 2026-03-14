@@ -72,8 +72,8 @@ async def get_dataset(
 async def search_datasets(
     uow: UnitOfWork = Depends(get_uow),
     datasets_service: DatasetsService = Depends(get_datasets_service),
-    size: int = Query(20, ge=1),
-    page: int = Query(1, ge=1, le=100),
+    size: int = Query(20, ge=1, le=100),
+    page: int = Query(1, ge=1),
     min_size: Optional[int] = Query(None),
     max_size: Optional[int] = Query(None),
     name: Optional[str] = Query(None),
