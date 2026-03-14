@@ -2,6 +2,7 @@ from typing import Optional
 from uuid import UUID
 
 from core.models.datasets.where import DatasetVersionsFilter
+from core.models.profiles.profile_block_type import ProfileBlockType
 from core.models.profiles.profile_dataset_role import ProfileDatasetRole
 from core.models.profiles.profile_status import ProfileStatus
 from core.models.profiles.profile_visibility import ProfileVisibility
@@ -14,6 +15,17 @@ from core.utils.filters.field_filter import (
 )
 from core.utils.where import BaseUniqueWhere
 from core.utils.filters.base import BaseFilter
+
+
+class ProfileBlockWhere(BaseUniqueWhere):
+    id: UUID
+
+
+class ProfileBlockFilter(BaseFilter):
+    id: Optional[UUIDFilter] = None
+    version_id: Optional[UUIDFilter] = None
+    order_index: Optional[NumberFilter[int]] = None
+    type: Optional[EnumFilter[ProfileBlockType]] = None
 
 
 class ProfileDatasetAssociationWhere(BaseUniqueWhere):

@@ -17,6 +17,7 @@ from .service import ProfilesService, get_profiles_service
 from .dto.create_profile import CreateProfileDTO, CreateProfileRouteDTO
 from .dto.update_profile import UpdateProfileDTO, UpdateProfileRouteDTO
 from .associations.dto.create_association import CreateAssociationDTO, CreateAssociationRouteDTO
+from .blocks.dto.create_block import CreateBlocks
 
 from .guards.is_profile_owner import is_profile_owner
 
@@ -166,4 +167,26 @@ async def associate_dataset(
             dataset_version_id=data.dataset_version_id,
             role=data.role
         )
+    )
+
+
+@profiles_router.post(
+    "/{profile_id}/blocks",
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[
+        Depends(is_profile_owner)
+    ]
+)
+async def create_blocks(
+    profile_id: UUID,
+    blocks: CreateBlocks,
+    uow: UnitOfWork = Depends(get_uow),
+    profiles_service: ProfilesService = Depends(get_profiles_service),
+    owner_id: UUID = Depends(get_current_owner),
+):
+    where = ProfilesWhere(id=profile_id)
+    return await profiles_service.create_new_version_from_blocks(
+        uow=uow,
+        blocks=blocks,
+        where=where,
     )

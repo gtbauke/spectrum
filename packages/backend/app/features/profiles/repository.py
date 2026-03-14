@@ -25,9 +25,12 @@ class ProfilesRepository(BaseProfilesRepository, BaseRepositoryImplementation[
         query = (
             select(self.orm_model)
             .options(
-                selectinload(self.orm_model.versions)
-                .selectinload(ProfileVersionORM.datasets)
-                .selectinload(ProfileDatasetAssociationORM.dataset_version)
+                selectinload(self.orm_model.versions).options(
+                    selectinload(ProfileVersionORM.datasets)
+                    .selectinload(ProfileDatasetAssociationORM.dataset_version),
+
+                    selectinload(ProfileVersionORM.blocks)
+                )
             )
             .where(where.resolve(self.orm_model))
         )
@@ -53,9 +56,12 @@ class ProfilesRepository(BaseProfilesRepository, BaseRepositoryImplementation[
             select(self.orm_model)
             .options(
                 selectinload(self.orm_model.versions.and_(
-                    ProfileVersionORM.is_latest == True))
-                .selectinload(ProfileVersionORM.datasets)
-                .selectinload(ProfileDatasetAssociationORM.dataset_version)
+                    ProfileVersionORM.is_latest == True)).options(
+                    selectinload(ProfileVersionORM.datasets)
+                    .selectinload(ProfileDatasetAssociationORM.dataset_version),
+
+                    selectinload(ProfileVersionORM.blocks)
+                )
             )
         )
 
@@ -82,9 +88,12 @@ class ProfilesRepository(BaseProfilesRepository, BaseRepositoryImplementation[
         query = (
             select(self.orm_model)
             .options(
-                selectinload(self.orm_model.versions)
-                .selectinload(ProfileVersionORM.datasets)
-                .selectinload(ProfileDatasetAssociationORM.dataset_version)
+                selectinload(self.orm_model.versions).options(
+                    selectinload(ProfileVersionORM.datasets)
+                    .selectinload(ProfileDatasetAssociationORM.dataset_version),
+
+                    selectinload(ProfileVersionORM.blocks)
+                )
             )
             .where(*conditions)
             .limit(limit)

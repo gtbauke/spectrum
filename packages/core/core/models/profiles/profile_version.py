@@ -12,6 +12,7 @@ from core.models.profiles.profile_visibility import ProfileVisibility
 
 if TYPE_CHECKING:
     from core.models.profiles.profile_dataset_association import ProfileDatasetAssociation
+    from core.models.profiles.profile_block import ProfileBlock
 
 
 class ProfileVersion(BaseImmutableVersionedDomainModel):
@@ -32,6 +33,9 @@ class ProfileVersion(BaseImmutableVersionedDomainModel):
     datasets: list[ProfileDatasetAssociation] = Field(
         ..., description="The datasets associated with this profile version")
 
+    blocks: list[ProfileBlock] = Field(
+        ..., description="The blocks associated with this profile version")
+
     @classmethod
     def new(
         cls,
@@ -41,7 +45,9 @@ class ProfileVersion(BaseImmutableVersionedDomainModel):
         visibility: ProfileVisibility,
         profile_id: UUID,
         version: int,
-        is_latest: bool
+        is_latest: bool,
+        blocks: list[ProfileBlock] = [],
+        datasets: list[ProfileDatasetAssociation] = [],
     ) -> "ProfileVersion":
         return cls(
             name=name,
@@ -49,8 +55,9 @@ class ProfileVersion(BaseImmutableVersionedDomainModel):
             visibility=visibility,
             profile_id=profile_id,
             status=ProfileStatus.ACTIVE,
-            datasets=[],
+            datasets=datasets,
             version=version,
             is_latest=is_latest,
             timestamp=datetime.now(timezone.utc),
+            blocks=blocks,
         )

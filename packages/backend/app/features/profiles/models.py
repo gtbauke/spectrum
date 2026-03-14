@@ -5,10 +5,11 @@ import logging
 from typing import Optional, TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import String, Text, Enum, ForeignKey
+from sqlalchemy import String, Text, Enum, ForeignKey, Integer, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
+from core.models.profiles.profile_block import ProfileBlock, ProfileBlockType
 from core.models.profiles.profile_status import ProfileStatus
 from core.models.profiles.profile_visibility import ProfileVisibility
 from core.models.profiles.profile_dataset_role import ProfileDatasetRole
@@ -89,6 +90,12 @@ class ProfileVersionORM(ImmutableVersionedBase):
         lazy="selectin",
     )
 
+    blocks: Mapped[list["ProfileBlockORM"]] = relationship(
+        "ProfileBlockORM",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
     @classmethod
     def from_domain(cls, domain_obj: ProfileVersion) -> ProfileVersionORM:
         return cls(
@@ -105,6 +112,10 @@ class ProfileVersionORM(ImmutableVersionedBase):
                 ProfileDatasetAssociationORM.from_domain(ds)
                 for ds in domain_obj.datasets
             ],
+            blocks=[
+                ProfileBlockORM.from_domain(block)
+                for block in domain_obj.blocks
+            ]
         )
 
     def to_domain(self) -> ProfileVersion:
@@ -118,7 +129,8 @@ class ProfileVersionORM(ImmutableVersionedBase):
             status=self.status,
             visibility=self.visibility,
             profile_id=self.profile_id,
-            datasets=[ds.to_domain() for ds in self.datasets]
+            datasets=[ds.to_domain() for ds in self.datasets],
+            blocks=[block.to_domain() for block in self.blocks],
         )
 
 
@@ -171,9 +183,52 @@ class ProfileDatasetAssociationORM(ImmutableBase):
             dataset_version=self.dataset_version.to_domain() if self.dataset_version else None,
         )
 
-        logger.info("ProfileDatasetAssociation::to_domain", extra={
-            "self": self,
-            "profile_dataset_association": profile_dataset_association.model_dump(),
-        })
-
         return profile_dataset_association
+
+
+class ProfileBlockORM(MutableBase):
+    __tablename__ = "profile_blocks"
+
+    version_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("profile_versions.id"),
+        nullable=False,
+    )
+
+    order_index: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+    )
+
+    type: Mapped[ProfileBlockType] = mapped_column(
+        Enum(ProfileBlockType),
+        nullable=False,
+    )
+
+    data: Mapped[dict] = mapped_column(
+        JSON,
+        nullable=False,
+    )
+
+    @classmethod
+    def from_domain(cls, domain_obj: ProfileBlock) -> ProfileBlockORM:
+        return cls(
+            id=domain_obj.id,
+            version_id=domain_obj.version_id,
+            order_index=domain_obj.order_index,
+            type=domain_obj.type,
+            data=domain_obj.data,
+            created_at=domain_obj.created_at,
+            updated_at=domain_obj.updated_at,
+        )
+
+    def to_domain(self) -> ProfileBlock:
+        return ProfileBlock(
+            id=self.id,
+            version_id=self.version_id,
+            order_index=self.order_index,
+            type=self.type,
+            data=self.data,
+            created_at=self.created_at,
+            updated_at=self.updated_at,
+        )

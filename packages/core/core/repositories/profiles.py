@@ -2,6 +2,7 @@ from abc import abstractmethod
 from uuid import UUID
 from typing import Optional
 
+
 from .base import BaseRepository, BaseVersionedRepository
 
 from core.models.profiles.where import (
@@ -11,9 +12,12 @@ from core.models.profiles.where import (
     ProfileVersionFilter,
     ProfileDatasetAssociationWhere,
     ProfileDatasetAssociationFilter,
+    ProfileBlockWhere,
+    ProfileBlockFilter
 )
 from core.models.profiles.profile import Profile
 from core.models.profiles.profile_version import ProfileVersion
+from core.models.profiles.profile_block import ProfileBlock
 from core.models.profiles.profile_dataset_association import ProfileDatasetAssociation
 
 
@@ -39,5 +43,13 @@ class BaseProfileDatasetAssociationsRepository(BaseRepository[
     ProfileDatasetAssociation,
     ProfileDatasetAssociationWhere,
     ProfileDatasetAssociationFilter
+]):
+    pass
+
+
+class BaseProfileBlocksRepository(BaseRepository[
+    ProfileBlock,
+    ProfileBlockWhere,
+    ProfileBlockFilter
 ]):
     pass

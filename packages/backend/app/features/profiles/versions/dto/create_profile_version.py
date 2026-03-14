@@ -5,7 +5,7 @@ from uuid import UUID
 from core.models.profiles.profile_visibility import ProfileVisibility
 
 
-class CreateProfileVersionDTO(BaseModel):
+class CreateProfileVersionData(BaseModel):
     name: str = Field(..., max_length=255,
                       description="The name of the profile")
 
@@ -15,5 +15,7 @@ class CreateProfileVersionDTO(BaseModel):
     visibility: ProfileVisibility = Field(...,
                                           description="The visibility of the profile")
 
+
+class CreateProfileVersionDTO(CreateProfileVersionData):
     profile_id: UUID = Field(...,
                              description="The ID of the profile this version belongs to")

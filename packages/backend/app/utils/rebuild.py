@@ -12,6 +12,8 @@ from core.models.datasets.dataset_artifact_version import DatasetArtifactVersion
 from core.models.profiles.profile import Profile
 from core.models.profiles.profile_version import ProfileVersion
 from core.models.profiles.profile_dataset_association import ProfileDatasetAssociation
+from core.models.profiles.profile_block import ProfileBlock
+
 
 namespace = {  # type: ignore
     "User": User,
@@ -23,7 +25,8 @@ namespace = {  # type: ignore
     "DatasetArtifactVersion": DatasetArtifactVersion,
     "Profile": Profile,
     "ProfileVersion": ProfileVersion,
-    "ProfileDatasetAssociation": ProfileDatasetAssociation
+    "ProfileDatasetAssociation": ProfileDatasetAssociation,
+    "ProfileBlock": ProfileBlock,
 }
 
 for item in [
@@ -36,6 +39,7 @@ for item in [
     DatasetArtifactVersion,
     Profile,
     ProfileVersion,
-    ProfileDatasetAssociation
+    ProfileDatasetAssociation,
+    ProfileBlock,
 ]:
     item.model_rebuild(_types_namespace=namespace)

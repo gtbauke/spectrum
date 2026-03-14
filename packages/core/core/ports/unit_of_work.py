@@ -22,6 +22,7 @@ from core.repositories.profiles import (
     BaseProfilesRepository,
     BaseProfileVersionsRepository,
     BaseProfileDatasetAssociationsRepository,
+    BaseProfileBlocksRepository,
 )
 
 UnitOfWorkResources = Union[
@@ -49,6 +50,7 @@ class UnitOfWork(ABC):
     profiles: BaseProfilesRepository
     profile_versions: BaseProfileVersionsRepository
     profile_dataset_associations: BaseProfileDatasetAssociationsRepository
+    profile_blocks: BaseProfileBlocksRepository
 
     file_storage: FileStorage
 

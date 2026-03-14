@@ -2,6 +2,7 @@ import logging
 
 from typing import Optional
 
+from core.models.profiles.profile_block import ProfileBlock
 from core.ports.unit_of_work import UnitOfWork
 
 from core.services.base import BaseImmutableVersionedService
@@ -18,6 +19,7 @@ from .versions.errors.profile_version_not_found import ProfileVersionNotFound
 from .errors.profile_not_found import ProfileNotFound
 
 from .associations.dto.create_association import CreateAssociationDTO
+from .blocks.dto.create_block import CreateBlocks
 
 logger = logging.getLogger(__name__)
 
@@ -98,6 +100,57 @@ class ProfilesService(BaseImmutableVersionedService[
 
     async def get_paginated(self, *, uow: UnitOfWork, filter: ProfilesFilter, limit: int = 20, offset: int = 0) -> tuple[list[Profile], int]:
         return await uow.profiles.get_paginated(filter=filter, limit=limit, offset=offset)
+
+    async def create_new_version_from_blocks(
+        self,
+        *,
+        uow: UnitOfWork,
+        blocks: CreateBlocks,
+        where: ProfilesWhere,
+    ):
+        latest_version = await uow.profile_versions.unset_latest(where=ProfileVersionWhere(profile_id=where.id, is_latest=True))
+
+        if not latest_version:
+            raise ProfileVersionNotFound()
+
+        new_blocks = [
+            ProfileBlock.new(
+                version_id=latest_version.id,
+                order_index=block.order_index,
+                type=block.type,
+                data=block.get_json_data(),
+            ) for block in blocks.blocks
+        ]
+
+        new_version_data = blocks.metadata_block.build_from_diff(
+            latest_version)
+
+        new_associations = [
+            ProfileDatasetAssociation.new(
+                dataset_version_id=association.dataset_version_id,
+                profile_version_id=latest_version.id,
+                role=association.role
+            ) for association in latest_version.datasets
+        ]
+
+        new_version = ProfileVersion.new(
+            name=new_version_data.name,
+            description=new_version_data.description,
+            visibility=new_version_data.visibility,
+            profile_id=latest_version.profile_id,
+            version=latest_version.version + 1,
+            is_latest=True,
+            blocks=new_blocks,
+            datasets=new_associations,
+        )
+
+        await uow.profile_versions.add(new_version)
+        profile = await uow.profiles.get_unique(where=where)
+
+        if not profile:
+            raise ProfileNotFound()
+
+        return profile
 
 
 def get_profiles_service() -> ProfilesService:
