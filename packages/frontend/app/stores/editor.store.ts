@@ -1,10 +1,12 @@
 import { v4 as uuidv4 } from "uuid";
 import { create } from "zustand";
 import type { ProfileDatasetAssociation } from "~/schemas/generated/profile-dataset-association.schema";
+import type { ProfileVisibility } from "~/schemas/generated/profile-visibility.schema";
 
 export type MetadataData = {
 	name: string;
 	description: string | null | undefined;
+	visibility: ProfileVisibility;
 };
 
 export type DatasetData = {
@@ -25,12 +27,17 @@ export type InferenceData = {
 	code: string;
 };
 
+export type MarkdownData = {
+	value: string;
+};
+
 export type BlockDataMap = {
 	metadata: MetadataData;
-	dataset: DatasetData;
+	datasets: DatasetData;
 	jobs: JobsData;
 	results: ResultsData;
 	inference: InferenceData;
+	markdown: MarkdownData;
 };
 
 export type BlockType = keyof BlockDataMap;

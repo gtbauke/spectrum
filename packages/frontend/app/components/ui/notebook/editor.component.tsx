@@ -3,9 +3,10 @@ import { useEffect } from "react";
 import { NotebookCell } from "~/components/ui/notebook/cell.component";
 import { useKeyboardShortcut } from "~/hooks/use-keyboard-shortcut.hook";
 import type { ProfileVersion } from "~/schemas/generated/profile-version.schema";
-import { useEditorStore } from "~/stores/editor.store";
+import { type EditorBlock, useEditorStore } from "~/stores/editor.store";
 import { DatasetsBlock } from "./cells/datasets-cell.component";
 import { InferenceBlock } from "./cells/inference-cell.component";
+import { MarkdownBlock } from "./cells/markdown-cell.component";
 import { MetadataBlock } from "./cells/metadata-cell.component";
 import { EditorToolbar } from "./editor-toolbar.component";
 import { InsertDivider } from "./insert-divider.component";
@@ -27,6 +28,17 @@ export function ProfileEditor({ version }: ProfileEditorProps) {
     useKeyboardShortcut("y", redo);
 
     useEffect(() => {
+        const dynamic_blocks: EditorBlock[] = [];
+
+        for (const block of version.blocks) {
+            dynamic_blocks.push({
+                id: block.id,
+                type: block.type,
+                // biome-ignore lint/suspicious/noExplicitAny: Value is dynamic
+                data: block.data as any,
+            });
+        }
+
         initEditor(version.profile_id, version.id, [
             {
                 id: "metadata",
@@ -34,15 +46,17 @@ export function ProfileEditor({ version }: ProfileEditorProps) {
                 data: {
                     name: version.name,
                     description: version.description,
+                    visibility: version.visibility,
                 },
             },
             {
                 id: "datasets",
-                type: "dataset",
+                type: "datasets",
                 data: {
                     datasets: version.datasets,
                 },
             },
+            ...dynamic_blocks,
         ]);
     }, [version, initEditor]);
 
@@ -92,11 +106,18 @@ export function ProfileEditor({ version }: ProfileEditorProps) {
                             {block.type === "metadata" && (
                                 <MetadataBlock id={block.id} data={block.data} />
                             )}
-                            {block.type === "dataset" && (
+                            {block.type === "datasets" && (
                                 <DatasetsBlock datasets={block.data.datasets} />
                             )}
                             {block.type === "inference" && (
                                 <InferenceBlock id={block.id} data={block.data} />
+                            )}
+                            {block.type === "markdown" && (
+                                <MarkdownBlock
+                                    id={block.id}
+                                    data={block.data}
+                                    isActive={activeBlockId === block.id}
+                                />
                             )}
                         </NotebookCell>
 
