@@ -1,7 +1,7 @@
 import { type InfiniteData, useInfiniteQuery } from "@tanstack/react-query";
 import { type DatasetFilters, fetchDatasets } from "~/api/datasets.api";
 import type { PaginatedResponse } from "~/api/types.api";
-import type { Dataset } from "~/schemas/dataset.schema";
+import type { Dataset } from "~/schemas/generated/dataset.schema";
 
 export function useInfiniteDatasets(filters: DatasetFilters) {
 	return useInfiniteQuery<

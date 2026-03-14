@@ -12,11 +12,12 @@ export type TextInputProps = {
     error?: FieldError;
     redirect?: string;
     redirectHref?: string;
+    labelClassName?: string;
 } & React.InputHTMLAttributes<HTMLInputElement>;
 
 export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
     (
-        { label, className, required, error, redirect, redirectHref, ...props },
+        { label, className, required, error, redirect, redirectHref, labelClassName, ...props },
         ref,
     ) => {
         const [showPassword, setShowPassword] = useState(false);
@@ -34,7 +35,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
                 <label>
                     <div className="flex justify-between items-center">
                         <div>
-                            <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                            <span className={cn("text-xs font-medium text-gray-400 uppercase tracking-wider", labelClassName)}>
                                 {label}
                             </span>
                             {required && <span className="text-red-500 ml-1">*</span>}
@@ -58,7 +59,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
                                 isPassword ? "pr-12" : "",
                                 error
                                     ? "border-red-500 focus:ring-1 focus:ring-red-500"
-                                    : "border-border focus:ring-2 focus:ring-violet-500",
+                                    : "border-border focus:ring-1 focus:ring-violet-500",
                                 className,
                             )}
                             aria-invalid={error ? "true" : "false"}
