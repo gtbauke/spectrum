@@ -1,3 +1,4 @@
+import logging
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
@@ -13,7 +14,7 @@ from core.models.users.where import UsersWhere, UsersFilter
 
 from app.api.unit_of_work import get_uow
 
-
+logger = logging.getLogger(__name__)
 users_router = APIRouter(tags=["users"])
 
 
@@ -36,6 +37,10 @@ async def create_user(
     uow: UnitOfWork = Depends(get_uow),
     service: UsersService = Depends(get_users_service),
 ):
+    logger.info("CREATING USER", extra={
+        "data": data.model_dump()
+    })
+
     return await service.create(uow=uow, data=data)
 
 

@@ -6,7 +6,7 @@ from uuid import UUID
 from fastapi import APIRouter, Response, Depends, Cookie
 
 from app.api.unit_of_work import get_uow
-from app.features.auth.results.login import LoginResponse
+from app.features.auth.results.login import LoginResponse, RefreshResponse
 from app.features.owners.service import OwnersService
 from app.features.users.service import UsersService, get_users_service
 from app.services.encryption import EncryptionService
@@ -55,7 +55,7 @@ async def login(
         max_age=7 * 24 * 60 * 60,  # 7 days in seconds
     )
 
-    return LoginResponse(access_token=access_token, expires_in=expires_in)
+    return LoginResponse(access_token=access_token, expires_in=expires_in, user=result.user)
 
 
 @auth_router.get("/me")
@@ -74,9 +74,7 @@ async def refresh(
     uow: UnitOfWork = Depends(get_uow),
     auth_service: AuthService = Depends(get_auth_service),
 ):
-    logger.info("Refreshing access token for refresh token: %s", refresh_token)
     revoked_token = await auth_service.revoke_refresh_token(uow=uow, token_str=refresh_token)
-
     new_refresh_token = await auth_service.generate_refresh_token(uow=uow, user_id=revoked_token.user_id, owner_id=revoked_token.owner_id)
 
     expires_in = timedelta(minutes=15)
@@ -92,7 +90,7 @@ async def refresh(
         max_age=7 * 24 * 60 * 60,  # 7 days in seconds
     )
 
-    return LoginResponse(access_token=access_token, expires_in=expires_in)
+    return RefreshResponse(access_token=access_token, expires_in=expires_in)
 
 
 @auth_router.post("/logout")
