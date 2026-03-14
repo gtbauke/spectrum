@@ -1,16 +1,18 @@
+import { motion } from "framer-motion";
 import { GripVertical, MoreHorizontal, Play, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { type BlockType, useEditorStore } from "~/stores/editor.store";
 import { cn } from "~/utils/classname.util";
-
-type CellType = "markdown" | "dataset" | "configuration" | "results";
 
 type NotebookCellProps = {
     id: string;
-    type: CellType;
+    type: BlockType;
     isActive: boolean;
-    onClick: () => void;
     children: React.ReactNode;
+    onClick: () => void;
     onRun?: () => void;
+    isDeletable?: boolean;
+    moveable?: boolean;
 };
 
 export function NotebookCell({
@@ -20,7 +22,10 @@ export function NotebookCell({
     onClick,
     children,
     onRun,
+    isDeletable = true,
+    moveable = true,
 }: NotebookCellProps) {
+    const removeBlock = useEditorStore((state) => state.removeBlock);
     const [isHovered, setIsHovered] = useState(false);
 
     const handleOnKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -30,30 +35,43 @@ export function NotebookCell({
     };
 
     return (
-        // biome-ignore lint/a11y/noStaticElementInteractions: Cannot have nested buttons
-        <div
+        <motion.div
+            layout
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{
+                opacity: 0,
+                scale: 0.9,
+                y: -10,
+                transition: { duration: 0.2 }
+            }}
+            transition={{
+                type: "spring",
+                stiffness: 400,
+                damping: 30,
+                opacity: { duration: 0.2 },
+            }}
             className="group relative flex w-full max-w-4xl mx-auto mb-2"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             onKeyDown={handleOnKeyDown}
             onClick={onClick}
         >
-            {/* The Left Action Gutter */}
             <div
                 className={cn(
                     "w-12 shrink-0 flex flex-col items-center pt-3 transition-opacity duration-200",
                     isHovered || isActive ? "opacity-100" : "opacity-0",
                 )}
             >
-                {/* Drag Handle */}
-                <button
-                    type="button"
-                    className="p-1 text-gray-600 hover:text-gray-300 cursor-grab"
-                >
-                    <GripVertical size={16} />
-                </button>
+                {moveable && (
+                    <button
+                        type="button"
+                        className="p-1 text-gray-600 hover:text-gray-300 cursor-grab"
+                    >
+                        <GripVertical size={16} />
+                    </button>
+                )}
 
-                {/* Execution/Run Button (if applicable) */}
                 {onRun && (
                     <button
                         type="button"
@@ -69,7 +87,6 @@ export function NotebookCell({
                 )}
             </div>
 
-            {/* The Main Cell Content */}
             <div
                 className={cn(
                     "flex-1 relative rounded-lg border transition-all duration-200 bg-black/20",
@@ -78,7 +95,6 @@ export function NotebookCell({
                         : "border-white/5 hover:border-white/10",
                 )}
             >
-                {/* Optional: Cell Type Indicator */}
                 {(isHovered || isActive) && (
                     <div className="absolute -top-2.5 right-4 px-2 py-0.5 bg-[#111319] border border-white/10 rounded text-[9px] font-mono text-gray-500 uppercase tracking-wider z-10">
                         {type}
@@ -88,19 +104,21 @@ export function NotebookCell({
                 <div className="p-4 outline-none">{children}</div>
             </div>
 
-            {/* The Right Action Gutter (Delete, Options) */}
             <div
                 className={cn(
                     "w-10 shrink-0 flex flex-col items-center pt-3 transition-opacity duration-200",
                     isHovered || isActive ? "opacity-100" : "opacity-0",
                 )}
             >
-                <button
-                    type="button"
-                    className="p-1.5 text-gray-600 hover:text-red-400 transition-colors"
-                >
-                    <Trash2 size={14} />
-                </button>
+                {isDeletable && (
+                    <button
+                        type="button"
+                        className="p-1.5 text-gray-600 hover:text-red-400 transition-colors cursor-pointer"
+                        onClick={() => removeBlock(id)}
+                    >
+                        <Trash2 size={14} />
+                    </button>
+                )}
                 <button
                     type="button"
                     className="mt-1 p-1.5 text-gray-600 hover:text-gray-300 transition-colors"
@@ -108,6 +126,6 @@ export function NotebookCell({
                     <MoreHorizontal size={14} />
                 </button>
             </div>
-        </div>
+        </motion.div>
     );
 }
