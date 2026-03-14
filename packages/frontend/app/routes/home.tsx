@@ -1,3 +1,4 @@
+import { AuthGuard } from "~/components/auth/auth-guard.component";
 import { WorkspaceLayout } from "~/components/layouts/workspace.layout";
 import { WelcomeTabContent } from "~/components/tabs/welcome-tab/welcome-tab-content.component";
 import { ProfileEditor } from "~/components/ui/notebook/editor.component";
@@ -19,12 +20,14 @@ export default function Home() {
     const activeTab = tabs.find((tab) => tab.id === activeTabId);
 
     return (
-        <WorkspaceLayout>
-            {activeTab === null || activeTab === undefined ? (
-                <WelcomeTabContent />
-            ) : (
-                <ProfileEditor version={activeTab.profileVersion} />
-            )}
-        </WorkspaceLayout>
+        <AuthGuard>
+            <WorkspaceLayout>
+                {activeTab === null || activeTab === undefined ? (
+                    <WelcomeTabContent />
+                ) : (
+                    <ProfileEditor version={activeTab.profileVersion} />
+                )}
+            </WorkspaceLayout>
+        </AuthGuard>
     );
 }

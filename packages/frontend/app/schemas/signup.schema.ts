@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export const signupSchema = z.object({
-	firstName: z.string().min(2, "Required"),
-	lastName: z.string().min(2, "Required"),
+	first_name: z.string().min(2, "Required"),
+	last_name: z.string().min(2, "Required"),
 	email: z.email("Invalid email address"),
 	password: z
 		.string()
