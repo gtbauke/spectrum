@@ -33,7 +33,9 @@ class DatasetVersionsService(BaseCRDService[
 
         return await uow.dataset_versions.add(DatasetVersion.new(
             dataset_id=data.dataset_id,
-            version=data.version
+            version=data.version,
+            name=data.name,
+            description=data.description,
         ))
 
     async def create_new_version(self, *, uow: UnitOfWork, dataset_id: UUID) -> DatasetVersion:
@@ -43,6 +45,8 @@ class DatasetVersionsService(BaseCRDService[
         return await self.create(uow=uow, data=CreateDatasetVersionDTO(
             dataset_id=dataset_id,
             version=new_version_number,
+            name=latest_version.name if latest_version else f"Version {new_version_number}",
+            description=latest_version.description if latest_version else None,
         ))
 
     async def delete_unique(self, *, uow: UnitOfWork, where: DatasetVersionsWhere):

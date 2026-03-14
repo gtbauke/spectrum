@@ -39,8 +39,6 @@ class DatasetsService(BaseCRUDService[
 
     async def create(self, *, uow: UnitOfWork, data: CreateDatasetDTO) -> Dataset:
         domain = Dataset.new(
-            name=data.name,
-            description=data.description,
             owner_id=data.owner_id
         )
 
@@ -48,7 +46,9 @@ class DatasetsService(BaseCRUDService[
 
         version = await self._versions_service.create(uow=uow, data=CreateDatasetVersionDTO(
             dataset_id=domain.id,
-            version=1
+            version=1,
+            name=data.name,
+            description=data.description,
         ))
 
         domain.add_version(version)

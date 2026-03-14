@@ -24,10 +24,6 @@ if TYPE_CHECKING:
 class DatasetORM(MutableBase):
     __tablename__ = "datasets"
 
-    name: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[Optional[str]] = mapped_column(
-        String(255), nullable=True)
-
     owner_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey("owners.id"),
@@ -51,8 +47,6 @@ class DatasetORM(MutableBase):
     def from_domain(cls, domain_obj: Dataset) -> DatasetORM:
         return cls(
             id=domain_obj.id,
-            name=domain_obj.name,
-            description=domain_obj.description,
             owner_id=domain_obj.owner_id,
             deleted_at=domain_obj.deleted_at,
             created_at=domain_obj.created_at,
@@ -64,8 +58,6 @@ class DatasetORM(MutableBase):
     def to_domain(self) -> Dataset:
         return Dataset(
             id=self.id,
-            name=self.name,
-            description=self.description,
             owner_id=self.owner_id,
             deleted_at=self.deleted_at,
             created_at=self.created_at,
@@ -76,6 +68,10 @@ class DatasetORM(MutableBase):
 
 class DatasetVersionORM(ImmutableVersionedBase):
     __tablename__ = "dataset_versions"
+
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(
+        String(255), nullable=True)
 
     dataset_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
@@ -105,6 +101,8 @@ class DatasetVersionORM(ImmutableVersionedBase):
     def from_domain(cls, domain_obj: DatasetVersion) -> DatasetVersionORM:
         return cls(
             id=domain_obj.id,
+            name=domain_obj.name,
+            description=domain_obj.description,
             dataset_id=domain_obj.dataset_id,
             version=domain_obj.version,
             timestamp=domain_obj.timestamp,
@@ -117,6 +115,8 @@ class DatasetVersionORM(ImmutableVersionedBase):
         return DatasetVersion(
             id=self.id,
             dataset_id=self.dataset_id,
+            name=self.name,
+            description=self.description,
             version=self.version,
             timestamp=self.timestamp,
             is_latest=self.is_latest,
