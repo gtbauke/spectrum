@@ -49,6 +49,9 @@ type EditorState = {
 	isDirty: boolean;
 	blocks: EditorBlock[];
 	activeBlockId: string | null;
+
+	past: EditorBlock[][];
+	future: EditorBlock[][];
 };
 
 type EditorActions = {
@@ -66,16 +69,17 @@ type EditorActions = {
 	updateBlock: <T extends BlockType>(
 		id: string,
 		data: Partial<BlockDataMap[T]>,
+		options?: { recordHistory: boolean },
 	) => void;
 	removeBlock: (id: string) => void;
-	undoDelete: () => void;
-	clearLastDeletedBlock: () => void;
 	moveBlock: (id: string, direction: "up" | "down") => void;
 
 	setActiveBlock: (id: string | null) => void;
 	markClean: () => void;
 
-	lastDeletedBlock: { block: EditorBlock; index: number } | null;
+	commit: () => void;
+	undo: () => void;
+	redo: () => void;
 };
 
 export type EditorStore = EditorState & EditorActions;
@@ -86,7 +90,46 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 	isDirty: false,
 	blocks: [],
 	activeBlockId: null,
-	lastDeletedBlock: null,
+	past: [],
+	future: [],
+
+	commit: () => {
+		const { blocks, past } = get();
+		set({
+			past: [...past.slice(-49), blocks],
+			future: [],
+			isDirty: true,
+		});
+	},
+
+	undo: () => {
+		const { past, blocks, future } = get();
+		if (past.length === 0) return;
+
+		const previous = past[past.length - 1];
+		const newPast = past.slice(0, past.length - 1);
+
+		set({
+			blocks: previous,
+			past: newPast,
+			future: [blocks, ...future],
+			activeBlockId: null,
+		});
+	},
+
+	redo: () => {
+		const { past, blocks, future } = get();
+		if (future.length === 0) return;
+
+		const next = future[0];
+		const newFuture = future.slice(1);
+
+		set({
+			blocks: next,
+			past: [...past, blocks],
+			future: newFuture,
+		});
+	},
 
 	initEditor: (profileId, versionId, initialBlocks) => {
 		set({
@@ -105,6 +148,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 	) => {
 		const newBlock: EditorBlock = { id: uuidv4(), type, data } as EditorBlock;
 
+		get().commit();
 		set((state) => {
 			const newBlocks = [...state.blocks];
 
@@ -126,7 +170,11 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 		});
 	},
 
-	updateBlock: (id, newData) => {
+	updateBlock: (id, newData, options = { recordHistory: true }) => {
+		if (options.recordHistory) {
+			get().commit();
+		}
+
 		set((state) => ({
 			blocks: state.blocks.map((block) =>
 				block.id === id
@@ -144,6 +192,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 
 		const blockToRemove = state.blocks[index];
 
+		get().commit();
 		set((state) => ({
 			blocks: state.blocks.filter((b) => b.id !== id),
 			lastDeletedBlock: { block: blockToRemove, index },
@@ -153,6 +202,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 	},
 
 	moveBlock: (id, direction) => {
+		get().commit();
 		set((state) => {
 			const index = state.blocks.findIndex((b) => b.id === id);
 			if (index < 0) return state;
@@ -175,23 +225,4 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 	setActiveBlock: (id) => set({ activeBlockId: id }),
 
 	markClean: () => set({ isDirty: false }),
-
-	undoDelete: () => {
-		const { lastDeletedBlock, blocks } = get();
-		if (!lastDeletedBlock) return;
-
-		set((state) => {
-			const newBlocks = [...state.blocks];
-			newBlocks.splice(lastDeletedBlock.index, 0, lastDeletedBlock.block);
-			return {
-				blocks: newBlocks,
-				lastDeletedBlock: null, // Clear after undo
-				activeBlockId: lastDeletedBlock.block.id,
-			};
-		});
-	},
-
-	clearLastDeletedBlock: () => {
-		set({ lastDeletedBlock: null });
-	},
 }));
