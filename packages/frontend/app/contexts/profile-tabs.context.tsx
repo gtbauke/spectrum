@@ -5,11 +5,15 @@ import {
     useContext,
     useState,
 } from "react";
+import type { ProfileVersion } from "~/schemas/generated/profile-version.schema";
 
 export type ProfileTab = {
     id: string;
     name: string;
     isDirty?: boolean;
+
+    profileId: string;
+    profileVersion: ProfileVersion;
 };
 
 export type ProfileTabsContextType = {

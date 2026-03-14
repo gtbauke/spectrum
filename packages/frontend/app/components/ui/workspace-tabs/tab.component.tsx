@@ -7,9 +7,10 @@ import { cn } from "~/utils/classname.util";
 type TabProps = {
     id: string;
     profileName: string;
+    isDirty?: boolean;
 };
 
-export function Tab({ id, profileName }: TabProps) {
+export function Tab({ id, profileName, isDirty = false }: TabProps) {
     const { activeTabId, closeTab, setActiveTab, updateTab } = useProfileTabs();
 
     const [isEditing, setIsEditing] = useState(false);
@@ -29,7 +30,7 @@ export function Tab({ id, profileName }: TabProps) {
         setIsEditing(false);
 
         if (tempName.trim() && tempName !== profileName) {
-            updateTab(id, { name: tempName.trim() });
+            updateTab(id, { name: tempName.trim(), isDirty: true });
             return;
         }
 
@@ -57,13 +58,20 @@ export function Tab({ id, profileName }: TabProps) {
         setIsEditing(true);
     };
 
-    const handleTabSwitch = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleTabSwitch = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         e.stopPropagation();
         setActiveTab(id);
     };
 
+    const onKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter") {
+            setActiveTab(id);
+        }
+    };
+
     return (
-        <button type="button" className="h-full" onClick={handleTabSwitch}>
+        // biome-ignore lint/a11y/useSemanticElements: Cannot have nested buttons
+        <div role="button" tabIndex={0} className="h-full cursor-pointer" onClick={handleTabSwitch} onKeyDown={onKeyDown}>
             <div
                 className={cn(
                     "flex items-center px-4 h-full text-sm cursor-pointer group gap-2",
@@ -72,7 +80,7 @@ export function Tab({ id, profileName }: TabProps) {
                         : "bg-background-surface",
                 )}
             >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 cursor-pointer">
                     <span className="text-primary-400">
                         <Folder size={16} />
                     </span>
@@ -90,7 +98,7 @@ export function Tab({ id, profileName }: TabProps) {
                     ) : (
                         <button
                             type="button"
-                            className="truncate select-none"
+                            className="truncate select-none cursor-pointer"
                             onDoubleClick={handleDoubleClick}
                         >
                             {profileName}
@@ -98,17 +106,29 @@ export function Tab({ id, profileName }: TabProps) {
                     )}
                 </div>
 
-                <button
-                    type="button"
-                    className={cn(
-                        "opacity-0 p-1 group-hover:opacity-100 hover:text-red-400 cursor-pointer rounded-md",
-                        isActive ? "hover:bg-background-surface" : "hover:bg-background",
-                    )}
-                    onClick={handleTabClose}
-                >
-                    <X size={16} />
-                </button>
+                <div className="relative flex items-center justify-center w-6 h-6 ml-2 cursor-pointer">
+                    <div
+                        className={cn(
+                            "absolute w-2 h-2 rounded-full bg-white transition-opacity duration-200",
+                            isDirty ? "opacity-100 group-hover:opacity-0" : "opacity-0"
+                        )}
+                    />
+
+                    <button
+                        type="button"
+                        className={cn(
+                            "absolute p-1 text-gray-400 hover:text-red-400 cursor-pointer rounded-md transition-opacity duration-200",
+                            "opacity-0 group-hover:opacity-100 focus-visible:opacity-100 outline-none focus-visible:ring-1 focus-visible:ring-primary-500",
+                            isActive && !isDirty ? "opacity-100" : "",
+                            isActive ? "hover:bg-background-surface" : "hover:bg-background",
+                        )}
+                        onClick={handleTabClose}
+                        title="Close Tab"
+                    >
+                        <X size={14} />
+                    </button>
+                </div>
             </div>
-        </button>
+        </div>
     );
 }

@@ -7,7 +7,8 @@ import {
     Lock,
     MoreVertical,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useProfileTabs } from "~/contexts/profile-tabs.context";
 import type { Profile } from "~/schemas/generated/profile.schema";
 import { cn } from "~/utils/classname.util";
 
@@ -18,6 +19,16 @@ type ProfileItemProps = {
 
 export function ProfileItem({ profile, active = false }: ProfileItemProps) {
     const [isOpen, setIsOpen] = useState(false);
+    const { openTab } = useProfileTabs();
+    const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (clickTimeoutRef.current) {
+                clearTimeout(clickTimeoutRef.current);
+            }
+        };
+    }, []);
 
     const latestVersion =
         profile.versions.find((v) => v.is_latest) || profile.versions[0];
@@ -36,6 +47,32 @@ export function ProfileItem({ profile, active = false }: ProfileItemProps) {
         }
     };
 
+    const handleSingleClick = (e: React.MouseEvent) => {
+        if (clickTimeoutRef.current) {
+            clearTimeout(clickTimeoutRef.current);
+        }
+
+        if (e.detail === 1) {
+            clickTimeoutRef.current = setTimeout(() => {
+                setIsOpen((prev) => !prev);
+            }, 100);
+        }
+    };
+
+    const handleOnDoubleClick = () => {
+        if (clickTimeoutRef.current) {
+            clearTimeout(clickTimeoutRef.current);
+        }
+
+        openTab({
+            id: latestVersion.id,
+            name: latestVersion.name,
+            isDirty: false,
+            profileId: profile.id,
+            profileVersion: latestVersion,
+        });
+    };
+
     return (
         <div className="flex flex-col">
             {/** biome-ignore lint/a11y/useSemanticElements: Cannot have nested buttons */}
@@ -43,8 +80,9 @@ export function ProfileItem({ profile, active = false }: ProfileItemProps) {
                 role="button"
                 tabIndex={0}
                 aria-expanded={isOpen}
-                onClick={() => setIsOpen((prev) => !prev)}
+                onClick={handleSingleClick}
                 onKeyDown={handleKeyDown}
+                onDoubleClick={handleOnDoubleClick}
                 className={cn(
                     "group flex items-center justify-between p-2 rounded-md cursor-pointer transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50",
                     active
