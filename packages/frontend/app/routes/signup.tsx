@@ -12,7 +12,7 @@ export default function SignUp() {
 	const {
 		register,
 		handleSubmit,
-		formState: { errors },
+		formState: { errors, isValid },
 	} = useForm({
 		resolver: zodResolver(signupSchema),
 	});
@@ -91,7 +91,11 @@ export default function SignUp() {
 							error={errors.password}
 						/>
 
-						<Button type="submit" disabled={isPending}>
+						<Button
+							type="submit"
+							disabled={isPending || !isValid}
+							isLoading={isPending}
+						>
 							Create Account
 						</Button>
 					</form>
