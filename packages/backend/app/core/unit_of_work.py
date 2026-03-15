@@ -17,6 +17,7 @@ from app.features.profiles.versions.repository import ProfileVersionsRepository
 from app.features.profiles.associations.repository import ProfileDatasetAssociationsRepository
 from app.features.profiles.blocks.repository import ProfileBlocksRepository
 from app.features.jobs.repository import JobsRepository
+from app.features.jobs.versions.repository import JobVersionsRepository
 
 from app.adapters.storage.local_storage import LocalStorage
 
@@ -53,6 +54,10 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
         )
 
         self.jobs = JobsRepository(
+            session=self._session
+        )
+
+        self.job_versions = JobVersionsRepository(
             session=self._session
         )
 

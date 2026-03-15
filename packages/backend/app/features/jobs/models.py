@@ -2,27 +2,82 @@ from __future__ import annotations
 from uuid import UUID
 
 from sqlalchemy import String, Integer, Float, Enum, ForeignKey, Boolean
-from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
+from core.models.jobs.job import Job
 from db.immutable import ImmutableVersionedBase
+from db.mutable import MutableBase
 
 from core.models.jobs.loss_function import LossFunction
 from core.models.jobs.available_functions import AvailableFunction
-from core.models.jobs.job import Job
+from core.models.jobs.job_version import JobVersion
 
 
-class JobORM(ImmutableVersionedBase):
+class JobORM(MutableBase):
     __tablename__ = "jobs"
-
-    name: Mapped[str] = mapped_column(
-        String,
-        nullable=False,
-    )
 
     profile_version_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey("profile_versions.id"),
+        nullable=False,
+    )
+
+    owner_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("owners.id"),
+        nullable=False,
+    )
+
+    versions: Mapped[list["JobVersionORM"]] = relationship(
+        "JobVersionORM",
+        back_populates="job"
+    )
+
+    @classmethod
+    def from_domain(cls, domain_obj: Job) -> JobORM:
+        return cls(
+            id=domain_obj.id,
+            created_at=domain_obj.created_at,
+            updated_at=domain_obj.updated_at,
+            profile_version_id=domain_obj.profile_version_id,
+            owner_id=domain_obj.owner_id,
+            versions=[
+                JobVersionORM.from_domain(obj)
+                for obj in domain_obj.versions
+            ]
+        )
+
+    def to_domain(self) -> Job:
+        return Job(
+            id=self.id,
+            created_at=self.created_at,
+            updated_at=self.updated_at,
+            profile_version_id=self.profile_version_id,
+            owner_id=self.owner_id,
+            versions=[
+                obj.to_domain()
+                for obj in self.versions
+            ]
+        )
+
+
+class JobVersionORM(ImmutableVersionedBase):
+    __tablename__ = "job_versions"
+
+    job_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("jobs.id"),
+        nullable=False,
+    )
+
+    job: Mapped[JobORM] = relationship(
+        "JobORM",
+        back_populates="versions"
+    )
+
+    name: Mapped[str] = mapped_column(
+        String,
         nullable=False,
     )
 
@@ -98,10 +153,10 @@ class JobORM(ImmutableVersionedBase):
     )
 
     @classmethod
-    def from_domain(cls, domain_obj: Job) -> JobORM:
+    def from_domain(cls, domain_obj: JobVersion) -> JobVersionORM:
         return cls(
             name=domain_obj.name,
-            profile_version_id=domain_obj.profile_version_id,
+            job_id=domain_obj.job_id,
             dataset_artifact_id=domain_obj.dataset_artifact_id,
             generations=domain_obj.generations,
             population=domain_obj.population,
@@ -123,10 +178,10 @@ class JobORM(ImmutableVersionedBase):
             id=domain_obj.id,
         )
 
-    def to_domain(self) -> Job:
-        return Job(
+    def to_domain(self) -> JobVersion:
+        return JobVersion(
             name=self.name,
-            profile_version_id=self.profile_version_id,
+            job_id=self.job_id,
             dataset_artifact_id=self.dataset_artifact_id,
             generations=self.generations,
             population=self.population,

@@ -15,6 +15,7 @@ from core.models.profiles.profile_dataset_association import ProfileDatasetAssoc
 from core.models.profiles.profile_block import ProfileBlock
 
 from core.models.jobs.job import Job
+from core.models.jobs.job_version import JobVersion
 
 
 namespace = {  # type: ignore
@@ -30,6 +31,7 @@ namespace = {  # type: ignore
     "ProfileDatasetAssociation": ProfileDatasetAssociation,
     "ProfileBlock": ProfileBlock,
     "Job": Job,
+    "JobVersion": JobVersion,
 }
 
 for item in [
@@ -45,5 +47,6 @@ for item in [
     ProfileDatasetAssociation,
     ProfileBlock,
     Job,
+    JobVersion,
 ]:
     item.model_rebuild(_types_namespace=namespace)

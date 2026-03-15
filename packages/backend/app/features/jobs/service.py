@@ -1,17 +1,15 @@
 from typing import Sequence
 
-from app.features.jobs.dto.create_job import CreateJob
-from app.features.jobs.dto.update_job import UpdateJob
-from app.features.jobs.errors.job_not_found import JobNotFound
-from app.features.profiles.errors.profile_not_found import ProfileNotFound
-from app.features.profiles.versions.errors.profile_version_not_found import ProfileVersionNotFound
-
 from core.models.jobs.job import Job
+from core.models.jobs.job_version import JobVersion
 from core.models.jobs.where import JobFilter, JobWhere
-from core.models.profiles.where import ProfileVersionWhere
 from core.ports.unit_of_work import UnitOfWork
 from core.services.base import BaseImmutableVersionedService
 from core.utils.pagination.base import Pagination
+
+from .dto.create_job import CreateJob
+from .dto.update_job import UpdateJob
+from .errors.job_not_found import JobNotFound
 
 
 class JobsService(BaseImmutableVersionedService[
@@ -25,59 +23,88 @@ class JobsService(BaseImmutableVersionedService[
         return await uow.jobs.get_unique(where)
 
     async def get_latest(self, *, uow: UnitOfWork, where: JobWhere) -> Job | None:
-        return await uow.jobs.get_unique(where=JobWhere(id=where.id, is_latest=True))
-
-    async def create(self, *, uow: UnitOfWork, data: CreateJob, version: int = 1) -> Job:
-        if not data.profile_id:
-            raise ProfileNotFound()
-
-        latest_profile_version = await uow.profile_versions.get_unique(
-            where=ProfileVersionWhere(
-                profile_id=data.profile_id,
-                is_latest=True,
+        return await self.get_unique(
+            uow=uow,
+            where=where.model_copy(
+                update={
+                    "is_latest": True,
+                }
             )
         )
 
-        if not latest_profile_version and not data.profile_version_id:
-            raise ProfileVersionNotFound()
+    async def create(self, *, uow: UnitOfWork, data: CreateJob, version: int = 1) -> Job:
+        new_job = Job.new(
+            owner_id=data.owner_id,
+            profile_version_id=data.profile_version_id,
+        )
 
-        profile_version_id = latest_profile_version.id \
-            if latest_profile_version \
-            else data.profile_version_id
+        if data.version:
+            created_version = JobVersion.new(
+                name=data.version.name,
+                version=version,
+                is_latest=True,
+                job_id=new_job.id,
+                dataset_artifact_id=data.version.dataset_artifact_id,
+                generations=data.version.generations,
+                population=data.version.population,
+                max_size=data.version.max_size,
+                number_of_tournaments=data.version.number_of_tournaments,
+                crossover_probability=data.version.crossover_probability,
+                mutation_probability=data.version.mutation_probability,
+                non_terminals=data.version.non_terminals,
+                loss=data.version.loss,
+                optimization_iterations=data.version.optimization_iterations,
+                optimization_repeats=data.version.optimization_repeats,
+                max_param_count=data.version.max_param_count,
+                split=data.version.split,
+                simplify=data.version.simplify,
+            )
 
-        if not profile_version_id:
-            raise ProfileVersionNotFound()
+            new_job.versions.append(created_version)
 
-        return await uow.jobs.add(Job.new(
-            name=data.name,
-            profile_version_id=profile_version_id,
-            dataset_artifact_id=data.dataset_artifact_id,
-            generations=data.generations,
-            population=data.population,
-            max_size=data.max_size,
-            number_of_tournaments=data.number_of_tournaments,
-            crossover_probability=data.crossover_probability,
-            mutation_probability=data.mutation_probability,
-            non_terminals=data.non_terminals,
-            loss=data.loss,
-            optimization_iterations=data.optimization_iterations,
-            optimization_repeats=data.optimization_repeats,
-            max_param_count=data.max_param_count,
-            split=data.split,
-            simplify=data.simplify,
-            version=version,
-            is_latest=True,
-        ))
+        job = await uow.jobs.add(new_job)
+        return job
 
     async def create_new_version(self, *, uow: UnitOfWork, data: UpdateJob, where: JobWhere) -> Job:
-        last_version = await uow.jobs.unset_latest(where.model_copy(update={"is_latest": True}))
-        next_version = 1 if not last_version else last_version.version + 1
+        job = await uow.jobs.get_unique(
+            where=where,
+        )
 
-        if not last_version:
+        if not job:
             raise JobNotFound()
 
-        new_data = data.to_create_job_data(last_version)
-        return await self.create(uow=uow, data=new_data, version=next_version)
+        if data.new_owner_id:
+            job.owner_id = data.new_owner_id
+
+        latest_job = job.versions[-1]
+        if data.version:
+            latest_job.is_latest = False
+            update_job_version = data.version.to_create_job_data(
+                latest_version=latest_job)
+
+            job.versions.append(JobVersion.new(
+                name=update_job_version.name,
+                version=latest_job.version + 1,
+                is_latest=True,
+                job_id=job.id,
+                dataset_artifact_id=update_job_version.dataset_artifact_id,
+                generations=update_job_version.generations,
+                population=update_job_version.population,
+                max_size=update_job_version.max_size,
+                number_of_tournaments=update_job_version.number_of_tournaments,
+                crossover_probability=update_job_version.crossover_probability,
+                mutation_probability=update_job_version.mutation_probability,
+                non_terminals=update_job_version.non_terminals,
+                loss=update_job_version.loss,
+                optimization_iterations=update_job_version.optimization_iterations,
+                optimization_repeats=update_job_version.optimization_repeats,
+                max_param_count=update_job_version.max_param_count,
+                split=update_job_version.split,
+                simplify=update_job_version.simplify,
+            ))
+
+        updated_job = await uow.jobs.update(job)
+        return updated_job
 
     async def get_all(self, *, uow: UnitOfWork, filter: JobFilter | None = None, pagination: Pagination | None = None) -> Sequence[Job]:
         return await uow.jobs.list_all(where=filter, pagination=pagination)

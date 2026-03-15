@@ -26,6 +26,7 @@ from core.repositories.profiles import (
 )
 
 from core.repositories.jobs import (
+    BaseJobVersionsRepository,
     BaseJobsRepository,
 )
 
@@ -43,6 +44,7 @@ class UnitOfWork(ABC):
     profile_dataset_associations: BaseProfileDatasetAssociationsRepository
     profile_blocks: BaseProfileBlocksRepository
     jobs: BaseJobsRepository
+    job_versions: BaseJobVersionsRepository
 
     file_storage: FileStorage
 
