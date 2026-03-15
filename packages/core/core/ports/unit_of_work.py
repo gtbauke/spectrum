@@ -25,18 +25,9 @@ from core.repositories.profiles import (
     BaseProfileBlocksRepository,
 )
 
-UnitOfWorkResources = Union[
-    Literal["users"],
-    Literal["auth"],
-    Literal["owners"],
-    Literal["datasets"],
-    Literal["dataset_versions"],
-    Literal["dataset_artifacts"],
-    Literal["dataset_artifact_versions"],
-    Literal["profiles"],
-    Literal["profile_versions"],
-    Literal["profile_dataset_associations"],
-]
+from core.repositories.jobs import (
+    BaseJobsRepository,
+)
 
 
 class UnitOfWork(ABC):
@@ -51,6 +42,7 @@ class UnitOfWork(ABC):
     profile_versions: BaseProfileVersionsRepository
     profile_dataset_associations: BaseProfileDatasetAssociationsRepository
     profile_blocks: BaseProfileBlocksRepository
+    jobs: BaseJobsRepository
 
     file_storage: FileStorage
 

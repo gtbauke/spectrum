@@ -14,6 +14,8 @@ from core.models.profiles.profile_version import ProfileVersion
 from core.models.profiles.profile_dataset_association import ProfileDatasetAssociation
 from core.models.profiles.profile_block import ProfileBlock
 
+from core.models.jobs.job import Job
+
 
 namespace = {  # type: ignore
     "User": User,
@@ -27,6 +29,7 @@ namespace = {  # type: ignore
     "ProfileVersion": ProfileVersion,
     "ProfileDatasetAssociation": ProfileDatasetAssociation,
     "ProfileBlock": ProfileBlock,
+    "Job": Job,
 }
 
 for item in [
@@ -41,5 +44,6 @@ for item in [
     ProfileVersion,
     ProfileDatasetAssociation,
     ProfileBlock,
+    Job,
 ]:
     item.model_rebuild(_types_namespace=namespace)

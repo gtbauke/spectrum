@@ -4,8 +4,9 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, status, Query, UploadFile, File
 
 from app.api.response import PaginatedResponse
-from app.features.auth.guards.get_current_user import get_optional_current_owner, get_current_owner
 from app.api.unit_of_work import get_uow
+from app.features.auth.guards.get_current_user import get_optional_current_owner, get_current_owner
+from app.features.jobs.router import jobs_router
 
 from core.models.profiles.profile_dataset_role import ProfileDatasetRole
 from core.models.profiles.profile_status import ProfileStatus
@@ -25,6 +26,11 @@ from .guards.is_profile_owner import is_profile_owner
 logger = logging.getLogger(__name__)
 profiles_router = APIRouter(
     tags=["profiles"],
+)
+
+profiles_router.include_router(
+    prefix="/{profile_id}/jobs",
+    router=jobs_router,
 )
 
 
@@ -53,12 +59,6 @@ async def create_profile_from_dataset(
     uow: UnitOfWork = Depends(get_uow),
     profiles_service: ProfilesService = Depends(get_profiles_service),
 ):
-    logger.info("create_profile_from_dataset", extra={
-        "owner_id": owner_id,
-        "data": data.model_dump(),
-        "file": file,
-    })
-
     return await profiles_service.create_new_profile_from_dataset(
         uow=uow,
         data=CreateProfileFromDataset(
