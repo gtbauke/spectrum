@@ -3,6 +3,7 @@ from uuid import UUID
 from typing import BinaryIO, Optional
 from pydantic import BaseModel, Field
 
+from core.models.profiles.profile_dataset_role import ProfileDatasetRole
 from core.models.profiles.profile_visibility import ProfileVisibility
 
 
@@ -32,18 +33,29 @@ class CreateProfileFromDatasetRoute(BaseModel):
     dataset_description: Optional[str] = Field(
         None, description="Description of the dataset")
 
+    dataset_role: ProfileDatasetRole = Field(
+        ProfileDatasetRole.TRAINING,
+        description="The role the dataset assumes in the profile"
+    )
+
     @classmethod
     def as_form(
         cls,
         dataset_name: str = Form(...),
         dataset_description: Optional[str] = Form(None),
+        dataset_role: ProfileDatasetRole = Form(...),
     ):
-        return cls(dataset_name=dataset_name, dataset_description=dataset_description)
+        return cls(
+            dataset_name=dataset_name,
+            dataset_description=dataset_description,
+            dataset_role=dataset_role,
+        )
 
 
 class CreateProfileFromDataset:
     dataset_name: str
     dataset_description: Optional[str]
+    dataset_role: ProfileDatasetRole
     owner_id: UUID
     file: BinaryIO
 
@@ -53,9 +65,11 @@ class CreateProfileFromDataset:
         dataset_name: str,
         dataset_description: Optional[str] = None,
         owner_id: UUID,
+        dataset_role: ProfileDatasetRole,
         file: BinaryIO,
     ):
         self.dataset_name = dataset_name
         self.dataset_description = dataset_description
         self.owner_id = owner_id
         self.file = file
+        self.dataset_role = dataset_role

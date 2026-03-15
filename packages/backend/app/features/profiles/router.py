@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, status, Query, UploadFile, File
@@ -21,6 +22,7 @@ from .blocks.dto.create_block import CreateBlocks
 
 from .guards.is_profile_owner import is_profile_owner
 
+logger = logging.getLogger(__name__)
 profiles_router = APIRouter(
     tags=["profiles"],
 )
@@ -51,6 +53,12 @@ async def create_profile_from_dataset(
     uow: UnitOfWork = Depends(get_uow),
     profiles_service: ProfilesService = Depends(get_profiles_service),
 ):
+    logger.info("create_profile_from_dataset", extra={
+        "owner_id": owner_id,
+        "data": data.model_dump(),
+        "file": file,
+    })
+
     return await profiles_service.create_new_profile_from_dataset(
         uow=uow,
         data=CreateProfileFromDataset(
@@ -58,6 +66,7 @@ async def create_profile_from_dataset(
             file=file.file,
             dataset_name=data.dataset_name,
             dataset_description=data.dataset_description,
+            dataset_role=data.dataset_role,
         )
     )
 

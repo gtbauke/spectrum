@@ -211,7 +211,7 @@ class ProfilesService(BaseImmutableVersionedService[
         dataset_associations = ProfileDatasetAssociation.new(
             dataset_version_id=latest_dataset_version.id,
             profile_version_id=profile_version.id,
-            role=ProfileDatasetRole.TRAINING,
+            role=data.dataset_role,
         )
 
         await uow.profile_dataset_associations.add(dataset_associations)

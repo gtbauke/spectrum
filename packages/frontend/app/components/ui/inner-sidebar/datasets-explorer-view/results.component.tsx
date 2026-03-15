@@ -32,8 +32,8 @@ export function Results({ filters }: ResultsProps) {
 	const datasets = data?.pages.flatMap((page) => page.items) || [];
 
 	return (
-		<div className="flex-1 overflow-y-auto custom-scrollbar space-y-6">
-			<div className="space-y-1">
+		<div className="flex-1 flex flex-col overflow-hidden">
+			<div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
 				{datasets.map((dataset: Dataset) => {
 					return <DatasetItem key={dataset.id} dataset={dataset} />;
 				})}

@@ -1,4 +1,5 @@
 import type { QueryFunctionContext } from "@tanstack/react-query";
+import type { CreateProfileFromDatasetInput } from "~/schemas/creae-profile-from-dataset.schema";
 import type { Profile } from "~/schemas/generated/profile.schema";
 import type { ProfileDatasetRole } from "~/schemas/generated/profile-dataset-role.schema";
 import type { ProfileVisibility } from "~/schemas/generated/profile-visibility.schema";
@@ -76,4 +77,29 @@ export async function fetchProfilesPage({
 	});
 
 	return apiRequest<PaginatedResponse<Profile>>(`/profiles?${params}`);
+}
+
+export type CreateProfileFromDatasetPayload = CreateProfileFromDatasetInput & {
+	file: File;
+};
+
+export async function createProfileFromDataset(
+	payload: CreateProfileFromDatasetPayload,
+) {
+	console.log(payload);
+	const formData = new FormData();
+
+	formData.append("file", payload.file);
+	formData.append("dataset_name", payload.datasetName);
+
+	if (payload.datasetDescription) {
+		formData.append("dataset_description", payload.datasetDescription);
+	}
+
+	formData.append("dataset_role", payload.datasetRole);
+
+	return apiRequest<Profile>("/profiles/from-dataset", {
+		method: "POST",
+		body: formData,
+	});
 }

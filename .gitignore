@@ -25,3 +25,5 @@ __pycache__
 .vscode
 
 spectrum_data
+
+!packages/frontend/schemas/generated
