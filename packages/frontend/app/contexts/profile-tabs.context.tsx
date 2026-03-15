@@ -5,7 +5,7 @@ import {
 	useContext,
 	useState,
 } from "react";
-import type { ProfileVersion } from "~/schemas/generated/profile-version.schema";
+import type { ProfileVersion } from "~/schemas/models/profile-version.schema";
 
 export type ProfileTab = {
 	type: "profile";

@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react";
-import type { ProfileDatasetAssociation } from "~/schemas/generated/profile-dataset-association.schema";
+import type { ProfileDatasetAssociation } from "~/schemas/models/profile-dataset-association.schema";
 
 type DatasetsCellProps = {
 	datasets: ProfileDatasetAssociation[];

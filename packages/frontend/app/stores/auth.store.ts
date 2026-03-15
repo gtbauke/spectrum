@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import type { User } from "~/schemas/generated/user.schema";
+import type { User } from "~/schemas/models/user.schema";
 
 type AuthState = {
 	user: User | null;

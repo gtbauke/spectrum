@@ -10,7 +10,7 @@ import {
 	fetchDatasetsPage,
 } from "~/api/datasets.api";
 import type { PaginatedResponse } from "~/api/types.api";
-import type { Dataset } from "~/schemas/generated/dataset.schema";
+import type { Dataset } from "~/schemas/models/dataset.schema";
 
 export function useDatasets(filters: DatasetFilters, page: number) {
 	return useQuery({

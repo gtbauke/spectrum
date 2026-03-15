@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useProfileTabs } from "~/contexts/profile-tabs.context";
-import type { Profile } from "~/schemas/generated/profile.schema";
+import type { Profile } from "~/schemas/models/profile.schema";
 import { cn } from "~/utils/classname.util";
 
 type ProfileItemProps = {

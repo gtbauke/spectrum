@@ -1,6 +1,6 @@
 import type { QueryFunctionContext } from "@tanstack/react-query";
-import type { ArtifactType } from "~/schemas/generated/artifact-type.schema";
-import type { Dataset } from "~/schemas/generated/dataset.schema";
+import type { ArtifactType } from "~/schemas/models/artifact-type.schema";
+import type { Dataset } from "~/schemas/models/dataset.schema";
 import { apiRequest } from "./fetch.api";
 import type { PaginatedResponse } from "./types.api";
 

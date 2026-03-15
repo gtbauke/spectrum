@@ -1,9 +1,9 @@
 import type { QueryFunctionContext } from "@tanstack/react-query";
 import type { CreateProfileFromDatasetInput } from "~/schemas/creae-profile-from-dataset.schema";
-import type { Profile } from "~/schemas/generated/profile.schema";
-import type { ProfileDatasetRole } from "~/schemas/generated/profile-dataset-role.schema";
-import type { ProfileVisibility } from "~/schemas/generated/profile-visibility.schema";
-import type { ProfileStatus } from "../schemas/generated/profile-status.schema";
+import type { Profile } from "~/schemas/models/profile.schema";
+import type { ProfileDatasetRole } from "~/schemas/models/profile-dataset-role.schema";
+import type { ProfileVisibility } from "~/schemas/models/profile-visibility.schema";
+import type { ProfileStatus } from "../schemas/models/profile-status.schema";
 import { apiRequest } from "./fetch.api";
 import type { PaginatedResponse } from "./types.api";
 

@@ -8,7 +8,7 @@ import {
 	MoreVertical,
 } from "lucide-react";
 import { useState } from "react";
-import type { Dataset } from "~/schemas/generated/dataset.schema";
+import type { Dataset } from "~/schemas/models/dataset.schema";
 import { cn } from "~/utils/classname.util";
 
 type DatasetItemProps = {

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { profileDatasetRoleSchema } from "./generated/profile-dataset-role.schema";
+import { profileDatasetRoleSchema } from "./models/profile-dataset-role.schema";
 
 export const createProfileFromDatasetSchema = z.object({
 	datasetName: z.string(),

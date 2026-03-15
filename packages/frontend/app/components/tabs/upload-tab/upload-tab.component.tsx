@@ -9,7 +9,7 @@ import { TextInput } from "~/components/ui/forms/input/text-input.component";
 import { TextAreaInput } from "~/components/ui/forms/input/textarea-input.component";
 import { useCreateProfileFromDatasetMutation } from "~/hooks/use-create-profile-from-dataset.hook";
 import { createProfileFromDatasetSchema } from "~/schemas/creae-profile-from-dataset.schema";
-import { profileDatasetRoleValues } from "~/schemas/generated/profile-dataset-role.schema";
+import { profileDatasetRoleValues } from "~/schemas/models/profile-dataset-role.schema";
 import { capitalize } from "~/utils/capitalize.util";
 import { DatasetPreviewTable } from "./dataset-preview-table.component";
 

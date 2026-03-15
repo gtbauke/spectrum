@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import type { DatasetFilters } from "~/api/datasets.api";
 import { useInfiniteDatasets } from "~/hooks/use-datasets.hook";
 import { useIntersection } from "~/hooks/use-intersection.hook";
-import type { Dataset } from "~/schemas/generated/dataset.schema";
+import type { Dataset } from "~/schemas/models/dataset.schema";
 import { DatasetItem } from "./dataset-item.component";
 
 type ResultsProps = {

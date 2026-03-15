@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { create } from "zustand";
-import type { ProfileDatasetAssociation } from "~/schemas/generated/profile-dataset-association.schema";
-import type { ProfileVisibility } from "~/schemas/generated/profile-visibility.schema";
+import type { ProfileDatasetAssociation } from "~/schemas/models/profile-dataset-association.schema";
+import type { ProfileVisibility } from "~/schemas/models/profile-visibility.schema";
 
 export type MetadataData = {
 	name: string;

@@ -1,5 +1,5 @@
-import type { User } from "~/schemas/generated/user.schema";
 import type { LoginInput } from "~/schemas/login.schema";
+import type { User } from "~/schemas/models/user.schema";
 import type { SignupInput } from "~/schemas/signup.schema";
 import { apiRequest } from "./fetch.api";
 

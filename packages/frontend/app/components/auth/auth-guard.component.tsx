@@ -1,7 +1,7 @@
 import { type PropsWithChildren, useEffect, useState } from "react";
 import { Navigate } from "react-router";
 import { apiRequest } from "~/api/fetch.api";
-import type { User } from "~/schemas/generated/user.schema";
+import type { User } from "~/schemas/models/user.schema";
 import { useAuthStore } from "~/stores/auth.store";
 import { LoadingScreen } from "../layouts/loading-screen.layout";
 

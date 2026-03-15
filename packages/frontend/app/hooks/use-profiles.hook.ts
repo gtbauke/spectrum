@@ -10,7 +10,7 @@ import {
 	type ProfileFilters,
 } from "~/api/profiles.api";
 import type { PaginatedResponse } from "~/api/types.api";
-import type { Profile } from "~/schemas/generated/profile.schema";
+import type { Profile } from "~/schemas/models/profile.schema";
 
 export function useProfiles(filters: ProfileFilters, page: number) {
 	return useQuery({
