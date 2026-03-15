@@ -1,15 +1,17 @@
 import { Plus } from "lucide-react";
 import { Button } from "~/components/ui/buttons/button.component";
-import { useProfileTabs } from "~/contexts/profile-tabs.context";
+import { useEditorStore } from "~/stores/editor.store";
 
 export function Footer() {
-	const { openTab } = useProfileTabs();
+	const openTab = useEditorStore((state) => state.openTab);
 
 	const onAddTabClick = () => {
 		openTab({
 			type: "upload",
 			id: crypto.randomUUID(),
-			name: "Upload Dataset",
+			data: {
+				file: null,
+			},
 		});
 	};
 

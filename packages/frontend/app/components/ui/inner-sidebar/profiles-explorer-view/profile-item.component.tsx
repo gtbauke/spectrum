@@ -8,8 +8,8 @@ import {
 	MoreVertical,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useProfileTabs } from "~/contexts/profile-tabs.context";
 import type { Profile } from "~/schemas/models/profile.schema";
+import { useEditorStore } from "~/stores/editor.store";
 import { cn } from "~/utils/classname.util";
 
 type ProfileItemProps = {
@@ -19,7 +19,8 @@ type ProfileItemProps = {
 
 export function ProfileItem({ profile, active = false }: ProfileItemProps) {
 	const [isOpen, setIsOpen] = useState(false);
-	const { openTab, tabs, setActiveTab } = useProfileTabs();
+	const openTab = useEditorStore((s) => s.openTab);
+
 	const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
 	useEffect(() => {
@@ -64,19 +65,21 @@ export function ProfileItem({ profile, active = false }: ProfileItemProps) {
 			clearTimeout(clickTimeoutRef.current);
 		}
 
-		const alreadyOpen = tabs.some((t) => t.id === profile.id);
-		if (alreadyOpen) {
-			setActiveTab(profile.id);
-			return;
-		}
-
 		openTab({
 			type: "profile",
 			id: profile.id,
-			name: latestVersion.name,
-			isDirty: false,
-			profileId: profile.id,
-			profileVersion: latestVersion,
+			data: {
+				tabId: profile.id,
+				name: latestVersion.name,
+				blocks: [],
+				isDirty: false,
+				future: [],
+				past: [],
+				activeBlockId: null,
+				profileId: profile.id,
+				versionId: latestVersion.id,
+				description: latestVersion.description || null,
+			},
 		});
 	};
 

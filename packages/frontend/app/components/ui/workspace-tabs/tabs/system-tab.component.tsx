@@ -1,19 +1,18 @@
 import { UploadCloud } from "lucide-react";
-import {
-	type UploadTab,
-	useProfileTabs,
-} from "~/contexts/profile-tabs.context";
+import { useEditorStore } from "~/stores/editor.store";
+import { capitalize } from "~/utils/capitalize.util";
+import type { UploadTabData } from "~/utils/types/editor.types";
 import { TabBase } from "./tab-base.component";
 
 type SystemTabItemProps = {
-	tab: UploadTab;
+	tab: UploadTabData;
 	onClick: () => void;
 	onClose: () => void;
 };
 
 export function SystemTabItem({ tab, onClick, onClose }: SystemTabItemProps) {
-	const { activeTabId } = useProfileTabs();
-	const isActive = activeTabId === tab.id;
+	const activeTabId = useEditorStore((state) => state.activeTabId);
+	const isActive = activeTabId === tab.tabId;
 
 	return (
 		<TabBase
@@ -23,7 +22,9 @@ export function SystemTabItem({ tab, onClick, onClose }: SystemTabItemProps) {
 			onClick={onClick}
 			onClose={onClose}
 		>
-			<span className="truncate select-none text-gray-200">{tab.name}</span>
+			<span className="truncate select-none text-gray-200">
+				{capitalize(tab.name)}
+			</span>
 		</TabBase>
 	);
 }

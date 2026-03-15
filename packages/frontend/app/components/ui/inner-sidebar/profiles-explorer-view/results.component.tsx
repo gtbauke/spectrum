@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import type { ProfileFilters } from "~/api/profiles.api";
-import { useProfileTabs } from "~/contexts/profile-tabs.context";
 import { useIntersection } from "~/hooks/use-intersection.hook";
 import { useInfiniteProfiles } from "~/hooks/use-profiles.hook";
+import { useEditorStore } from "~/stores/editor.store";
 import { ProfileItem } from "./profile-item.component";
 
 type ResultsProps = {
@@ -10,9 +10,13 @@ type ResultsProps = {
 };
 
 export function Results({ filters }: ResultsProps) {
-	const { tabs, activeTabId, setActiveTab, openTab } = useProfileTabs();
+	const tabs = useEditorStore((state) => state.tabs);
+	const tabIds = useEditorStore((state) => state.tabIds);
+	const openTab = useEditorStore((state) => state.openTab);
+
 	const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
 		useInfiniteProfiles(filters);
+
 	const { ref, isIntersecting } = useIntersection<HTMLDivElement>();
 
 	useEffect(() => {
@@ -30,30 +34,37 @@ export function Results({ filters }: ResultsProps) {
 	}
 
 	const profiles = data?.pages.flatMap((page) => page.items) || [];
-	const draftTabs = tabs.filter(
-		(tab) =>
-			tab.type === "profile" && !profiles.some((p) => p.id === tab.profileId),
-	);
+	const draftTabs = tabIds
+		.map((tab) => {
+			const tabState = tabs[tab];
+			if (tabState.type !== "profile") {
+				return null;
+			}
+
+			return tabState;
+		})
+		.filter(
+			(tabState) =>
+				tabState && !profiles.some((p) => p.id === tabState.data.profileId),
+		);
 
 	const handleCreateDraft = () => {
+		// TODO: create profile in the backend
 		const tempId = crypto.randomUUID();
+
 		openTab({
-			type: "profile",
 			id: tempId,
-			name: "Untitled Profile",
-			profileId: tempId,
-			isDirty: true,
-			profileVersion: {
-				id: crypto.randomUUID(),
-				name: "Untitled Profile Version",
-				profile_id: tempId,
-				version: 1,
-				visibility: "private",
-				is_latest: true,
-				status: "active",
-				datasets: [],
+			type: "profile",
+			data: {
 				blocks: [],
-				timestamp: new Date().toISOString(),
+				isDirty: true,
+				future: [],
+				past: [],
+				activeBlockId: null,
+				name: "Untitled Profile",
+				description: null,
+				profileId: tempId,
+				versionId: crypto.randomUUID(),
 			},
 		});
 	};
@@ -75,21 +86,22 @@ export function Results({ filters }: ResultsProps) {
 					</div>
 					<div className="flex-1 overflow-y-auto px-2 space-y-1 custom-scrollbar">
 						{draftTabs.map((tab) => {
-							if (tab.type !== "profile") {
+							if (tab?.type !== "profile") {
 								return null;
 							}
 
 							return (
-								<ProfileItem
-									key={tab.id}
-									profile={{
-										created_at: tab.profileVersion.timestamp,
-										updated_at: tab.profileVersion.timestamp,
-										id: tab.profileId,
-										owner_id: "", // TODO: get owner id
-										versions: [tab.profileVersion],
-									}}
-								/>
+								// <ProfileItem
+								// 	key={tab.id}
+								// 	profile={{
+								// 		created_at: tab.profileVersion.timestamp,
+								// 		updated_at: tab.profileVersion.timestamp,
+								// 		id: tab.profileId,
+								// 		owner_id: "", // TODO: get owner id
+								// 		versions: [tab.profileVersion],
+								// 	}}
+								// />
+								<p key={tab.id}>Draft Profiles are not supported yet.</p>
 							);
 						})}
 					</div>

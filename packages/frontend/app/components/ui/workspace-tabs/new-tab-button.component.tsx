@@ -1,35 +1,28 @@
 import { Plus } from "lucide-react";
-import { useProfileTabs } from "~/contexts/profile-tabs.context";
 import { useEditorStore } from "~/stores/editor.store";
 
 export function NewTabButton() {
-	const { openTab } = useProfileTabs();
-	const setActiveProfileId = useEditorStore(
-		(state) => state.setActiveProfileId,
-	);
+	const openTab = useEditorStore((state) => state.openTab);
+	const setActiveTab = useEditorStore((state) => state.setActiveTab);
 
 	// TODO: handle the creation of new profiles
 	const handleOpenTab = () => {
 		const profileId = crypto.randomUUID();
 
-		setActiveProfileId(profileId);
+		setActiveTab(profileId);
 		openTab({
 			type: "profile",
 			id: profileId,
-			name: "New Tab",
-			isDirty: true,
-			profileId,
-			profileVersion: {
-				profile_id: profileId,
-				is_latest: true,
-				version: 1,
-				id: crypto.randomUUID(),
-				name: "New Tab",
-				timestamp: new Date().toISOString(),
-				visibility: "public",
-				status: "active",
-				datasets: [],
+			data: {
+				name: "Untitled Profile",
+				description: null,
+				isDirty: true,
+				profileId,
+				versionId: crypto.randomUUID(),
 				blocks: [],
+				past: [],
+				future: [],
+				activeBlockId: null,
 			},
 		});
 	};

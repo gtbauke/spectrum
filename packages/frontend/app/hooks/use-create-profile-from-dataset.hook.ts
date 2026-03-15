@@ -3,11 +3,11 @@ import {
 	type CreateProfileFromDatasetPayload,
 	createProfileFromDataset,
 } from "~/api/profiles.api";
-import { useProfileTabs } from "~/contexts/profile-tabs.context";
+import { useEditorStore } from "~/stores/editor.store";
 
 export function useCreateProfileFromDatasetMutation() {
 	const queryClient = useQueryClient();
-	const { openTab } = useProfileTabs();
+	const openTab = useEditorStore((s) => s.openTab);
 
 	return useMutation({
 		mutationFn: (payload: CreateProfileFromDatasetPayload) =>
@@ -19,11 +19,19 @@ export function useCreateProfileFromDatasetMutation() {
 
 			openTab({
 				type: "profile",
-				id: `profile-${newProfile.id}`,
-				name: newProfile.versions[0]?.name || "New Profile",
-				profileId: newProfile.id,
-				profileVersion: newProfile.versions[0],
-				isDirty: false,
+				id: newProfile.id,
+				data: {
+					name: newProfile.versions[0]?.name || "New Profile",
+					profileId: newProfile.id,
+					isDirty: false,
+					activeBlockId: null,
+					blocks: [],
+					description: newProfile.versions[0]?.description || "",
+					future: [],
+					past: [],
+					tabId: newProfile.id,
+					versionId: newProfile.versions[0]?.id || "",
+				},
 			});
 		},
 		onError: (error) => {

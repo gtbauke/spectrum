@@ -1,82 +1,52 @@
 import { v4 as uuidv4 } from "uuid";
 import { create } from "zustand";
-import type { ProfileDatasetAssociation } from "~/schemas/models/profile-dataset-association.schema";
-import type { ProfileVisibility } from "~/schemas/models/profile-visibility.schema";
+import type {
+	BlockDataMap,
+	BlockType,
+	EditorBlock,
+	EditorTab,
+	EditorTabDataMap,
+	EditorTabType,
+} from "~/utils/types/editor.types";
 
-export type MetadataData = {
-	name: string;
-	description: string | null | undefined;
-	visibility: ProfileVisibility;
-};
-
-export type DatasetData = {
-	datasets: ProfileDatasetAssociation[];
-};
-
-export type JobsData = {
-	profileId: string;
-};
-
-export type ResultsData = {
-	metrics: Record<string, number>;
-	formula?: string;
-};
-
-export type InferenceData = {
-	code: string;
-};
-
-export type MarkdownData = {
-	value: string;
-};
-
-export type BlockDataMap = {
-	metadata: MetadataData;
-	datasets: DatasetData;
-	jobs: JobsData;
-	results: ResultsData;
-	inference: InferenceData;
-	markdown: MarkdownData;
-};
-
-export type BlockType = keyof BlockDataMap;
-
-export type EditorBlock = {
-	[K in BlockType]: {
-		id: string;
-		type: K;
-		data: BlockDataMap[K];
-	};
-}[BlockType];
+const MAX_TAB_HISTORY = 20;
+const MAX_BLOCKS_HISTORY = 50;
 
 type EditorState = {
-	profileId: string | null;
-	versionId: string | null;
-	isDirty: boolean;
-	blocks: EditorBlock[];
-	activeBlockId: string | null;
+	tabs: Record<string, EditorTab>;
+	activeTabId: string | null;
+	tabIds: string[];
 
-	past: EditorBlock[][];
-	future: EditorBlock[][];
+	pastTabs: EditorTab[];
+};
+
+type UpdateActionOptions = {
+	recordHistory: boolean;
 };
 
 type EditorActions = {
-	initEditor: (
-		profileId: string,
-		versionId: string,
-		initialBlocks: EditorBlock[],
+	openTab: (tab: EditorTab) => void;
+	closeTab: (id: string) => void;
+	updateTab: <T extends EditorTabType>(
+		id: string,
+		type: T,
+		data: Partial<EditorTabDataMap[T]>,
 	) => void;
+	setActiveTab: (id: string | null) => void;
+	reopenTab: (id: string) => void;
 
 	addBlock: <T extends BlockType>(
 		type: T,
 		data: BlockDataMap[T],
 		index?: number,
 	) => void;
+
 	updateBlock: <T extends BlockType>(
 		id: string,
 		data: Partial<BlockDataMap[T]>,
-		options?: { recordHistory: boolean },
+		options: UpdateActionOptions,
 	) => void;
+
 	removeBlock: (id: string) => void;
 	reorderBlocks: (newBlocksOrder: EditorBlock[]) => void;
 
@@ -86,94 +56,266 @@ type EditorActions = {
 	commit: () => void;
 	undo: () => void;
 	redo: () => void;
-
-	setActiveProfileId: (id: string | null) => void;
 };
 
 export type EditorStore = EditorState & EditorActions;
 
 export const useEditorStore = create<EditorStore>((set, get) => ({
-	profileId: null,
-	versionId: null,
-	isDirty: false,
-	blocks: [],
-	activeBlockId: null,
-	past: [],
-	future: [],
+	tabs: {},
+	activeTabId: null,
+	pastTabs: [],
+	tabIds: [],
 
-	commit: () => {
-		const { blocks, past } = get();
-		set({
-			past: [...past.slice(-49), blocks],
-			future: [],
-			isDirty: true,
-		});
-	},
+	openTab: (tab) =>
+		set((state) => {
+			if (state.tabs[tab.id]) {
+				return { activeTabId: tab.id };
+			}
 
-	undo: () => {
-		const { past, blocks, future } = get();
-		if (past.length === 0) return;
+			const newPastTabs = state.pastTabs.filter((t) => t.id !== tab.id);
+			return {
+				tabs: { ...state.tabs, [tab.id]: tab },
+				tabIds: [...state.tabIds, tab.id],
+				activeTabId: tab.id,
+				pastTabs: newPastTabs,
+			};
+		}),
 
-		const previous = past[past.length - 1];
-		const newPast = past.slice(0, past.length - 1);
+	closeTab: (id) =>
+		set((state) => {
+			if (!state.tabs[id]) {
+				return state;
+			}
 
-		set({
-			blocks: previous,
-			past: newPast,
-			future: [blocks, ...future],
-			activeBlockId: null,
-		});
-	},
+			const tabToClose = state.tabs[id];
+			const currentTabIndex = state.tabIds.indexOf(id);
 
-	redo: () => {
-		const { past, blocks, future } = get();
-		if (future.length === 0) return;
+			const newTabs = { ...state.tabs };
+			delete newTabs[id];
 
-		const next = future[0];
-		const newFuture = future.slice(1);
+			const newTabIds = state.tabIds.filter((tabId) => tabId !== id);
+			let newActiveId = state.activeTabId;
 
-		set({
-			blocks: next,
-			past: [...past, blocks],
-			future: newFuture,
-		});
-	},
+			if (state.activeTabId === id) {
+				if (newTabIds.length === 0) {
+					newActiveId = null;
+				} else {
+					const fallbackIndex =
+						currentTabIndex >= newTabIds.length
+							? newTabIds.length - 1
+							: currentTabIndex;
 
-	initEditor: (profileId, versionId, initialBlocks) => {
-		set({
-			profileId,
-			versionId,
-			blocks: initialBlocks,
-			isDirty: false,
-			activeBlockId: initialBlocks[0]?.id || null,
-		});
-	},
+					newActiveId = newTabIds[fallbackIndex];
+				}
+			}
 
-	addBlock: <T extends BlockType>(
-		type: T,
-		data: BlockDataMap[T],
-		index?: number,
-	) => {
-		const newBlock: EditorBlock = { id: uuidv4(), type, data } as EditorBlock;
+			const newPastTabs = [...state.pastTabs, tabToClose].slice(
+				-MAX_TAB_HISTORY,
+			);
+
+			return {
+				tabs: newTabs,
+				tabIds: newTabIds,
+				activeTabId: newActiveId,
+				pastTabs: newPastTabs,
+			};
+		}),
+
+	updateTab: (id, type, newData) =>
+		set((state) => {
+			const tab = state.tabs[id];
+
+			if (!tab) {
+				return state;
+			}
+
+			if (tab.type !== type) {
+				console.warn(
+					`[EditorStore] Failed to update tab ${id}: Type mismatch. Expected '${type}', got '${tab.type}'.`,
+				);
+				return state;
+			}
+
+			return {
+				tabs: {
+					...state.tabs,
+					[id]: {
+						...tab,
+						data: {
+							...tab.data,
+							...newData,
+							isDirty: true,
+						},
+					} as EditorTab,
+				},
+			};
+		}),
+
+	setActiveTab: (id) =>
+		set((state) => {
+			if (id === null) {
+				return { activeTabId: null };
+			}
+
+			if (!state.tabs[id]) {
+				return state;
+			}
+
+			return { activeTabId: id };
+		}),
+
+	reopenTab: (id) =>
+		set((state) => {
+			const tabToReopen = state.pastTabs.find((t) => t.id === id);
+			if (!tabToReopen) {
+				return state;
+			}
+
+			const newPastTabs = state.pastTabs.filter((t) => t.id !== id);
+			return {
+				pastTabs: newPastTabs,
+				tabs: { ...state.tabs, [id]: tabToReopen },
+				tabIds: [...state.tabIds, id],
+				activeTabId: id,
+			};
+		}),
+
+	commit: () =>
+		set((state) => {
+			const tabId = state.activeTabId;
+			if (!tabId) {
+				return state;
+			}
+
+			const tab = state.tabs[tabId];
+			if (tab.type !== "profile") {
+				return state;
+			}
+
+			const newPast = [
+				...tab.data.past.slice(-(MAX_BLOCKS_HISTORY - 1)),
+				tab.data.blocks,
+			];
+
+			return {
+				tabs: {
+					...state.tabs,
+					[tabId]: {
+						...tab,
+						data: {
+							...tab.data,
+							past: newPast,
+							future: [],
+							isDirty: true,
+						},
+					},
+				},
+			};
+		}),
+
+	undo: () =>
+		set((state) => {
+			const tabId = state.activeTabId;
+			if (!tabId) {
+				return state;
+			}
+
+			const tab = state.tabs[tabId];
+			if (tab.type !== "profile" || tab.data.past.length === 0) {
+				return state;
+			}
+
+			const previous = tab.data.past[tab.data.past.length - 1];
+			const newPast = tab.data.past.slice(0, -1);
+
+			return {
+				tabs: {
+					...state.tabs,
+					[tabId]: {
+						...tab,
+						data: {
+							...tab.data,
+							blocks: previous,
+							past: newPast,
+							future: [tab.data.blocks, ...tab.data.future],
+							activeBlockId: null,
+						},
+					},
+				},
+			};
+		}),
+
+	redo: () =>
+		set((state) => {
+			const tabId = state.activeTabId;
+			if (!tabId) {
+				return state;
+			}
+
+			const tab = state.tabs[tabId];
+			if (tab.type !== "profile" || tab.data.future.length === 0) {
+				return state;
+			}
+
+			const next = tab.data.future[0];
+			const newFuture = tab.data.future.slice(1);
+
+			return {
+				tabs: {
+					...state.tabs,
+					[tabId]: {
+						...tab,
+						data: {
+							...tab.data,
+							blocks: next,
+							past: [...tab.data.past, tab.data.blocks],
+							future: newFuture,
+						},
+					},
+				},
+			};
+		}),
+
+	addBlock: (type, data, index) => {
+		const newBlock = { id: uuidv4(), type, data } as EditorBlock;
 
 		get().commit();
 		set((state) => {
-			const newBlocks = [...state.blocks];
-
-			let targetIndex = index;
-			if (targetIndex === undefined) {
-				const activeIndex = state.blocks.findIndex(
-					(b) => b.id === state.activeBlockId,
-				);
-				targetIndex = activeIndex >= 0 ? activeIndex + 1 : state.blocks.length;
+			const tabId = state.activeTabId;
+			if (!tabId) {
+				return state;
 			}
 
-			newBlocks.splice(targetIndex, 0, newBlock);
+			const tab = state.tabs[tabId];
+			if (tab.type !== "profile") {
+				return state;
+			}
+
+			const blocks = [...tab.data.blocks];
+			let targetIndex = index;
+
+			if (targetIndex === undefined) {
+				const activeIndex = blocks.findIndex(
+					(b) => b.id === tab.data.activeBlockId,
+				);
+				targetIndex = activeIndex >= 0 ? activeIndex + 1 : blocks.length;
+			}
+
+			blocks.splice(targetIndex, 0, newBlock);
 
 			return {
-				blocks: newBlocks,
-				isDirty: true,
-				activeBlockId: newBlock.id,
+				tabs: {
+					...state.tabs,
+					[tabId]: {
+						...tab,
+						data: {
+							...tab.data,
+							blocks,
+							isDirty: true,
+							activeBlockId: newBlock.id,
+						},
+					},
+				},
 			};
 		});
 	},
@@ -183,38 +325,135 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 			get().commit();
 		}
 
-		set((state) => ({
-			blocks: state.blocks.map((block) =>
+		set((state) => {
+			const tabId = state.activeTabId;
+			if (!tabId) {
+				return state;
+			}
+
+			const tab = state.tabs[tabId];
+			if (tab.type !== "profile") {
+				return state;
+			}
+
+			const newBlocks = tab.data.blocks.map((block) =>
 				block.id === id
 					? ({ ...block, data: { ...block.data, ...newData } } as EditorBlock)
 					: block,
-			),
-			isDirty: true,
-		}));
+			);
+
+			return {
+				tabs: {
+					...state.tabs,
+					[tabId]: {
+						...tab,
+						data: { ...tab.data, blocks: newBlocks, isDirty: true },
+					},
+				},
+			};
+		});
 	},
 
 	removeBlock: (id) => {
-		const state = get();
-		const index = state.blocks.findIndex((b) => b.id === id);
-		if (index === -1) return;
-
-		const blockToRemove = state.blocks[index];
-
 		get().commit();
-		set((state) => ({
-			blocks: state.blocks.filter((b) => b.id !== id),
-			lastDeletedBlock: { block: blockToRemove, index },
-			isDirty: true,
-			activeBlockId: state.activeBlockId === id ? null : state.activeBlockId,
-		}));
+
+		set((state) => {
+			const tabId = state.activeTabId;
+			if (!tabId) {
+				return state;
+			}
+
+			const tab = state.tabs[tabId];
+			if (tab.type !== "profile") {
+				return state;
+			}
+
+			const newBlocks = tab.data.blocks.filter((b) => b.id !== id);
+
+			return {
+				tabs: {
+					...state.tabs,
+					[tabId]: {
+						...tab,
+						data: {
+							...tab.data,
+							blocks: newBlocks,
+							isDirty: true,
+							activeBlockId:
+								tab.data.activeBlockId === id ? null : tab.data.activeBlockId,
+						},
+					},
+				},
+			};
+		});
 	},
 
-	reorderBlocks: (newBlocksOrder: EditorBlock[]) =>
-		set(() => ({ blocks: newBlocksOrder })),
+	reorderBlocks: (newBlocksOrder) =>
+		set((state) => {
+			const tabId = state.activeTabId;
+			if (!tabId) {
+				return state;
+			}
 
-	setActiveBlock: (id) => set({ activeBlockId: id }),
+			const tab = state.tabs[tabId];
+			if (tab.type !== "profile") {
+				return state;
+			}
 
-	markClean: () => set({ isDirty: false }),
+			return {
+				tabs: {
+					...state.tabs,
+					[tabId]: {
+						...tab,
+						data: { ...tab.data, blocks: newBlocksOrder, isDirty: true },
+					},
+				},
+			};
+		}),
 
-	setActiveProfileId: (id) => set({ profileId: id }),
+	setActiveBlock: (id) =>
+		set((state) => {
+			const tabId = state.activeTabId;
+			if (!tabId) {
+				return state;
+			}
+
+			const tab = state.tabs[tabId];
+			if (tab.type !== "profile") {
+				return state;
+			}
+
+			return {
+				tabs: {
+					...state.tabs,
+					[tabId]: {
+						...tab,
+						data: { ...tab.data, activeBlockId: id },
+					},
+				},
+			};
+		}),
+
+	markClean: () =>
+		set((state) => {
+			const tabId = state.activeTabId;
+			if (!tabId) {
+				return state;
+			}
+
+			const tab = state.tabs[tabId];
+			if (tab.type !== "profile") {
+				return state;
+			}
+
+			return {
+				tabs: {
+					...state.tabs,
+					[tabId]: {
+						...tab,
+						data: { ...tab.data, isDirty: false },
+					},
+				},
+			};
+		}),
 }));

@@ -1,34 +1,35 @@
-import { type Tab, useProfileTabs } from "~/contexts/profile-tabs.context";
 import { useEditorStore } from "~/stores/editor.store";
+import type { EditorTab } from "~/utils/types/editor.types";
 import { NewTabButton } from "./new-tab-button.component";
 import { ProfileTabItem } from "./tabs/profile-tab.component";
 import { SystemTabItem } from "./tabs/system-tab.component";
 
 export function TabBar() {
-	const { tabs, setActiveTab, closeTab } = useProfileTabs();
-	const setActiveProfileId = useEditorStore(
-		(state) => state.setActiveProfileId,
-	);
+	const tabs = useEditorStore((state) => state.tabs);
+	const tabIds = useEditorStore((state) => state.tabIds);
+	const setActiveTab = useEditorStore((state) => state.setActiveTab);
+	const closeTab = useEditorStore((state) => state.closeTab);
 
-	const handleTabClick = (tab: Tab) => {
+	const handleTabClick = (tab: EditorTab) => {
 		setActiveTab(tab.id);
 
 		if (tab.type === "profile") {
-			setActiveProfileId(tab.profileId);
+			setActiveTab(tab.id);
 			return;
 		}
 
-		setActiveProfileId(null);
+		setActiveTab(null);
 	};
 
-	const handleTabClose = (tab: Tab) => {
-		const nextOpenTab = closeTab(tab.id);
-		setActiveProfileId(nextOpenTab);
+	const handleTabClose = (tab: EditorTab) => {
+		closeTab(tab.id);
 	};
 
 	return (
 		<div className="flex items-center bg-background-surface border-b border-border h-10 overflow-x-auto no-scrollbar">
-			{tabs.map((tab) => {
+			{tabIds.map((tabId) => {
+				const tab = tabs[tabId];
+
 				if (tab.type !== "profile") {
 					return (
 						<SystemTabItem

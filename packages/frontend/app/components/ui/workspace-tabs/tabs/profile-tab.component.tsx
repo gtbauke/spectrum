@@ -1,26 +1,25 @@
 import { Folder } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
-import {
-	type ProfileTab,
-	useProfileTabs,
-} from "~/contexts/profile-tabs.context";
+import { useEditorStore } from "~/stores/editor.store";
+import type { ProfileTabData } from "~/utils/types/editor.types";
 import { TabBase } from "./tab-base.component";
 
 type ProfileTabItemProps = {
-	tab: ProfileTab;
+	tab: ProfileTabData;
 	onClick: () => void;
 	onClose: () => void;
 };
 
 export function ProfileTabItem({ tab, onClick, onClose }: ProfileTabItemProps) {
-	const { activeTabId, updateTab } = useProfileTabs();
+	const activeTabId = useEditorStore((state) => state.activeTabId);
+	const updateTab = useEditorStore((state) => state.updateTab);
 
 	const [isEditing, setIsEditing] = useState(false);
 	const [tempName, setTempName] = useState(tab.name);
 	const inputRef = useRef<HTMLInputElement>(null);
 
-	const isActive = activeTabId === tab.id;
+	const isActive = activeTabId === tab.tabId;
 
 	useEffect(() => {
 		if (isEditing) {
@@ -33,7 +32,7 @@ export function ProfileTabItem({ tab, onClick, onClose }: ProfileTabItemProps) {
 		setIsEditing(false);
 
 		if (tempName.trim() && tempName !== tab.name) {
-			updateTab(tab.id, "profile", { name: tempName.trim(), isDirty: true });
+			updateTab(tab.tabId, "profile", { name: tempName.trim() });
 			return;
 		}
 
