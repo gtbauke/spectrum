@@ -29,15 +29,20 @@ export function ProfileTabItem({ tab }: ProfileTabItemProps) {
 
 	const handleEditSave = () => {
 		setIsEditing(false);
+
 		if (tempName.trim() && tempName !== tab.name) {
 			updateTab(tab.id, "profile", { name: tempName.trim(), isDirty: true });
 			return;
 		}
+
 		setTempName(tab.name);
 	};
 
 	const handleKeyDown = (e: React.KeyboardEvent) => {
-		if (e.key === "Enter") handleEditSave();
+		if (e.key === "Enter") {
+			handleEditSave();
+		}
+
 		if (e.key === "Escape") {
 			setIsEditing(false);
 			setTempName(tab.name);

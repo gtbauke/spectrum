@@ -10,7 +10,7 @@ export function NewTabButton() {
 
 		openTab({
 			type: "profile",
-			id: crypto.randomUUID(),
+			id: profileId,
 			name: "New Tab",
 			isDirty: true,
 			profileId,

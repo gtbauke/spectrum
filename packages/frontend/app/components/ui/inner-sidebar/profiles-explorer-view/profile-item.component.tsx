@@ -19,7 +19,7 @@ type ProfileItemProps = {
 
 export function ProfileItem({ profile, active = false }: ProfileItemProps) {
 	const [isOpen, setIsOpen] = useState(false);
-	const { openTab } = useProfileTabs();
+	const { openTab, tabs, setActiveTab } = useProfileTabs();
 	const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
 	useEffect(() => {
@@ -64,9 +64,15 @@ export function ProfileItem({ profile, active = false }: ProfileItemProps) {
 			clearTimeout(clickTimeoutRef.current);
 		}
 
+		const alreadyOpen = tabs.some((t) => t.id === profile.id);
+		if (alreadyOpen) {
+			setActiveTab(profile.id);
+			return;
+		}
+
 		openTab({
 			type: "profile",
-			id: latestVersion.id,
+			id: profile.id,
 			name: latestVersion.name,
 			isDirty: false,
 			profileId: profile.id,

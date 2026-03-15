@@ -20,7 +20,7 @@ export function TabBase({
 	onClose,
 }: TabBaseProps) {
 	const handleKeyDown = (e: React.KeyboardEvent) => {
-		if (e.key === "Enter" || e.key === " ") {
+		if (e.key === "Enter") {
 			e.preventDefault();
 			onClick();
 		}
