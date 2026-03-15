@@ -29,11 +29,8 @@ class Dataset(BaseMutableDomainModel):
         owner_id: UUID,
     ):
         return cls(
-            id=uuid4(),
             owner_id=owner_id,
             deleted_at=None,
-            created_at=datetime.now(timezone.utc),
-            updated_at=datetime.now(timezone.utc),
             versions=[],
         )
 

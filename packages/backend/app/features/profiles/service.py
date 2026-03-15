@@ -2,7 +2,10 @@ import logging
 
 from typing import Optional
 
+from core.models.datasets.where import DatasetArtifactVersionsWhere
 from core.models.profiles.profile_block import ProfileBlock
+from core.models.profiles.profile_dataset_role import ProfileDatasetRole
+from core.models.profiles.profile_visibility import ProfileVisibility
 from core.ports.unit_of_work import UnitOfWork
 
 from core.services.base import BaseImmutableVersionedService
@@ -12,7 +15,12 @@ from core.models.profiles.profile_dataset_association import ProfileDatasetAssoc
 from core.models.profiles.where import ProfileVersionWhere, ProfilesWhere, ProfilesFilter
 from core.utils.pagination.base import Pagination
 
-from .dto.create_profile import CreateProfileDTO
+from app.features.datasets.artifacts.dto.create_artifact import CreateArtifactDTO
+from app.features.datasets.dto.create_dataset import CreateDatasetDTO
+from app.features.datasets.artifacts.service import DatasetArtifactsService, get_dataset_artifacts_service
+from app.features.datasets.service import DatasetsService, get_datasets_service
+
+from .dto.create_profile import CreateProfileDTO, CreateProfileFromDataset
 from .dto.update_profile import UpdateProfileDTO
 
 from .versions.errors.profile_version_not_found import ProfileVersionNotFound
@@ -31,6 +39,14 @@ class ProfilesService(BaseImmutableVersionedService[
     UpdateProfileDTO,
     ProfilesFilter
 ]):
+    def __init__(
+        self,
+        dataset_artifacts_service: DatasetArtifactsService,
+        datasets_service: DatasetsService,
+    ):
+        self._dataset_artifacts_service = dataset_artifacts_service
+        self._datasets_service = datasets_service
+
     async def get_unique(self, *, uow: UnitOfWork, where: ProfilesWhere) -> Optional[Profile]:
         return await uow.profiles.get_unique(where=where)
 
@@ -152,6 +168,66 @@ class ProfilesService(BaseImmutableVersionedService[
 
         return profile
 
+    async def create_new_profile_from_dataset(
+        self,
+        *,
+        uow: UnitOfWork,
+        data: CreateProfileFromDataset
+    ):
+        dataset = await self._datasets_service.create(
+            uow=uow,
+            data=CreateDatasetDTO(
+                owner_id=data.owner_id,
+                name=data.dataset_name,
+                description=data.dataset_description,
+            )
+        )
+
+        latest_dataset_version = dataset.versions[0]
+        await self._dataset_artifacts_service.create(
+            uow=uow,
+            data=CreateArtifactDTO(
+                dataset_id=dataset.id,
+                dataset_version_id=latest_dataset_version.id,
+            ),
+            file=data.file,
+        )
+
+        profile = await uow.profiles.add(Profile.new(
+            owner_id=data.owner_id,
+        ))
+
+        profile_version = await uow.profile_versions.add(ProfileVersion.new(
+            name=f"Profile for {data.dataset_name}",
+            description=f"Profile for {data.dataset_name}",
+            version=1,
+            is_latest=True,
+            profile_id=profile.id,
+            visibility=ProfileVisibility.PRIVATE,
+            blocks=[],
+            datasets=[],
+        ))
+
+        dataset_associations = ProfileDatasetAssociation.new(
+            dataset_version_id=latest_dataset_version.id,
+            profile_version_id=profile_version.id,
+            role=ProfileDatasetRole.TRAINING,
+        )
+
+        await uow.profile_dataset_associations.add(dataset_associations)
+
+        final_profile = await uow.profiles.get_unique(
+            where=ProfilesWhere(id=profile.id)
+        )
+
+        return final_profile
+
 
 def get_profiles_service() -> ProfilesService:
-    return ProfilesService()
+    dataset_artifacts = get_dataset_artifacts_service()
+    datasets = get_datasets_service()
+
+    return ProfilesService(
+        dataset_artifacts_service=dataset_artifacts,
+        datasets_service=datasets,
+    )

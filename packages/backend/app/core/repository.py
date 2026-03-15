@@ -53,8 +53,9 @@ class BaseRepositoryImplementation[
 
         return obj_orm.to_domain() if obj_orm else None
 
-    async def add(self, obj: DomainType, commit: bool = True) -> DomainType:
+    async def add(self, obj: DomainType, commit: bool = False) -> DomainType:
         self._session.add(self.orm_model.from_domain(obj))
+        await self._session.flush()
 
         if commit:
             await self._session.commit()

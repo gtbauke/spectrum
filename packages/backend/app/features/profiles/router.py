@@ -1,6 +1,6 @@
 from typing import Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, status, Query
+from fastapi import APIRouter, Depends, status, Query, UploadFile, File
 
 from app.api.response import PaginatedResponse
 from app.features.auth.guards.get_current_user import get_optional_current_owner, get_current_owner
@@ -14,7 +14,7 @@ from core.models.profiles.where import ProfileDatasetAssociationFilter, ProfileV
 from core.utils.filters.field_filter import EnumFilter, NumberFilter, StringFilter, UUIDFilter
 
 from .service import ProfilesService, get_profiles_service
-from .dto.create_profile import CreateProfileDTO, CreateProfileRouteDTO
+from .dto.create_profile import CreateProfileDTO, CreateProfileFromDataset, CreateProfileFromDatasetRoute, CreateProfileRouteDTO
 from .dto.update_profile import UpdateProfileDTO, UpdateProfileRouteDTO
 from .associations.dto.create_association import CreateAssociationDTO, CreateAssociationRouteDTO
 from .blocks.dto.create_block import CreateBlocks
@@ -37,6 +37,29 @@ async def create_profile(
     owner_id: UUID = Depends(get_current_owner),
 ):
     return await profiles_service.create(uow=uow, data=CreateProfileDTO(owner_id=owner_id, version=data.version))
+
+
+@profiles_router.post(
+    path="/from-dataset",
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_profile_from_dataset(
+    owner_id: UUID = Depends(get_current_owner),
+    data: CreateProfileFromDatasetRoute = Depends(
+        CreateProfileFromDatasetRoute.as_form),
+    file: UploadFile = File(...),
+    uow: UnitOfWork = Depends(get_uow),
+    profiles_service: ProfilesService = Depends(get_profiles_service),
+):
+    return await profiles_service.create_new_profile_from_dataset(
+        uow=uow,
+        data=CreateProfileFromDataset(
+            owner_id=owner_id,
+            file=file.file,
+            dataset_name=data.dataset_name,
+            dataset_description=data.dataset_description,
+        )
+    )
 
 
 @profiles_router.put(

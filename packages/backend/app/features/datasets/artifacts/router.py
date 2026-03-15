@@ -51,13 +51,13 @@ async def upload_dataset_artifact(
     dataset_artifacts_service: DatasetArtifactsService = Depends(
         get_dataset_artifacts_service),
 ):
-    data = CreateArtifactDTO(dataset_id=dataset_id)
-    artifact, was_created = await dataset_artifacts_service.create(uow=uow, data=data, file=file.file)
+    data = CreateArtifactDTO(dataset_id=dataset_id, dataset_version_id=None)
+    res = await dataset_artifacts_service.create(uow=uow, data=data, file=file.file)
 
-    if not was_created:
+    if not res.was_created:
         response.status_code = status.HTTP_200_OK
 
-    return artifact
+    return res.artifact
 
 
 @dataset_artifacts_router.get(

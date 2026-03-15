@@ -19,8 +19,8 @@ class Profile(BaseMutableDomainModel):
                                              description="The versions of the profile")
 
     @classmethod
-    def new(cls, *, owner_id: UUID) -> "Profile":
+    def new(cls, *, owner_id: UUID, versions: list["ProfileVersion"] = []) -> "Profile":
         return cls(
             owner_id=owner_id,
-            versions=[]
+            versions=versions,
         )

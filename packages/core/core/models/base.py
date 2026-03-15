@@ -16,10 +16,10 @@ class BaseMutableDomainModel(RootDomainModel):
     id: UUID = Field(default_factory=uuid4,
                      description="Unique identifier for the model")
 
-    created_at: datetime = Field(default_factory=datetime.now,
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc),
                                  description="Timestamp when the model was created")
 
-    updated_at: datetime = Field(default_factory=datetime.now,
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc),
                                  description="Timestamp when the model was last updated")
 
 
@@ -46,7 +46,7 @@ class BaseImmutableVersionedDomainModel(RootDomainModel):
     version: int = Field(1,
                          description="Version number for optimistic concurrency control")
 
-    timestamp: datetime = Field(datetime.now(timezone.utc),
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc),
                                 description="Timestamp when the model was created")
 
     is_latest: bool = Field(
