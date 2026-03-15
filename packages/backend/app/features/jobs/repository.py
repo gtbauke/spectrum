@@ -6,7 +6,7 @@ from core.models.jobs.job import Job
 from core.models.jobs.where import JobWhere, JobFilter
 
 from app.core.repository import BaseRepositoryImplementation
-from app.features.jobs.models import JobORM
+from app.features.jobs.models import JobORM, JobVersionORM
 
 
 class JobsRepository(BaseJobsRepository, BaseRepositoryImplementation[
@@ -43,7 +43,9 @@ class JobsRepository(BaseJobsRepository, BaseRepositoryImplementation[
         query = (
             select(self.orm_model)
             .options(
-                selectinload(self.orm_model.versions),
+                selectinload(self.orm_model.versions.and_(
+                    JobVersionORM.is_latest == True,
+                )),
             )
             .where(*conditions)
             .limit(limit)
