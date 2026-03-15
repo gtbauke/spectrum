@@ -1,10 +1,13 @@
 from typing import Sequence
 
+from app.features.profiles.versions.errors.profile_version_not_found import ProfileVersionNotFound
 from core.models.jobs.job import Job
 from core.models.jobs.job_version import JobVersion
 from core.models.jobs.where import JobFilter, JobWhere
+from core.models.profiles.where import ProfileVersionWhere
 from core.ports.unit_of_work import UnitOfWork
 from core.services.base import BaseImmutableVersionedService
+from core.utils.filters.field_filter import UUIDFilter
 from core.utils.pagination.base import Pagination
 
 from .dto.create_job import CreateJob
@@ -109,8 +112,25 @@ class JobsService(BaseImmutableVersionedService[
     async def get_all(self, *, uow: UnitOfWork, filter: JobFilter | None = None, pagination: Pagination | None = None) -> Sequence[Job]:
         return await uow.jobs.list_all(where=filter, pagination=pagination)
 
-    async def get_paginated(self, *, uow: UnitOfWork, filter: JobFilter, limit: int = 20, offset: int = 0) -> tuple[list[Job], int]:
-        return await uow.jobs.get_paginated(filter=filter, limit=limit, offset=offset)
+    async def get_paginated(self, *, uow: UnitOfWork, filter: JobFilter, limit: int = 20, offset: int = 0, for_profile: ProfileVersionWhere) -> tuple[list[Job], int]:
+        latest_profile_version = await uow.profile_versions.get_unique(
+            where=for_profile,
+        )
+
+        if not latest_profile_version:
+            raise ProfileVersionNotFound()
+
+        final_filter = JobFilter(
+            AND=[
+                filter,
+                JobFilter(
+                    profile_version_id=UUIDFilter(
+                        eq=latest_profile_version.id),
+                )
+            ]
+        )
+
+        return await uow.jobs.get_paginated(filter=final_filter, limit=limit, offset=offset)
 
 
 def get_jobs_service() -> JobsService:

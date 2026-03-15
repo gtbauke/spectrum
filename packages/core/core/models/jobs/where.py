@@ -1,7 +1,7 @@
 from typing import Optional
 from uuid import UUID
 
-from core.utils.filters.field_filter import StringFilter, UUIDFilter
+from core.utils.filters.field_filter import BooleanFilter, StringFilter, UUIDFilter
 from core.utils.where import BaseUniqueWhere
 from core.utils.filters.base import BaseFilter
 
@@ -26,3 +26,5 @@ class JobVersionWhere(BaseUniqueWhere):
 
 class JobVersionFilter(BaseFilter):
     name: Optional[StringFilter] = None
+    profile_version_id: Optional[UUIDFilter] = None
+    is_latest: Optional[BooleanFilter] = None

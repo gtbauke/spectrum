@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Query
 
 from app.features.profiles.guards.get_latest_profile_version_id import get_latest_profile_version_id
 from core.models.jobs.where import JobFilter, JobVersionFilter, JobWhere
+from core.models.profiles.where import ProfileVersionWhere
 from core.ports.unit_of_work import UnitOfWork
 from core.utils.filters.field_filter import StringFilter
 
@@ -50,6 +51,7 @@ async def create_job(
     path="/",
 )
 async def get_jobs(
+    profile_id: UUID,
     uow: UnitOfWork = Depends(get_uow),
     jobs_service: JobsService = Depends(get_jobs_service),
     size: int = Query(20, ge=1, le=100),
@@ -65,7 +67,16 @@ async def get_jobs(
     )
 
     offset = (page - 1) * size
-    items, total = await jobs_service.get_paginated(uow=uow, filter=filter, limit=size, offset=offset)
+    items, total = await jobs_service.get_paginated(
+        uow=uow,
+        filter=filter,
+        limit=size,
+        offset=offset,
+        for_profile=ProfileVersionWhere(
+            profile_id=profile_id,
+            is_latest=True,
+        )
+    )
 
     return PaginatedResponse(
         items=items,
