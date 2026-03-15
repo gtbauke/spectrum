@@ -14,8 +14,7 @@ export type DatasetData = {
 };
 
 export type JobsData = {
-	activeJobs: string[];
-	lastRunAt?: string;
+	profileId: string;
 };
 
 export type ResultsData = {
@@ -79,7 +78,7 @@ type EditorActions = {
 		options?: { recordHistory: boolean },
 	) => void;
 	removeBlock: (id: string) => void;
-	moveBlock: (id: string, direction: "up" | "down") => void;
+	reorderBlocks: (newBlocksOrder: EditorBlock[]) => void;
 
 	setActiveBlock: (id: string | null) => void;
 	markClean: () => void;
@@ -87,6 +86,8 @@ type EditorActions = {
 	commit: () => void;
 	undo: () => void;
 	redo: () => void;
+
+	setActiveProfileId: (id: string | null) => void;
 };
 
 export type EditorStore = EditorState & EditorActions;
@@ -208,28 +209,12 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 		}));
 	},
 
-	moveBlock: (id, direction) => {
-		get().commit();
-		set((state) => {
-			const index = state.blocks.findIndex((b) => b.id === id);
-			if (index < 0) return state;
-			if (direction === "up" && index === 0) return state;
-			if (direction === "down" && index === state.blocks.length - 1)
-				return state;
-
-			const newBlocks = [...state.blocks];
-			const targetIndex = direction === "up" ? index - 1 : index + 1;
-
-			[newBlocks[index], newBlocks[targetIndex]] = [
-				newBlocks[targetIndex],
-				newBlocks[index],
-			];
-
-			return { blocks: newBlocks, isDirty: true };
-		});
-	},
+	reorderBlocks: (newBlocksOrder: EditorBlock[]) =>
+		set(() => ({ blocks: newBlocksOrder })),
 
 	setActiveBlock: (id) => set({ activeBlockId: id }),
 
 	markClean: () => set({ isDirty: false }),
+
+	setActiveProfileId: (id) => set({ profileId: id }),
 }));

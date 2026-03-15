@@ -37,7 +37,7 @@ export type ProfileTabsContextType = {
 	activeTabId: string | null;
 
 	openTab: (tab: Tab) => void;
-	closeTab: (id: string) => void;
+	closeTab: (id: string) => string | null;
 	setActiveTab: (id: string) => void;
 
 	updateTab: <T extends Tab["type"]>(
@@ -69,20 +69,21 @@ export function ProfileTabsProvider({ children }: PropsWithChildren) {
 
 	const closeTab = useCallback(
 		(id: string) => {
-			setTabs((prev) => {
-				const newTabs = prev.filter((tab) => tab.id !== id);
+			const newTabs = tabs.filter((tab) => tab.id !== id);
 
-				if (activeTabId === id) {
-					const closedIndex = prev.findIndex((tab) => tab.id === id);
-					const nextTab = newTabs[closedIndex - 1] || newTabs[0];
+			if (activeTabId === id) {
+				const closedIndex = tabs.findIndex((tab) => tab.id === id);
+				const nextTab = newTabs[closedIndex - 1] || newTabs[0];
 
-					setActiveTabId(nextTab ? nextTab.id : null);
-				}
+				setActiveTabId(nextTab?.id ?? null);
+				setTabs(newTabs);
 
-				return newTabs;
-			});
+				return nextTab.id;
+			}
+
+			return null;
 		},
-		[activeTabId],
+		[activeTabId, tabs],
 	);
 
 	const updateTab = useCallback(

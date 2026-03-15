@@ -7,10 +7,12 @@ import { TabBase } from "./tab-base.component";
 
 type SystemTabItemProps = {
 	tab: UploadTab;
+	onClick: () => void;
+	onClose: () => void;
 };
 
-export function SystemTabItem({ tab }: SystemTabItemProps) {
-	const { activeTabId, closeTab, setActiveTab } = useProfileTabs();
+export function SystemTabItem({ tab, onClick, onClose }: SystemTabItemProps) {
+	const { activeTabId } = useProfileTabs();
 	const isActive = activeTabId === tab.id;
 
 	return (
@@ -18,8 +20,8 @@ export function SystemTabItem({ tab }: SystemTabItemProps) {
 			isActive={isActive}
 			isDirty={false}
 			icon={<UploadCloud size={16} className="text-gray-400" />}
-			onClick={() => setActiveTab(tab.id)}
-			onClose={() => closeTab(tab.id)}
+			onClick={onClick}
+			onClose={onClose}
 		>
 			<span className="truncate select-none text-gray-200">{tab.name}</span>
 		</TabBase>

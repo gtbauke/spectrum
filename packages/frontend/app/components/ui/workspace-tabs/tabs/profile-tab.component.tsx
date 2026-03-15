@@ -9,10 +9,12 @@ import { TabBase } from "./tab-base.component";
 
 type ProfileTabItemProps = {
 	tab: ProfileTab;
+	onClick: () => void;
+	onClose: () => void;
 };
 
-export function ProfileTabItem({ tab }: ProfileTabItemProps) {
-	const { activeTabId, closeTab, setActiveTab, updateTab } = useProfileTabs();
+export function ProfileTabItem({ tab, onClick, onClose }: ProfileTabItemProps) {
+	const { activeTabId, updateTab } = useProfileTabs();
 
 	const [isEditing, setIsEditing] = useState(false);
 	const [tempName, setTempName] = useState(tab.name);
@@ -54,8 +56,8 @@ export function ProfileTabItem({ tab }: ProfileTabItemProps) {
 			isActive={isActive}
 			isDirty={tab.isDirty}
 			icon={<Folder size={16} />}
-			onClick={() => setActiveTab(tab.id)}
-			onClose={() => closeTab(tab.id)}
+			onClick={onClick}
+			onClose={onClose}
 		>
 			{isEditing ? (
 				<input

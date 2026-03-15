@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, type DragControls, Reorder } from "framer-motion";
 import { useEffect } from "react";
 import { NotebookCell } from "~/components/ui/notebook/cell.component";
 import { useKeyboardShortcut } from "~/hooks/use-keyboard-shortcut.hook";
@@ -6,8 +6,10 @@ import type { ProfileVersion } from "~/schemas/models/profile-version.schema";
 import { type EditorBlock, useEditorStore } from "~/stores/editor.store";
 import { DatasetsBlock } from "./cells/datasets-cell.component";
 import { InferenceBlock } from "./cells/inference-cell.component";
+import { JobsBlock } from "./cells/jobs-cell.component";
 import { MarkdownBlock } from "./cells/markdown-cell.component";
 import { MetadataBlock } from "./cells/metadata-cell.component";
+import { DraggableItem } from "./draggable-item.component";
 import { EditorToolbar } from "./editor-toolbar.component";
 import { InsertDivider } from "./insert-divider.component";
 
@@ -20,9 +22,12 @@ export function ProfileEditor({ version }: ProfileEditorProps) {
 	const blocks = useEditorStore((state) => state.blocks);
 	const activeBlockId = useEditorStore((state) => state.activeBlockId);
 	const setActiveBlock = useEditorStore((state) => state.setActiveBlock);
+	const reorderBlocks = useEditorStore((state) => state.reorderBlocks);
 
 	const undo = useEditorStore((state) => state.undo);
 	const redo = useEditorStore((state) => state.redo);
+
+	const storeProfileId = useEditorStore((state) => state.profileId);
 
 	useKeyboardShortcut("z", undo);
 	useKeyboardShortcut("y", redo);
@@ -39,9 +44,9 @@ export function ProfileEditor({ version }: ProfileEditorProps) {
 			});
 		}
 
-		initEditor(version.profile_id, version.id, [
+		const blocks: EditorBlock[] = [
 			{
-				id: "metadata",
+				id: `metadata-${version.profile_id}`,
 				type: "metadata",
 				data: {
 					name: version.name,
@@ -50,19 +55,75 @@ export function ProfileEditor({ version }: ProfileEditorProps) {
 				},
 			},
 			{
-				id: "datasets",
+				id: `datasets-${version.profile_id}`,
 				type: "datasets",
 				data: {
 					datasets: version.datasets,
 				},
 			},
+			{
+				id: `jobs-${version.profile_id}`,
+				type: "jobs",
+				data: {
+					profileId: version.profile_id,
+				},
+			},
 			...dynamic_blocks,
-		]);
+		];
+
+		initEditor(version.profile_id, version.id, blocks);
 	}, [version, initEditor]);
 
 	if (!blocks.length) {
 		return null;
 	}
+
+	if (storeProfileId !== version.profile_id) {
+		return <div className="flex-1 h-full bg-[#111319] animate-pulse" />;
+	}
+
+	const fixedBlocks = blocks.filter((b) =>
+		["metadata", "datasets", "jobs"].includes(b.type),
+	);
+	const dynamicBlocks = blocks.filter(
+		(b) => !["metadata", "datasets", "jobs"].includes(b.type),
+	);
+
+	const renderBlock = (
+		block: EditorBlock,
+		isActive: boolean,
+		dragControls?: DragControls,
+	) => {
+		return (
+			<NotebookCell
+				id={block.id}
+				type={block.type}
+				isActive={isActive}
+				onClick={() => setActiveBlock(block.id)}
+				isDeletable={!["metadata", "datasets", "jobs"].includes(block.type)}
+				moveable={!["metadata", "datasets", "jobs"].includes(block.type)}
+				dragControls={dragControls}
+			>
+				{block.type === "metadata" && (
+					<MetadataBlock id={block.id} data={block.data} />
+				)}
+				{block.type === "datasets" && (
+					<DatasetsBlock datasets={block.data.datasets} />
+				)}
+				{block.type === "inference" && (
+					<InferenceBlock id={block.id} data={block.data} />
+				)}
+				{block.type === "markdown" && (
+					<MarkdownBlock
+						id={block.id}
+						data={block.data}
+						isActive={activeBlockId === block.id}
+					/>
+				)}
+				{block.type === "jobs" && <JobsBlock id={block.id} data={block.data} />}
+			</NotebookCell>
+		);
+	};
 
 	return (
 		<div className="flex-1 h-full overflow-y-auto custom-scrollbar bg-[#111319] py-8 px-4">
@@ -79,52 +140,33 @@ export function ProfileEditor({ version }: ProfileEditorProps) {
 				</p>
 			</div>
 
-			<AnimatePresence initial={false} mode="popLayout">
-				{blocks.map((block, index) => (
-					<motion.div
-						layout
-						initial={{ opacity: 0, height: 0 }}
-						animate={{ opacity: 1, height: "auto" }}
-						exit={{
-							opacity: 0,
-							height: 0,
-							scale: 0.95,
-							transition: { opacity: { duration: 0.1 } },
-						}}
-						key={block.id}
-					>
-						<InsertDivider index={index} />
+			{fixedBlocks.map((block) => (
+				<div key={block.id}>
+					{renderBlock(block, activeBlockId === block.id)}
+					<InsertDivider index={0} />
+				</div>
+			))}
 
-						<NotebookCell
-							id={block.id}
-							type={block.type}
+			<Reorder.Group
+				axis="y"
+				values={dynamicBlocks}
+				onReorder={(newDynamicOrder) => {
+					reorderBlocks([...fixedBlocks, ...newDynamicOrder]);
+				}}
+			>
+				<AnimatePresence initial={false} mode="popLayout">
+					{dynamicBlocks.map((block, index) => (
+						<DraggableItem
+							key={block.id}
+							isLast={index === blocks.length - 1}
 							isActive={activeBlockId === block.id}
-							onClick={() => setActiveBlock(block.id)}
-							isDeletable={!["metadata", "dataset"].includes(block.type)}
-							moveable={!["metadata", "dataset"].includes(block.type)}
-						>
-							{block.type === "metadata" && (
-								<MetadataBlock id={block.id} data={block.data} />
-							)}
-							{block.type === "datasets" && (
-								<DatasetsBlock datasets={block.data.datasets} />
-							)}
-							{block.type === "inference" && (
-								<InferenceBlock id={block.id} data={block.data} />
-							)}
-							{block.type === "markdown" && (
-								<MarkdownBlock
-									id={block.id}
-									data={block.data}
-									isActive={activeBlockId === block.id}
-								/>
-							)}
-						</NotebookCell>
-
-						{index === blocks.length - 1 && <InsertDivider index={index + 1} />}
-					</motion.div>
-				))}
-			</AnimatePresence>
+							block={block}
+							index={index}
+							renderBlock={renderBlock}
+						/>
+					))}
+				</AnimatePresence>
+			</Reorder.Group>
 
 			<div className="h-64" />
 		</div>
