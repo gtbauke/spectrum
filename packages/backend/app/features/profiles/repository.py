@@ -10,7 +10,7 @@ from app.features.owners.models import OwnerORM
 from core.models.owners.owner_type import OwnerType
 from core.repositories.profiles import BaseProfilesRepository
 from core.models.profiles.profile import Profile
-from core.models.profiles.where import ProfilesWhere, ProfileFilter
+from core.models.profiles.where import ProfileWhere, ProfileFilter
 from core.utils.pagination.base import Pagination
 
 from .models import ProfileDatasetAssociationORM, ProfileORM, ProfileVersionORM
@@ -19,15 +19,22 @@ from .models import ProfileDatasetAssociationORM, ProfileORM, ProfileVersionORM
 class ProfilesRepository(BaseProfilesRepository, BaseRepositoryImplementation[
     Profile,
     ProfileORM,
-    ProfilesWhere,
+    ProfileWhere,
     ProfileFilter
 ]):
     orm_model = ProfileORM
 
-    async def get_unique(self, where: ProfilesWhere) -> Optional[Profile]:
+    async def get_unique(self, where: ProfileWhere) -> Optional[Profile]:
         query = (
             select(self.orm_model)
             .options(
+                joinedload(
+                    ProfileORM.owner.and_(
+                        OwnerORM.owner_type == OwnerType.USER,
+                    )
+                ).options(
+                    selectinload(OwnerORM.user),
+                ),
                 selectinload(self.orm_model.versions).options(
                     selectinload(ProfileVersionORM.datasets)
                     .selectinload(ProfileDatasetAssociationORM.dataset_version),
@@ -43,7 +50,7 @@ class ProfilesRepository(BaseProfilesRepository, BaseRepositoryImplementation[
 
         return obj_orm.to_domain() if obj_orm else None
 
-    async def get_owner_id(self, where: ProfilesWhere) -> Optional[UUID]:
+    async def get_owner_id(self, where: ProfileWhere) -> Optional[UUID]:
         query = (
             select(self.orm_model.owner_id)
             .where(*where.resolve(self.orm_model))
@@ -58,6 +65,13 @@ class ProfilesRepository(BaseProfilesRepository, BaseRepositoryImplementation[
         query = (
             select(self.orm_model)
             .options(
+                joinedload(
+                    ProfileORM.owner.and_(
+                        OwnerORM.owner_type == OwnerType.USER,
+                    )
+                ).options(
+                    selectinload(OwnerORM.user),
+                ),
                 selectinload(self.orm_model.versions.and_(
                     ProfileVersionORM.is_latest == True)).options(
                     selectinload(ProfileVersionORM.datasets)
@@ -153,3 +167,33 @@ class ProfilesRepository(BaseProfilesRepository, BaseRepositoryImplementation[
             items=items,
             total=total_count,
         )
+
+    async def get_with_latest_version(self, *, where: ProfileWhere) -> Optional[Profile]:
+        query = (
+            select(self.orm_model)
+            .options(
+                joinedload(
+                    ProfileORM.owner.and_(
+                        OwnerORM.owner_type == OwnerType.USER,
+                    )
+                ).options(
+                    selectinload(OwnerORM.user),
+                ),
+                selectinload(
+                    self.orm_model.versions.and_(
+                        ProfileVersionORM.is_latest == True,
+                    )
+                ).options(
+                    selectinload(ProfileVersionORM.datasets)
+                    .selectinload(
+                        ProfileDatasetAssociationORM.dataset_version
+                    ),
+                )
+            )
+            .where(*where.resolve(self.orm_model))
+        )
+
+        result = await self._session.execute(query)
+        orm = result.scalar_one_or_none()
+
+        return orm.to_domain() if orm else None

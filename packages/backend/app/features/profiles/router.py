@@ -8,6 +8,8 @@ from app.api.unit_of_work import get_uow
 from app.features.auth.guards.get_current_user import get_optional_current_owner, get_current_owner
 from app.features.jobs.router import jobs_router
 
+from app.features.profiles.errors.profile_not_found import ProfileNotFound
+from app.features.profiles.responses.profile_details import ProfileDetails
 from app.features.profiles.responses.profile_summary import ProfileSummary
 from app.features.profiles.utils.profile_filter_builder import ProfileFilterBuilder
 from app.features.users.responses.user_details import UserDetails
@@ -21,7 +23,7 @@ from core.models.profiles.profile_dataset_role import ProfileDatasetRole
 from core.models.profiles.profile_status import ProfileStatus
 from core.models.profiles.profile_visibility import ProfileVisibility
 from core.ports.unit_of_work import UnitOfWork
-from core.models.profiles.where import ProfileDatasetAssociationFilter, ProfileVersionFilter, ProfileFilter, ProfilesWhere
+from core.models.profiles.where import ProfileDatasetAssociationFilter, ProfileVersionFilter, ProfileFilter, ProfileWhere
 from core.utils.filters.field_filter import EnumFilter, NumberFilter, StringFilter, UUIDFilter
 
 from .service import ProfilesService, get_profiles_service
@@ -120,6 +122,27 @@ async def create_profile_from_dataset(
     )
 
 
+@profiles_router.get(
+    path="/{profile_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=ProfileDetails,
+)
+async def get_profile_with_latest_version(
+    profile_id: UUID,
+    uow: UnitOfWork = Depends(get_uow),
+):
+    profile_with_latest = await uow.profiles.get_with_latest_version(
+        where=ProfileWhere(
+            id=profile_id,
+        )
+    )
+
+    if not profile_with_latest:
+        raise ProfileNotFound()
+
+    return ProfileDetails.from_profile(profile_with_latest)
+
+
 @profiles_router.put(
     path="/{profile_id}",
     status_code=status.HTTP_201_CREATED,
@@ -137,23 +160,8 @@ async def update_profile(
     return await profiles_service.create_new_version(
         uow=uow,
         data=UpdateProfileDTO(owner_id=owner_id, version=data.version),
-        where=ProfilesWhere(id=profile_id)
+        where=ProfileWhere(id=profile_id)
     )
-
-
-@profiles_router.get(
-    path="/{profile_id}",
-    status_code=status.HTTP_200_OK,
-    dependencies=[
-        Depends(is_profile_owner)
-    ]
-)
-async def get_profile(
-    profile_id: UUID,
-    uow: UnitOfWork = Depends(get_uow),
-    profiles_service: ProfilesService = Depends(get_profiles_service),
-):
-    return await profiles_service.get_unique(uow=uow, where=ProfilesWhere(id=profile_id))
 
 
 @profiles_router.get(
@@ -265,7 +273,7 @@ async def create_blocks(
     profiles_service: ProfilesService = Depends(get_profiles_service),
     owner_id: UUID = Depends(get_current_owner),
 ):
-    where = ProfilesWhere(id=profile_id)
+    where = ProfileWhere(id=profile_id)
     return await profiles_service.create_new_version_from_blocks(
         uow=uow,
         blocks=blocks,

@@ -62,7 +62,7 @@ class ProfileVersionFilter(BaseFilter):
     datasets: Optional[ProfileDatasetAssociationFilter] = None
 
 
-class ProfilesWhere(BaseUniqueWhere):
+class ProfileWhere(BaseUniqueWhere):
     id: UUID
     is_latest: Optional[bool] = None
 

@@ -12,7 +12,7 @@ from core.services.base import BaseImmutableVersionedService
 from core.models.profiles.profile import Profile
 from core.models.profiles.profile_version import ProfileVersion
 from core.models.profiles.profile_dataset_association import ProfileDatasetAssociation
-from core.models.profiles.where import ProfileVersionWhere, ProfilesWhere, ProfileFilter
+from core.models.profiles.where import ProfileVersionWhere, ProfileWhere, ProfileFilter
 from core.utils.pagination.base import Pagination
 
 from app.features.datasets.artifacts.dto.create_artifact import CreateArtifactDTO
@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 class ProfilesService(BaseImmutableVersionedService[
     Profile,
-    ProfilesWhere,
+    ProfileWhere,
     CreateProfileDTO,
     UpdateProfileDTO,
     ProfileFilter
@@ -47,11 +47,11 @@ class ProfilesService(BaseImmutableVersionedService[
         self._dataset_artifacts_service = dataset_artifacts_service
         self._datasets_service = datasets_service
 
-    async def get_unique(self, *, uow: UnitOfWork, where: ProfilesWhere) -> Optional[Profile]:
+    async def get_unique(self, *, uow: UnitOfWork, where: ProfileWhere) -> Optional[Profile]:
         return await uow.profiles.get_unique(where=where)
 
-    async def get_latest(self, *, uow: UnitOfWork, where: ProfilesWhere) -> Optional[Profile]:
-        final_where = ProfilesWhere(id=where.id, is_latest=True)
+    async def get_latest(self, *, uow: UnitOfWork, where: ProfileWhere) -> Optional[Profile]:
+        final_where = ProfileWhere(id=where.id, is_latest=True)
         return await uow.profiles.get_unique(where=final_where)
 
     async def create(self, *, uow: UnitOfWork, data: CreateProfileDTO, version: int = 1) -> Profile:
@@ -72,7 +72,7 @@ class ProfilesService(BaseImmutableVersionedService[
         profile = await uow.profiles.add(new_profile)
         return profile
 
-    async def create_new_version(self, *, uow: UnitOfWork, data: UpdateProfileDTO, where: ProfilesWhere) -> Profile:
+    async def create_new_version(self, *, uow: UnitOfWork, data: UpdateProfileDTO, where: ProfileWhere) -> Profile:
         latest_version = await uow.profile_versions.unset_latest(where=ProfileVersionWhere(profile_id=where.id, is_latest=True))
 
         if not latest_version:
@@ -122,7 +122,7 @@ class ProfilesService(BaseImmutableVersionedService[
         *,
         uow: UnitOfWork,
         blocks: CreateBlocks,
-        where: ProfilesWhere,
+        where: ProfileWhere,
     ):
         latest_version = await uow.profile_versions.unset_latest(where=ProfileVersionWhere(profile_id=where.id, is_latest=True))
 
@@ -217,7 +217,7 @@ class ProfilesService(BaseImmutableVersionedService[
         await uow.profile_dataset_associations.add(dataset_associations)
 
         final_profile = await uow.profiles.get_unique(
-            where=ProfilesWhere(id=profile.id)
+            where=ProfileWhere(id=profile.id)
         )
 
         return final_profile

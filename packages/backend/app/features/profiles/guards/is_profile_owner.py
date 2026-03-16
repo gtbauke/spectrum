@@ -2,7 +2,7 @@ from fastapi import Depends
 from uuid import UUID
 
 from core.ports.unit_of_work import UnitOfWork
-from core.models.profiles.where import ProfilesWhere
+from core.models.profiles.where import ProfileWhere
 
 from app.api.unit_of_work import get_uow
 from app.features.auth.errors.forbidden import Forbidden
@@ -16,7 +16,7 @@ async def is_profile_owner(
     uow: UnitOfWork = Depends(get_uow),
     current_owner: UUID = Depends(get_current_owner),
 ):
-    owner_id = await uow.profiles.get_owner_id(where=ProfilesWhere(id=profile_id))
+    owner_id = await uow.profiles.get_owner_id(where=ProfileWhere(id=profile_id))
 
     if not owner_id:
         raise ProfileNotFound()

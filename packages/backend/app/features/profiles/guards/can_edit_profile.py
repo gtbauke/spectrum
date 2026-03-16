@@ -8,7 +8,7 @@ from app.features.profiles.router import get_optional_current_owner
 from app.features.profiles.versions.errors.profile_version_not_found import ProfileVersionNotFound
 from app.api.unit_of_work import get_uow
 
-from core.models.profiles.where import ProfileVersionWhere, ProfilesWhere
+from core.models.profiles.where import ProfileVersionWhere, ProfileWhere
 from core.ports.unit_of_work import UnitOfWork
 
 
@@ -31,7 +31,7 @@ async def can_edit_profile(
         raise Forbidden()
 
     current_profile_owner = await uow.profiles.get_owner_id(
-        where=ProfilesWhere(
+        where=ProfileWhere(
             id=profile_id
         )
     )

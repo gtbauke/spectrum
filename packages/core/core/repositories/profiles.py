@@ -6,7 +6,7 @@ from app.api.response import RepositoryPaginatedResponse
 from .base import BaseRepository, BaseVersionedRepository
 
 from core.models.profiles.where import (
-    ProfilesWhere,
+    ProfileWhere,
     ProfileFilter,
     ProfileVersionWhere,
     ProfileVersionFilter,
@@ -21,9 +21,9 @@ from core.models.profiles.profile_block import ProfileBlock
 from core.models.profiles.profile_dataset_association import ProfileDatasetAssociation
 
 
-class BaseProfilesRepository(BaseRepository[Profile, ProfilesWhere, ProfileFilter]):
+class BaseProfilesRepository(BaseRepository[Profile, ProfileWhere, ProfileFilter]):
     @abstractmethod
-    async def get_owner_id(self, where: ProfilesWhere) -> Optional[UUID]:
+    async def get_owner_id(self, where: ProfileWhere) -> Optional[UUID]:
         pass
 
     @abstractmethod
@@ -32,6 +32,10 @@ class BaseProfilesRepository(BaseRepository[Profile, ProfilesWhere, ProfileFilte
 
     @abstractmethod
     async def get_profiles_summary(self, *, filter: ProfileFilter, limit: int, offset: int) -> RepositoryPaginatedResponse[Profile]:
+        ...
+
+    @abstractmethod
+    async def get_with_latest_version(self, *, where: ProfileWhere) -> Optional[Profile]:
         ...
 
 
