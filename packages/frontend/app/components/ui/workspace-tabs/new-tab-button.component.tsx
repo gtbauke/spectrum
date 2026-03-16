@@ -14,6 +14,7 @@ export function NewTabButton() {
 			type: "profile",
 			id: profileId,
 			data: {
+				tabId: profileId,
 				name: "Untitled Profile",
 				description: null,
 				isDirty: true,

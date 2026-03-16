@@ -30,11 +30,11 @@ export function TabBar() {
 			{tabIds.map((tabId) => {
 				const tab = tabs[tabId];
 
-				if (tab.type !== "profile") {
+				if (tab.type === "upload") {
 					return (
 						<SystemTabItem
 							key={tab.id}
-							tab={tab}
+							tab={tab.data}
 							onClick={() => handleTabClick(tab)}
 							onClose={() => handleTabClose(tab)}
 						/>
@@ -44,7 +44,7 @@ export function TabBar() {
 				return (
 					<ProfileTabItem
 						key={tab.id}
-						tab={tab}
+						tab={tab.data}
 						onClick={() => handleTabClick(tab)}
 						onClose={() => handleTabClose(tab)}
 					/>

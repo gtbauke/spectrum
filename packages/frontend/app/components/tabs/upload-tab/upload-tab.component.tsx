@@ -8,7 +8,7 @@ import { SelectInput } from "~/components/ui/forms/input/select-input.component"
 import { TextInput } from "~/components/ui/forms/input/text-input.component";
 import { TextAreaInput } from "~/components/ui/forms/input/textarea-input.component";
 import { useCreateProfileFromDatasetMutation } from "~/hooks/use-create-profile-from-dataset.hook";
-import { createProfileFromDatasetSchema } from "~/schemas/creae-profile-from-dataset.schema";
+import { createProfileFromDatasetSchema } from "~/schemas/create-profile-from-dataset.schema";
 import { profileDatasetRoleValues } from "~/schemas/models/profile-dataset-role.schema";
 import { capitalize } from "~/utils/capitalize.util";
 import { DatasetPreviewTable } from "./dataset-preview-table.component";

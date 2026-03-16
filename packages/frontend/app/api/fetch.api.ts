@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 // TODO: pull from env
 const BASE_URL = "http://localhost:8000/api/v1";
 
@@ -14,6 +16,25 @@ const processQueue = (error: Error | null, token: string | null = null) => {
 	});
 	failedQueue = [];
 };
+
+export async function safeApiRequest<T extends z.ZodType>(
+	endpoint: string,
+	responseSchema: T,
+	options: RequestInit = {},
+	_isRetry = false,
+): Promise<z.infer<T>> {
+	const response = await apiRequest(endpoint, options, _isRetry);
+
+	const validationResponse = responseSchema.safeParse(response);
+	if (!validationResponse.success) {
+		const issues = z.treeifyError(validationResponse.error);
+		console.error("API response validation failed", issues);
+
+		throw new Error("API response validation failed");
+	}
+
+	return validationResponse.data;
+}
 
 export async function apiRequest<T>(
 	endpoint: string,

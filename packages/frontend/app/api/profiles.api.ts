@@ -1,11 +1,12 @@
 import type { QueryFunctionContext } from "@tanstack/react-query";
-import type { CreateProfileFromDatasetInput } from "~/schemas/creae-profile-from-dataset.schema";
+import type { CreateProfileFromDatasetInput } from "~/schemas/create-profile-from-dataset.schema";
 import type { Profile } from "~/schemas/models/profile.schema";
 import type { ProfileDatasetRole } from "~/schemas/models/profile-dataset-role.schema";
 import type { ProfileVisibility } from "~/schemas/models/profile-visibility.schema";
+import { profileSummarySchema } from "~/schemas/responses/profiles/profile-summary.schema";
 import type { ProfileStatus } from "../schemas/models/profile-status.schema";
-import { apiRequest } from "./fetch.api";
-import type { PaginatedResponse } from "./types.api";
+import { apiRequest, safeApiRequest } from "./fetch.api";
+import { paginatedResponseSchema } from "./types.api";
 
 export type ProfileFilters = {
 	version?: number;
@@ -14,69 +15,43 @@ export type ProfileFilters = {
 	status?: ProfileStatus;
 	visibility?: ProfileVisibility;
 	role?: ProfileDatasetRole;
-	only_me?: boolean;
+	onlyMe?: boolean;
 };
 
 export const DEFAULT_PROFILE_FILTERS: ProfileFilters = {
 	status: "active",
 	visibility: "public",
-	only_me: false,
+	onlyMe: false,
 };
 
-export async function fetchProfiles({
+export async function fetchProfilesSummary({
 	pageParam = 1,
 	queryKey,
 }: QueryFunctionContext<readonly [string, ProfileFilters], number>) {
-	const [_key, filters] = queryKey;
-	const { name, description, only_me, role, status, version, visibility } =
+	const [_, filters] = queryKey;
+	const { name, description, onlyMe, role, status, version, visibility } =
 		filters;
 
-	const final_only_me = only_me ?? DEFAULT_PROFILE_FILTERS.only_me;
-	const final_status = status ?? DEFAULT_PROFILE_FILTERS.status;
-	const final_visibility = visibility ?? DEFAULT_PROFILE_FILTERS.visibility;
+	const finalOnlyMe = onlyMe ?? DEFAULT_PROFILE_FILTERS.onlyMe;
+	const finalStatus = status ?? DEFAULT_PROFILE_FILTERS.status;
+	const finalVisibility = visibility ?? DEFAULT_PROFILE_FILTERS.visibility;
 
 	const params = new URLSearchParams({
 		page: pageParam.toString(),
 		size: "20",
 		...(name && { name }),
 		...(description && { description }),
-		...(final_only_me && { only_me: final_only_me.toString() }),
+		...(finalOnlyMe && { only_me: finalOnlyMe.toString() }),
 		...(role && { role }),
-		...(final_status && { status: final_status }),
+		...(finalStatus && { status: finalStatus }),
 		...(version && { version: version.toString() }),
-		...(final_visibility && { visibility: final_visibility }),
+		...(finalVisibility && { visibility: finalVisibility }),
 	});
 
-	return apiRequest<PaginatedResponse<Profile>>(`/profiles?${params}`);
-}
-
-export async function fetchProfilesPage({
-	filters,
-	page,
-}: {
-	filters: ProfileFilters;
-	page: number;
-}) {
-	const { name, description, only_me, role, status, version, visibility } =
-		filters;
-
-	const final_only_me = only_me ?? DEFAULT_PROFILE_FILTERS.only_me;
-	const final_status = status ?? DEFAULT_PROFILE_FILTERS.status;
-	const final_visibility = visibility ?? DEFAULT_PROFILE_FILTERS.visibility;
-
-	const params = new URLSearchParams({
-		page: page.toString(),
-		size: "20",
-		...(name && { name }),
-		...(description && { description }),
-		...(final_only_me && { only_me: final_only_me.toString() }),
-		...(role && { role }),
-		...(final_status && { status: final_status }),
-		...(version && { version: version.toString() }),
-		...(final_visibility && { visibility: final_visibility }),
-	});
-
-	return apiRequest<PaginatedResponse<Profile>>(`/profiles?${params}`);
+	return safeApiRequest(
+		`/profiles/summary?${params}`,
+		paginatedResponseSchema(profileSummarySchema),
+	);
 }
 
 export type CreateProfileFromDatasetPayload = CreateProfileFromDatasetInput & {

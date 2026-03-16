@@ -8,12 +8,12 @@ import {
 	MoreVertical,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import type { Profile } from "~/schemas/models/profile.schema";
+import type { ProfileSummary } from "~/schemas/responses/profiles/profile-summary.schema";
 import { useEditorStore } from "~/stores/editor.store";
 import { cn } from "~/utils/classname.util";
 
 type ProfileItemProps = {
-	profile: Profile;
+	profile: ProfileSummary;
 	active?: boolean;
 };
 
@@ -32,14 +32,13 @@ export function ProfileItem({ profile, active = false }: ProfileItemProps) {
 	}, []);
 
 	const latestVersion =
-		profile.versions.find((v) => v.is_latest) || profile.versions[0];
+		profile.versions.find((v) => v.isLatest) || profile.versions[0];
 
 	if (!latestVersion) {
 		return null;
 	}
 
 	const isPublic = latestVersion.visibility === "public";
-	const isActive = latestVersion.status === "active";
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		if (e.key === "Enter" || e.key === " ") {
@@ -113,7 +112,7 @@ export function ProfileItem({ profile, active = false }: ProfileItemProps) {
 						<span
 							className={cn(
 								"absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 rounded-full border border-[#111319]",
-								isActive ? "bg-emerald-500" : "bg-red-500",
+								"bg-secondary-500",
 							)}
 						/>
 					</div>
@@ -137,7 +136,7 @@ export function ProfileItem({ profile, active = false }: ProfileItemProps) {
 
 				<button
 					type="button"
-					className="opacity-0 group-hover:opacity-100 p-1 text-gray-500 hover:bg-white/5 hover:text-gray-200 transition-colors cursor-pointer"
+					className="opacity-0 group-hover:opacity-100 p-1 text-gray-500 hover:bg-white/5 hover:text-gray-200 transition-colors cursor-pointer rounded"
 				>
 					<MoreVertical size={14} />
 				</button>
@@ -167,7 +166,7 @@ export function ProfileItem({ profile, active = false }: ProfileItemProps) {
 										<span className="text-gray-600 truncate ml-1">
 											{new Date(version.timestamp).toLocaleDateString()}
 										</span>
-										{version.is_latest && (
+										{version.isLatest && (
 											<span className="ml-auto text-[8px] bg-emerald-500/10 text-secondary-500 px-1 rounded uppercase font-bold tracking-wider">
 												Latest
 											</span>
@@ -175,7 +174,7 @@ export function ProfileItem({ profile, active = false }: ProfileItemProps) {
 									</div>
 
 									<div className="pl-4 mt-0.5 text-[9px] text-gray-600 opacity-0 group-hover/version:opacity-100 transition-opacity">
-										{version.datasets?.length || 0} datasets attached
+										{version.attachedDatasetCount} datasets attached
 									</div>
 								</motion.div>
 							))}
