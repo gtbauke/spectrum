@@ -7,3 +7,8 @@ class PaginatedResponse[T](BaseModel):
     page: int
     size: int
     pages: int
+
+
+class RepositoryPaginatedResponse[T](BaseModel):
+    items: list[T]
+    total: int

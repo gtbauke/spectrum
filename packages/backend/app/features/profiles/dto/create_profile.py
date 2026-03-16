@@ -3,6 +3,7 @@ from uuid import UUID
 from typing import BinaryIO, Optional
 from pydantic import BaseModel, Field
 
+from core.models.owners.owner import Owner
 from core.models.profiles.profile_dataset_role import ProfileDatasetRole
 from core.models.profiles.profile_visibility import ProfileVisibility
 
@@ -19,7 +20,7 @@ class CreateProfileVersionWithProfileDTO(BaseModel):
 
 
 class CreateProfileDTO(BaseModel):
-    owner_id: UUID
+    owner: Owner
     version: Optional[CreateProfileVersionWithProfileDTO] = None
 
 
@@ -56,7 +57,7 @@ class CreateProfileFromDataset:
     dataset_name: str
     dataset_description: Optional[str]
     dataset_role: ProfileDatasetRole
-    owner_id: UUID
+    owner: Owner
     file: BinaryIO
 
     def __init__(
@@ -64,12 +65,12 @@ class CreateProfileFromDataset:
         *,
         dataset_name: str,
         dataset_description: Optional[str] = None,
-        owner_id: UUID,
+        owner: Owner,
         dataset_role: ProfileDatasetRole,
         file: BinaryIO,
     ):
         self.dataset_name = dataset_name
         self.dataset_description = dataset_description
-        self.owner_id = owner_id
+        self.owner = owner
         self.file = file
         self.dataset_role = dataset_role

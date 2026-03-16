@@ -4,7 +4,7 @@ from core.ports.unit_of_work import UnitOfWork
 from core.services.base import BaseCRUDService
 
 from core.models.datasets.dataset import Dataset
-from core.models.datasets.where import DatasetsWhere, DatasetsFilter
+from core.models.datasets.where import DatasetsWhere, DatasetFilter
 
 from .versions.service import DatasetVersionsService, get_dataset_versions_service
 from .versions.dto.create_version import CreateDatasetVersionDTO
@@ -18,7 +18,7 @@ class DatasetsService(BaseCRUDService[
     DatasetsWhere,
     CreateDatasetDTO,
     UpdateDatasetDTO,
-    DatasetsFilter,
+    DatasetFilter,
 ]):
     def __init__(
         self,
@@ -39,7 +39,7 @@ class DatasetsService(BaseCRUDService[
 
     async def create(self, *, uow: UnitOfWork, data: CreateDatasetDTO) -> Dataset:
         domain = Dataset.new(
-            owner_id=data.owner_id
+            owner_id=data.owner.id,
         )
 
         domain = await uow.datasets.add(domain)
@@ -72,10 +72,10 @@ class DatasetsService(BaseCRUDService[
     async def delete_unique(self, *, uow: UnitOfWork, where: DatasetsWhere):
         await uow.datasets.delete(where=where)
 
-    async def get_all(self, *, uow: UnitOfWork, filter: Optional[DatasetsFilter] = None) -> list[Dataset]:
+    async def get_all(self, *, uow: UnitOfWork, filter: Optional[DatasetFilter] = None) -> list[Dataset]:
         return await uow.datasets.list_all(where=filter)
 
-    async def get_paginated(self, *, uow: UnitOfWork, filter: DatasetsFilter, limit: int = 20, offset: int = 0) -> tuple[list[Dataset], int]:
+    async def get_paginated(self, *, uow: UnitOfWork, filter: DatasetFilter, limit: int = 20, offset: int = 0) -> tuple[list[Dataset], int]:
         return await uow.datasets.get_paginated(filter=filter, limit=limit, offset=offset)
 
 

@@ -13,4 +13,4 @@ class BaseUniqueWhere(AtLeastOneModel):
             for field, value in present.items()
         ]
 
-        return and_(*filters) if len(filters) > 1 else filters[0]
+        return filters

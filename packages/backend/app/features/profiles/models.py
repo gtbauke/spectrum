@@ -22,6 +22,7 @@ from db.mutable import MutableBase
 
 if TYPE_CHECKING:
     from app.features.datasets.models import DatasetVersionORM
+    from app.features.owners.models import OwnerORM
 
 
 logger = logging.getLogger(__name__)
@@ -40,6 +41,11 @@ class ProfileORM(MutableBase):
         lazy="select"
     )
 
+    owner: Mapped["OwnerORM"] = relationship(
+        "OwnerORM",
+        lazy="selectin"
+    )
+
     @classmethod
     def from_domain(cls, domain_obj: Profile) -> ProfileORM:
         return cls(
@@ -50,7 +56,7 @@ class ProfileORM(MutableBase):
             versions=[
                 ProfileVersionORM.from_domain(version)
                 for version in domain_obj.versions
-            ]
+            ],
         )
 
     def to_domain(self) -> Profile:
@@ -59,7 +65,8 @@ class ProfileORM(MutableBase):
             owner_id=self.owner_id,
             created_at=self.created_at,
             updated_at=self.updated_at,
-            versions=[version.to_domain() for version in self.versions]
+            versions=[version.to_domain() for version in self.versions],
+            owner=self.owner.to_domain(),
         )
 
 

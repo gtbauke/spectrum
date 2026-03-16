@@ -10,7 +10,7 @@ from app.core.config import settings
 from app.features.auth.errors.invalid_token import InvalidTokenException
 from app.features.owners.service import OwnersService
 from app.services.encryption import EncryptionService
-from core.models.owners.where import OwnersWhere
+from core.models.owners.where import OwnerWhere
 
 from .dtos.auth_credentials import AuthCredentials
 from .errors.invalid_credentials import InvalidCredentials
@@ -79,7 +79,7 @@ class AuthService(BaseService):
         if not user:
             raise InvalidCredentials()
 
-        owner = await self._owners_service.get_unique(uow=uow, where=OwnersWhere(user_id=user.id))
+        owner = await self._owners_service.get_unique(uow=uow, where=OwnerWhere(user_id=user.id))
 
         if not owner:
             raise InvalidCredentials()

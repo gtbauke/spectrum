@@ -12,7 +12,7 @@ from core.services.base import BaseImmutableVersionedService
 from core.models.profiles.profile import Profile
 from core.models.profiles.profile_version import ProfileVersion
 from core.models.profiles.profile_dataset_association import ProfileDatasetAssociation
-from core.models.profiles.where import ProfileVersionWhere, ProfilesWhere, ProfilesFilter
+from core.models.profiles.where import ProfileVersionWhere, ProfilesWhere, ProfileFilter
 from core.utils.pagination.base import Pagination
 
 from app.features.datasets.artifacts.dto.create_artifact import CreateArtifactDTO
@@ -37,7 +37,7 @@ class ProfilesService(BaseImmutableVersionedService[
     ProfilesWhere,
     CreateProfileDTO,
     UpdateProfileDTO,
-    ProfilesFilter
+    ProfileFilter
 ]):
     def __init__(
         self,
@@ -55,7 +55,7 @@ class ProfilesService(BaseImmutableVersionedService[
         return await uow.profiles.get_unique(where=final_where)
 
     async def create(self, *, uow: UnitOfWork, data: CreateProfileDTO, version: int = 1) -> Profile:
-        new_profile = Profile.new(owner_id=data.owner_id)
+        new_profile = Profile.new(owner=data.owner)
 
         if data.version:
             created_version = ProfileVersion.new(
@@ -101,7 +101,7 @@ class ProfilesService(BaseImmutableVersionedService[
 
         return profile
 
-    async def get_all(self, *, uow: UnitOfWork, filter: Optional[ProfilesFilter] = None,
+    async def get_all(self, *, uow: UnitOfWork, filter: Optional[ProfileFilter] = None,
                       pagination: Optional[Pagination] = None) -> list[Profile]:
         return await uow.profiles.list_all(where=filter, pagination=pagination)
 
@@ -114,7 +114,7 @@ class ProfilesService(BaseImmutableVersionedService[
 
         return await uow.profile_dataset_associations.add(association)
 
-    async def get_paginated(self, *, uow: UnitOfWork, filter: ProfilesFilter, limit: int = 20, offset: int = 0) -> tuple[list[Profile], int]:
+    async def get_paginated(self, *, uow: UnitOfWork, filter: ProfileFilter, limit: int = 20, offset: int = 0) -> tuple[list[Profile], int]:
         return await uow.profiles.get_paginated(filter=filter, limit=limit, offset=offset)
 
     async def create_new_version_from_blocks(
@@ -177,7 +177,7 @@ class ProfilesService(BaseImmutableVersionedService[
         dataset = await self._datasets_service.create(
             uow=uow,
             data=CreateDatasetDTO(
-                owner_id=data.owner_id,
+                owner=data.owner,
                 name=data.dataset_name,
                 description=data.dataset_description,
             )
@@ -194,7 +194,7 @@ class ProfilesService(BaseImmutableVersionedService[
         )
 
         profile = await uow.profiles.add(Profile.new(
-            owner_id=data.owner_id,
+            owner=data.owner,
         ))
 
         profile_version = await uow.profile_versions.add(ProfileVersion.new(

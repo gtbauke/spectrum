@@ -10,7 +10,7 @@ from core.models.datasets.dataset_artifact import DatasetArtifact
 from core.models.datasets.dataset_artifact_version import DatasetArtifactVersion
 from core.models.datasets.where import (
     DatasetsWhere,
-    DatasetsFilter,
+    DatasetFilter,
     DatasetVersionsWhere,
     DatasetVersionsFilter,
     DatasetArtifactsWhere,
@@ -20,7 +20,7 @@ from core.models.datasets.where import (
 )
 
 
-class BaseDatasetsRepository(BaseRepository[Dataset, DatasetsWhere, DatasetsFilter]):
+class BaseDatasetsRepository(BaseRepository[Dataset, DatasetsWhere, DatasetFilter]):
     @abstractmethod
     async def get_unique_with_latest_version(self, *, where: DatasetsWhere) -> Optional[Dataset]:
         ...
@@ -30,7 +30,7 @@ class BaseDatasetsRepository(BaseRepository[Dataset, DatasetsWhere, DatasetsFilt
         ...
 
     @abstractmethod
-    async def get_paginated(self, *, filter: DatasetsFilter, limit: int = 20, offset: int = 0) -> tuple[list[Dataset], int]:
+    async def get_paginated(self, *, filter: DatasetFilter, limit: int = 20, offset: int = 0) -> tuple[list[Dataset], int]:
         ...
 
 

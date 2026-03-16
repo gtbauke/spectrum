@@ -34,7 +34,8 @@ class BaseRepositoryImplementation[
         return self._session
 
     async def get_unique(self, where: WhereType) -> Optional[DomainType]:
-        statement = select(self.orm_model).where(where.resolve(self.orm_model))
+        statement = select(self.orm_model).where(
+            *where.resolve(self.orm_model))
         for model in self.join_on_fields:
             statement = statement.options(selectinload(model))
 
@@ -46,7 +47,7 @@ class BaseRepositoryImplementation[
     async def get_for_update(
             self, where: WhereType) -> Optional[DomainType]:
         statement = select(self.orm_model).where(
-            where.resolve(self.orm_model)).with_for_update()
+            *where.resolve(self.orm_model)).with_for_update()
 
         result = await self._session.execute(statement)
         obj_orm = result.scalar_one_or_none()
@@ -72,7 +73,7 @@ class BaseRepositoryImplementation[
 
     async def delete(self, where: WhereType) -> None:
         statement = update(self.orm_model).where(
-            where.resolve(self.orm_model)).values(deleted_at=datetime.now(timezone.utc))
+            *where.resolve(self.orm_model)).values(deleted_at=datetime.now(timezone.utc))
 
         await self._session.execute(statement)
         await self._session.commit()

@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from core.models.base import BaseImmutableVersionedDomainModel
 from core.models.owners.errors.invalid_owner_attachment import InvalidOwnerAttachment
 from core.models.owners.owner_type import OwnerType
+from core.models.users.user import User
 
 
 class Owner(BaseImmutableVersionedDomainModel):
@@ -26,6 +27,9 @@ class Owner(BaseImmutableVersionedDomainModel):
     deleted_at: Optional[datetime] = Field(
         None, description="The timestamp when the owner was deleted, if applicable")
 
+    user: Optional[User] = Field(
+        None, description="The user associated with this owner entity (if applicable)")
+
     @model_validator(mode="after")
     def validate_owner_identity(self):
         if self.owner_type == OwnerType.USER and not self.user_id:
@@ -35,7 +39,7 @@ class Owner(BaseImmutableVersionedDomainModel):
         return self
 
     @classmethod
-    def new_user(cls, *, user_id: UUID) -> Owner:
+    def new_user(cls, *, user_id: UUID, user: Optional[User] = None) -> Owner:
         return cls(
             id=uuid4(),
             timestamp=datetime.now(timezone.utc),
@@ -44,4 +48,5 @@ class Owner(BaseImmutableVersionedDomainModel):
             user_id=user_id,
             deleted_at=None,
             is_latest=True,
+            user=user,
         )

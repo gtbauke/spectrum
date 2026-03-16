@@ -9,7 +9,7 @@ from core.ports.unit_of_work import UnitOfWork
 from core.models.owners.owner import Owner
 
 from .errors.owner_not_found import OwnerNotFound
-from .service import OwnersService, OwnersWhere, get_owners_service
+from .service import OwnersService, OwnerWhere, get_owners_service
 
 
 owners_router = APIRouter(tags=["owners"])
@@ -33,7 +33,7 @@ async def get_owner(
 
     owner = await service.get_unique(
         uow=uow,
-        where=OwnersWhere(user_id=entity_id)
+        where=OwnerWhere(user_id=entity_id)
     )
 
     if not owner:

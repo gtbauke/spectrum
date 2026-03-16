@@ -24,7 +24,7 @@ class JobVersionsRepository(BaseJobVersionsRepository, BaseRepositoryImplementat
     async def get_latest_version_number(self, where: JobVersionWhere) -> int:
         query = (
             select(func.max(self.orm_model.version))
-            .where(where.resolve(self.orm_model))
+            .where(*where.resolve(self.orm_model))
         )
 
         result = await self._session.execute(query)
@@ -38,7 +38,7 @@ class JobVersionsRepository(BaseJobVersionsRepository, BaseRepositoryImplementat
     async def unset_latest(self, where: JobVersionWhere) -> Optional[JobVersion]:
         query = (
             update(self.orm_model)
-            .where(where.resolve(self.orm_model))
+            .where(*where.resolve(self.orm_model))
             .values(is_latest=False)
             .returning(self.orm_model)
         )

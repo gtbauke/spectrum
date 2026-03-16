@@ -23,7 +23,7 @@ class JobsRepository(BaseJobsRepository, BaseRepositoryImplementation[
             .options(
                 selectinload(self.orm_model.versions),
             )
-            .where(where.resolve(self.orm_model))
+            .where(*where.resolve(self.orm_model))
         )
 
         result = await self._session.execute(query)

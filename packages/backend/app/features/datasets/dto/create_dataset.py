@@ -3,6 +3,8 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 from fastapi import Form
 
+from core.models.owners.owner import Owner
+
 
 class CreateDatasetRouteDTO(BaseModel):
     name: str = Field(..., description="The name of the dataset")
@@ -20,5 +22,5 @@ class CreateDatasetRouteDTO(BaseModel):
 
 
 class CreateDatasetDTO(CreateDatasetRouteDTO):
-    owner_id: UUID = Field(...,
-                           description="The ID of the user who owns the dataset")
+    owner: Owner = Field(...,
+                         description="The ID of the user who owns the dataset")

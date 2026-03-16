@@ -2,12 +2,12 @@ from abc import abstractmethod
 from uuid import UUID
 from typing import Optional
 
-
+from app.api.response import RepositoryPaginatedResponse
 from .base import BaseRepository, BaseVersionedRepository
 
 from core.models.profiles.where import (
     ProfilesWhere,
-    ProfilesFilter,
+    ProfileFilter,
     ProfileVersionWhere,
     ProfileVersionFilter,
     ProfileDatasetAssociationWhere,
@@ -21,13 +21,17 @@ from core.models.profiles.profile_block import ProfileBlock
 from core.models.profiles.profile_dataset_association import ProfileDatasetAssociation
 
 
-class BaseProfilesRepository(BaseRepository[Profile, ProfilesWhere, ProfilesFilter]):
+class BaseProfilesRepository(BaseRepository[Profile, ProfilesWhere, ProfileFilter]):
     @abstractmethod
     async def get_owner_id(self, where: ProfilesWhere) -> Optional[UUID]:
         pass
 
     @abstractmethod
-    async def get_paginated(self, *, filter: ProfilesFilter, limit: int = 20, offset: int = 0) -> tuple[list[Profile], int]:
+    async def get_paginated(self, *, filter: ProfileFilter, limit: int = 20, offset: int = 0) -> tuple[list[Profile], int]:
+        ...
+
+    @abstractmethod
+    async def get_profiles_summary(self, *, filter: ProfileFilter, limit: int, offset: int) -> RepositoryPaginatedResponse[Profile]:
         ...
 
 

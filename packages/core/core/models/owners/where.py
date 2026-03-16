@@ -5,7 +5,7 @@ from core.utils.where import BaseUniqueWhere
 from core.utils.filters.base import BaseFilter
 
 
-class OwnersWhere(BaseUniqueWhere):
+class OwnerWhere(BaseUniqueWhere):
     id: Optional[UUID] = None
     user_id: Optional[UUID] = None
 

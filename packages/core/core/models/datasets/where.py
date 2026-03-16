@@ -14,7 +14,7 @@ class DatasetsWhere(BaseUniqueWhere):
     id: UUID = Field(..., description="The unique identifier of the dataset")
 
 
-class DatasetsFilter(BaseFilter):
+class DatasetFilter(BaseFilter):
     owner_id: Optional[UUIDFilter] = None
     deleted_at: Optional[DateTimeFilter] = None
     name: Optional[StringFilter] = None

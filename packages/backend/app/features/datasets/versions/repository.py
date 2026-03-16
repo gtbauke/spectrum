@@ -21,7 +21,7 @@ class DatasetVersionsRepository(BaseDatasetVersionsRepository, BaseRepositoryImp
         await self._session.execute(
             update(self.orm_model)
             .where(
-                where.resolve(self.orm_model),
+                *where.resolve(self.orm_model),
                 self.orm_model.is_latest == True
             )
             .values(is_latest=False)

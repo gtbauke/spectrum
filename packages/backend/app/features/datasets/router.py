@@ -4,10 +4,14 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, status, Query
 
 from app.features.auth.guards.get_current_user import get_current_owner
+from app.features.owners.loaders.get_current_owner import (
+    get_current_owner as get_owner_entity,
+)
 from app.api.unit_of_work import get_uow
 from app.api.response import PaginatedResponse
 
 from core.models.datasets.artifact_type import ArtifactType
+from core.models.owners.owner import Owner
 from core.utils.filters.field_filter import EnumFilter, StringFilter
 
 from .service import DatasetsService, get_datasets_service
@@ -18,7 +22,7 @@ from .guards.is_dataset_owner import is_dataset_owner
 
 from core.ports.unit_of_work import UnitOfWork
 from core.models.datasets.dataset import Dataset
-from core.models.datasets.where import DatasetArtifactVersionsFilter, DatasetArtifactsFilter, DatasetVersionsFilter, DatasetsFilter, DatasetsWhere, NumberFilter
+from core.models.datasets.where import DatasetArtifactVersionsFilter, DatasetArtifactsFilter, DatasetVersionsFilter, DatasetFilter, DatasetsWhere, NumberFilter
 
 
 datasets_router = APIRouter(tags=["datasets"])
@@ -39,12 +43,12 @@ async def create_dataset(
     route_data: CreateDatasetRouteDTO,
     uow: UnitOfWork = Depends(get_uow),
     datasets_service: DatasetsService = Depends(get_datasets_service),
-    current_owner: UUID = Depends(get_current_owner),
+    current_owner: Owner = Depends(get_owner_entity),
 ):
     data = CreateDatasetDTO(
         name=route_data.name,
         description=route_data.description,
-        owner_id=current_owner
+        owner=current_owner
     )
 
     return await datasets_service.create(uow=uow, data=data)
@@ -85,7 +89,7 @@ async def search_datasets(
     artifact_filter = any([size_in_bytes_filter, checksum])
     artifacts_filter = any([artifact_type, size_in_bytes_filter, checksum])
 
-    filters = DatasetsFilter(
+    filters = DatasetFilter(
         name=StringFilter(ilike=f"%{name}%") if name else None,
         description=StringFilter(
             ilike=f"%{description}%") if description else None,

@@ -3,7 +3,7 @@ from typing import Optional, Sequence
 from app.features.owners.dtos.create_owner import CreateOwnerDTO
 
 from core.models.owners.owner import Owner
-from core.models.owners.where import OwnersWhere, OwnersFilter
+from core.models.owners.where import OwnerWhere, OwnersFilter
 from core.models.owners.owner_type import OwnerType
 from core.services.base import BaseCRDService
 from core.ports.unit_of_work import UnitOfWork
@@ -11,11 +11,11 @@ from core.ports.unit_of_work import UnitOfWork
 
 class OwnersService(BaseCRDService[
     Owner,
-    OwnersWhere,
+    OwnerWhere,
     CreateOwnerDTO,
     OwnersFilter
 ]):
-    async def get_unique(self, *, uow: UnitOfWork, where: OwnersWhere) -> Optional[Owner]:
+    async def get_unique(self, *, uow: UnitOfWork, where: OwnerWhere) -> Optional[Owner]:
         return await uow.owners.get_unique(where=where)
 
     # TODO: when we have more owner types, we should refactor this method to handle different owner types and their specific creation logic
@@ -30,7 +30,7 @@ class OwnersService(BaseCRDService[
         raise NotImplementedError(
             f"Owner type {data.owner_type} is not supported yet")
 
-    async def delete_unique(self, *, uow: UnitOfWork, where: OwnersWhere):
+    async def delete_unique(self, *, uow: UnitOfWork, where: OwnerWhere):
         await uow.owners.delete(where)
 
     async def get_all(self, *, uow: UnitOfWork, filter: Optional[OwnersFilter] = None) -> Sequence[Owner]:

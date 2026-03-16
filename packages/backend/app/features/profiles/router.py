@@ -8,11 +8,20 @@ from app.api.unit_of_work import get_uow
 from app.features.auth.guards.get_current_user import get_optional_current_owner, get_current_owner
 from app.features.jobs.router import jobs_router
 
+from app.features.profiles.responses.profile_summary import ProfileSummary
+from app.features.profiles.utils.profile_filter_builder import ProfileFilterBuilder
+from app.features.users.responses.user_details import UserDetails
+from app.features.owners.responses.owner_details import OwnerDetails
+from app.features.owners.loaders.get_current_owner import (
+    get_current_owner as get_owner_entity,
+)
+
+from core.models.owners.owner import Owner
 from core.models.profiles.profile_dataset_role import ProfileDatasetRole
 from core.models.profiles.profile_status import ProfileStatus
 from core.models.profiles.profile_visibility import ProfileVisibility
 from core.ports.unit_of_work import UnitOfWork
-from core.models.profiles.where import ProfileDatasetAssociationFilter, ProfileVersionFilter, ProfilesFilter, ProfilesWhere
+from core.models.profiles.where import ProfileDatasetAssociationFilter, ProfileVersionFilter, ProfileFilter, ProfilesWhere
 from core.utils.filters.field_filter import EnumFilter, NumberFilter, StringFilter, UUIDFilter
 
 from .service import ProfilesService, get_profiles_service
@@ -42,9 +51,49 @@ async def create_profile(
     data: CreateProfileRouteDTO,
     uow: UnitOfWork = Depends(get_uow),
     profiles_service: ProfilesService = Depends(get_profiles_service),
-    owner_id: UUID = Depends(get_current_owner),
+    owner: Owner = Depends(get_owner_entity),
 ):
-    return await profiles_service.create(uow=uow, data=CreateProfileDTO(owner_id=owner_id, version=data.version))
+    return await profiles_service.create(
+        uow=uow,
+        data=CreateProfileDTO(
+            owner=owner,
+            version=data.version
+        )
+    )
+
+
+@profiles_router.get(
+    path="/summary",
+    status_code=status.HTTP_200_OK,
+    response_model=PaginatedResponse[ProfileSummary],
+)
+async def get_profiles_summary(
+    uow: UnitOfWork = Depends(get_uow),
+    size: int = Query(20, ge=1, le=100),
+    page: int = Query(1, ge=1),
+    builder: ProfileFilterBuilder = Depends(),
+):
+    filter = builder.build()
+
+    offset = (page - 1) * size
+    result = await uow.profiles.get_profiles_summary(
+        filter=filter,
+        limit=size,
+        offset=offset,
+    )
+
+    summaries = [
+        ProfileSummary.from_profile(profile)
+        for profile in result.items
+    ]
+
+    return PaginatedResponse(
+        items=summaries,
+        page=page,
+        pages=(result.total + size - 1) // size,
+        size=size,
+        total=result.total,
+    )
 
 
 @profiles_router.post(
@@ -52,7 +101,7 @@ async def create_profile(
     status_code=status.HTTP_201_CREATED,
 )
 async def create_profile_from_dataset(
-    owner_id: UUID = Depends(get_current_owner),
+    owner: Owner = Depends(get_owner_entity),
     data: CreateProfileFromDatasetRoute = Depends(
         CreateProfileFromDatasetRoute.as_form),
     file: UploadFile = File(...),
@@ -62,7 +111,7 @@ async def create_profile_from_dataset(
     return await profiles_service.create_new_profile_from_dataset(
         uow=uow,
         data=CreateProfileFromDataset(
-            owner_id=owner_id,
+            owner=owner,
             file=file.file,
             dataset_name=data.dataset_name,
             dataset_description=data.dataset_description,
@@ -150,13 +199,13 @@ async def get_profiles(
         ) if has_profile_version_dataset_filter else None,
     ) if has_profile_version_filter else None
 
-    filter = ProfilesFilter(
+    filter = ProfileFilter(
         OR=[
-            ProfilesFilter(
+            ProfileFilter(
                 owner_id=UUIDFilter(eq=owner_id) if only_me else None,
                 versions=versions_filter,
             ),
-            ProfilesFilter(
+            ProfileFilter(
                 owner_id=UUIDFilter(eq=owner_id) if only_me else None,
                 versions=versions_filter.model_copy(
                     update={

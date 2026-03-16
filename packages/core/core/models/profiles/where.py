@@ -67,7 +67,7 @@ class ProfilesWhere(BaseUniqueWhere):
     is_latest: Optional[bool] = None
 
 
-class ProfilesFilter(BaseFilter):
+class ProfileFilter(BaseFilter):
     id: Optional[UUIDFilter] = None
     owner_id: Optional[UUIDFilter] = None
     versions: Optional[ProfileVersionFilter] = None

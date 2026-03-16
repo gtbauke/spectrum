@@ -22,7 +22,7 @@ class ProfileVersionsRepository(BaseProfileVersionsRepository, BaseRepositoryImp
     async def get_latest_version_number(self, where: ProfileVersionWhere) -> int:
         query = (
             select(func.max(self.orm_model.version))
-            .where(where.resolve(self.orm_model))
+            .where(*where.resolve(self.orm_model))
         )
 
         result = await self._session.execute(query)
@@ -36,7 +36,7 @@ class ProfileVersionsRepository(BaseProfileVersionsRepository, BaseRepositoryImp
     async def unset_latest(self, where: ProfileVersionWhere) -> Optional[ProfileVersion]:
         query = (
             update(self.orm_model)
-            .where(where.resolve(self.orm_model))
+            .where(*where.resolve(self.orm_model))
             .values(is_latest=False)
             .returning(self.orm_model)
         )

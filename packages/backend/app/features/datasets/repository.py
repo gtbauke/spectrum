@@ -10,7 +10,7 @@ from app.core.repository import BaseRepositoryImplementation
 
 from .models import DatasetORM, DatasetVersionArtifactAssociationORM, DatasetVersionORM
 
-from core.models.datasets.where import DatasetsFilter, DatasetsWhere
+from core.models.datasets.where import DatasetFilter, DatasetsWhere
 from core.models.datasets.dataset import Dataset
 from core.repositories.datasets import BaseDatasetsRepository
 
@@ -22,7 +22,7 @@ class DatasetsRepository(BaseDatasetsRepository, BaseRepositoryImplementation[
     Dataset,
     DatasetORM,
     DatasetsWhere,
-    DatasetsFilter
+    DatasetFilter
 ]):
     orm_model = DatasetORM
 
@@ -32,7 +32,7 @@ class DatasetsRepository(BaseDatasetsRepository, BaseRepositoryImplementation[
             .options(
                 selectinload(DatasetORM.versions)
             )
-            .where(where.resolve(DatasetORM))
+            .where(*where.resolve(DatasetORM))
         )
 
         result = await self._session.execute(query)
@@ -54,7 +54,7 @@ class DatasetsRepository(BaseDatasetsRepository, BaseRepositoryImplementation[
                     DatasetVersionORM.version == max_version_subquery
                 ))
             )
-            .where(where.resolve(DatasetORM))
+            .where(*where.resolve(DatasetORM))
         )
 
         result = await self._session.execute(query)
@@ -65,7 +65,7 @@ class DatasetsRepository(BaseDatasetsRepository, BaseRepositoryImplementation[
     async def get_owner_id(self, *, where: DatasetsWhere) -> UUID | None:
         query = (
             select(DatasetORM.owner_id)
-            .where(where.resolve(DatasetORM))
+            .where(*where.resolve(DatasetORM))
         )
 
         result = await self._session.execute(query)
@@ -73,7 +73,7 @@ class DatasetsRepository(BaseDatasetsRepository, BaseRepositoryImplementation[
 
         return scalar
 
-    async def get_paginated(self, *, filter: DatasetsFilter, limit: int = 20, offset: int = 0) -> tuple[list[Dataset], int]:
+    async def get_paginated(self, *, filter: DatasetFilter, limit: int = 20, offset: int = 0) -> tuple[list[Dataset], int]:
         conditions = filter.resolve(DatasetORM)
 
         count_query = select(func.count()).select_from(

@@ -37,7 +37,7 @@ class OwnerORM(ImmutableVersionedBase):
         unique=True,
     )
 
-    user: Mapped[UserORM] = relationship(
+    user: Mapped[Optional[UserORM]] = relationship(
         "UserORM", back_populates="owner", uselist=False)
 
     @classmethod
@@ -50,6 +50,8 @@ class OwnerORM(ImmutableVersionedBase):
             timestamp=domain_obj.timestamp,
             deleted_at=domain_obj.deleted_at,
             is_latest=domain_obj.is_latest,
+            user=UserORM.from_domain(
+                domain_obj.user) if domain_obj.user else None,
         )
 
     def to_domain(self) -> Owner:
@@ -61,4 +63,5 @@ class OwnerORM(ImmutableVersionedBase):
             user_id=self.user_id,
             deleted_at=self.deleted_at,
             is_latest=self.is_latest,
+            user=self.user.to_domain() if self.user else None,
         )
