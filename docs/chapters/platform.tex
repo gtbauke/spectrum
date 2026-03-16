@@ -1,1 +1,32 @@
 \chapter{Plataforma Web para Exploração de Algoritmos de Regressão Simbólica}
+
+\section{Panorama Geral}
+A plataforma proposta nesse projeto tem como objetivo principal a manipulação de modelos de regressão simbólica em \textit{pipelines} de extração e processamento de dados. A plataforma pode ser separada em três principais componentes:
+\begin{enumerate}
+    \item Backend: Servidor responsável por processar as requisições Web, gerencias o banco de dados e os modelos de regressão simbólica;
+    \item Worker: Programa especializado para treinamento dos modelos de regressão; e
+    \item Frontend: Aplicação web que permite o usuário interagir com os modelos criados e as demais entidades do projeto.
+\end{enumerate}
+
+Para entender melhor as funcionalidades esperadas da plataforma, primeiro foram elencados os requisitos funcionais e não funcionais do projeto. Segundo o DDD, os requisitos funcionais são aqueles que dizem respeito a ações que podem ser realizadas dentro do sistema desenvolvido. Em outras palavras, os requisitos funcionais dizem o que uma aplicação é capaz de fazer. Por outro lado, os requisitos não funcionais dizem como um sistema opera, delimitando aspectos de segurança, restrições e desempenho da aplicação.
+
+\section{Requisitos funcionais}
+Como os requisitos funcionais dizem respeito as ações que podem ser realizadas dentro de uma aplicação, é comum que eles sejam descritos por meio de Histórias de Usuário (PROCURAR REFERÊNCIA). Essas histórias de usuário descrevem um fluxo de operação do sistema que um usuário pode realizar dentro da aplicação, permitindo entender as funcionalidades da mesma. Nesta seção, os requisitos funcionais do projeto serão descritos por meio de Histórias de Usuário.
+
+Além disso, como um dos objetivos do projeto é a criação de uma plataforma de manipulação de algoritmos de regressão simbólica que tenha paridade com as demais ferramentas disponíveis hoje em dia, é importante incorporar funcionalidades que essas ferramentas já possuem, além de acrescentar outras utilidades para o sistema desenvolvido. Dessa forma, o projeto aqui descrito tem os seguintes requisitos funcionais:
+\begin{enumerate}
+    \item O usuário deve ser capaz de fazer \textit{upload} de arquivos CSV contendo dados que poderão ser utilizados para treinamento e verificação dos modelos de regressão;
+    \item O usuário deve ser capaz de criar conjuntos de dados aleatórios;
+    \item O usuário deve ser capaz de treinar modelos de regressão simbólica, configurando seus meta-parâmetros de todas as formas possíveis (limitado apenas pelas capacidades das bibliotecas utilizadas);
+    \item O usuário deve ser capaz de extrair as principais expressões de um modelo por meio de uma linguagem similar ao SQL;
+    \item O usuário deve ser capaz de observar métricas relacionadas a performance e desempenho de seus modelos de regressão;
+    \item O usuário deve ser capaz de utilizar os modelos treinados para previsão de dados não presentes nos conjuntos de dados de testes;
+\end{enumerate}
+
+\section{Requisitos não-funcionais}
+
+\section{Arquitetura}
+
+\section{Back-end}
+O back-end do projeto foi desenvolvido tendo de acordo com o padrão monólito (PRECISO DE UMA CITAÇÃO) de desenvolvimento de código, em oposição ao padrão de micro-serviços. Dessa forma, o servidor é responsável por gerenciar todas as entidades presentes na aplicação (ver lista COLOCAR LISTA DE ENTIDADES).
+
