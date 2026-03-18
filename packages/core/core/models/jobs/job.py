@@ -2,6 +2,7 @@ from __future__ import annotations
 from uuid import UUID
 
 from core.models.base import BaseMutableDomainModel
+from core.models.job_runs.job_run import JobRun
 from core.models.jobs.job_version import JobVersion
 
 
@@ -10,6 +11,7 @@ class Job(BaseMutableDomainModel):
     profile_version_id: UUID
 
     versions: list[JobVersion]
+    job_runs: list[JobRun]
 
     @classmethod
     def new(cls, owner_id: UUID, profile_version_id: UUID) -> Job:
@@ -17,4 +19,5 @@ class Job(BaseMutableDomainModel):
             owner_id=owner_id,
             profile_version_id=profile_version_id,
             versions=[],
+            job_runs=[],
         )
