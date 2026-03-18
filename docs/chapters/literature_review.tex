@@ -5,6 +5,10 @@ Regressão é o processo de descobrir relações entre variáveis de entrada e d
 
 A regressão paramétrica fixa uma relação funcional entre as variáveis e seu objetivo é estimar os parâmetros dessa relação. Por outro lado, a regressão não paramétrica não assume uma forma funcional específica, permitindo maior flexibilidade na modelagem de dados complexos~\cite{Angelis2023}.
 
+Algoritmos de regressão são comumente utilizados para interpolação e extrapolação de dados. Interpolação é o processo de estimar valores dentro do espaço de dados utilizados para o treinamento do modelo de regressão, enquanto extrapolação é o processo de estimar valores fora desse espaço. Diferentes algoritmos possuem propriedades diferentes em relação a suas capacidades de interpolação e extrapolação (PROCURAR CITAÇÃO).
+
+Existem diversas formas de implementar algoritmos de regressão, a depender do tipo de regressão desejado para o modelo. Este capítulo focará em algoritmos de regressão não paramétricos de ordem arbitrária, especificamente no algoritmo de Regressão Simbólica implementado via programação genética e grafos de igualdade. Além disso, serão abordadas comparações com outras técnicas de implementação de regressão simbólica.
+
 \section{Algoritmos Genéticos}
 
 Algoritmos genéticos (AGs) são uma classe de algoritmos inspirados na evolução natural, onde soluções são evoluídas ao longo de gerações para resolver problemas complexos. A ideia principal do algoritmo é simular o processo de seleção natural, no qual a pressão exercida pelo ambiente seleciona os melhores indivíduos de uma espécie. Esses algoritmos utilizam operações como seleção, cruzamento e mutação para explorar o espaço de soluções~\cite{Angelis2023,sr_book}. O objetivo principal é otimizar um objetivo arbitrário em relação a um conjunto de variáveis de entrada~\cite{Beyer2002}. Algoritmos genéticos são amplamente utilizados em problemas de busca, otimização, decisão e aprendizado de máquina~\cite{galr}.
@@ -19,7 +23,7 @@ O funcionamento básico do algoritmo segue os seguintes passos:
   \item O processo é repetido até que um critério de parada seja atingido.
 \end{enumerate}
 
-Para implementação do algoritmo, é necessário definir a forma de representação dos indivíduos. Uma representação comumente utilizada é a codificação por cadeia de caracteres binária, na qual cada indivíduo é representada por uma sequência de bits, no qual cada bit representa uma propriedade do indivíduo~\cite{Katoch2021}.
+Para implementação do algoritmo, é necessário definir a forma de representação dos indivíduos. Uma representação comumente utilizada é a codificação por cadeia de caracteres binária, na qual cada indivíduo é representada por uma sequência de bits, no qual cada bit representa uma propriedade do indivíduo~\cite{Katoch2021}. No algoritmo de regressão simbólica, abordado mais adiante, os indivíduos são representados por árvores de sintaxe abstrata, as quais codificam operações matemáticas.
 
 \subsection{Operador de seleção}
 
@@ -82,7 +86,7 @@ Diante dos desafios enfrentados pela regressão simbólica tradicional, uma abor
 
 \subsubsection{Grafos de Igualdade}
 
-Grafos de igualdade são estruturas de dados que representam expressões matemáticas e suas equivalências de maneira eficiente~\cite{eggp,rEGGression}. Elementos matemáticos são representadas por e-nodes, enquanto classes de expressões equivalentes são representadas por e-classes. Cada e-class contém um conjunto de e-nodes que representam diferentes formas de expressar a mesma expressão matemática. Cada e-node aponta para e-classes filhas, que representam os operandos da operação matemática representada pelo e-node.
+Grafos de igualdade são estruturas de dados que representam expressões matemáticas e suas equivalências de maneira eficiente~\cite{eggp,rEGGression}. Elementos matemáticos (operadores, variáveis e constantes) são representadas por e-nodes, enquanto classes de expressões equivalentes, ou seja, conjuntos de e-nodes equivalentes, são representadas por e-classes. Cada e-class contém um conjunto de e-nodes que representam diferentes formas de expressar a mesma expressão matemática. Cada e-node aponta para e-classes filhas, que representam os operandos da operação matemática representada pelo e-node, permitindo que variações de uma mesma expressão compartilhem subárvores e sejam representadas sem consumo elevado de memória.
 
 A Figura \ref{fig:egraph_example} ilustra um grafo de igualdade. Note que as expressões $2x$ e $x + x$ pertencem à mesma e-class, uma vez que são logicamente equivalentes. A implementação de e-graphs utiliza uma estrutura union-find para gerenciar a união de e-classes quando novas equivalências são descobertas durante o processo de saturação~\cite{eggp}. Uma e-class armazena uma lista de e-nodes que pertencem a ela, uma lista de e-nodes pais (e-nodes que possuem essa e-class como filha) e demais informações auxiliares para otimizar operações de busca e união.
 
@@ -95,7 +99,7 @@ A Figura \ref{fig:egraph_example} ilustra um grafo de igualdade. Note que as exp
 
 \subsubsection{Saturação de igualdade}
 
-Saturação de igualdade é o processo de aplicar regras de reescrita a uma árvore para gerar expressões logicamente equivalentes. O processo é eficiente porque todas as regras de reescrita são aplicadas paralelamente~\cite{eggp}, utilizando a estrutura de e-graphs para evitar a duplicação de expressões. O processo se saturação acontece em quatro etapas:
+Saturação de igualdade é o processo de aplicar regras de reescrita a uma árvore para gerar expressões logicamente equivalentes. Quando uma equivalência entre expressões é encontrada, as e-classes correspondentes são fundidas, sinalizando que diferentes caminhos estruturais possuem mesmo significado semântico. O processo é eficiente porque todas as regras de reescrita são aplicadas paralelamente~\cite{eggp}, utilizando a estrutura de e-graphs para evitar a duplicação de expressões. O processo se saturação acontece em quatro etapas:
 \begin{enumerate}
   \item Elenque todas as regras de equivalência para o estado atual do e-graph;
   \item Aplique todas as regras;
@@ -117,9 +121,11 @@ Os operadores de mutação e cruzamento utilizam das informações do e-graph pa
 
 Na mutação, o processo tradicional é seguido, substituindo-se uma subárvore aleatória por uma nova subárvore gerada aleatoriamente. No entanto, caso a nova expressão já exista no e-graph, a subárvore é substituída por outra aleatória que faça parte do conjunto de símbolos de mesma aridade da subárvore original. Da mesma forma que no cruzamento, esse conjunto é formado de tal maneira que todas as substituições geram expressões novas.
 
+Dessa forma, a utilização de grafos de igualdade reduz drasticamente o espaço de busca da regressão simbólica, permitindo maior eficiência do algoritmo sem aumento significativo no custo computacional. Durante o processo de evolução, é comum que expressões semanticamente equivalentes sejam geradas e exploradas~\cite{eggp,inefficiency_gp}. A utilização de e-graphs permite que esses caminhos repetidos dentro do espaço de soluções sejam podados do processo de busca, otimizando o algoritmo.
+
 \subsection{Outros métodos para Regressão Simbólica}
 
-Apesar de algoritmos genéticos serem os mais comuns para implementação de regressão simbólica, outros métodos também podem ser utilizados~\cite{Bartlett_2024, Makke2024}. Outros métodos incluem:
+Apesar de algoritmos genéticos serem os mais comuns para implementação de regressão simbólica, outros métodos podem ser utilizados~\cite{Bartlett_2024, Makke2024}:
 - Aprendizado por reforço;
 - Redes neurais;
 - Transformadores.
@@ -191,11 +197,13 @@ Após a geração de todas as expressões, o algoritmo checa por expressões log
 
 Existem diversas ferramentas disponíveis para exploração de algoritmos de regressão simbólica. Essas ferramentas variam desde implementações comerciais até bibliotecas de código aberto, cada uma com suas próprias características e funcionalidades.
 
-HeuristicLab é uma ferramenta gráfica que, dentre outros algoritmos, suporta a exploração de algoritmos de regressão simbólica. Ele permite a criação de algoritmos personalizados e a visualização dos resultados de forma interativa. A ferramenta é extensível e pode ser adaptada para diferentes necessidades de pesquisa~\cite{heuristiclabDocumentationAboutHeuristicLabx2013}.
+HeuristicLab é uma ferramenta gráfica que, dentre outros algoritmos, suporta a exploração de algoritmos de regressão simbólica. Ele permite a criação de algoritmos personalizados e a visualização dos resultados de forma interativa. A ferramenta é extensível e pode ser adaptada para diferentes necessidades de pesquisa~\cite{heuristiclabDocumentationAboutHeuristicLabx2013}. A ferramenta exibe a fronteira de Pareto final, detalhes estatísticos do modelo gerado, gráficos de desempenho e a representação final da árvore de busca.
 
-Assim como a ferramenta anterior, TuringBot é uma interface gráfica para exploração de algoritmos de regressão simbólica. Ele mostra ao usuário as melhores expressões encontradas para o conjunto de dados fornecido com algumas métricas simples do modelo criado~\cite{rEGGression}.
+Assim como a ferramenta anterior, TuringBot é uma interface gráfica para exploração de algoritmos de regressão simbólica. Ele mostra ao usuário as melhores expressões encontradas (fronteira de Pareto) para o conjunto de dados fornecido com algumas métricas simples do modelo criado~\cite{rEGGression}.
 
 Para além de ferramentas comerciais, existem diversas bibliotecas que permitem a exploração de algoritmos de regressão simbólica. No caso do algoritmo Eggp, apresentado anteriormente, é possível utilizar a ferramenta \textit{rEGGression}~\cite{rEGGression} para explorar os modelos gerados por esse algoritmo. Essa ferramenta permite que as expressões encontradas pelo modelo sejam consultadas por tamanho, complexidade e número de parâmetros numéricos; permite a inserção de novas expressões; permite a listagem de sub-expressões; e permite o uso de padrões para busca de expressões~\cite{rEGGression}.
+
+Apesar da existência de ferramentas que permitem exploração de modelos de regressão simbólica, poucas ferramentas permitem a criação de \textit{pipelines} de dados para criação de modelos preditivos. As ferramentas disponíveis também não permitem a exploração de padrões dentro das expressões geradas.
 
 \section{Conclusão}
 
