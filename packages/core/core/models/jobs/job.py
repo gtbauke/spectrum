@@ -11,7 +11,7 @@ class Job(BaseMutableDomainModel):
     profile_version_id: UUID
 
     versions: list[JobVersion]
-    job_runs: list[JobRun]
+    runs: list[JobRun]
 
     @classmethod
     def new(cls, owner_id: UUID, profile_version_id: UUID) -> Job:
@@ -19,5 +19,5 @@ class Job(BaseMutableDomainModel):
             owner_id=owner_id,
             profile_version_id=profile_version_id,
             versions=[],
-            job_runs=[],
+            runs=[],
         )

@@ -2,7 +2,7 @@ from typing import Optional
 from uuid import UUID
 
 from core.utils.where import BaseUniqueWhere
-from core.utils.filters.base import BaseFieldFilter
+from core.utils.filters.base import BaseFilter
 from core.utils.filters.field_filter import (
     UUIDFilter,
     DateTimeFilter,
@@ -11,11 +11,10 @@ from core.utils.filters.field_filter import (
 
 
 class JobRunWhere(BaseUniqueWhere):
-    id: Optional[UUID] = None
-    job_id: Optional[UUID] = None
+    id: UUID
 
 
-class JobRunFilter(BaseFieldFilter):
+class JobRunFilter(BaseFilter):
     id: Optional[UUIDFilter] = None
     timestamp: Optional[DateTimeFilter] = None
     job_run_type: Optional[EnumFilter] = None

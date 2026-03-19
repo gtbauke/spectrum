@@ -1,5 +1,6 @@
 from __future__ import annotations
 from uuid import UUID
+from typing import TYPE_CHECKING
 
 from sqlalchemy import String, Integer, Float, Enum, ForeignKey, Boolean
 from sqlalchemy.orm import mapped_column, Mapped, relationship
@@ -12,6 +13,11 @@ from db.mutable import MutableBase
 from core.models.jobs.loss_function import LossFunction
 from core.models.jobs.available_functions import AvailableFunction
 from core.models.jobs.job_version import JobVersion
+from core.models.job_runs.job_run import JobRun
+
+
+if TYPE_CHECKING:
+    from app.features.job_runs.models import JobRunORM
 
 
 class JobORM(MutableBase):
@@ -34,6 +40,11 @@ class JobORM(MutableBase):
         back_populates="job"
     )
 
+    runs: Mapped[list["JobRunORM"]] = relationship(
+        "JobRunORM",
+        back_populates="job"
+    )
+
     @classmethod
     def from_domain(cls, domain_obj: Job) -> JobORM:
         return cls(
@@ -45,6 +56,10 @@ class JobORM(MutableBase):
             versions=[
                 JobVersionORM.from_domain(obj)
                 for obj in domain_obj.versions
+            ],
+            runs=[
+                JobRunORM.from_domain(obj)
+                for obj in domain_obj.runs
             ]
         )
 
@@ -58,6 +73,10 @@ class JobORM(MutableBase):
             versions=[
                 obj.to_domain()
                 for obj in self.versions
+            ],
+            runs=[
+                obj.to_domain()
+                for obj in self.runs
             ]
         )
 

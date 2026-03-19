@@ -4,7 +4,6 @@ from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 
-from app.features.profiles.guards.get_latest_profile_version_id import get_latest_profile_version_id
 from core.models.jobs.where import JobFilter, JobVersionFilter, JobWhere
 from core.models.profiles.where import ProfileVersionWhere
 from core.ports.unit_of_work import UnitOfWork
@@ -14,6 +13,8 @@ from app.api.response import PaginatedResponse
 from app.api.unit_of_work import get_uow
 from app.features.datasets.router import get_current_owner
 from app.features.profiles.guards.can_edit_profile import can_edit_profile
+from app.features.profiles.guards.get_latest_profile_version_id import get_latest_profile_version_id
+from app.features.job_runs.router import job_runs_router
 
 from .service import JobsService, get_jobs_service
 from .dto.create_job import CreateJob, CreateJobBody
@@ -21,6 +22,11 @@ from .dto.update_job import UpdateJob, UpdateJobBody
 
 logger = logging.getLogger(__name__)
 jobs_router = APIRouter(tags=["jobs"])
+
+jobs_router.include_router(
+    prefix="/{job_id}/runs",
+    router=job_runs_router,
+)
 
 
 @jobs_router.post(

@@ -30,6 +30,8 @@ from core.repositories.jobs import (
     BaseJobsRepository,
 )
 
+from core.repositories.job_runs import BaseJobRunsRepository
+
 
 class UnitOfWork(ABC):
     users: BaseUsersRepository
@@ -45,6 +47,7 @@ class UnitOfWork(ABC):
     profile_blocks: BaseProfileBlocksRepository
     jobs: BaseJobsRepository
     job_versions: BaseJobVersionsRepository
+    job_runs: BaseJobRunsRepository
 
     file_storage: FileStorage
 

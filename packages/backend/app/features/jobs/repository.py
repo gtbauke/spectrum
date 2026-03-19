@@ -46,6 +46,7 @@ class JobsRepository(BaseJobsRepository, BaseRepositoryImplementation[
                 selectinload(self.orm_model.versions.and_(
                     JobVersionORM.is_latest == True,
                 )),
+                selectinload(self.orm_model.runs)
             )
             .where(*conditions)
             .limit(limit)

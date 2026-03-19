@@ -1,7 +1,7 @@
 from enum import StrEnum
 
 
-class JobRunType(StrEnum):
+class JobRunStatus(StrEnum):
     QUEUED = "queued"
     WAITING = "waiting"
     RUNNING = "running"
