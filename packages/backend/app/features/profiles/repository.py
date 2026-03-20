@@ -39,7 +39,8 @@ class ProfilesRepository(BaseProfilesRepository, BaseRepositoryImplementation[
                     selectinload(ProfileVersionORM.datasets)
                     .selectinload(ProfileDatasetAssociationORM.dataset_version),
 
-                    selectinload(ProfileVersionORM.blocks)
+                    selectinload(ProfileVersionORM.blocks),
+                    selectinload(ProfileVersionORM.models),
                 )
             )
             .where(*where.resolve(self.orm_model))
@@ -77,7 +78,8 @@ class ProfilesRepository(BaseProfilesRepository, BaseRepositoryImplementation[
                     selectinload(ProfileVersionORM.datasets)
                     .selectinload(ProfileDatasetAssociationORM.dataset_version),
 
-                    selectinload(ProfileVersionORM.blocks)
+                    selectinload(ProfileVersionORM.blocks),
+                    selectinload(ProfileVersionORM.models),
                 )
             )
         )
@@ -116,7 +118,8 @@ class ProfilesRepository(BaseProfilesRepository, BaseRepositoryImplementation[
                     selectinload(ProfileVersionORM.datasets)
                     .selectinload(ProfileDatasetAssociationORM.dataset_version),
 
-                    selectinload(ProfileVersionORM.blocks)
+                    selectinload(ProfileVersionORM.blocks),
+                    selectinload(ProfileVersionORM.models),
                 )
             )
             .where(*conditions)
@@ -152,6 +155,9 @@ class ProfilesRepository(BaseProfilesRepository, BaseRepositoryImplementation[
                 selectinload(ProfileORM.versions).options(
                     selectinload(ProfileVersionORM.datasets)
                     .selectinload(ProfileDatasetAssociationORM.dataset_version),
+
+                    selectinload(ProfileVersionORM.blocks),
+                    selectinload(ProfileVersionORM.models),
                 ),
             )
             .where(*conditions)
@@ -188,6 +194,9 @@ class ProfilesRepository(BaseProfilesRepository, BaseRepositoryImplementation[
                     .selectinload(
                         ProfileDatasetAssociationORM.dataset_version
                     ),
+
+                    selectinload(ProfileVersionORM.blocks),
+                    selectinload(ProfileVersionORM.models),
                 )
             )
             .where(*where.resolve(self.orm_model))

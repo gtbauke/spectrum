@@ -11,6 +11,8 @@ class Model(BaseImmutableDomainModel):
     description: Optional[str] = Field(...,
                                        description="The description of the model")
 
+    model_path: str = Field(..., description="The path to the model")
+
     profile_version_id: UUID = Field(
         ..., description="The ID of the profile version that this model belongs to"
     )

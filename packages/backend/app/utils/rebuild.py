@@ -18,7 +18,7 @@ from core.models.jobs.job import Job
 from core.models.jobs.job_version import JobVersion
 
 from core.models.job_runs.job_run import JobRun
-
+from core.models.models.model import Model
 
 namespace = {  # type: ignore
     "User": User,
@@ -35,6 +35,7 @@ namespace = {  # type: ignore
     "Job": Job,
     "JobVersion": JobVersion,
     "JobRun": JobRun,
+    "Model": Model,
 }
 
 for item in [
@@ -52,5 +53,6 @@ for item in [
     Job,
     JobVersion,
     JobRun,
+    Model,
 ]:
     item.model_rebuild(_types_namespace=namespace)

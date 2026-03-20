@@ -5,6 +5,7 @@ from app.features.auth.models import RefreshTokenORM
 from app.features.datasets.models import DatasetORM, DatasetVersionORM, DatasetArtifactORM
 from app.features.jobs.models import JobORM
 from app.features.job_runs.models import JobRunORM
+from app.features.sr_models.models import ModelORM
 
 
 __all__ = [
@@ -20,4 +21,5 @@ __all__ = [
     "ProfileBlockORM",
     "JobORM",
     "JobRunORM",
+    "ModelORM",
 ]

@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Optional
 from datetime import datetime, timezone
 
 from core.models.base import BaseImmutableVersionedDomainModel
+from core.models.models.model import Model
 from core.models.profiles.profile_status import ProfileStatus
 from core.models.profiles.profile_visibility import ProfileVisibility
 
@@ -36,6 +37,9 @@ class ProfileVersion(BaseImmutableVersionedDomainModel):
     blocks: list[ProfileBlock] = Field(
         ..., description="The blocks associated with this profile version")
 
+    models: list[Model] = Field(
+        ..., description="The models associated with this profile version")
+
     @classmethod
     def new(
         cls,
@@ -48,6 +52,7 @@ class ProfileVersion(BaseImmutableVersionedDomainModel):
         is_latest: bool,
         blocks: list[ProfileBlock] = [],
         datasets: list[ProfileDatasetAssociation] = [],
+        models: list[Model] = [],
     ) -> "ProfileVersion":
         return cls(
             name=name,
@@ -60,4 +65,5 @@ class ProfileVersion(BaseImmutableVersionedDomainModel):
             is_latest=is_latest,
             timestamp=datetime.now(timezone.utc),
             blocks=blocks,
+            models=models,
         )

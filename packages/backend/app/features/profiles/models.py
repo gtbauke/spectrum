@@ -23,6 +23,7 @@ from db.mutable import MutableBase
 if TYPE_CHECKING:
     from app.features.datasets.models import DatasetVersionORM
     from app.features.owners.models import OwnerORM
+    from app.features.sr_models.models import ModelORM
 
 
 logger = logging.getLogger(__name__)
@@ -103,6 +104,12 @@ class ProfileVersionORM(ImmutableVersionedBase):
         lazy="selectin",
     )
 
+    models: Mapped[list["ModelORM"]] = relationship(
+        "ModelORM",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
     @classmethod
     def from_domain(cls, domain_obj: ProfileVersion) -> ProfileVersionORM:
         return cls(
@@ -122,7 +129,11 @@ class ProfileVersionORM(ImmutableVersionedBase):
             blocks=[
                 ProfileBlockORM.from_domain(block)
                 for block in domain_obj.blocks
-            ]
+            ],
+            models=[
+                ModelORM.from_domain(model)
+                for model in domain_obj.models
+            ],
         )
 
     def to_domain(self) -> ProfileVersion:
@@ -138,6 +149,7 @@ class ProfileVersionORM(ImmutableVersionedBase):
             profile_id=self.profile_id,
             datasets=[ds.to_domain() for ds in self.datasets],
             blocks=[block.to_domain() for block in self.blocks],
+            models=[model.to_domain() for model in self.models],
         )
 
 
