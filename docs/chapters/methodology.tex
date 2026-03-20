@@ -3,8 +3,142 @@
 \section{Metodologia}
 ESCREVER SOBRE METODOLOGIA ÁGIL, WATERFALL, COMPARAÇÃO E SCRUM. FALAR DE DDD
 
-\section{Desenvolvimento Front-end}
-A construção das telas da plataforma e suas funcionalidades será realizada através do \textit{framework} React (desenvolvido e mantido pela Meta) que utiliza a linguagem imperativa \textit{JavaScript}.
+\section{Ambiente de Desenvolvimento e Ferramentas}
+O projeto foi desenvolvido utilizando o Windows Subsystem for Linux (WSL), uma ferramenta que permite a criação de máquinas virtuais Linux dentro de um computador Windows, e Docker, uma ferramenta que permite a conteinerização de aplicações.
 
-\section{Desenvolvimento Back-end}
-Para o desenvolvimento da \textit{API} web e dos \textit{workers} (programas especializados, nesse caso para treinamento de modelos de regressão simbólica) será utilizado o \textit{framework FastAPI}, o qual utiliza a linguagem Python. Além disso, serão utilizadas duas bibliotecas específicas para manipulação dos modelos de regressão: \textit{eggp}~\cite{eggp}, usada para treinamento dos modelos, e \textit{rEGGression}~\cite{rEGGression}, utilizada para manipular os modelos criados pela primeira biblioteca.
+O Docker foi utilizado para facilitar o gerenciamento do ambiente de desenvolvimento back-end, permitindo a criação de dois serviços essenciais para a aplicação: Postgres (Banco de Dados Relacional) e RabbitMQ (Broker de Mensagens). O uso dessa ferramenta permite a replicabilidade do ambiente de desenvolvimento em qualquer máquina, facilitando o processo de criação e execução do código.
+
+\subsection{Desenvolvimento Front-end}
+A construção das telas da plataforma e suas funcionalidades foi feita através do \textit{framework} React (desenvolvido e mantido pela Meta) que utiliza a linguagem imperativa \textit{JavaScript}. Além disso, as bibliotecas \textit{Tanstack React Query} e \textit{Zustand} foram utilizadas, respectivamente, para gerenciamento de estado assíncrono, ou seja, informações vindas diretamente do back-end da aplicação, e para gerenciamento do estado interno da aplicação front-end.
+
+Demais ferramentas utilizadas e suas versões específicas podem ser encontradas abaixo:
+\begin{lstlisting}[language=json, caption=Bibliotecas utilizadas no front-end e suas versões]
+"dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@monaco-editor/react": "^4.8.0-rc.3",
+    "@react-router/node": "^7.9.2",
+    "@react-router/serve": "^7.9.2",
+    "@tanstack/react-query": "^5.90.21",
+    "@tanstack/react-query-devtools": "^5.91.3",
+    "@tanstack/react-table": "^8.21.3",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.35.2",
+    "isbot": "^5.1.31",
+    "lucide-react": "^0.577.0",
+    "papaparse": "^5.5.3",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-dropzone": "^14.3.8",
+    "react-hook-form": "^7.69.0",
+    "react-intersection-observer": "^10.0.3",
+    "react-katex": "^3.1.0",
+    "react-markdown": "^10.1.0",
+    "react-router": "^7.9.2",
+    "rehype-highlight": "^7.0.2",
+    "remark-gfm": "^4.0.1",
+    "tailwind-merge": "^3.4.0",
+    "uuid": "^13.0.0",
+    "zod": "^4.3.6",
+    "zustand": "^5.0.11"
+},
+"devDependencies": {
+    "@react-router/dev": "^7.9.2",
+    "@tailwindcss/typography": "^0.5.19",
+    "@tailwindcss/vite": "^4.1.13",
+    "@types/node": "^22",
+    "@types/papaparse": "^5.5.2",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "@types/react-katex": "^3.0.4",
+    "tailwindcss": "^4.1.13",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.7",
+    "vite-tsconfig-paths": "^5.1.4"
+}
+\end{lstlisting}
+
+\subsection{Desenvolvimento Back-end}
+A API web foi construída utilizando a linguagem Python, com o \textit{framework FastAPI} atuando como servidos web de alta performance. O mapeamento objeto-relacional (ORM) foi implementado via \textit{SQLAlchemy}, em conjunto com o \textit{Alembic} para o controle de migrações do banco de dados. A validação de dados e tipagem das requisições foram feitas pela biblioteca \textit{Pydantic}.
+
+Para permitir o treinamento de modelos de regressão de forma assíncrona, evitando o bloqueio do servidor HTTP, o sistema utiliza \textit{workers} independentes em Python que se comunicam com a API principal através do \textit{RabbitMQ}, integrado via biblioteca \textit{aio\_pika}. Por fim, as operações de regressão simbólica foram feitas utilizando as bibliotecas \textit{eggp} para o treinamento, e \textit{rEGGression} para manipulação dos modelos. O \textit{PostgreSQL} foi o banco de dados escolhido devido à natureza fortemente estruturada e relacional das entidades do sistema.
+
+Demais ferramentas utilizadas e suas versões específicas podem ser encontradas abaixo:
+\begin{lstlisting}[language=Toml, caption={Ferramentas utilizadas no back-end e suas versões}]
+// Servidor
+dependencies = [
+    "aio-pika>=9.5.8",
+    "aiofiles>=25.1.0",
+    "alembic>=1.18.3",
+    "asyncpg>=0.31.0",
+    "core",
+    "db-core",
+    "dotenv>=0.9.9",
+    "eggp>=1.0.16",
+    "fastapi[standard]>=0.128.0",
+    "inference-query-language",
+    "pandas>=3.0.0",
+    "pika>=1.3.2",
+    "pydantic[email]>=2.12.5",
+    "pydantic-settings>=2.12.0",
+    "python-json-logger>=4.0.0",
+    "reggression>=1.0.10",
+    "sqlalchemy>=2.0.46",
+    "uvicorn[standard]",
+    "argon2-cffi>=25.1.0",
+    "jose>=1.0.0",
+    "python-jose[cryptography]>=3.5.0",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest",
+    "pytest-asyncio",
+    "httpx",
+    "ruff",
+    "mypy",
+    "pre-commit",
+]
+
+// Pacote Core
+dependencies = [
+    "inference-query-language",
+    "pydantic>=2.12.5",
+    "pydantic-settings>=2.12.0",
+    "reggression>=1.0.10",
+]
+
+// Pacote DB Core
+dependencies = [
+    "core",
+]
+
+// Pacote IQL
+dependencies = [
+    "pandas>=3.0.0",
+    "pydantic>=2.12.5",
+]
+
+// Pacote Workers
+ADICIONAR
+\end{lstlisting}
+
+\section{Arquitetura}
+
+A arquitetura da plataforma foi projetada sob o modelo cliente-servidor (PROCURAR CITAÇÃO) com o objetivo de oferecer desacoplamento entre a interface gráfica (front-end) utilizada pelo usuário e a lógica de processamento e persistência de dados (back-end). Além disso, essa forma de organização permite que os sistemas evoluam de forma independente.
+
+Nesta seção, é apresentado o fluxo geral de integração dos componentes do sistema, detalhando os padrões de projeto adotados, baseando-se nos princípios do \textit{Domain Driven Design} (PROCURAR CITAÇÃO), uma forma de desenvolvimento de \textit{software} que preza pelo desenvolvimento dentro de domínios específicos, ou seja, dentro de micro-universos que representam as regras de negócio da aplicação.
+
+\subsection{Visão Geral e Fluxo de Dados}
+\begin{figure}
+  \centering
+  \caption{Diagrama de alto nível da arquitetura do projeto.}
+  \includegraphics[width=0.8\textwidth]{images/high_level.png}
+  \label{fig:high_level}
+\end{figure}
+
+O diagrama \ref{fig:high_level} apresenta a arquitetura de alto nível do projeto, dividida em três principais componentes:
+\begin{enumerate}
+    \item Front-end
+    \item Back-end
+    \item Workers
+\end{enumerate}
