@@ -21,14 +21,18 @@ from app.features.jobs.versions.repository import JobVersionsRepository
 from app.features.job_runs.repository import JobRunsRepository
 
 from app.adapters.storage.local_storage import LocalStorage
+from app.adapters.events.buffered_events_publisher import BufferedEventsPublisher
 
+from core.ports.events.message_broker import MessageBroker
 from core.ports.unit_of_work import UnitOfWork
 
 
 class SqlAlchemyUnitOfWork(UnitOfWork):
-    def __init__(self, session_factory: Callable[[], AsyncSession]) -> None:
+    def __init__(self, session_factory: Callable[[], AsyncSession], broker: MessageBroker) -> None:
         self._session_factory = session_factory
         self._session: Optional[AsyncSession] = None
+        self._broker = broker
+
         super().__init__()
 
     async def __aenter__(self) -> UnitOfWork:
@@ -67,6 +71,11 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
         )
 
         self.file_storage = LocalStorage()
+        self.events_publisher = BufferedEventsPublisher(
+            broker=self._broker,
+        )
+
+        self.register(self.events_publisher)
 
         return self
 

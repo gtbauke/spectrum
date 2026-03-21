@@ -1,17 +1,45 @@
+import aio_pika
+
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from core.common.logging import setup_logging
-from .api.v1 import api_router
+from core.infra.tasks import TaskInfraLookup
 
-from app.features.models import *
-from app.utils.rebuild import *
+from .api.v1 import api_router
+from .adapters.events.aio_pika_broker import AioPikaBroker
+from .features.models import *
+from .utils.rebuild import *
+from .core.config import settings
+
+
+class AppState:
+    rabbitmq_connection: aio_pika.abc.AbstractRobustConnection | None = None
+    message_broker: AioPikaBroker | None = None
+
+
+state = AppState()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    state.rabbitmq_connection = await aio_pika.connect_robust(
+        settings.RABBITMQ_URL,
+    )
+
+    channel = await state.rabbitmq_connection.channel()
+    exchange = await channel.declare_exchange(
+        name=TaskInfraLookup.MAIN_EXCHANGE,
+        type=aio_pika.ExchangeType.TOPIC,
+        durable=True,
+    )
+
+    state.message_broker = AioPikaBroker(exchange=exchange)
     yield
+
+    if state.rabbitmq_connection:
+        await state.rabbitmq_connection.close()
 
 setup_logging()
 

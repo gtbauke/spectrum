@@ -31,6 +31,7 @@ from core.repositories.jobs import (
 )
 
 from core.repositories.job_runs import BaseJobRunsRepository
+from core.ports.events.publisher import EventPublisher
 
 
 class UnitOfWork(ABC):
@@ -50,6 +51,7 @@ class UnitOfWork(ABC):
     job_runs: BaseJobRunsRepository
 
     file_storage: FileStorage
+    events_publisher: EventPublisher
 
     def __init__(self) -> None:
         self._resources: list[TransactionalResource] = []
