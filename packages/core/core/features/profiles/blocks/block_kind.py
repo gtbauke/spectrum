@@ -1,4 +1,5 @@
 from enum import StrEnum
+from pydantic import BaseModel
 
 
 class BlockKind(StrEnum):
@@ -6,7 +7,7 @@ class BlockKind(StrEnum):
     INFERENCE = "inference"
 
 
-class BaseBlock[T]:
+class BaseBlock[T](BaseModel):
     kind: BlockKind
     data: T
 
