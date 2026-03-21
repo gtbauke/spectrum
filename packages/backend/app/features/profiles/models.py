@@ -17,8 +17,8 @@ from core.models.profiles.profile import Profile
 from core.models.profiles.profile_version import ProfileVersion
 from core.models.profiles.profile_dataset_association import ProfileDatasetAssociation
 
-from db.immutable import ImmutableVersionedBase, ImmutableBase
-from db.mutable import MutableBase
+from db.common.base.immutable import ImmutableVersionedBase, ImmutableBase
+from db.common.base.mutable import MutableBase
 
 if TYPE_CHECKING:
     from app.features.datasets.models import DatasetVersionORM

@@ -7,7 +7,7 @@ from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
-from db.immutable import ImmutableBase
+from db.common.base.immutable import ImmutableBase
 
 from core.models.models.model import Model
 

@@ -10,13 +10,13 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from core.models.owners.owner import Owner
 from core.models.owners.owner_type import OwnerType
 
-from db.common.base.immutable import ImmutableVersionedBase
+from db.common.base.immutable import ImmutableBase
 
 if TYPE_CHECKING:
-    from app.features.users.models import UserORM
+    from db.features.users.model import UserORM
 
 
-class OwnerORM(ImmutableVersionedBase):
+class OwnerORM(ImmutableBase):
     __tablename__ = "owners"
 
     owner_type: Mapped[OwnerType] = mapped_column(
@@ -45,11 +45,9 @@ class OwnerORM(ImmutableVersionedBase):
         return cls(
             id=domain_obj.id,
             owner_type=domain_obj.owner_type,
-            version=domain_obj.version,
             user_id=domain_obj.user_id,
             timestamp=domain_obj.timestamp,
             deleted_at=domain_obj.deleted_at,
-            is_latest=domain_obj.is_latest,
             user=UserORM.from_domain(
                 domain_obj.user) if domain_obj.user else None,
         )
@@ -58,10 +56,8 @@ class OwnerORM(ImmutableVersionedBase):
         return Owner(
             id=self.id,
             owner_type=self.owner_type,
-            version=self.version,
             timestamp=self.timestamp,
             user_id=self.user_id,
             deleted_at=self.deleted_at,
-            is_latest=self.is_latest,
             user=self.user.to_domain() if self.user else None,
         )

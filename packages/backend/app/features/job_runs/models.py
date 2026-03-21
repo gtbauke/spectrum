@@ -11,7 +11,7 @@ from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from core.models.job_runs.job_run_status import JobRunStatus
 from core.models.job_runs.job_run import JobRun
 
-from db.immutable import ImmutableBase
+from db.common.base.immutable import ImmutableBase
 
 if TYPE_CHECKING:
     from app.features.jobs.models import JobORM

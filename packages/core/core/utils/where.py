@@ -14,3 +14,17 @@ class BaseUniqueWhere(AtLeastOneModel):
         ]
 
         return filters
+
+    def resolve_unique_value(self):
+        present = self.model_dump(exclude_unset=True)
+
+        if len(present) > 1:
+            raise ValueError(
+                "BaseUniqueWhere::resolve_unique_value should have only one property")
+
+        if not present:
+            raise ValueError(
+                "BaseUniqueWhere::resolve_unique_value requires exactly one property to be set")
+
+        _, value = next(iter(present.items()))
+        return value

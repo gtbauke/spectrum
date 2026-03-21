@@ -43,7 +43,7 @@ class ImmutableBase(RootBase):
         )
 
 
-class ImmutableVersionedBase(RootBase):
+class ImmutableVersionedBase(ImmutableBase):
     """
     Base class for all immutable ORM models in the application.
     This class provides common functionality that can be shared across all immutable ORM models, such as automatic

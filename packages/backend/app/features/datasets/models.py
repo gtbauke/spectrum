@@ -8,8 +8,8 @@ from sqlalchemy import String, ForeignKey, Integer, Enum, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
-from db.immutable import ImmutableBase, ImmutableVersionedBase
-from db.mutable import MutableBase
+from db.common.base.immutable import ImmutableBase, ImmutableVersionedBase
+from db.common.base.mutable import MutableBase
 
 from core.models.datasets.dataset import Dataset
 from core.models.datasets.dataset_version import DatasetVersion

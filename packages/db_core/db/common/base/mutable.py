@@ -12,6 +12,11 @@ class MutableBase(RootBase):
     """
     Base class for all ORM models in the application.
     This class provides common functionality that can be shared across all ORM models, such as automatic timestamping of created and updated records.
+
+    Provided properties:
+    - id: A unique identifier for each record, generated using PostgreSQL's `gen_random_uuid()` function.
+    - created_at: A timestamp indicating when the record was created, automatically set to the current time when the record is inserted into the database.
+    - updated_at: A timestamp indicating when the record was last updated, automatically set to the current time whenever the record is updated.
     """
     __abstract__ = True
 

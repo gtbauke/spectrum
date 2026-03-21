@@ -10,5 +10,5 @@ class OwnerWhere(BaseUniqueWhere):
     user_id: Optional[UUID] = None
 
 
-class OwnersFilter(BaseFilter):
+class OwnerFilter(BaseFilter):
     pass

@@ -7,11 +7,11 @@ from .models import OwnerORM
 
 from core.repositories.owners import BaseOwnersRepository
 from core.models.owners.owner import Owner
-from core.models.owners.where import OwnersFilter, OwnerWhere
+from core.models.owners.where import OwnerFilter, OwnerWhere
 
 
 class OwnersRepository(BaseOwnersRepository, BaseRepositoryImplementation[
-    Owner, OwnerORM, OwnerWhere, OwnersFilter
+    Owner, OwnerORM, OwnerWhere, OwnerFilter
 ]):
     orm_model = OwnerORM
 

@@ -3,12 +3,12 @@ from __future__ import annotations
 import logging
 
 from typing import Optional, Union
+from pydantic import BaseModel
 
 from sqlalchemy import and_, or_, not_
 from sqlalchemy.sql import ColumnElement
 
-from pydantic import BaseModel
-from db.root import RootBase
+from db.common.base.root import RootBase
 
 from .field_filter import BaseFieldFilter
 
@@ -29,22 +29,9 @@ class BaseFilter(BaseModel):
             for k in self.model_fields_set
         }
 
-        logger.info("RESOLVING FILTER", extra={
-            "model_name": model.__name__,
-            "filter_data": self.model_dump(exclude_unset=True, mode="python"),
-            "values": values,
-        })
-
         for field, value in values.items():
             if value is None:
                 continue
-
-            logger.info("RESOLVING FILTER FIELD", extra={
-                "model_name": model.__name__,
-                "field": field,
-                "value": value,
-                "contains": hasattr(model, field),
-            })
 
             if field == "AND":
                 nested = [

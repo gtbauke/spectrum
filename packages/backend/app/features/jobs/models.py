@@ -7,8 +7,8 @@ from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
 from core.models.jobs.job import Job
-from db.immutable import ImmutableVersionedBase
-from db.mutable import MutableBase
+from db.common.base.immutable import ImmutableVersionedBase
+from db.common.base.mutable import MutableBase
 
 from core.models.jobs.loss_function import LossFunction
 from core.models.jobs.available_functions import AvailableFunction

@@ -19,7 +19,7 @@ from db.common.base.mutable import MutableBase
 from core.models.users.user import User
 
 if TYPE_CHECKING:
-    from app.features.owners.models import OwnerORM
+    from db.features.owners.model import OwnerORM
 
 # TODO: enable email reuse after soft deletion using where-like unique constraints
 # we should also change the logic of retrieving a unique user to search only for active users (deleted_at is None)

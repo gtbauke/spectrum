@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from sqlalchemy import select, update
 from sqlalchemy.orm import selectinload, QueryableAttribute
 
-from db.root import RootBase
+from db.common.base.root import RootBase
 
 from core.repositories.base import BaseRepository
 from core.models.base import RootDomainModel

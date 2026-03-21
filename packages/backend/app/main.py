@@ -5,7 +5,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from core.common.logging import setup_logging
-from core.infra.tasks import TaskInfraLookup
 
 from .api.v1 import api_router
 from .adapters.events.aio_pika_broker import AioPikaBroker
@@ -30,7 +29,7 @@ async def lifespan(app: FastAPI):
 
     channel = await state.rabbitmq_connection.channel()
     exchange = await channel.declare_exchange(
-        name=TaskInfraLookup.MAIN_EXCHANGE,
+        name="",  # ADD CONSTANT
         type=aio_pika.ExchangeType.TOPIC,
         durable=True,
     )
