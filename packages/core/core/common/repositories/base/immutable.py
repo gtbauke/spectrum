@@ -1,6 +1,6 @@
 from typing import Optional, Protocol
 
-from core.models.base import (
+from core.features.base import (
     RootDomainModel,
 )
 

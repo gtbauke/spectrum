@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from datetime import timedelta
 
-from core.models.users.user import User
+from core.features.users.user import User
 
 
 class LoginResponse(BaseModel):

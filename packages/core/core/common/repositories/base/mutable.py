@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from core.models.base import (
+from core.features.base import (
     BaseMutableDomainModel,
 )
 

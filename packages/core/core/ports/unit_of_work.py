@@ -5,50 +5,29 @@ from types import TracebackType
 from typing import Awaitable, Callable, Optional, Type, Literal, Union
 
 from core.ports.transactional_resource import TransactionalResource
-
 from core.ports.storage.file_storage import FileStorage
-
-from core.repositories.auth import BaseAuthRepository
-from core.repositories.users import BaseUsersRepository
-from core.repositories.owners import BaseOwnersRepository
-from core.repositories.datasets import (
-    BaseDatasetsRepository,
-    BaseDatasetVersionsRepository,
-    BaseDatasetArtifactsRepository,
-    BaseDatasetArtifactVersionsRepository,
-)
-
-from core.repositories.profiles import (
-    BaseProfilesRepository,
-    BaseProfileVersionsRepository,
-    BaseProfileDatasetAssociationsRepository,
-    BaseProfileBlocksRepository,
-)
-
-from core.repositories.jobs import (
-    BaseJobVersionsRepository,
-    BaseJobsRepository,
-)
-
-from core.repositories.job_runs import BaseJobRunsRepository
 from core.ports.events.publisher import EventPublisher
+
+from core.features.users.repository import IUsersRepository
+from core.features.auth.repository import IAuthRepository
+from core.features.datasets.repository import IDatasetsRepository, IArtifactsRepository
+from core.features.profiles.blocks.repository import IBlocksRepository
+from core.features.profiles.jobs.repository import IJobsRepository
+from core.features.profiles.models.repository import IModelsRepository
+from core.features.profiles.jobs.runs.repository import IRunsRepository
+from core.features.profiles.repository import IProfilesRepository
 
 
 class UnitOfWork(ABC):
-    users: BaseUsersRepository
-    auth: BaseAuthRepository
-    owners: BaseOwnersRepository
-    datasets: BaseDatasetsRepository
-    dataset_versions: BaseDatasetVersionsRepository
-    dataset_artifacts: BaseDatasetArtifactsRepository
-    dataset_artifact_versions: BaseDatasetArtifactVersionsRepository
-    profiles: BaseProfilesRepository
-    profile_versions: BaseProfileVersionsRepository
-    profile_dataset_associations: BaseProfileDatasetAssociationsRepository
-    profile_blocks: BaseProfileBlocksRepository
-    jobs: BaseJobsRepository
-    job_versions: BaseJobVersionsRepository
-    job_runs: BaseJobRunsRepository
+    users: IUsersRepository
+    auth: IAuthRepository
+    datasets: IDatasetsRepository
+    artifacts: IArtifactsRepository
+    profiles: IProfilesRepository
+    blocks: IBlocksRepository
+    jobs: IJobsRepository
+    models: IModelsRepository
+    runs: IRunsRepository
 
     file_storage: FileStorage
     events_publisher: EventPublisher

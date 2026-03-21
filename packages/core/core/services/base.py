@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from core.utils.where import BaseUniqueWhere
 from core.utils.filters.base import BaseFilter
 from core.utils.pagination.base import Pagination
-from core.models.base import RootDomainModel
+from core.features.base import RootDomainModel
 from core.ports.unit_of_work import UnitOfWork
 
 

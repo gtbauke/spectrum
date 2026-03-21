@@ -8,7 +8,6 @@ from core.common.logging import setup_logging
 
 from .api.v1 import api_router
 from .adapters.events.aio_pika_broker import AioPikaBroker
-from .features.models import *
 from .utils.rebuild import *
 from .core.config import settings
 

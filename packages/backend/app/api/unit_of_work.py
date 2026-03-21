@@ -1,8 +1,8 @@
 from fastapi import HTTPException, status
 
 from db.common.session import AsyncSessionLocal
+from db.adapters.unit_of_work import SqlAlchemyUnitOfWork
 
-from app.core.unit_of_work import SqlAlchemyUnitOfWork
 from app.main import state
 
 

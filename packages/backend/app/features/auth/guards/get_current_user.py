@@ -1,10 +1,10 @@
 import logging
 
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 from jose import jwt, JWTError
 
-from fastapi import Depends, HTTPException
+from fastapi import Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from app.core.config import settings
@@ -12,9 +12,7 @@ from .errors.invalid_jwt_token import InvalidJWTToken
 
 
 logger = logging.getLogger(__name__)
-
 security = HTTPBearer()
-optional_security = HTTPBearer(auto_error=False)
 
 
 def decode_jwt_token(token: str) -> dict[str, Any | None]:
@@ -36,33 +34,3 @@ def get_current_user(
         raise InvalidJWTToken()
 
     return UUID(user_id)
-
-
-def get_current_owner(
-    token: HTTPAuthorizationCredentials = Depends(security)
-):
-    payload = decode_jwt_token(token.credentials)
-
-    owner_id = payload.get("owner_id")
-    if owner_id is None:
-        raise InvalidJWTToken()
-
-    return UUID(owner_id)
-
-
-def get_optional_current_owner(
-    token: Optional[HTTPAuthorizationCredentials] = Depends(optional_security)
-):
-    if token is None:
-        return None
-
-    try:
-        payload = decode_jwt_token(token.credentials)
-
-        owner_id = payload.get("owner_id")
-        if owner_id is None:
-            return None
-
-        return UUID(owner_id)
-    except InvalidJWTToken:
-        return None

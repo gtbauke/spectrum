@@ -67,7 +67,7 @@ class ImmutableVersionedBase(ImmutableBase):
 
     version: Mapped[int] = mapped_column(
         nullable=False,
-        # primary_key=True,
+        primary_key=True,
         default=1,
     )
 

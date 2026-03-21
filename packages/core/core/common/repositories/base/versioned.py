@@ -1,7 +1,7 @@
 from typing import Optional, Protocol
 from uuid import UUID
 
-from core.models.base import BaseImmutableVersionedDomainModel
+from core.features.base import BaseImmutableVersionedDomainModel
 from core.utils.where import BaseUniqueWhere
 from core.utils.filters.base import BaseFilter
 

@@ -1,0 +1,23 @@
+from uuid import UUID
+
+from core.utils.filters.field_filter import (
+    BooleanFilter, DateTimeFilter, EnumFilter, NumberFilter, UUIDFilter)
+from core.utils.where import BaseUniqueWhere
+from core.utils.filters.base import BaseFilter
+
+from .status import JobRunStatus
+
+
+class RunWhere(BaseUniqueWhere):
+    id: UUID
+
+
+class RunFilter(BaseFilter):
+    id: UUIDFilter | None = None
+    timestamp: DateTimeFilter | None = None
+    version: NumberFilter[int] | None = None
+    is_latest: BooleanFilter | None = None
+    job_id: UUIDFilter | None = None
+    status: EnumFilter[JobRunStatus] | None = None
+    started_at: DateTimeFilter | None = None
+    finished_at: DateTimeFilter | None = None
