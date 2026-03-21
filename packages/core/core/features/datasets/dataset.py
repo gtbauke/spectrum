@@ -17,3 +17,6 @@ class Dataset(BaseMutableDomainModel):
 
     artifacts: list[Artifact] = Field(
         [], description="The artifacts of the dataset")
+
+    deleted_at: datetime | None = Field(
+        None, description="The timestamp when the dataset was deleted")

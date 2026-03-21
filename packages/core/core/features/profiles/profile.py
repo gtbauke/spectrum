@@ -1,5 +1,6 @@
 from uuid import UUID
 from pydantic import Field
+from datetime import datetime
 
 from core.features.base import BaseMutableDomainModel
 from core.features.datasets.dataset import Dataset
@@ -20,6 +21,9 @@ class Profile(BaseMutableDomainModel):
 
     mode: ProfileMode = Field(
         ProfileMode.DRAFT, description="The mode of the profile")
+
+    deleted_at: datetime | None = Field(
+        None, description="The date and time when the profile was deleted")
 
     datasets: list[Dataset] = Field(
         [], description="The datasets of the profile")

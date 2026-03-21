@@ -10,6 +10,8 @@ from .status import JobRunStatus
 
 class RunWhere(BaseUniqueWhere):
     id: UUID
+    is_latest: bool | None = None
+    version: int | None = None
 
 
 class RunFilter(BaseFilter):

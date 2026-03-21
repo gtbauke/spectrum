@@ -1,0 +1,51 @@
+from __future__ import annotations
+
+from uuid import UUID
+from typing import TYPE_CHECKING
+
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import String, Integer, Float, Boolean, Enum
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+
+from db.common.base.mutable import MutableBase
+from core.features.profiles.jobs.loss_function import LossFunction
+
+if TYPE_CHECKING:
+    from db.features.profiles.jobs.runs.model import RunORM
+
+
+class JobORM(MutableBase):
+    __tablename__ = "jobs"
+
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    profile_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True), nullable=False)
+    runs_against: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True), nullable=False)
+
+    generations: Mapped[int] = mapped_column(Integer, nullable=False)
+    population: Mapped[int] = mapped_column(Integer, nullable=False)
+    max_size: Mapped[int] = mapped_column(Integer, nullable=False)
+    number_of_tournaments: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    crossover_probability: Mapped[float] = mapped_column(Float, nullable=False)
+    mutation_probability: Mapped[float] = mapped_column(Float, nullable=False)
+
+    non_terminals: Mapped[str] = mapped_column(String, nullable=False)
+    loss: Mapped[LossFunction] = mapped_column(
+        Enum(LossFunction), nullable=False)
+
+    optimization_iterations: Mapped[int] = mapped_column(
+        Integer, nullable=False)
+    optimization_repeats: Mapped[int] = mapped_column(Integer, nullable=False)
+    max_param_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    split: Mapped[int] = mapped_column(Integer, nullable=False)
+    simplify: Mapped[bool] = mapped_column(Boolean, nullable=False)
+
+    runs: Mapped[list["RunORM"]] = relationship(
+        "RunORM",
+        back_populates="job",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+        order_by="RunORM.timestamp",
+    )
