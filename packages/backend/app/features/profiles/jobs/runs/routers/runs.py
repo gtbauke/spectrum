@@ -9,6 +9,7 @@ from app.features.profiles.jobs.guards.can_edit_job import can_edit_job
 from app.features.profiles.jobs.runs.errors.run_not_found import RunNotFound
 
 from core.features.profiles.jobs.runs.run import Run
+from core.features.profiles.jobs.runs.events import RunCreatedEvent
 from core.features.profiles.jobs.runs.where import RunWhere, RunFilter
 from core.utils.filters.field_filter import UUIDFilter
 from core.utils.pagination.response import PaginatedResponse
@@ -39,6 +40,13 @@ async def create_run(
     run = Run.new(id=id, job_id=job_id, version=version)
 
     await uow.runs.unset_latest_and_add(parent_id=job_id, new_entity=run)
+    
+    event = RunCreatedEvent(run_id=run.id, job_id=run.job_id)
+    uow.events_publisher.publish(
+        routing_key=event.routing_key,
+        payload=event.model_dump(mode="json"),
+    )
+
     return run
 
 
