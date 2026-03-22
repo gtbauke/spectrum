@@ -95,7 +95,7 @@ done
 
 echo "Running database migrations with uv..."
 (
-    cd "$ROOT_DIR/packages/backend"
+    cd "$ROOT_DIR/packages/db_core"
     uv run alembic upgrade head
 )
 
