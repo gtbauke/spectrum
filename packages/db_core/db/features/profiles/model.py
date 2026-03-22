@@ -43,8 +43,8 @@ class ProfileORM(MutableBase):
 
     datasets: Mapped[list["DatasetORM"]] = relationship(
         "DatasetORM",
-        back_populates="profile",
-        cascade="all, delete-orphan",
+        secondary="profiles_datasets",
+        back_populates="profiles",
         lazy="selectin",
         order_by="DatasetORM.created_at",
     )

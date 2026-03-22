@@ -15,6 +15,7 @@ from db.common.base.immutable import ImmutableBase
 
 if TYPE_CHECKING:
     from db.features.users.model import UserORM
+    from db.features.profiles.model import ProfileORM
 
 
 class DatasetORM(MutableBase):
@@ -39,6 +40,14 @@ class DatasetORM(MutableBase):
         "ArtifactORM",
         back_populates="dataset",
         lazy="selectin"
+    )
+
+    profiles: Mapped[list["ProfileORM"]] = relationship(
+        "ProfileORM",
+        secondary="profiles_datasets",
+        back_populates="datasets",
+        lazy="selectin",
+        order_by="ProfileORM.created_at",
     )
 
     deleted_at: Mapped[datetime | None] = mapped_column(
