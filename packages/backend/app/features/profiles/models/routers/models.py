@@ -13,7 +13,27 @@ from core.utils.filters.field_filter import UUIDFilter
 from core.utils.pagination.response import PaginatedResponse
 from core.utils.pagination.base import Pagination
 
+from app.features.profiles.models.responses.model_name import ModelNameResponse
+
 models_router = APIRouter()
+
+
+@models_router.get(
+    path="/names",
+    response_model=list[ModelNameResponse],
+    dependencies=[Depends(dependency=get_current_user)],
+)
+async def list_model_names(
+    profile_id: UUID,
+    uow: UnitOfWork = Depends(dependency=get_uow),
+):
+    model_filter = ModelFilter(profile_id=UUIDFilter(eq=profile_id))
+    
+    models = await uow.models.list_all(
+        filter=model_filter,
+    )
+    
+    return [ModelNameResponse(name=model.name) for model in models]
 
 
 @models_router.get(
