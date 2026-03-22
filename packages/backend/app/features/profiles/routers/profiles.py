@@ -23,6 +23,7 @@ from core.utils.filters.field_filter import UUIDFilter, StringFilter, EnumFilter
 
 from app.features.profiles.blocks.routers.blocks import blocks_router
 from app.features.profiles.jobs.routers.jobs import jobs_router
+from app.features.profiles.models.routers.models import models_router
 
 profiles_router = APIRouter()
 
@@ -31,6 +32,9 @@ profiles_router.include_router(
 
 profiles_router.include_router(
     jobs_router, prefix="/{profile_id}/jobs", tags=["Jobs"])
+
+profiles_router.include_router(
+    models_router, prefix="/{profile_id}/models", tags=["Models"])
 
 
 @profiles_router.post("", response_model=Profile, status_code=status.HTTP_201_CREATED)
