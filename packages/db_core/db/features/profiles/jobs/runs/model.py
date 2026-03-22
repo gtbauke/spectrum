@@ -36,6 +36,5 @@ class RunORM(ImmutableVersionedBase):
         "JobORM",
         back_populates="runs",
         lazy="selectin",
-        cascade="all, delete-orphan",
         uselist=False,
     )

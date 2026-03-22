@@ -36,7 +36,6 @@ class BlockORM(MutableBase):
     profile: Mapped["ProfileORM"] = relationship(
         "ProfileORM",
         back_populates="blocks",
-        cascade="all, delete-orphan",
         lazy="selectin"
     )
 

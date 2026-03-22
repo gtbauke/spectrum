@@ -4,7 +4,7 @@ from uuid import UUID
 from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, Integer, Float, Boolean, Enum
+from sqlalchemy import String, Integer, Float, Boolean, Enum, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
 from db.common.base.mutable import MutableBase
@@ -13,6 +13,7 @@ from core.features.profiles.jobs.loss_function import LossFunction
 if TYPE_CHECKING:
     from db.features.profiles.jobs.runs.model import RunORM
     from db.features.profiles.models.model import ModelORM
+    from db.features.profiles.model import ProfileORM
 
 
 class JobORM(MutableBase):
@@ -20,9 +21,9 @@ class JobORM(MutableBase):
 
     name: Mapped[str] = mapped_column(String, nullable=False)
     profile_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True), nullable=False)
+        PG_UUID(as_uuid=True), ForeignKey("profiles.id"), nullable=False)
     runs_against: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True), nullable=False)
+        PG_UUID(as_uuid=True), ForeignKey("datasets.id"), nullable=False)
 
     generations: Mapped[int] = mapped_column(Integer, nullable=False)
     population: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -57,4 +58,11 @@ class JobORM(MutableBase):
         cascade="all, delete-orphan",
         lazy="selectin",
         order_by="ModelORM.created_at",
+    )
+
+    profile: Mapped["ProfileORM"] = relationship(
+        "ProfileORM",
+        back_populates="jobs",
+        lazy="selectin",
+        uselist=False,
     )

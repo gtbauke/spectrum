@@ -32,7 +32,6 @@ class ProfileORM(MutableBase):
         "UserORM",
         back_populates="profiles",
         lazy="selectin",
-        cascade="all, delete-orphan",
         uselist=False,
     )
 

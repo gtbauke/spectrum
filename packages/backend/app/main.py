@@ -11,14 +11,7 @@ from .api.v1 import api_router
 from .adapters.events.aio_pika_broker import AioPikaBroker
 from .utils.rebuild import *
 from .core.config import settings
-
-
-class AppState:
-    rabbitmq_connection: aio_pika.abc.AbstractRobustConnection | None = None
-    message_broker: AioPikaBroker | None = None
-
-
-state = AppState()
+from .state import state
 
 
 @asynccontextmanager

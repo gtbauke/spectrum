@@ -9,24 +9,26 @@ class CreateUserDto(BaseModel):
 
     @field_validator("password")
     @classmethod
-    def validate_password(cls, value: str) -> str:
-        if len(value) < 8:
+    def validate_password(cls, value: SecretStr) -> SecretStr:
+        raw_password = value.get_secret_value()
+
+        if len(raw_password) < 8:
             raise ValueError("Password must be at least 8 characters long")
 
-        if not any(c.islower() for c in value):
+        if not any(c.islower() for c in raw_password):
             raise ValueError(
                 "Password must contain at least one lowercase letter")
 
-        if not any(c.isupper() for c in value):
+        if not any(c.isupper() for c in raw_password):
             raise ValueError(
                 "Password must contain at least one uppercase letter")
 
-        if not any(c.isdigit() for c in value):
+        if not any(c.isdigit() for c in raw_password):
             raise ValueError("Password must contain at least one digit")
 
-        if not any(c in "@$!%*?&" for c in value):
+        if not any(c in "@$!%*?&" for c in raw_password):
             raise ValueError(
                 "Password must contain at least one special character (@$!%*?&)"
             )
 
-        return value
+        return SecretStr(raw_password)
