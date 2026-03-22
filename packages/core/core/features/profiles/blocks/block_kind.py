@@ -1,4 +1,5 @@
 from enum import StrEnum
+from typing import Literal, Union
 from pydantic import BaseModel
 
 
@@ -8,13 +9,12 @@ class BlockKind(StrEnum):
 
 
 class BaseBlock[T](BaseModel):
-    kind: BlockKind
     data: T
 
 
 class MarkdownBlock(BaseBlock[str]):
-    kind: BlockKind = BlockKind.MARKDOWN
+    kind: Literal[BlockKind.MARKDOWN] = BlockKind.MARKDOWN
 
 
 class InferenceBlock(BaseBlock[str]):
-    kind: BlockKind = BlockKind.INFERENCE
+    kind: Literal[BlockKind.INFERENCE] = BlockKind.INFERENCE

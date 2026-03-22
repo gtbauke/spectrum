@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 from sqlalchemy import (
     ForeignKey,
     Enum,
-    JSON,
 )
 
 from sqlalchemy.orm import (
@@ -15,6 +14,7 @@ from sqlalchemy.orm import (
 )
 
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import JSONB
 
 from db.common.base.mutable import MutableBase
 from core.features.profiles.blocks.block_kind import BlockKind
@@ -49,6 +49,6 @@ class BlockORM(MutableBase):
     )
 
     data: Mapped[dict] = mapped_column(
-        JSON,
+        JSONB,
         nullable=False,
     )

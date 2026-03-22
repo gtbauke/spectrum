@@ -1,5 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Iterable
 
 from core.features.profiles.blocks.repository import IBlocksRepository
 from core.features.profiles.blocks.block import Block
@@ -7,14 +8,14 @@ from core.features.profiles.blocks.where import BlockWhere, BlockFilter
 from core.utils.pagination.base import Pagination
 from core.utils.pagination.response import PaginatedResponse
 
-from db.common.repositories.sql_alchemy_base_repository import SqlAlchemyBaseRepository
+from db.common.repositories.sql_alchemy_bulk_repository import SqlAlchemyBulkRepository
 
 from .mapper import BlockMapper
 from .model import BlockORM
 
 
 class SqlAlchemyBlocksRepository(
-    SqlAlchemyBaseRepository[BlockORM, Block,
+    SqlAlchemyBulkRepository[BlockORM, Block,
                              BlockWhere, BlockFilter, BlockMapper],
     IBlocksRepository,
 ):
@@ -32,6 +33,18 @@ class SqlAlchemyBlocksRepository(
     async def delete(self, entity: Block) -> None:
         orm = self._mapper.to_orm(domain=entity)
         await super()._delete(orm)
+
+    async def add_many(self, entities: Iterable[Block]) -> None:
+        orms = [self._mapper.to_orm(domain=entity) for entity in entities]
+        await super()._add_many(orms)
+
+    async def update_many(self, entities: Iterable[Block]) -> None:
+        orms = [self._mapper.to_orm(domain=entity) for entity in entities]
+        await super()._update_many(orms)
+
+    async def delete_many(self, entities: Iterable[Block]) -> None:
+        orms = [self._mapper.to_orm(domain=entity) for entity in entities]
+        await super()._delete_many(orms)
 
     async def get_unique(self, where: BlockWhere) -> Block | None:
         return await super()._get_unique(where)

@@ -21,7 +21,12 @@ from core.features.datasets.artifact_role import ArtifactRole
 from core.utils.pagination.base import Pagination
 from core.utils.filters.field_filter import UUIDFilter, StringFilter, EnumFilter
 
+from app.features.profiles.blocks.routers.blocks import blocks_router
+
 profiles_router = APIRouter()
+
+profiles_router.include_router(
+    blocks_router, prefix="/{profile_id}/blocks", tags=["Blocks"])
 
 
 @profiles_router.post("", response_model=Profile, status_code=status.HTTP_201_CREATED)

@@ -15,3 +15,12 @@ class Block(BaseMutableDomainModel):
     order_index: int = Field(..., description="The order index of the block")
 
     data: BaseBlock = Field(..., description="The data of the block")
+
+    @classmethod
+    def new(cls, profile_id: UUID, kind: BlockKind, order_index: int, data: BaseBlock):
+        return cls(
+            profile_id=profile_id,
+            kind=kind,
+            order_index=order_index,
+            data=data
+        )
