@@ -36,3 +36,23 @@ class Profile(BaseMutableDomainModel):
 
     blocks: list[Block] = Field(
         [], description="The blocks of the profile")
+
+    @classmethod
+    def new(
+        cls,
+        name: str,
+        description: str,
+        owner_id: UUID,
+        mode: ProfileMode = ProfileMode.DRAFT
+    ) -> "Profile":
+        return cls(
+            name=name,
+            description=description,
+            owner_id=owner_id,
+            mode=mode,
+            deleted_at=None,
+            datasets=[],
+            jobs=[],
+            models=[],
+            blocks=[],
+        )

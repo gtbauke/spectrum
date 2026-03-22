@@ -8,6 +8,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from db.features.users.repository import SqlAlchemyUsersRepository
 from db.features.auth.repository import SqlAlchemyAuthRepository
 from db.features.datasets.repository import SqlAlchemyDatasetsRepository, SqlAlchemyArtifactsRepository
+from db.features.profiles.repository import SqlAlchemyProfilesRepository
+from db.features.profiles.blocks.repository import SqlAlchemyBlocksRepository
+from db.features.profiles.jobs.repository import SqlAlchemyJobsRepository
+from db.features.profiles.jobs.runs.repository import SqlAlchemyRunsRepository
+from db.features.profiles.models.repository import SqlAlchemyModelsRepository
 
 from core.ports.events.message_broker import MessageBroker
 from core.ports.unit_of_work import UnitOfWork
@@ -28,6 +33,11 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
         self.auth = SqlAlchemyAuthRepository(self._session)
         self.datasets = SqlAlchemyDatasetsRepository(self._session)
         self.artifacts = SqlAlchemyArtifactsRepository(self._session)
+        self.profiles = SqlAlchemyProfilesRepository(self._session)
+        self.blocks = SqlAlchemyBlocksRepository(self._session)
+        self.jobs = SqlAlchemyJobsRepository(self._session)
+        self.runs = SqlAlchemyRunsRepository(self._session)
+        self.models = SqlAlchemyModelsRepository(self._session)
 
         return self
 

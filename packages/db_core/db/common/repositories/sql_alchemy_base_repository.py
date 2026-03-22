@@ -51,7 +51,8 @@ class SqlAlchemyBaseRepository[
         await self._session.merge(entity)
 
     async def _delete(self, entity: T_ORM) -> None:
-        await self._session.delete(entity)
+        tracked_entity = await self._session.merge(entity)
+        await self._session.delete(instance=tracked_entity)
 
     async def _paginate_query(self, query: Select[tuple[T_ORM, ...]], pagination: Pagination | None = None) -> tuple[Sequence[T_Domain], int, int, int, int]:
         """Returns (orms, total_count, current_page, total_pages, size)"""
