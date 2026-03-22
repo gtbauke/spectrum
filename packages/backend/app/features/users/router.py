@@ -11,6 +11,7 @@ from db.adapters.unit_of_work import SqlAlchemyUnitOfWork
 from core.features.users.user import User
 from core.features.users.where import UserWhere, UserFilter
 from core.utils.pagination.base import Pagination
+from core.utils.filters.field_filter import DateTimeFilter
 
 from .dtos.create import CreateUserDto
 from .dtos.update import UpdateUserDto
@@ -48,10 +49,12 @@ async def create_user(
 async def get_users(
     limit: int = Query(50, ge=1),
     offset: int = Query(0, ge=0),
-    uow: SqlAlchemyUnitOfWork = Depends(get_uow)
+    uow: SqlAlchemyUnitOfWork = Depends(get_uow),
 ):
     pagination = Pagination(limit=limit, offset=offset)
-    users_page = await uow.users.list(filter=None, pagination=pagination)
+    default_filter = UserFilter(deleted_at=DateTimeFilter(is_null=True))
+
+    users_page = await uow.users.list(filter=default_filter, pagination=pagination)
 
     return users_page
 
