@@ -32,7 +32,12 @@ class TrainingService:
 
     def __init__(self) -> None:
         settings = Settings()
-        self._base_path = Path(settings.FILE_STORAGE_SPECTRUM_DATA_PATH)
+
+        current_dir = Path(__file__).parent
+        project_root = current_dir.parent.parent.parent
+
+        self._base_path = (project_root /
+                           settings.FILE_STORAGE_SPECTRUM_DATA_PATH).resolve()
 
     def _build_estimator(self, job: Job, *, dump_path: str) -> EGGP:
         """Maps Job domain fields to EGGP constructor parameters."""

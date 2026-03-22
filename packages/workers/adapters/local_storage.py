@@ -12,7 +12,12 @@ from core.ports.storage.upload_result import UploadResult
 class WorkerLocalStorage(FileStorage):
     def __init__(self) -> None:
         settings = Settings()
-        self._base_path = Path(settings.FILE_STORAGE_SPECTRUM_DATA_PATH)
+
+        current_dir = Path(__file__).parent
+        project_root = current_dir.parent.parent.parent
+
+        self._base_path = (project_root /
+                           settings.FILE_STORAGE_SPECTRUM_DATA_PATH).resolve()
 
     async def upload(self, *, path: str, file: BinaryIO) -> UploadResult:
         full_path = self._base_path / path
