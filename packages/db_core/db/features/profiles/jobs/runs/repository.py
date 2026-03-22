@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import select
@@ -5,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Sequence
 
 from core.features.profiles.jobs.runs.repository import IRunsRepository
+from core.features.profiles.jobs.runs.status import JobRunStatus
 from core.features.profiles.jobs.runs.run import Run
 from core.features.profiles.jobs.runs.where import RunWhere, RunFilter
 from core.utils.pagination.base import Pagination
@@ -99,3 +101,28 @@ class SqlAlchemyRunsRepository(
             await super()._update(entity=mapped_orm)
 
         await self.add(entity=new_entity)
+
+    async def update_status(
+        self,
+        *,
+        where: RunWhere,
+        status: JobRunStatus,
+        started_at: datetime | None = None,
+        finished_at: datetime | None = None,
+    ) -> Run | None:
+        run = await self.get_unique(where=where)
+
+        if not run:
+            return None
+
+        updates: dict[str, object] = {"status": status}
+        if started_at is not None:
+            updates["started_at"] = started_at
+        if finished_at is not None:
+            updates["finished_at"] = finished_at
+
+        updated_run = run.model_copy(update=updates)
+        mapped_orm = self._mapper.to_orm(domain=updated_run)
+        await super()._update(entity=mapped_orm)
+
+        return updated_run

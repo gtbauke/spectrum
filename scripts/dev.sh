@@ -126,11 +126,11 @@ echo "Starting backend server with uv..."
 #     uv run python -m app.workers.orchestrators.datasets.dataset_processing_orchestrator
 # ) &
 
-# echo "Starting model training worker with uv..."
-# (
-#     cd "$ROOT_DIR/packages/backend"
-#     uv run python -m app.workers.orchestrators.models.model_processing_orchestrator
-# ) &
+echo "Starting model training worker with uv..."
+(
+    cd "$ROOT_DIR/packages/workers"
+    uv run python main.py
+) &
 
 echo "Starting frontend..."
 (

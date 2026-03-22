@@ -40,8 +40,8 @@ async def create_run(
     run = Run.new(id=id, job_id=job_id, version=version)
 
     await uow.runs.unset_latest_and_add(parent_id=job_id, new_entity=run)
-    
-    event = RunCreatedEvent(run_id=run.id, job_id=run.job_id)
+
+    event = RunCreatedEvent(run_id=run.id, job_id=run.job_id, version=run.version)
     uow.events_publisher.publish(
         routing_key=event.routing_key,
         payload=event.model_dump(mode="json"),
@@ -76,12 +76,11 @@ async def list_runs(
     dependencies=[Depends(dependency=get_current_user)],
 )
 async def get_run(
-    profile_id: UUID,
     job_id: UUID,
     run_id: UUID,
     uow: UnitOfWork = Depends(dependency=get_uow),
 ):
-    where = RunWhere(id=run_id)
+    where = RunWhere(id=run_id, is_latest=True)
     run = await uow.runs.get_unique(where=where)
 
     if not run or run.job_id != job_id:
