@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from db.features.datasets.model import DatasetORM
     from db.features.profiles.jobs.model import JobORM
     from db.features.profiles.blocks.model import BlockORM
+    from db.features.profiles.models.model import ModelORM
 
 
 class ProfileORM(MutableBase):
@@ -63,4 +64,12 @@ class ProfileORM(MutableBase):
         cascade="all, delete-orphan",
         lazy="selectin",
         order_by="BlockORM.created_at",
+    )
+
+    models: Mapped[list["ModelORM"]] = relationship(
+        "ModelORM",
+        back_populates="profile",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+        order_by="ModelORM.created_at",
     )

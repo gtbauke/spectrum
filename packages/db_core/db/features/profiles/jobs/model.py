@@ -12,6 +12,7 @@ from core.features.profiles.jobs.loss_function import LossFunction
 
 if TYPE_CHECKING:
     from db.features.profiles.jobs.runs.model import RunORM
+    from db.features.profiles.models.model import ModelORM
 
 
 class JobORM(MutableBase):
@@ -48,4 +49,12 @@ class JobORM(MutableBase):
         cascade="all, delete-orphan",
         lazy="selectin",
         order_by="RunORM.timestamp",
+    )
+
+    models: Mapped[list["ModelORM"]] = relationship(
+        "ModelORM",
+        back_populates="job",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+        order_by="ModelORM.created_at",
     )

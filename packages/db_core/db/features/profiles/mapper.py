@@ -7,6 +7,7 @@ from core.features.profiles.profile_mode import ProfileMode
 from db.features.datasets.mapper import DatasetsMapper
 from db.features.profiles.jobs.mapper import JobsMapper
 from db.features.profiles.blocks.mapper import BlockMapper
+from db.features.profiles.models.mapper import ModelsMapper
 
 
 class ProfilesMapper(IMapper[ProfileORM, Profile]):
@@ -33,7 +34,10 @@ class ProfilesMapper(IMapper[ProfileORM, Profile]):
                 BlockMapper.to_domain(block)
                 for block in orm.blocks
             ],
-            models=[],
+            models=[
+                ModelsMapper.to_domain(model)
+                for model in orm.models
+            ],
         )
 
     @staticmethod
@@ -59,5 +63,8 @@ class ProfilesMapper(IMapper[ProfileORM, Profile]):
                 BlockMapper.to_orm(block)
                 for block in domain.blocks
             ],
-            models=[],
+            models=[
+                ModelsMapper.to_orm(model)
+                for model in domain.models
+            ],
         )
