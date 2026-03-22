@@ -1,5 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Sequence
 
 from core.features.users.repository import IUsersRepository
 from core.features.users.user import User
@@ -23,15 +24,15 @@ class SqlAlchemyUsersRepository(
 
     async def add(self, entity: User) -> None:
         orm = self._mapper.to_orm(domain=entity)
-        await super()._add(orm)
+        await super()._add(entity=orm)
 
     async def update(self, entity: User) -> None:
         orm = self._mapper.to_orm(domain=entity)
-        await super()._update(orm)
+        await super()._update(entity=orm)
 
     async def delete(self, entity: User) -> None:
         orm = self._mapper.to_orm(domain=entity)
-        await super()._delete(orm)
+        await super()._delete(entity=orm)
 
     async def get_unique(self, where: UserWhere) -> User | None:
         query = (
@@ -39,32 +40,42 @@ class SqlAlchemyUsersRepository(
             .where(*where.resolve(self._model_class))
         )
 
-        result = await self._session.execute(query)
+        result = await self._session.execute(statement=query)
         orm = result.scalar_one_or_none()
 
         if not orm:
             return None
 
-        return self._mapper.to_domain(orm)
+        return self._mapper.to_domain(orm=orm)
 
-    async def list(self, filter: UserFilter | None = None, pagination: Pagination | None = None) -> PaginatedResponse[User]:
+    def _build_query(
+        self,
+        filter: UserFilter | None = None,
+    ):
         resolved_filters = filter.resolve(
             self._model_class) if filter else None
 
-        query = (
-            select(self._model_class)
-            .distinct()
-        )
+        query = select(self._model_class).distinct()
 
         if resolved_filters:
             query = query.where(*resolved_filters)
 
+        return query
+
+    async def list(
+        self,
+        filter: UserFilter | None = None,
+        pagination: Pagination | None = None,
+    ) -> PaginatedResponse[User]:
+        query = self._build_query(filter=filter)
+
         if pagination:
-            query = query.limit(pagination.limit).offset(pagination.offset)
+            query = query.limit(limit=pagination.limit).offset(
+                offset=pagination.offset)
 
         domains, total_count, current_page, total_pages, size = await self._paginate_query(
-            query,
-            pagination,
+            query=query,
+            pagination=pagination,
         )
 
         return PaginatedResponse(
@@ -74,3 +85,10 @@ class SqlAlchemyUsersRepository(
             page=current_page,
             size=size,
         )
+
+    async def list_all(
+        self,
+        filter: UserFilter | None = None,
+    ) -> Sequence[User]:
+        query = self._build_query(filter=filter)
+        return await self._list_all_query(query=query)

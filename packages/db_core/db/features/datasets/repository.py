@@ -1,6 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Sequence
 
 from core.features.datasets.repository import IDatasetsRepository, IArtifactsRepository
 from core.features.datasets.dataset import Dataset
@@ -25,20 +26,23 @@ class SqlAlchemyDatasetsRepository(
 
     async def add(self, entity: Dataset) -> None:
         orm = self._mapper.to_orm(domain=entity)
-        await super()._add(orm)
+        await super()._add(entity=orm)
 
     async def update(self, entity: Dataset) -> None:
         orm = self._mapper.to_orm(domain=entity)
-        await super()._update(orm)
+        await super()._update(entity=orm)
 
     async def delete(self, entity: Dataset) -> None:
         orm = self._mapper.to_orm(domain=entity)
-        await super()._delete(orm)
+        await super()._delete(entity=orm)
 
     async def get_unique(self, where: DatasetWhere) -> Dataset | None:
-        return await super()._get_unique(where)
+        return await super()._get_unique(where=where)
 
-    async def list(self, filter: DatasetFilter | None = None, pagination: Pagination | None = None) -> PaginatedResponse[Dataset]:
+    def _build_query(
+        self,
+        filter: DatasetFilter | None = None,
+    ):
         resolved_filters = filter.resolve(
             self._model_class) if filter else None
 
@@ -52,13 +56,22 @@ class SqlAlchemyDatasetsRepository(
 
         if resolved_filters:
             query = query.where(*resolved_filters)
+            
+        return query
+
+    async def list(
+        self,
+        filter: DatasetFilter | None = None,
+        pagination: Pagination | None = None,
+    ) -> PaginatedResponse[Dataset]:
+        query = self._build_query(filter=filter)
 
         if pagination:
-            query = query.limit(pagination.limit).offset(pagination.offset)
+            query = query.limit(limit=pagination.limit).offset(offset=pagination.offset)
 
         domains, total_count, current_page, total_pages, size = await self._paginate_query(
-            query,
-            pagination,
+            query=query,
+            pagination=pagination,
         )
 
         return PaginatedResponse(
@@ -68,6 +81,13 @@ class SqlAlchemyDatasetsRepository(
             page=current_page,
             size=size,
         )
+
+    async def list_all(
+        self,
+        filter: DatasetFilter | None = None,
+    ) -> Sequence[Dataset]:
+        query = self._build_query(filter=filter)
+        return await self._list_all_query(query=query)
 
 
 class SqlAlchemyArtifactsRepository(
@@ -80,29 +100,38 @@ class SqlAlchemyArtifactsRepository(
 
     async def add(self, entity: Artifact) -> None:
         orm = self._mapper.to_orm(domain=entity)
-        await super()._add(orm)
+        await super()._add(entity=orm)
 
     async def get_unique(self, where: ArtifactWhere) -> Artifact | None:
-        return await super()._get_unique(where)
+        return await super()._get_unique(where=where)
 
-    async def list(self, filter: ArtifactFilter | None = None, pagination: Pagination | None = None) -> PaginatedResponse[Artifact]:
+    def _build_query(
+        self,
+        filter: ArtifactFilter | None = None,
+    ):
         resolved_filters = filter.resolve(
             self._model_class) if filter else None
 
-        query = (
-            select(self._model_class)
-            .distinct()
-        )
+        query = select(self._model_class).distinct()
 
         if resolved_filters:
             query = query.where(*resolved_filters)
+            
+        return query
+
+    async def list(
+        self,
+        filter: ArtifactFilter | None = None,
+        pagination: Pagination | None = None,
+    ) -> PaginatedResponse[Artifact]:
+        query = self._build_query(filter=filter)
 
         if pagination:
-            query = query.limit(pagination.limit).offset(pagination.offset)
+            query = query.limit(limit=pagination.limit).offset(offset=pagination.offset)
 
         domains, total_count, current_page, total_pages, size = await self._paginate_query(
-            query,
-            pagination,
+            query=query,
+            pagination=pagination,
         )
 
         return PaginatedResponse(
@@ -112,3 +141,10 @@ class SqlAlchemyArtifactsRepository(
             page=current_page,
             size=size,
         )
+
+    async def list_all(
+        self,
+        filter: ArtifactFilter | None = None,
+    ) -> Sequence[Artifact]:
+        query = self._build_query(filter=filter)
+        return await self._list_all_query(query=query)

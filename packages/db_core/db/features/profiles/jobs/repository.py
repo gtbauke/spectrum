@@ -1,5 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 from typing import Sequence, Iterable
 
 from core.features.profiles.jobs.repository import IJobsRepository
@@ -24,53 +25,79 @@ class SqlAlchemyJobsRepository(
 
     async def add(self, entity: Job) -> None:
         orm = self._mapper.to_orm(domain=entity)
-        await super()._add(orm)
+        await super()._add(entity=orm)
 
     async def update(self, entity: Job) -> None:
         orm = self._mapper.to_orm(domain=entity)
-        await super()._update(orm)
+        await super()._update(entity=orm)
 
     async def delete(self, entity: Job) -> None:
         orm = self._mapper.to_orm(domain=entity)
-        await super()._delete(orm)
+        await super()._delete(entity=orm)
 
     async def add_many(self, entities: Iterable[Job]) -> None:
         orms = [self._mapper.to_orm(domain=entity) for entity in entities]
-        await super()._add_many(orms)
+        await super()._add_many(entities=orms)
 
     async def update_many(self, entities: Iterable[Job]) -> None:
         orms = [self._mapper.to_orm(domain=entity) for entity in entities]
-        await super()._update_many(orms)
+        await super()._update_many(entities=orms)
 
     async def delete_many(self, entities: Iterable[Job]) -> None:
         orms = [self._mapper.to_orm(domain=entity) for entity in entities]
-        await super()._delete_many(orms)
+        await super()._delete_many(entities=orms)
 
     async def get_unique(self, where: JobWhere) -> Job | None:
-        return await super()._get_unique(where)
+        query = (
+            select(self._model_class)
+            .options(
+                selectinload(self._model_class.runs),
+            )
+            .where(*where.resolve(self._model_class))
+        )
 
-    def _build_query(self, filter: JobFilter | None = None):
+        result = await self._session.execute(statement=query)
+        orm = result.scalar_one_or_none()
+
+        if not orm:
+            return None
+
+        return self._mapper.to_domain(orm=orm)
+
+    def _build_query(
+        self,
+        filter: JobFilter | None = None,
+    ):
         resolved_filters = filter.resolve(
             self._model_class) if filter else None
 
         query = (
             select(self._model_class)
+            .options(
+                selectinload(self._model_class.runs),
+            )
             .distinct()
         )
 
         if resolved_filters:
             query = query.where(*resolved_filters)
+
         return query
 
-    async def list(self, filter: JobFilter | None = None, pagination: Pagination | None = None) -> PaginatedResponse[Job]:
-        query = self._build_query(filter)
+    async def list(
+        self,
+        filter: JobFilter | None = None,
+        pagination: Pagination | None = None,
+    ) -> PaginatedResponse[Job]:
+        query = self._build_query(filter=filter)
 
         if pagination:
-            query = query.limit(pagination.limit).offset(pagination.offset)
+            query = query.limit(limit=pagination.limit).offset(
+                offset=pagination.offset)
 
         domains, total_count, current_page, total_pages, size = await self._paginate_query(
-            query,
-            pagination,
+            query=query,
+            pagination=pagination,
         )
 
         return PaginatedResponse(
@@ -81,6 +108,9 @@ class SqlAlchemyJobsRepository(
             size=size,
         )
 
-    async def list_all(self, filter: JobFilter | None = None) -> Sequence[Job]:
-        query = self._build_query(filter)
-        return await self._list_all_query(query)
+    async def list_all(
+        self,
+        filter: JobFilter | None = None,
+    ) -> Sequence[Job]:
+        query = self._build_query(filter=filter)
+        return await self._list_all_query(query=query)
