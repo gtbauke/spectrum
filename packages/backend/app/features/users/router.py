@@ -1,0 +1,115 @@
+from datetime import datetime, timezone
+from uuid import UUID
+from fastapi import APIRouter, Depends, status, Query
+
+from app.api.unit_of_work import get_uow
+from app.features.users.errors.user_not_found import UserNotFound
+from db.adapters.unit_of_work import SqlAlchemyUnitOfWork
+
+from core.features.users.user import User
+from core.features.users.where import UserWhere, UserFilter
+from core.utils.pagination.base import Pagination
+
+from .dtos.create import CreateUserDto
+from .dtos.update import UpdateUserDto
+
+users_router = APIRouter()
+
+
+@users_router.post(
+    "",
+    response_model=User,
+    status_code=status.HTTP_201_CREATED,
+    description="Creates a new user"
+)
+async def create_user(
+    dto: CreateUserDto,
+    uow: SqlAlchemyUnitOfWork = Depends(get_uow)
+):
+    user = User.new(
+        first_name=dto.first_name,
+        last_name=dto.last_name,
+        email=dto.email,
+        # Note: using raw password string directly as per current implementation context
+        password_hash=dto.password,
+    )
+
+    await uow.users.add(user)
+    return user
+
+
+@users_router.get(
+    "",
+    description="Get all users with pagination"
+)
+async def get_users(
+    limit: int = Query(50, ge=1),
+    offset: int = Query(0, ge=0),
+    uow: SqlAlchemyUnitOfWork = Depends(get_uow)
+):
+    pagination = Pagination(limit=limit, offset=offset)
+    users_page = await uow.users.list(filter=None, pagination=pagination)
+
+    return users_page
+
+
+@users_router.get(
+    "/{user_id}",
+    response_model=User,
+    description="Get a specific user"
+)
+async def get_user(
+    user_id: UUID,
+    uow: SqlAlchemyUnitOfWork = Depends(get_uow)
+):
+    where = UserWhere(id=user_id)
+    user = await uow.users.get_unique(where)
+
+    if not user:
+        raise UserNotFound()
+
+    return user
+
+
+@users_router.put(
+    "/{user_id}",
+    response_model=User,
+    description="Update a user"
+)
+async def update_user(
+    user_id: UUID,
+    dto: UpdateUserDto,
+    uow: SqlAlchemyUnitOfWork = Depends(get_uow)
+):
+    where = UserWhere(id=user_id)
+    user = await uow.users.get_unique(where)
+
+    if not user:
+        raise UserNotFound()
+
+    present_data = dto.model_dump(exclude_unset=True)
+    updated_user = user.model_copy(update=present_data)
+
+    await uow.users.update(entity=updated_user)
+    return updated_user
+
+
+@users_router.delete(
+    "/{user_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Soft delete a user"
+)
+async def delete_user(
+    user_id: UUID,
+    uow: SqlAlchemyUnitOfWork = Depends(get_uow)
+):
+    where = UserWhere(id=user_id)
+    user = await uow.users.get_unique(where)
+
+    if not user:
+        raise UserNotFound()
+
+    user.deleted_at = datetime.now(tz=timezone.utc)
+    await uow.users.update(user)
+
+    return None

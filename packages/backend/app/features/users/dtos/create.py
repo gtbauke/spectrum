@@ -1,17 +1,11 @@
-from pydantic import BaseModel, Field, EmailStr, field_validator
+from pydantic import (BaseModel, Field, EmailStr, SecretStr, field_validator)
 
 
-class CreateUserDTO(BaseModel):
-    first_name: str = Field(..., description="The first name of the user")
-
-    last_name: str = Field(..., description="The last name of the user")
-
-    email: EmailStr = Field(..., description="The email of the user")
-
-    password: str = Field(
-        ...,
-        description="The password of the user",
-    )
+class CreateUserDto(BaseModel):
+    first_name: str = Field(..., description="The user's first name")
+    last_name: str = Field(..., description="The user's last name")
+    email: EmailStr = Field(..., description="The user's email address")
+    password: SecretStr = Field(..., description="The user's password")
 
     @field_validator("password")
     @classmethod

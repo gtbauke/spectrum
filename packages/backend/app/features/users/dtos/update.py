@@ -1,21 +1,12 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator
-from typing import Optional
+from pydantic import BaseModel, Field, EmailStr, SecretStr, field_validator
 
 
-class UpdateUserDTO(BaseModel):
-    first_name: Optional[str] = Field(
-        None, description="The first name of the user")
-
-    last_name: Optional[str] = Field(
-        None, description="The last name of the user")
-
-    email: Optional[EmailStr] = Field(
-        None, description="The email of the user")
-
-    password: Optional[str] = Field(
-        None,
-        description="The password of the user",
-    )
+class UpdateUserDto(BaseModel):
+    first_name: str | None = Field(None, description="The user's first name")
+    last_name: str | None = Field(None, description="The user's last name")
+    email: EmailStr | None = Field(
+        None, description="The user's email address")
+    password: SecretStr | None = Field(None, description="The user's password")
 
     @field_validator("password")
     @classmethod
