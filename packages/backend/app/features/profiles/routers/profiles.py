@@ -22,11 +22,15 @@ from core.utils.pagination.base import Pagination
 from core.utils.filters.field_filter import UUIDFilter, StringFilter, EnumFilter
 
 from app.features.profiles.blocks.routers.blocks import blocks_router
+from app.features.profiles.jobs.routers.jobs import jobs_router
 
 profiles_router = APIRouter()
 
 profiles_router.include_router(
     blocks_router, prefix="/{profile_id}/blocks", tags=["Blocks"])
+
+profiles_router.include_router(
+    jobs_router, prefix="/{profile_id}/jobs", tags=["Jobs"])
 
 
 @profiles_router.post("", response_model=Profile, status_code=status.HTTP_201_CREATED)

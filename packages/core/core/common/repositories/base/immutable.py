@@ -1,4 +1,4 @@
-from typing import Optional, Protocol
+from typing import Optional, Protocol, Sequence
 
 from core.features.base import (
     RootDomainModel,
@@ -20,3 +20,6 @@ class IImmutableRepository[
 
     async def list(self, filter: Optional[T_Filter] = None,
                    pagination: Optional[Pagination] = None) -> PaginatedResponse[T_Immutable]: ...
+
+    async def list_all(
+        self, filter: Optional[T_Filter] = None) -> Sequence[T_Immutable]: ...

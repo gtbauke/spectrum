@@ -75,3 +75,9 @@ class SqlAlchemyBaseRepository[
         total_pages = math.ceil(total_count / size) if total_count > 0 else 0
 
         return domains, total_count, current_page, total_pages, size
+
+    async def _list_all_query(self, query: Select[tuple[T_ORM, ...]]) -> Sequence[T_Domain]:
+        result = await self._session.execute(query)
+        orms = result.scalars().unique().all()
+
+        return [self._mapper.to_domain(orm) for orm in orms]
