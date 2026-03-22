@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, status, UploadFile, File
+from fastapi import APIRouter, Depends, status, UploadFile, File, Form
 
 from app.api.unit_of_work import get_uow
 from app.features.datasets.errors.artifact_not_found import ArtifactNotFound
@@ -28,9 +28,10 @@ artifacts_router = APIRouter()
 async def upload_artifact(
     dataset_id: UUID,
     file: UploadFile = File(...),
+    role: ArtifactRole = Form(...),
     uow: UnitOfWork = Depends(get_uow)
 ):
-    path = f"/datasets/{dataset_id}/artifacts/{file.filename}"
+    path = f"datasets/{dataset_id}/artifacts/{file.filename}"
     upload_result = await uow.file_storage.upload(path=path, file=file.file)
 
     artifact = Artifact(
@@ -38,7 +39,7 @@ async def upload_artifact(
         checksum=upload_result.checksum,
         size_in_bytes=upload_result.size,
         path=upload_result.path,
-        role=ArtifactRole.DATA
+        role=role,
     )
 
     await uow.artifacts.add(artifact)

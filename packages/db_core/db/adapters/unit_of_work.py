@@ -6,6 +6,8 @@ from typing import Callable, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.features.users.repository import SqlAlchemyUsersRepository
+from db.features.auth.repository import SqlAlchemyAuthRepository
+from db.features.datasets.repository import SqlAlchemyDatasetsRepository, SqlAlchemyArtifactsRepository
 
 from core.ports.events.message_broker import MessageBroker
 from core.ports.unit_of_work import UnitOfWork
@@ -23,6 +25,9 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
         self._session = self._session_factory()
 
         self.users = SqlAlchemyUsersRepository(self._session)
+        self.auth = SqlAlchemyAuthRepository(self._session)
+        self.datasets = SqlAlchemyDatasetsRepository(self._session)
+        self.artifacts = SqlAlchemyArtifactsRepository(self._session)
 
         return self
 

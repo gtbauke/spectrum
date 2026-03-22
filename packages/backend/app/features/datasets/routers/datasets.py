@@ -13,9 +13,9 @@ from core.ports.unit_of_work import UnitOfWork
 from core.features.datasets.dataset import Dataset
 from core.features.datasets.artifact import Artifact
 from core.features.datasets.artifact_role import ArtifactRole
-from core.features.datasets.where import DatasetWhere, DatasetFilter
+from core.features.datasets.where import DatasetWhere, DatasetFilter, ArtifactFilter
 from core.utils.pagination.base import Pagination
-from core.utils.filters.field_filter import UUIDFilter
+from core.utils.filters.field_filter import UUIDFilter, StringFilter, NumberFilter, EnumFilter
 
 from .artifacts import artifacts_router
 
@@ -40,9 +40,7 @@ async def upload_dataset(
         owner_id=current_user_id
     )
 
-    await uow.datasets.add(dataset)
-
-    path = f"/datasets/{dataset.id}/artifacts/{file.filename}"
+    path = f"datasets/{dataset.id}/artifacts/{file.filename}"
     upload_result = await uow.file_storage.upload(path=path, file=file.file)
 
     artifact = Artifact(
@@ -53,8 +51,8 @@ async def upload_dataset(
         role=ArtifactRole.DATA
     )
 
-    await uow.artifacts.add(artifact)
     dataset.artifacts.append(artifact)
+    await uow.datasets.add(dataset)
 
     return dataset
 
@@ -68,14 +66,48 @@ async def list_datasets(
     offset: int = Query(0, ge=0),
     mine: bool = Query(
         False, description="Filter datasets owned by the current user"),
+    name: str | None = Query(None, description="Filter datasets by name"),
+    description: str | None = Query(
+        None, description="Filter datasets by description"),
+    checksum: str | None = Query(
+        None, description="Filter datasets by artifact checksum"),
+    min_size: int | None = Query(
+        None, description="Filter datasets by artifact size in bytes"),
+    max_size: int | None = Query(
+        None, description="Filter datasets by artifact size in bytes"),
+    role: ArtifactRole | None = Query(
+        None, description="Filter datasets by artifact role"),
     current_user_id: UUID = Depends(get_current_user),
     uow: UnitOfWork = Depends(get_uow)
 ):
     pagination = Pagination(limit=limit, offset=offset)
 
-    dataset_filter = None
+    dataset_filter = DatasetFilter()
     if mine:
-        dataset_filter = DatasetFilter(owner_id=UUIDFilter(eq=current_user_id))
+        dataset_filter.owner_id = UUIDFilter(eq=current_user_id)
+
+    if name:
+        dataset_filter.name = StringFilter(eq=name)
+
+    if description:
+        dataset_filter.description = StringFilter(eq=description)
+
+    if checksum or min_size or max_size or role:
+        artifact_filter = ArtifactFilter()
+
+        if checksum:
+            artifact_filter.checksum = StringFilter(eq=checksum)
+
+        if min_size:
+            artifact_filter.size_in_bytes = NumberFilter(gte=min_size)
+
+        if max_size:
+            artifact_filter.size_in_bytes = NumberFilter(lte=max_size)
+
+        if role:
+            artifact_filter.role = EnumFilter(eq=role)
+
+        dataset_filter.artifacts = artifact_filter
 
     paginated_response = await uow.datasets.list(filter=dataset_filter, pagination=pagination)
     return paginated_response

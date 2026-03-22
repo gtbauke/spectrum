@@ -12,7 +12,7 @@ from db.features.auth.mapper import AuthMapper
 from db.features.auth.model import RefreshTokenORM
 
 
-class AuthRepository(
+class SqlAlchemyAuthRepository(
     SqlAlchemyBaseRepository[RefreshTokenORM,
                              RefreshToken, AuthWhere, AuthFilter, AuthMapper],
     IAuthRepository,
