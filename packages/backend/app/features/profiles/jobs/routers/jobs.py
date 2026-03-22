@@ -14,6 +14,7 @@ from app.features.profiles.jobs.dtos.update import UpdateJobDto, BulkUpdateJobDt
 from core.features.profiles.jobs.job import Job
 from core.features.profiles.jobs.where import JobWhere, JobFilter
 from core.utils.filters.field_filter import UUIDFilter
+from core.utils.pagination.response import PaginatedResponse
 
 jobs_router = APIRouter()
 
@@ -148,7 +149,7 @@ async def delete_job(
 
 @jobs_router.get(
     path="",
-    response_model=list[Job],
+    response_model=PaginatedResponse[Job],
     dependencies=[Depends(get_current_user)],
 )
 async def list_jobs(
@@ -156,7 +157,7 @@ async def list_jobs(
     uow: UnitOfWork = Depends(get_uow),
 ):
     job_filter = JobFilter(profile_id=UUIDFilter(eq=profile_id))
-    jobs = await uow.jobs.list_all(filter=job_filter)
+    jobs = await uow.jobs.list(filter=job_filter)
     return jobs
 
 
