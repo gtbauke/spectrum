@@ -8,11 +8,13 @@ from app.features.datasets.guards import can_edit_dataset
 
 from app.features.auth.guards.get_current_user import get_current_user
 from app.features.datasets.guards.can_edit_dataset import can_edit_dataset
+from app.features.auth.errors.forbidden import Forbidden
 
 from core.ports.unit_of_work import UnitOfWork
 from core.features.datasets.dataset import Dataset
 from core.features.datasets.artifact import Artifact
 from core.features.datasets.artifact_role import ArtifactRole
+from core.features.datasets.visibility import DatasetVisibility
 from core.features.datasets.where import DatasetWhere, DatasetFilter, ArtifactFilter
 from core.utils.pagination.base import Pagination
 from core.utils.filters.field_filter import UUIDFilter, StringFilter, NumberFilter, EnumFilter
@@ -30,6 +32,7 @@ datasets_router.include_router(
 async def upload_dataset(
     name: str = Form(...),
     description: str = Form(""),
+    visibility: DatasetVisibility = Form(DatasetVisibility.PRIVATE),
     file: UploadFile = File(...),
     current_user_id: UUID = Depends(get_current_user),
     uow: UnitOfWork = Depends(get_uow)
@@ -37,7 +40,8 @@ async def upload_dataset(
     dataset = Dataset.new(
         name=name,
         description=description,
-        owner_id=current_user_id
+        owner_id=current_user_id,
+        visibility=visibility
     )
 
     path = f"datasets/{dataset.id}/artifacts/{file.filename}"
@@ -85,6 +89,12 @@ async def list_datasets(
     dataset_filter = DatasetFilter()
     if mine:
         dataset_filter.owner_id = UUIDFilter(eq=current_user_id)
+    else:
+        # Show own datasets OR public datasets
+        dataset_filter.OR = [
+            DatasetFilter(owner_id=UUIDFilter(eq=current_user_id)),
+            DatasetFilter(visibility=EnumFilter(eq=DatasetVisibility.PUBLIC))
+        ]
 
     if name:
         dataset_filter.name = StringFilter(eq=name)
@@ -122,12 +132,16 @@ async def list_datasets(
 )
 async def get_dataset(
     dataset_id: UUID,
+    current_user_id: UUID = Depends(get_current_user),
     uow: UnitOfWork = Depends(get_uow)
 ):
     dataset = await uow.datasets.get_unique(DatasetWhere(id=dataset_id))
 
     if not dataset:
         raise DatasetNotFound()
+
+    if dataset.visibility == DatasetVisibility.PRIVATE and dataset.owner_id != current_user_id:
+        raise Forbidden()
 
     return dataset
 
