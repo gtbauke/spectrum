@@ -16,7 +16,13 @@ from core.features.profiles.jobs.where import JobWhere, JobFilter
 from core.utils.filters.field_filter import UUIDFilter
 from core.utils.pagination.response import PaginatedResponse
 
+from app.features.profiles.jobs.runs.routers.runs import runs_router
+
 jobs_router = APIRouter()
+
+jobs_router.include_router(
+    runs_router, prefix="/{job_id}/runs", tags=["Runs"]
+)
 
 
 @jobs_router.post(

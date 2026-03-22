@@ -14,7 +14,20 @@ class Run(BaseImmutableVersionedDomainModel):
         JobRunStatus.WAITING, description="The status of the job run")
 
     started_at: datetime | None = Field(
-        None, description="The time the job run started")
+        default_factory=lambda: None, description="The time the job run started")
 
     finished_at: datetime | None = Field(
-        None, description="The time the job run finished")
+        default_factory=lambda: None, description="The time the job run finished")
+
+    @classmethod
+    def new(
+        cls,
+        job_id: UUID,
+        version: int,
+    ) -> "Run":
+        return cls(
+            job_id=job_id,
+            version=version,
+            status=JobRunStatus.WAITING,
+            is_latest=True,
+        )

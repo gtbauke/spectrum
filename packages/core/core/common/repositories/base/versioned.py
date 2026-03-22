@@ -18,3 +18,6 @@ class IVersionedRepository[
 
     async def get_version_by_number(
         self, parent_id: UUID, version: int) -> Optional[T_Versioned]: ...
+
+    async def unset_latest_and_add(
+        self, parent_id: UUID, new_entity: T_Versioned) -> None: ...

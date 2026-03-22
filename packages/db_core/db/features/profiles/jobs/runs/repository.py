@@ -82,3 +82,13 @@ class SqlAlchemyRunsRepository(
     async def get_version_by_number(self, parent_id: UUID, version: int) -> Run | None:
         where = RunWhere(id=parent_id, version=version)
         return await self.get_unique(where=where)
+
+    async def unset_latest_and_add(self, parent_id: UUID, new_entity: Run) -> None:
+        latest = await self.get_latest_version(parent_id=parent_id)
+        
+        if latest:
+            latest_updated = latest.model_copy(update={"is_latest": False})
+            mapped_orm = self._mapper.to_orm(domain=latest_updated)
+            await super()._update(entity=mapped_orm)
+            
+        await self.add(entity=new_entity)
