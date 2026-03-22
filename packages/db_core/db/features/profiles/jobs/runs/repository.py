@@ -29,7 +29,13 @@ class SqlAlchemyRunsRepository(
         await super()._add(entity=orm)
 
     async def get_unique(self, where: RunWhere) -> Run | None:
-        return await super()._get_unique(where=where)
+        query = select(self._model_class).where(
+            *where.resolve(self._model_class))
+
+        result = await self._session.execute(query)
+        orm = result.scalars().first()
+
+        return self._mapper.to_domain(orm) if orm else None
 
     def _build_query(
         self,
@@ -42,7 +48,7 @@ class SqlAlchemyRunsRepository(
 
         if resolved_filters:
             query = query.where(*resolved_filters)
-            
+
         return query
 
     async def list(
@@ -53,7 +59,8 @@ class SqlAlchemyRunsRepository(
         query = self._build_query(filter=filter)
 
         if pagination:
-            query = query.limit(limit=pagination.limit).offset(offset=pagination.offset)
+            query = query.limit(limit=pagination.limit).offset(
+                offset=pagination.offset)
 
         domains, total_count, current_page, total_pages, size = await self._paginate_query(
             query=query,
@@ -76,19 +83,19 @@ class SqlAlchemyRunsRepository(
         return await self._list_all_query(query=query)
 
     async def get_latest_version(self, parent_id: UUID) -> Run | None:
-        where = RunWhere(id=parent_id, is_latest=True)
+        where = RunWhere(job_id=parent_id, is_latest=True)
         return await self.get_unique(where=where)
 
     async def get_version_by_number(self, parent_id: UUID, version: int) -> Run | None:
-        where = RunWhere(id=parent_id, version=version)
+        where = RunWhere(job_id=parent_id, version=version)
         return await self.get_unique(where=where)
 
     async def unset_latest_and_add(self, parent_id: UUID, new_entity: Run) -> None:
         latest = await self.get_latest_version(parent_id=parent_id)
-        
+
         if latest:
             latest_updated = latest.model_copy(update={"is_latest": False})
             mapped_orm = self._mapper.to_orm(domain=latest_updated)
             await super()._update(entity=mapped_orm)
-            
+
         await self.add(entity=new_entity)

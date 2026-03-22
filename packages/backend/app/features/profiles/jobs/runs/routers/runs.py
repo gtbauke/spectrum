@@ -30,13 +30,15 @@ async def create_run(
     latest_run = await uow.runs.get_latest_version(parent_id=job_id)
 
     version = 1
+    id = None
+
     if latest_run:
         version = latest_run.version + 1
+        id = latest_run.id
 
-    run = Run.new(job_id=job_id, version=version)
+    run = Run.new(id=id, job_id=job_id, version=version)
 
     await uow.runs.unset_latest_and_add(parent_id=job_id, new_entity=run)
-
     return run
 
 

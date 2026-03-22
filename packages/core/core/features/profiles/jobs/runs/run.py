@@ -1,4 +1,4 @@
-from uuid import UUID
+from uuid import UUID, uuid4
 from pydantic import Field
 from datetime import datetime
 
@@ -22,10 +22,15 @@ class Run(BaseImmutableVersionedDomainModel):
     @classmethod
     def new(
         cls,
+        id: UUID | None,
         job_id: UUID,
         version: int,
     ) -> "Run":
+        if id is None:
+            id = uuid4()
+
         return cls(
+            id=id,
             job_id=job_id,
             version=version,
             status=JobRunStatus.WAITING,

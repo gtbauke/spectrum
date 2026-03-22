@@ -9,7 +9,8 @@ from .status import JobRunStatus
 
 
 class RunWhere(BaseUniqueWhere):
-    id: UUID
+    id: UUID | None = None
+    job_id: UUID | None = None
     is_latest: bool | None = None
     version: int | None = None
 
