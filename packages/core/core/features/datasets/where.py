@@ -6,6 +6,7 @@ from core.utils.filters.field_filter import (
     EnumFilter, NumberFilter, StringFilter, UUIDFilter)
 
 from .artifact_role import ArtifactRole
+from .visibility import DatasetVisibility
 
 
 class ArtifactWhere(BaseUniqueWhere):
@@ -28,4 +29,5 @@ class DatasetFilter(BaseFilter):
     name: StringFilter | None = None
     description: StringFilter | None = None
     owner_id: UUIDFilter | None = None
+    visibility: EnumFilter[DatasetVisibility] | None = None
     artifacts: ArtifactFilter | None = None

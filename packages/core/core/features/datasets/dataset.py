@@ -5,6 +5,7 @@ from datetime import datetime
 from core.features.base import BaseMutableDomainModel
 
 from .artifact import Artifact
+from .visibility import DatasetVisibility
 
 
 class Dataset(BaseMutableDomainModel):
@@ -21,12 +22,24 @@ class Dataset(BaseMutableDomainModel):
     deleted_at: datetime | None = Field(
         None, description="The timestamp when the dataset was deleted")
 
+    visibility: DatasetVisibility = Field(
+        DatasetVisibility.PRIVATE,
+        description="Controls who can see and use this dataset",
+    )
+
     @classmethod
-    def new(cls, name: str, description: str, owner_id: UUID) -> "Dataset":
+    def new(
+        cls,
+        name: str,
+        description: str,
+        owner_id: UUID,
+        visibility: DatasetVisibility = DatasetVisibility.PRIVATE
+    ) -> "Dataset":
         return cls(
             name=name,
             description=description,
             owner_id=owner_id,
             artifacts=[],
-            deleted_at=None
+            deleted_at=None,
+            visibility=visibility
         )
