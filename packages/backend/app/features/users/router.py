@@ -4,6 +4,8 @@ from fastapi import APIRouter, Depends, status, Query
 
 from app.api.unit_of_work import get_uow
 from app.features.users.errors.user_not_found import UserNotFound
+from app.services.encryption import EncryptionService
+
 from db.adapters.unit_of_work import SqlAlchemyUnitOfWork
 
 from core.features.users.user import User
@@ -24,14 +26,15 @@ users_router = APIRouter()
 )
 async def create_user(
     dto: CreateUserDto,
-    uow: SqlAlchemyUnitOfWork = Depends(get_uow)
+    uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+    encryption_service: EncryptionService = Depends(EncryptionService),
 ):
     user = User.new(
         first_name=dto.first_name,
         last_name=dto.last_name,
         email=dto.email,
-        # Note: using raw password string directly as per current implementation context
-        password_hash=dto.password,
+        password_hash=encryption_service.hash_password(
+            dto.password.get_secret_value()),
     )
 
     await uow.users.add(user)
@@ -79,7 +82,8 @@ async def get_user(
 async def update_user(
     user_id: UUID,
     dto: UpdateUserDto,
-    uow: SqlAlchemyUnitOfWork = Depends(get_uow)
+    uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+    encryption_service: EncryptionService = Depends(EncryptionService),
 ):
     where = UserWhere(id=user_id)
     user = await uow.users.get_unique(where)
@@ -88,6 +92,11 @@ async def update_user(
         raise UserNotFound()
 
     present_data = dto.model_dump(exclude_unset=True)
+    if "password" in present_data:
+        password_secret = present_data.pop("password")
+        present_data["password_hash"] = encryption_service.hash_password(
+            password_secret.get_secret_value())
+
     updated_user = user.model_copy(update=present_data)
 
     await uow.users.update(entity=updated_user)
