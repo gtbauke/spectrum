@@ -16,6 +16,7 @@ class DatasetsMapper(IMapper[DatasetORM, Dataset]):
             name=orm.name,
             description=orm.description,
             owner_id=orm.owner_id,
+            visibility=orm.visibility,
             artifacts=[ArtifactMapper.to_domain(
                 artifact) for artifact in orm.artifacts],
         )
@@ -30,6 +31,7 @@ class DatasetsMapper(IMapper[DatasetORM, Dataset]):
             name=domain.name,
             description=domain.description,
             owner_id=domain.owner_id,
+            visibility=domain.visibility,
             artifacts=[ArtifactMapper.to_orm(
                 artifact) for artifact in domain.artifacts],
         )

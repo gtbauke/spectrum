@@ -9,6 +9,7 @@ from sqlalchemy import String, ForeignKey, Integer, Enum, DateTime
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
 from core.features.datasets.artifact_role import ArtifactRole
+from core.features.datasets.visibility import DatasetVisibility
 from db.common.base.mutable import MutableBase
 from db.common.base.immutable import ImmutableBase
 
@@ -52,6 +53,9 @@ class DatasetORM(MutableBase):
 
     deleted_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True)
+
+    visibility: Mapped[DatasetVisibility] = mapped_column(
+        Enum(DatasetVisibility), nullable=False, default=DatasetVisibility.PRIVATE)
 
 
 class ArtifactORM(ImmutableBase):
