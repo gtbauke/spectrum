@@ -8,6 +8,7 @@ from app.services.encryption import EncryptionService
 
 from db.adapters.unit_of_work import SqlAlchemyUnitOfWork
 
+from core.ports.unit_of_work import UnitOfWork
 from core.features.users.user import User
 from core.features.users.where import UserWhere, UserFilter
 from core.utils.pagination.base import Pagination
@@ -27,7 +28,7 @@ users_router = APIRouter()
 )
 async def create_user(
     dto: CreateUserDto,
-    uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+    uow: UnitOfWork = Depends(get_uow),
     encryption_service: EncryptionService = Depends(EncryptionService),
 ):
     user = User.new(
@@ -49,7 +50,7 @@ async def create_user(
 async def get_users(
     limit: int = Query(50, ge=1),
     offset: int = Query(0, ge=0),
-    uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+    uow: UnitOfWork = Depends(get_uow),
 ):
     pagination = Pagination(limit=limit, offset=offset)
     default_filter = UserFilter(deleted_at=DateTimeFilter(is_null=True))
@@ -66,7 +67,7 @@ async def get_users(
 )
 async def get_user(
     user_id: UUID,
-    uow: SqlAlchemyUnitOfWork = Depends(get_uow)
+    uow: UnitOfWork = Depends(get_uow)
 ):
     where = UserWhere(id=user_id)
     user = await uow.users.get_unique(where)
@@ -85,7 +86,7 @@ async def get_user(
 async def update_user(
     user_id: UUID,
     dto: UpdateUserDto,
-    uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+    uow: UnitOfWork = Depends(get_uow),
     encryption_service: EncryptionService = Depends(EncryptionService),
 ):
     where = UserWhere(id=user_id)
@@ -113,7 +114,7 @@ async def update_user(
 )
 async def delete_user(
     user_id: UUID,
-    uow: SqlAlchemyUnitOfWork = Depends(get_uow)
+    uow: UnitOfWork = Depends(get_uow)
 ):
     where = UserWhere(id=user_id)
     user = await uow.users.get_unique(where)

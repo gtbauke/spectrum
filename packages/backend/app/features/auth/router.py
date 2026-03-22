@@ -10,6 +10,7 @@ from app.features.auth.dtos.auth_credentials import AuthCredentials
 from app.features.auth.guards.get_current_user import get_current_user
 from app.features.users.errors.user_not_found import UserNotFound
 
+from core.ports.unit_of_work import UnitOfWork
 from core.features.users.where import UserWhere
 from core.features.users.user import User
 
@@ -24,7 +25,7 @@ auth_router = APIRouter()
 async def login(
     credentials: AuthCredentials,
     response: Response,
-    uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+    uow: UnitOfWork = Depends(get_uow),
     encryption_service: EncryptionService = Depends(EncryptionService),
     jwt_service: JwtService = Depends(JwtService)
 ):
@@ -62,7 +63,7 @@ async def login(
 @auth_router.get("/me", response_model=User, description="Get current authenticated user")
 async def get_me(
     user_id: UUID = Depends(get_current_user),
-    uow: SqlAlchemyUnitOfWork = Depends(get_uow)
+    uow: UnitOfWork = Depends(get_uow)
 ):
     where = UserWhere(id=user_id)
     user = await uow.users.get_unique(where)
@@ -119,7 +120,9 @@ async def refresh_token(
 
 @auth_router.post("/logout", description="Logout the user by clearing the access and refresh token cookies")
 async def logout(response: Response):
-    response.delete_cookie("access_token", httponly=True, samesite="lax", secure=False)
-    response.delete_cookie("refresh_token", httponly=True, samesite="lax", secure=False)
-    
+    response.delete_cookie("access_token", httponly=True,
+                           samesite="lax", secure=False)
+    response.delete_cookie("refresh_token", httponly=True,
+                           samesite="lax", secure=False)
+
     return {"message": "Logged out successfully"}

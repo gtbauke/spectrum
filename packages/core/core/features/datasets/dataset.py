@@ -20,3 +20,13 @@ class Dataset(BaseMutableDomainModel):
 
     deleted_at: datetime | None = Field(
         None, description="The timestamp when the dataset was deleted")
+
+    @classmethod
+    def new(cls, name: str, description: str, owner_id: UUID) -> "Dataset":
+        return cls(
+            name=name,
+            description=description,
+            owner_id=owner_id,
+            artifacts=[],
+            deleted_at=None
+        )
