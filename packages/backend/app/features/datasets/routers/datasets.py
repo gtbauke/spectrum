@@ -90,7 +90,6 @@ async def list_datasets(
     if mine:
         dataset_filter.owner_id = UUIDFilter(eq=current_user_id)
     else:
-        # Show own datasets OR public datasets
         dataset_filter.OR = [
             DatasetFilter(owner_id=UUIDFilter(eq=current_user_id)),
             DatasetFilter(visibility=EnumFilter(eq=DatasetVisibility.PUBLIC))
