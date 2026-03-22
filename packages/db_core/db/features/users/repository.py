@@ -34,7 +34,18 @@ class SqlAlchemyUsersRepository(
         await super()._delete(orm)
 
     async def get_unique(self, where: UserWhere) -> User | None:
-        return await super()._get_unique(where)
+        query = (
+            select(self._model_class)
+            .where(*where.resolve(self._model_class))
+        )
+
+        result = await self._session.execute(query)
+        orm = result.scalar_one_or_none()
+
+        if not orm:
+            return None
+
+        return self._mapper.to_domain(orm)
 
     async def list(self, filter: UserFilter | None = None, pagination: Pagination | None = None) -> PaginatedResponse[User]:
         resolved_filters = filter.resolve(
