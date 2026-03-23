@@ -47,8 +47,8 @@ export function InsertDivider({ index }: InsertDividerProps) {
 
                 <InsertButton
                     Icon={Database}
-                    label="Dataset"
-                    onClick={() => addBlock("dataset", { datasets: [] }, index)}
+                    label="Datasets"
+                    onClick={() => addBlock("datasets", { datasets: [] }, index)}
                 />
             </div>
         </motion.div>

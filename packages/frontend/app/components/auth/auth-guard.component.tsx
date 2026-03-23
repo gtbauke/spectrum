@@ -1,7 +1,7 @@
 import { type PropsWithChildren, useEffect, useState } from "react";
 import { Navigate } from "react-router";
 import { apiRequest } from "~/api/fetch.api";
-import type { User } from "~/schemas/models/user.schema";
+import type { User } from "~/schemas/domain/user.schema";
 import { useAuthStore } from "~/stores/auth.store";
 import { LoadingScreen } from "../layouts/loading-screen.layout";
 
@@ -15,13 +15,6 @@ export function AuthGuard({ children }: PropsWithChildren) {
 
 	useEffect(() => {
 		async function checkAuth() {
-			const token = localStorage.getItem("access_token");
-
-			if (!token) {
-				setStatus("unauthenticated");
-				return;
-			}
-
 			try {
 				const user = await apiRequest<User>("/auth/me");
 				setAuth(user);
@@ -29,7 +22,6 @@ export function AuthGuard({ children }: PropsWithChildren) {
 			} catch (error) {
 				console.error("Session verification failed:", error);
 				logout();
-
 				setStatus("unauthenticated");
 			}
 		}

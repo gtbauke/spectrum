@@ -1,12 +1,12 @@
 import { z } from "zod";
 
-// TODO: pull from env
-const BASE_URL = "http://localhost:8000/api/v1";
+const BASE_URL =
+	import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
 
 let isRefreshing = false;
 let failedQueue: Array<{
 	resolve: (token: string) => void;
-	reject: (err: any) => void;
+	reject: (err: unknown) => void;
 }> = [];
 
 const processQueue = (error: Error | null, token: string | null = null) => {
@@ -41,12 +41,7 @@ export async function apiRequest<T>(
 	options: RequestInit = {},
 	_isRetry = false,
 ): Promise<T> {
-	const token = localStorage.getItem("access_token");
 	const headers = new Headers(options.headers);
-
-	if (token) {
-		headers.set("Authorization", `Bearer ${token}`);
-	}
 
 	if (options.body instanceof FormData) {
 		headers.delete("Content-Type");
@@ -64,8 +59,8 @@ export async function apiRequest<T>(
 
 	if (response.status === 401 && !_isRetry) {
 		if (isRefreshing) {
-			return new Promise<string>((resolve, reject) => {
-				failedQueue.push({ resolve, reject });
+			return new Promise<void>((resolve, reject) => {
+				failedQueue.push({ resolve: () => resolve(), reject });
 			})
 				.then(() => {
 					return apiRequest<T>(endpoint, options, true);
@@ -87,25 +82,17 @@ export async function apiRequest<T>(
 				throw new Error("Refresh failed");
 			}
 
-			const refreshData = await refreshRes.json();
-			const newToken = refreshData.access_token || refreshData.accessToken;
-
-			if (!newToken) {
-				throw new Error("No token returned");
-			}
-
-			localStorage.setItem("access_token", newToken);
-
 			isRefreshing = false;
-			processQueue(null, newToken);
+			processQueue(null);
 
 			return apiRequest<T>(endpoint, options, true);
 		} catch (e) {
 			isRefreshing = false;
 			processQueue(e as Error, null);
 
-			localStorage.removeItem("access_token");
-			window.location.href = "/login";
+			if (window.location.pathname !== "/login") {
+				window.location.href = "/login";
+			}
 			throw new Error("Session expired. Please log in again.");
 		}
 	}

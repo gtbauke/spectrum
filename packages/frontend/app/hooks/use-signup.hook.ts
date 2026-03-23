@@ -1,7 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
-import { authApi } from "~/api/auth.api";
-import type { SignupInput } from "~/schemas/signup.schema";
+import { login, me } from "~/api/auth/auth.api";
+import { signup } from "~/api/auth/signup.api";
+import type { SignupDto } from "~/schemas/dtos/auth.dto";
 import { useAuthStore } from "~/stores/auth.store";
 
 export function useSignupMutation() {
@@ -9,16 +10,16 @@ export function useSignupMutation() {
 	const navigate = useNavigate();
 
 	return useMutation({
-		mutationFn: (data: SignupInput) => authApi.signup(data),
+		mutationFn: async (data: SignupDto) => signup(data),
 		onSuccess: async (response, variables) => {
-			const loginResponse = await authApi.login({
+			await login({
 				email: response.email,
 				password: variables.password,
 			});
 
-			localStorage.setItem("access_token", loginResponse.access_token);
-			setAuth(loginResponse.user);
+			const user = await me();
 
+			setAuth(user);
 			navigate("/");
 		},
 	});

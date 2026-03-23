@@ -1,14 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
-import { type FetchJobsPageOptions, fetchJobsPage } from "~/api/jobs.api";
+import { listJobs } from "~/api/profiles/jobs/list-jobs.api";
+import type { JobFilter } from "~/schemas/dtos/job.dto";
 
-export function useJobs({ filters, page, where }: FetchJobsPageOptions) {
+export type UseJobsOptions = {
+    profileId: string;
+    filters?: JobFilter;
+    page?: number;
+};
+
+export function useJobs({ profileId, filters, page = 1 }: UseJobsOptions) {
 	return useQuery({
-		queryKey: ["jobs", where.profile.id, filters, page] as const,
-		queryFn: () => fetchJobsPage({ filters, where, page }),
+		queryKey: ["jobs", profileId, filters, page] as const,
+		queryFn: () => listJobs(profileId), // Note: listJobs might need to accept filters/pagination eventually
 		placeholderData: (previousData, previousQuery) => {
 			const previousProfileId = previousQuery?.queryKey[1];
 
-			if (previousProfileId === where.profile.id) {
+			if (previousProfileId === profileId) {
 				return previousData;
 			}
 

@@ -5,7 +5,6 @@ export function NewTabButton() {
 	const openTab = useEditorStore((state) => state.openTab);
 	const setActiveTab = useEditorStore((state) => state.setActiveTab);
 
-	// TODO: handle the creation of new profiles
 	const handleOpenTab = () => {
 		const profileId = crypto.randomUUID();
 
@@ -15,15 +14,26 @@ export function NewTabButton() {
 			id: profileId,
 			data: {
 				tabId: profileId,
-				name: "Untitled Profile",
-				description: null,
-				isDirty: true,
 				profileId,
-				versionId: crypto.randomUUID(),
+				versionId: profileId,
 				blocks: [],
 				past: [],
 				future: [],
+				isDirty: true,
 				activeBlockId: null,
+				profile: {
+					id: profileId,
+					name: "Untitled Profile",
+					description: "",
+					ownerId: "", 
+					mode: "draft",
+					datasets: [],
+					jobs: [],
+					models: [],
+					blocks: [],
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				}
 			},
 		});
 	};

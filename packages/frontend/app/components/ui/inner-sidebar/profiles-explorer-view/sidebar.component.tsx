@@ -1,16 +1,11 @@
 import { useState } from "react";
-import {
-    DEFAULT_PROFILE_FILTERS,
-    type ProfileFilters,
-} from "~/api/profiles.api";
+import type { ProfileFilter } from "~/schemas/dtos/profile.dto";
 import { useDebounce } from "~/hooks/use-debounce.hook";
 import { Header } from "./header.component";
 import { Results } from "./results.component";
 
 export function ProfilesExplorer() {
-    const [filters, setFilters] = useState<ProfileFilters>(
-        DEFAULT_PROFILE_FILTERS,
-    );
+    const [filters, setFilters] = useState<ProfileFilter>({});
 
     const debouncedFilters = useDebounce(filters, 300);
 

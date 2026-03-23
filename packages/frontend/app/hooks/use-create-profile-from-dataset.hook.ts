@@ -1,19 +1,20 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-	type CreateProfileFromDatasetPayload,
-	createProfileFromDataset,
-} from "~/api/profiles.api";
+import { createProfileFromDataset } from "~/api/profiles/from-dataset.api";
 import { useEditorStore } from "~/stores/editor.store";
+import type { CreateProfileFromDatasetDto } from "~/schemas/dtos/profile.dto";
 
 export function useCreateProfileFromDatasetMutation() {
 	const queryClient = useQueryClient();
 	const openTab = useEditorStore((s) => s.openTab);
 
 	return useMutation({
-		mutationFn: (payload: CreateProfileFromDatasetPayload) =>
-			createProfileFromDataset(payload),
+		mutationFn: ({ file, data }: { file: File; data: CreateProfileFromDatasetDto }) =>
+			createProfileFromDataset(file, data),
 
-		onSuccess: (newProfile) => {
+		onSuccess: (result) => {
+			if (!result.success) return;
+			const newProfile = result.data;
+
 			queryClient.invalidateQueries({ queryKey: ["profiles"] });
 			queryClient.invalidateQueries({ queryKey: ["datasets"] });
 
@@ -21,16 +22,15 @@ export function useCreateProfileFromDatasetMutation() {
 				type: "profile",
 				id: newProfile.id,
 				data: {
-					name: newProfile.versions[0]?.name || "New Profile",
+					tabId: newProfile.id,
 					profileId: newProfile.id,
+					versionId: newProfile.id,
 					isDirty: false,
 					activeBlockId: null,
 					blocks: [],
-					description: newProfile.versions[0]?.description || "",
+					profile: newProfile,
 					future: [],
 					past: [],
-					tabId: newProfile.id,
-					versionId: newProfile.versions[0]?.id || "",
 				},
 			});
 		},

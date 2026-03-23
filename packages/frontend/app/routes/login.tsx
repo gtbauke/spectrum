@@ -5,7 +5,7 @@ import { Button } from "~/components/ui/buttons/button.component";
 import { TextInput } from "~/components/ui/forms/input/text-input.component";
 import { RedirectLink } from "~/components/ui/redirects/redirect-link.component";
 import { useLoginMutation } from "~/hooks/use-login.hook";
-import { loginSchema } from "~/schemas/login.schema";
+import { loginCredentialsSchema } from "~/schemas/dtos/auth.dto";
 
 export default function Login() {
 	const { mutate, isPending, error } = useLoginMutation();
@@ -18,7 +18,7 @@ export default function Login() {
 			email: "",
 			password: "",
 		},
-		resolver: zodResolver(loginSchema),
+		resolver: zodResolver(loginCredentialsSchema),
 	});
 
 	const onSubmit = handleSubmit((data) => {

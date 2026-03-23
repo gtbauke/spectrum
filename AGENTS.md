@@ -15,11 +15,12 @@
 1. **Domain Layer** (core/): Contains pydantic models representing the core business entities and implementation interfaces. No external dependencies allowed.
 2. **Database Layer** (db_core/): Contains SQLAlchemy models, database connection management, repository implementations and data mappers. Depends on the Domain Layer but must not contain any business logic.
 3. **Application Layer** (backend/app/features): Contains FastAPI route handlers, services, and application logic. Depends on both the Domain and Database Layers but must not contain any direct database access code.
+4. **Presentation Layer** (frontend/): React-based UI that interacts with the FastAPI backend via RESTful APIs. No direct access to the Domain or Database layers.
 
 ### Implementation Patterns
 
 - **Data Mapper Pattern**: ORM models MUST NOT contain transformation logic. Use dedicated Mapper classes to translate between Domain models and Database models.
-- **Protected Base Repository**: SqlAlchemyBaseRepository contains all raw DB I/O using protected methods (_add, _get_unique, _paginate_query). Concrete repositories (e.g., SqlAlchemyUsersRepository) implement specific Domain interfaces (IUsersRepository) by calling these protected helpers.
+- **Protected Base Repository**: SqlAlchemyBaseRepository contains all raw DB I/O using protected methods (_add,_get_unique,_paginate_query). Concrete repositories (e.g., SqlAlchemyUsersRepository) implement specific Domain interfaces (IUsersRepository) by calling these protected helpers.
 - **Unit of Work (UoW)**: All database mutations MUST happen within the ApiUnitOfWork context manager. The commit happens automatically on scope exit, ensuring transactional integrity.
 
 ## Database & SQLAlchemy 2.0 Rules

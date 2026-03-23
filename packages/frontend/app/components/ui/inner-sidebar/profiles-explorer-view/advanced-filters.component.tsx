@@ -1,32 +1,21 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { FilterX } from "lucide-react";
-import type { ProfileFilters } from "~/api/profiles.api";
+import type { ProfileFilter } from "~/schemas/dtos/profile.dto";
 import { SelectInput } from "~/components/ui/forms/input/select-input.component";
 import { TextInput } from "~/components/ui/forms/input/text-input.component";
 import { TextAreaInput } from "~/components/ui/forms/input/textarea-input.component";
 import { ToggleInput } from "~/components/ui/forms/input/toggle-input.component";
-import {
-	profileDatasetRoleSchema,
-	profileDatasetRoleValues,
-} from "~/schemas/models/profile-dataset-role.schema";
-import {
-	profileStatusSchema,
-	profileStatusValues,
-} from "~/schemas/models/profile-status.schema";
-import {
-	profileVisibilitySchema,
-	profileVisibilityValues,
-} from "~/schemas/models/profile-visibility.schema";
+import { profileModeSchema } from "~/schemas/domain/enums.schema";
 import { capitalize } from "~/utils/capitalize.util";
 import { validateEnum } from "~/utils/validate-enum.util";
 
 type ProfilesAdvancedFiltersProps = {
 	isAdvancedFilterOpen: boolean;
 	activeFilterCount: number;
-	filters: ProfileFilters;
-	updateFilter: <TKey extends keyof ProfileFilters>(
+	filters: ProfileFilter;
+	updateFilter: <TKey extends keyof ProfileFilter>(
 		key: TKey,
-		value: ProfileFilters[TKey],
+		value: ProfileFilter[TKey],
 	) => void;
 	clearFilters: () => void;
 };
@@ -66,76 +55,36 @@ export function ProfilesAdvancedFilters({
 						</div>
 
 						<div className="space-y-3 flex flex-col">
+							<TextInput
+								label="Name"
+								placeholder="Filter by name..."
+								value={filters.name || ""}
+								onChange={(e) => updateFilter("name", e.target.value)}
+								className="py-1.5 px-2 text-xs bg-white/5 border-white/5 focus:border-primary-500/50"
+								labelClassName="text-[10px]"
+							/>
+
 							<TextAreaInput
 								label="Description"
 								placeholder="Filter by description..."
-								value={filters.description}
+								value={filters.description || ""}
 								onChange={(e) => updateFilter("description", e.target.value)}
 								className="py-1.5 px-2 text-xs bg-white/5 border-white/5 focus:border-primary-500/50"
 								labelClassName="text-[10px]"
 							/>
 
-							<TextInput
-								label="Version"
-								type="number"
-								placeholder="e.g. 1"
-								value={filters.version}
-								onChange={(e) =>
-									updateFilter(
-										"version",
-										e.target.value ? Number(e.target.value) : undefined,
-									)
-								}
-								className="py-1.5 px-2 text-xs bg-white/5 border-white/5 focus:border-primary-500/50"
-								labelClassName="text-[10px]"
-							/>
-
 							<SelectInput
-								label="Status"
+								label="Mode"
 								value={filters.status}
 								onChange={(e) =>
 									updateFilter(
 										"status",
-										validateEnum(e.target.value, profileStatusSchema),
+										validateEnum(e.target.value, profileModeSchema),
 									)
 								}
-								options={profileStatusValues.map((status) => ({
-									label: capitalize(status),
-									value: status,
-								}))}
-								className="py-1.5 px-2 text-xs bg-white/5 border-white/5 focus:border-primary-500/50"
-								labelClassName="text-[10px]"
-							/>
-
-							<SelectInput
-								label="Visibility"
-								value={filters.visibility}
-								onChange={(e) =>
-									updateFilter(
-										"visibility",
-										validateEnum(e.target.value, profileVisibilitySchema),
-									)
-								}
-								options={profileVisibilityValues.map((status) => ({
-									label: capitalize(status),
-									value: status,
-								}))}
-								className="py-1.5 px-2 text-xs bg-white/5 border-white/5 focus:border-primary-500/50"
-								labelClassName="text-[10px]"
-							/>
-
-							<SelectInput
-								label="Dataset Role"
-								value={filters.visibility}
-								onChange={(e) =>
-									updateFilter(
-										"role",
-										validateEnum(e.target.value, profileDatasetRoleSchema),
-									)
-								}
-								options={profileDatasetRoleValues.map((status) => ({
-									label: capitalize(status),
-									value: status,
+								options={profileModeSchema.options.map((mode) => ({
+									label: capitalize(mode),
+									value: mode,
 								}))}
 								className="py-1.5 px-2 text-xs bg-white/5 border-white/5 focus:border-primary-500/50"
 								labelClassName="text-[10px]"
@@ -143,8 +92,8 @@ export function ProfilesAdvancedFilters({
 
 							<ToggleInput
 								label="Authored by me"
-								checked={filters.only_me}
-								onChange={(e) => updateFilter("only_me", e.target.checked)}
+								checked={filters.onlyMe || false}
+								onChange={(e) => updateFilter("onlyMe", e.target.checked)}
 								labelClassName="text-[10px]"
 							/>
 						</div>

@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
-import { authApi } from "~/api/auth.api";
-import type { LoginInput } from "~/schemas/login.schema";
+import { login } from "~/api/auth/auth.api";
+import type { LoginCredentials } from "~/schemas/dtos/auth.dto";
 import { useAuthStore } from "~/stores/auth.store";
 
 export function useLoginMutation() {
@@ -9,8 +9,8 @@ export function useLoginMutation() {
 	const navigate = useNavigate();
 
 	return useMutation({
-		mutationFn: (data: LoginInput) => authApi.login(data),
-		onSuccess: async (response) => {
+		mutationFn: (data: LoginCredentials) => login(data),
+		onSuccess: async (response: any) => {
 			setAuth(response.user);
 			navigate("/");
 		},

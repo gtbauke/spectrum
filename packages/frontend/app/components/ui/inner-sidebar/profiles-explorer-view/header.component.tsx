@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { ProfileFilters } from "~/api/profiles.api";
+import type { ProfileFilter } from "~/schemas/dtos/profile.dto";
 import { cn } from "~/utils/classname.util";
 import { SidebarSearchInput } from "../searchbar.component";
 import { SidebarTitle } from "../title.component";
@@ -7,8 +7,8 @@ import { ProfilesAdvancedFilters } from "./advanced-filters.component";
 
 type HeaderProps = {
     className?: string;
-    filters: ProfileFilters;
-    onFiltersChange: (filters: ProfileFilters) => void;
+    filters: ProfileFilter;
+    onFiltersChange: (filters: ProfileFilter) => void;
 };
 
 export function Header({ className, filters, onFiltersChange }: HeaderProps) {
@@ -18,9 +18,9 @@ export function Header({ className, filters, onFiltersChange }: HeaderProps) {
         ([, val]) => val !== "" && val !== false,
     ).length;
 
-    const updateFilter = <TKey extends keyof ProfileFilters>(
+    const updateFilter = <TKey extends keyof ProfileFilter>(
         key: TKey,
-        value: ProfileFilters[TKey],
+        value: ProfileFilter[TKey],
     ) => {
         onFiltersChange({ ...filters, [key]: value });
     };

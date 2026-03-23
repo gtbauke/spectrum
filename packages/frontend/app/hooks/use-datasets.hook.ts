@@ -1,43 +1,28 @@
-import {
-	type InfiniteData,
-	keepPreviousData,
-	useInfiniteQuery,
-	useQuery,
-} from "@tanstack/react-query";
-import {
-	type DatasetFilters,
-	fetchDatasets,
-	fetchDatasetsPage,
-} from "~/api/datasets.api";
-import type { PaginatedResponse } from "~/api/types.api";
-import type { Dataset } from "~/schemas/models/dataset.schema";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { listDatasets } from "~/api/datasets/list-datasets.api";
+import type { DatasetFilterInput } from "~/schemas/dtos/dataset.dto";
 
-export function useDatasets(filters: DatasetFilters, page: number) {
+export function useDatasets(filters: DatasetFilterInput = {}, pagination: { limit?: number; offset?: number } = {}) {
 	return useQuery({
-		queryKey: ["datasets", filters, page] as const,
-		queryFn: () => fetchDatasetsPage({ filters, page }),
-		placeholderData: keepPreviousData,
+		queryKey: ["datasets", filters, pagination] as const,
+		queryFn: () => listDatasets(filters, pagination),
 	});
 }
 
-export function useInfiniteDatasets(filters: DatasetFilters) {
-	return useInfiniteQuery<
-		PaginatedResponse<Dataset>,
-		Error,
-		InfiniteData<PaginatedResponse<Dataset>>,
-		readonly [string, DatasetFilters],
-		number
-	>({
-		queryKey: ["datasets", filters] as const,
-		queryFn: fetchDatasets,
-		initialPageParam: 1,
-		getNextPageParam: (lastPage) => {
-			if (lastPage.page < lastPage.pages) {
-				return lastPage.page + 1;
-			}
+export function useInfiniteDatasets(filters: DatasetFilterInput = {}) {
+  const limit = 20;
 
-			return undefined;
-		},
-		placeholderData: (previousData) => previousData,
-	});
+  return useInfiniteQuery({
+    queryKey: ["datasets", filters],
+    queryFn: ({ pageParam = 0 }) =>
+      listDatasets(filters, {
+        offset: pageParam as number,
+        limit,
+      }),
+    getNextPageParam: (lastPage, allPages) => {
+      const loadedCount = allPages.length * limit;
+      return loadedCount < lastPage.total ? loadedCount : undefined;
+    },
+    initialPageParam: 0,
+  });
 }

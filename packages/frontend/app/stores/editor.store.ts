@@ -1,5 +1,22 @@
 import { v4 as uuidv4 } from "uuid";
 import { create } from "zustand";
+
+import type { User } from "~/schemas/domain/user.schema";
+import { profileSchema, type Profile } from "~/schemas/domain/profile.schema";
+import { jobSchema, type Job, type Run } from "~/schemas/domain/job.schema";
+import { blockSchema, type Block } from "~/schemas/domain/block.schema";
+import { modelSchema, type Model } from "~/schemas/domain/model.schema";
+
+import { listProfiles } from "../api/profiles/list-profiles.api";
+import { getProfile } from "../api/profiles/get-profile.api";
+import { updateProfile } from "../api/profiles/update-profile.api";
+import { createBlocks } from "../api/profiles/blocks/create-blocks.api";
+import { updateBlock as updateBlockApi } from "../api/profiles/blocks/update-block.api";
+import { bulkUpdateBlocks as bulkUpdateBlocksApi } from "../api/profiles/blocks/bulk-update-blocks.api";
+import { deleteBlock as deleteBlockApi } from "../api/profiles/blocks/delete-block.api";
+import { runJob } from "../api/profiles/jobs/run-job.api";
+import { login, logout, me } from "../api/auth/auth.api";
+
 import type {
 	BlockDataMap,
 	BlockType,
@@ -7,7 +24,18 @@ import type {
 	EditorTab,
 	EditorTabDataMap,
 	EditorTabType,
+	InferenceData,
 } from "~/utils/types/editor.types";
+
+export type {
+	BlockDataMap,
+	BlockType,
+	EditorBlock,
+	EditorTab,
+	EditorTabDataMap,
+	EditorTabType,
+	InferenceData,
+};
 
 const MAX_TAB_HISTORY = 20;
 const MAX_BLOCKS_HISTORY = 50;
@@ -56,6 +84,8 @@ type EditorActions = {
 	commit: () => void;
 	undo: () => void;
 	redo: () => void;
+
+	runInference: (id: string) => Promise<void>;
 };
 
 export type EditorStore = EditorState & EditorActions;
@@ -456,4 +486,53 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 				},
 			};
 		}),
+
+	runInference: async (id) => {
+		const updateBlock = get().updateBlock;
+		const activeTabId = get().activeTabId;
+		if (!activeTabId) return;
+
+		const tab = get().tabs[activeTabId];
+		if (tab.type !== "profile") return;
+
+		// Find the job associated with this inference block
+		// For now, we assume one-to-one or we find the right job by name/metadata
+		// In a real scenario, the block data would hold the job_id
+		const block = tab.data.blocks.find(b => b.id === id);
+		if (!block || block.type !== "inference") return;
+
+		updateBlock(id, { isRunning: true }, { recordHistory: false });
+
+		try {
+			// Find the job in the profile that matches this block (or just use the first one for now)
+			const job = tab.data.profile?.jobs?.[0]; 
+			if (!job) throw new Error("No job found for inference");
+
+			const runResult = await runJob(tab.data.profileId, job.id);
+			
+			if (runResult.success) {
+				const run = runResult.data;
+				// Update block with run info
+				updateBlock(
+					id,
+					{
+						isRunning: false,
+						results: {
+							metrics: {
+								rmse: 0, // Will be updated by worker
+								mae: 0,
+							},
+							formula: "Running...", // Will be updated by worker
+						},
+					},
+					{ recordHistory: true },
+				);
+			} else {
+				throw new Error("Failed to start run");
+			}
+		} catch (error) {
+			console.error("Inference failed:", error);
+			updateBlock(id, { isRunning: false }, { recordHistory: false });
+		}
+	},
 }));

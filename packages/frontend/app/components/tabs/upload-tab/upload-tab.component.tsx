@@ -8,8 +8,11 @@ import { SelectInput } from "~/components/ui/forms/input/select-input.component"
 import { TextInput } from "~/components/ui/forms/input/text-input.component";
 import { TextAreaInput } from "~/components/ui/forms/input/textarea-input.component";
 import { useCreateProfileFromDatasetMutation } from "~/hooks/use-create-profile-from-dataset.hook";
-import { createProfileFromDatasetSchema } from "~/schemas/create-profile-from-dataset.schema";
-import { profileDatasetRoleValues } from "~/schemas/models/profile-dataset-role.schema";
+import { artifactRoleSchema } from "~/schemas/domain/enums.schema";
+import {
+	type CreateProfileFromDatasetDto,
+	createProfileFromDatasetDtoSchema,
+} from "~/schemas/dtos/profile.dto";
 import { capitalize } from "~/utils/capitalize.util";
 import { DatasetPreviewTable } from "./dataset-preview-table.component";
 
@@ -27,11 +30,11 @@ export default function UploadDatasetTabContent() {
 		handleSubmit,
 		reset,
 	} = useForm({
-		resolver: zodResolver(createProfileFromDatasetSchema),
+		resolver: zodResolver(createProfileFromDatasetDtoSchema),
 		defaultValues: {
 			datasetName: "",
 			datasetDescription: "",
-			datasetRole: "training",
+			datasetRole: "data" as const,
 		},
 	});
 
@@ -90,17 +93,11 @@ export default function UploadDatasetTabContent() {
 	};
 
 	const handleUpload = handleSubmit((data) => {
-		console.log(data);
-
-		if (!file) {
-			return;
-		}
+		if (!file) return;
 
 		mutate({
 			file,
-			datasetName: data.datasetName,
-			datasetDescription: data.datasetDescription || "",
-			datasetRole: data.datasetRole,
+			data: data as CreateProfileFromDatasetDto,
 		});
 	});
 
@@ -204,9 +201,7 @@ export default function UploadDatasetTabContent() {
 										label="Dataset Name"
 										required
 										placeholder="e.g., Q3 Marketing Data"
-										{...register("datasetName", {
-											required: "Dataset name is required",
-										})}
+										{...register("datasetName")}
 										error={errors.datasetName}
 										disabled={isPending}
 									/>
@@ -214,12 +209,10 @@ export default function UploadDatasetTabContent() {
 									<SelectInput
 										label="Dataset Role"
 										required
-										{...register("datasetRole", {
-											required: "Dataset role is required",
-										})}
+										{...register("datasetRole")}
 										error={errors.datasetRole}
 										disabled={isPending}
-										options={profileDatasetRoleValues.map((value) => ({
+										options={artifactRoleSchema.options.map((value) => ({
 											label: capitalize(value),
 											value,
 										}))}

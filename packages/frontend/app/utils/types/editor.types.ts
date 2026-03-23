@@ -1,14 +1,15 @@
-import type { ProfileDatasetAssociation } from "~/schemas/models/profile-dataset-association.schema";
-import type { ProfileVisibility } from "~/schemas/models/profile-visibility.schema";
+import type { Profile } from "~/schemas/domain/profile.schema";
+import type { ProfileMode } from "~/schemas/domain/enums.schema";
+import type { Dataset } from "~/schemas/domain/dataset.schema";
 
 export type MetadataData = {
 	name: string;
 	description: string | null | undefined;
-	visibility: ProfileVisibility;
+	mode: ProfileMode;
 };
 
 export type DatasetData = {
-	datasets: ProfileDatasetAssociation[];
+	datasets: Dataset[];
 };
 
 export type JobsData = {
@@ -22,6 +23,8 @@ export type ResultsData = {
 
 export type InferenceData = {
 	code: string;
+	isRunning?: boolean;
+	results?: ResultsData;
 };
 
 export type MarkdownData = {
@@ -53,8 +56,7 @@ export type ProfileTabData = {
 	profileId: string;
 	versionId: string;
 
-	name: string;
-	description: string | null;
+	profile?: Profile;
 
 	blocks: EditorBlock[];
 	isDirty: boolean;
@@ -66,7 +68,7 @@ export type ProfileTabData = {
 };
 
 export type UploadTabData = {
-	name: "upload";
+	name: string;
 	tabId: string;
 	file: File | null;
 };

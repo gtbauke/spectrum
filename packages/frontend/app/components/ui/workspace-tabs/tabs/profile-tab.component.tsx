@@ -16,10 +16,12 @@ export function ProfileTabItem({ tab, onClick, onClose }: ProfileTabItemProps) {
 	const updateTab = useEditorStore((state) => state.updateTab);
 
 	const [isEditing, setIsEditing] = useState(false);
-	const [tempName, setTempName] = useState(tab.name);
+	const [tempName, setTempName] = useState(tab.profile?.name || "Untitled");
 	const inputRef = useRef<HTMLInputElement>(null);
 
 	const isActive = activeTabId === tab.tabId;
+
+	const profileName = tab.profile?.name || "Untitled";
 
 	useEffect(() => {
 		if (isEditing) {
@@ -31,12 +33,16 @@ export function ProfileTabItem({ tab, onClick, onClose }: ProfileTabItemProps) {
 	const handleEditSave = () => {
 		setIsEditing(false);
 
-		if (tempName.trim() && tempName !== tab.name) {
-			updateTab(tab.tabId, "profile", { name: tempName.trim() });
+		if (tempName.trim() && tempName !== profileName) {
+			if (tab.profile) {
+				updateTab(tab.tabId, "profile", {
+					profile: { ...tab.profile, name: tempName.trim() },
+				});
+			}
 			return;
 		}
 
-		setTempName(tab.name);
+		setTempName(profileName);
 	};
 
 	const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -46,7 +52,7 @@ export function ProfileTabItem({ tab, onClick, onClose }: ProfileTabItemProps) {
 
 		if (e.key === "Escape") {
 			setIsEditing(false);
-			setTempName(tab.name);
+			setTempName(profileName);
 		}
 	};
 
@@ -71,13 +77,13 @@ export function ProfileTabItem({ tab, onClick, onClose }: ProfileTabItemProps) {
 			) : (
 				<button
 					type="button"
-					className="truncate select-none cursor-pointer w-full"
+					className="truncate select-none cursor-pointer w-full text-xs font-medium"
 					onDoubleClick={(e) => {
 						e.stopPropagation();
 						setIsEditing(true);
 					}}
 				>
-					{tab.name}
+					{profileName}
 				</button>
 			)}
 		</TabBase>

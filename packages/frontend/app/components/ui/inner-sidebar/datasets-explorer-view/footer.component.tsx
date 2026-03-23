@@ -1,17 +1,21 @@
 import { Plus } from "lucide-react";
 import { Button } from "~/components/ui/buttons/button.component";
 import { useEditorStore } from "~/stores/editor.store";
+import type { UploadTabData } from "~/utils/types/editor.types";
 
 export function Footer() {
 	const openTab = useEditorStore((state) => state.openTab);
 
 	const onAddTabClick = () => {
+		const tabId = crypto.randomUUID();
 		openTab({
 			type: "upload",
-			id: crypto.randomUUID(),
+			id: tabId,
 			data: {
+				tabId,
+				name: "Upload Dataset",
 				file: null,
-			},
+			} as UploadTabData,
 		});
 	};
 

@@ -5,7 +5,7 @@ import { Button } from "~/components/ui/buttons/button.component";
 import { TextInput } from "~/components/ui/forms/input/text-input.component";
 import { RedirectLink } from "~/components/ui/redirects/redirect-link.component";
 import { useSignupMutation } from "~/hooks/use-signup.hook";
-import { signupSchema } from "~/schemas/signup.schema";
+import { signupDtoSchema } from "~/schemas/dtos/auth.dto";
 
 export default function SignUp() {
 	const { mutate, isPending, error } = useSignupMutation();
@@ -14,7 +14,7 @@ export default function SignUp() {
 		handleSubmit,
 		formState: { errors, isValid },
 	} = useForm({
-		resolver: zodResolver(signupSchema),
+		resolver: zodResolver(signupDtoSchema),
 	});
 
 	const onSubmit = handleSubmit((data) => mutate(data));

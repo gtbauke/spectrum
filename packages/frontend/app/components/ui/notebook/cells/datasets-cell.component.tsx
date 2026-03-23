@@ -1,12 +1,12 @@
 import { Plus } from "lucide-react";
-import type { ProfileDatasetAssociation } from "~/schemas/models/profile-dataset-association.schema";
+import type { Dataset } from "~/schemas/domain/dataset.schema";
 
 type DatasetsCellProps = {
-	datasets: ProfileDatasetAssociation[];
+	datasets: Dataset[];
 };
 
 export function DatasetsBlock({ datasets }: DatasetsCellProps) {
-	if (!datasets?.length) {
+	if (!datasets) {
 		return null;
 	}
 
@@ -21,9 +21,10 @@ export function DatasetsBlock({ datasets }: DatasetsCellProps) {
 						key={ds.id}
 						className="flex justify-between items-center p-3 border-b border-white/5 bg-[#111319]/50 hover:bg-white/5 transition-colors text-sm text-gray-300"
 					>
-						<span>{ds.dataset_version?.name || "Dataset"}</span>
+						<span>{ds.name || "Dataset"}</span>
 						<span className="text-[10px] uppercase bg-primary-500/10 text-primary-400 px-2 py-0.5 rounded">
-							{ds.role}
+							{/* Dataset doesn't have a role directly in the domain model, but it might be implied or added later */}
+                            Data
 						</span>
 					</div>
 				))}

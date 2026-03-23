@@ -39,101 +39,77 @@ export function NotebookCell({
 	return (
 		<motion.div
 			layout
-			initial={{ opacity: 0, y: 20, scale: 0.95 }}
-			animate={{ opacity: 1, y: 0, scale: 1 }}
+			initial={{ opacity: 0, y: 10 }}
+			animate={{ opacity: 1, y: 0 }}
 			exit={{
 				opacity: 0,
-				scale: 0.9,
 				y: -10,
-				transition: { duration: 0.2 },
+				transition: { duration: 0.1 },
 			}}
-			transition={{
-				type: "spring",
-				stiffness: 400,
-				damping: 30,
-				opacity: { duration: 0.2 },
-			}}
-			className="group relative flex w-full max-w-4xl mx-auto mb-2"
-			onMouseEnter={() => setIsHovered(true)}
-			onMouseLeave={() => setIsHovered(false)}
-			onKeyDown={handleOnKeyDown}
+			transition={{ duration: 0.2 }}
+			className={cn(
+				"group relative flex flex-col w-full bg-background border-l-2 transition-colors duration-200",
+				isActive ? "border-primary bg-background-surface" : "border-transparent",
+			)}
 			onClick={onClick}
 			dragListener={false}
 			dragControls={dragControls}
 		>
-			<div
-				className={cn(
-					"w-12 shrink-0 flex flex-col items-center pt-3 transition-opacity duration-200",
-					isHovered || isActive ? "opacity-100" : "opacity-0",
-				)}
-			>
-				{moveable && (
-					<button
-						type="button"
-						className="p-1 text-gray-600 hover:text-gray-300 cursor-grab"
-						onPointerDown={(e) => {
-							e.preventDefault();
-							dragControls?.start(e);
-						}}
-					>
-						<GripVertical size={16} />
-					</button>
-				)}
-
-				{onRun && (
-					<button
-						type="button"
-						onClick={(e) => {
-							e.stopPropagation();
-							onRun();
-						}}
-						className="mt-1 p-1.5 rounded-full bg-white/5 text-gray-400 hover:bg-emerald-500/20 hover:text-emerald-400 transition-colors"
-						title="Run cell"
-					>
-						<Play size={14} className="ml-0.5" />
-					</button>
-				)}
-			</div>
-
-			<div
-				className={cn(
-					"flex-1 relative rounded-lg border transition-all duration-200 bg-black/20",
-					isActive
-						? "border-purple-500/50 shadow-[0_0_0_1px_rgba(168,85,247,0.2)]"
-						: "border-white/5 hover:border-white/10",
-				)}
-			>
-				{(isHovered || isActive) && (
-					<div className="absolute -top-2.5 right-4 px-2 py-0.5 bg-[#111319] border border-white/10 rounded text-[9px] font-mono text-gray-500 uppercase tracking-wider z-10">
+			<div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-border opacity-50 group-hover:opacity-100 transition-opacity">
+				<div className="flex items-center gap-4">
+					{moveable && (
+						<button
+							type="button"
+							className="p-1 text-gray-500 hover:text-white cursor-grab active:cursor-grabbing"
+							onPointerDown={(e) => {
+								e.preventDefault();
+								dragControls?.start(e);
+							}}
+						>
+							<GripVertical size={14} />
+						</button>
+					)}
+					<span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">
 						{type}
-					</div>
-				)}
+					</span>
+				</div>
 
-				<div className="p-4 outline-none">{children}</div>
-			</div>
-
-			<div
-				className={cn(
-					"w-10 shrink-0 flex flex-col items-center pt-3 transition-opacity duration-200",
-					isHovered || isActive ? "opacity-100" : "opacity-0",
-				)}
-			>
-				{isDeletable && (
+				<div className="flex items-center gap-2">
+					{onRun && (
+						<button
+							type="button"
+							onClick={(e) => {
+								e.stopPropagation();
+								onRun();
+							}}
+							className="p-1.5 rounded transition-colors hover:bg-emerald-500/10 text-emerald-500/60 hover:text-emerald-500"
+							title="Run cell"
+						>
+							<Play size={12} fill="currentColor" className="opacity-50" />
+						</button>
+					)}
+					{isDeletable && (
+						<button
+							type="button"
+							className="p-1.5 rounded text-gray-500 hover:bg-red-500/10 hover:text-red-500 transition-colors"
+							onClick={(e) => {
+								e.stopPropagation();
+								removeBlock(id);
+							}}
+						>
+							<Trash2 size={12} />
+						</button>
+					)}
 					<button
 						type="button"
-						className="p-1.5 text-gray-600 hover:text-red-400 transition-colors cursor-pointer"
-						onClick={() => removeBlock(id)}
+						className="p-1.5 rounded text-gray-500 hover:bg-white/5 transition-colors"
 					>
-						<Trash2 size={14} />
+						<MoreHorizontal size={12} />
 					</button>
-				)}
-				<button
-					type="button"
-					className="mt-1 p-1.5 text-gray-600 hover:text-gray-300 transition-colors"
-				>
-					<MoreHorizontal size={14} />
-				</button>
+				</div>
 			</div>
+
+			<div className="p-6">{children}</div>
 		</motion.div>
 	);
 }

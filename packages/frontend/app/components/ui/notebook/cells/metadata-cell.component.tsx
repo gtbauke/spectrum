@@ -1,22 +1,33 @@
 import { useRef } from "react";
 import { TextInput } from "~/components/ui/forms/input/text-input.component";
 import { TextAreaInput } from "~/components/ui/forms/input/textarea-input.component";
-import { type MetadataData, useEditorStore } from "~/stores/editor.store";
+import { type EditorTab, useEditorStore } from "~/stores/editor.store";
 
 export function MetadataBlock({
     id,
-    data,
+    tabId,
 }: {
     id: string;
-    data: MetadataData;
+    tabId: string;
 }) {
-    const updateBlock = useEditorStore((state) => state.updateBlock);
+    const tab = useEditorStore((state) => state.tabs[tabId]);
+    if (!tab || tab.type !== "profile") return null;
+
+    const profile = tab.data.profile;
+    const updateTab = useEditorStore((state) => state.updateTab);
     const commit = useEditorStore((state) => state.commit);
 
     const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-    const handleTextChange = (field: string, value: string) => {
-        updateBlock(id, { [field]: value }, { recordHistory: false });
+    const handleTextChange = (field: "name" | "description", value: string) => {
+        if (!profile) return;
+
+        updateTab(tabId, "profile", {
+            profile: {
+                ...profile,
+                [field]: value,
+            }
+        });
 
         if (timerRef.current) {
             clearTimeout(timerRef.current);
@@ -31,8 +42,8 @@ export function MetadataBlock({
         <div className="space-y-4">
             <TextInput
                 label="Profile Name"
-                value={data.name || ""}
-                onChange={(e) => handleTextChange("name", e.target.value)}
+                value={profile?.name || ""}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleTextChange("name", e.target.value)}
                 className="bg-transparent border-none px-0 py-0 text-lg font-medium focus:ring-0"
                 onBlur={() => {
                     if (timerRef.current) {
@@ -44,8 +55,8 @@ export function MetadataBlock({
             />
             <TextAreaInput
                 label="Description"
-                value={data.description || ""}
-                onChange={(e) => handleTextChange("description", e.target.value)}
+                value={profile?.description || ""}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleTextChange("description", e.target.value)}
                 className="bg-transparent border-none px-0 py-0 text-sm focus:ring-0 min-h-15"
                 placeholder="Document the objective..."
                 onBlur={() => {

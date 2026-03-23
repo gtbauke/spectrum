@@ -28,8 +28,7 @@ export default function Home() {
 		}
 
 		if (activeTab.type === "profile") {
-			// return <ProfileEditor version={activeTab.profileVersion} />
-			return <p>NEED TO GET PROFILE VERSION FROM SOMEWHERE</p>;
+			return <ProfileEditor tabId={activeTab.id} />;
 		}
 
 		return <UploadDatasetTabContent />;

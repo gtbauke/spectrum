@@ -1,12 +1,12 @@
 import { useEffect } from "react";
-import type { DatasetFilters } from "~/api/datasets.api";
 import { useInfiniteDatasets } from "~/hooks/use-datasets.hook";
 import { useIntersection } from "~/hooks/use-intersection.hook";
-import type { Dataset } from "~/schemas/models/dataset.schema";
+import type { DatasetFilterInput } from "~/schemas/dtos/dataset.dto";
+import type { Dataset } from "~/schemas/domain/dataset.schema";
 import { DatasetItem } from "./dataset-item.component";
 
 type ResultsProps = {
-	filters: DatasetFilters;
+	filters: DatasetFilterInput;
 };
 
 export function Results({ filters }: ResultsProps) {
