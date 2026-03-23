@@ -10,23 +10,47 @@ A plataforma proposta nesse projeto tem como objetivo principal a manipulação 
 
 Para entender melhor as funcionalidades esperadas da plataforma, primeiro foram elencados os requisitos funcionais e não funcionais do projeto. Segundo o DDD, os requisitos funcionais são aqueles que dizem respeito a ações que podem ser realizadas dentro do sistema desenvolvido. Em outras palavras, os requisitos funcionais dizem o que uma aplicação é capaz de fazer. Por outro lado, os requisitos não funcionais dizem como um sistema opera, delimitando aspectos de segurança, restrições e desempenho da aplicação.
 
-\section{Requisitos funcionais}
-Como os requisitos funcionais dizem respeito as ações que podem ser realizadas dentro de uma aplicação, é comum que eles sejam descritos por meio de Histórias de Usuário (PROCURAR REFERÊNCIA). Essas histórias de usuário descrevem um fluxo de operação do sistema que um usuário pode realizar dentro da aplicação, permitindo entender as funcionalidades da mesma. Nesta seção, os requisitos funcionais do projeto serão descritos por meio de Histórias de Usuário.
+\section{Histórias de Usuário}
+Como os requisitos funcionais dizem respeito às ações que podem ser realizadas dentro de uma aplicação, eles foram descritos por meio de Histórias de Usuário (\textit{User Stories}), técnica amplamente utilizada em metodologias ágeis \cite{cohn2004user}. Essas histórias descrevem um fluxo de operação do sistema sob a perspectiva do ator final, permitindo entender as funcionalidades e o valor de cada entrega.
 
-Além disso, como um dos objetivos do projeto é a criação de uma plataforma de manipulação de algoritmos de regressão simbólica que tenha paridade com as demais ferramentas disponíveis hoje em dia, é importante incorporar funcionalidades que essas ferramentas já possuem, além de acrescentar outras utilidades para o sistema desenvolvido. Dessa forma, o projeto aqui descrito tem os seguintes requisitos funcionais:
-\begin{enumerate}
-    \item O usuário deve ser capaz de fazer \textit{upload} de arquivos CSV contendo dados que poderão ser utilizados para treinamento e verificação dos modelos de regressão;
-    \item O usuário deve ser capaz de criar conjuntos de dados aleatórios;
-    \item O usuário deve ser capaz de treinar modelos de regressão simbólica, configurando seus meta-parâmetros de todas as formas possíveis (limitado apenas pelas capacidades das bibliotecas utilizadas);
-    \item O usuário deve ser capaz de extrair as principais expressões de um modelo por meio de uma linguagem similar ao SQL;
-    \item O usuário deve ser capaz de observar métricas relacionadas a performance e desempenho de seus modelos de regressão;
-    \item O usuário deve ser capaz de utilizar os modelos treinados para previsão de dados não presentes nos conjuntos de dados de testes;
-\end{enumerate}
+Além disso, como um dos objetivos do projeto é a criação de uma plataforma de manipulação de algoritmos de regressão simbólica que tenha paridade com as ferramentas comerciais disponíveis (como TuringBot e HeuristicLab), incorporou-se funcionalidades consolidadas no mercado juntamente com as inovações propostas pelo Spectrum (como a linguagem IQL). Dessa forma, o projeto aqui descrito possui os seguintes requisitos funcionais, estratificados pelas seguintes histórias de usuário principais:
+
+\begin{itemize}
+    \item \textbf{US1 - Upload de Dados}: Como pesquisador, quero fazer \textit{upload} de arquivos CSV para que eu possa utilizar meus próprios dados experimentais no treinamento de modelos.
+    \item \textbf{US2 - Datasets Aleatórios}: Como desenvolvedor, quero gerar conjuntos de dados aleatórios para testar o comportamento dos algoritmos em diferentes cenários matemáticos.
+    \item \textbf{US3 - Treinamento de Modelos}: Como usuário, quero configurar os meta-parâmetros do algoritmo Eggp para que eu possa otimizar a busca por expressões que respeitem restrições específicas de domínio.
+    \item \textbf{US4 - Consulta IQL}: Como analista de dados, quero consultar expressões encontradas através da linguagem IQL para identificar padrões matemáticos de interesse na fronteira de Pareto.
+    \item \textbf{US5 - Visualização de Métricas}: Como pesquisador, quero observar métricas de performance (MSE, R²) e complexidade estrutural para facilitar a seleção do modelo mais adequado.
+    \item \textbf{US6 - Predição e Validação}: Como usuário, quero utilizar os modelos treinados para realizar previsões em novos dados, validando a generalização da solução encontrada.
+\end{itemize}
+
+\section{Interface Web e Blocos de Visualização}
+A plataforma Spectrum utiliza uma interface baseada em "blocos" para visualização e manipulação de dados, permitindo que a interface se adapte às necessidades de cada perfil de usuário. Cada perfil pode ser personalizado com blocos modulares, tais como:
+\begin{itemize}
+    \item \textbf{Bloco de Metadados}: Exibe informações fundamentais do conjunto de dados, como número de amostras, tipos de variáveis e estatísticas descritivas básicas;
+    \item \textbf{Bloco de Gráficos}: Renderiza dispersões multidimensionais e as curvas de ajuste dos modelos SR em tempo real, utilizando bibliotecas gráficas interativas;
+    \item \textbf{Bloco de Editor IQL}: Provê uma interface de codificação com realce de sintaxe para execução de consultas declarativas sobre os modelos de regressão;
+    \item \textbf{Bloco de Markdown}: Permite a documentação textual diretamente na plataforma, integrando anotações do pesquisador aos experimentos realizados.
+\end{itemize}
 
 \section{Requisitos não-funcionais}
+Os requisitos não-funcionais definem as restrições e qualidades do sistema Spectrum. Para esta plataforma, os seguintes requisitos foram estabelecidos:
+\begin{enumerate}
+    \item \textbf{Segurança}: A autenticação deve ser realizada via JSON Web Tokens (JWT) armazenados em cookies \textit{HttpOnly} para mitigar ataques de Cross-Site Scripting (XSS);
+    \item \textbf{Desempenho}: O treinamento de modelos, por ser uma tarefa intensiva em termos de CPU, deve ser executado de forma assíncrona em processos separados (\textit{workers});
+    \item \textbf{Integridade}: Todas as mutações no banco de dados devem seguir o padrão \textit{Unit of Work}, garantindo a atomicidade das transações;
+    \item \textbf{Portabilidade}: O sistema deve ser capaz de ser executado em diferentes ambientes por meio de conteinerização com Docker.
+\end{enumerate}
 
-\section{Arquitetura}
+\section{Arquitetura do Backend}
+O back-end do projeto foi desenvolvido seguindo o padrão monólito modularizado, em oposição a uma arquitetura de micro-serviços pura, visando reduzir a complexidade de rede sem abrir mão da separação de responsabilidades. O servidor é responsável por gerenciar as principais entidades do sistema:
+\begin{itemize}
+    \item \textbf{User}: Representa os usuários da plataforma;
+    \item \textbf{Dataset}: Metadados e referências aos arquivos CSV de dados;
+    \item \textbf{Job}: Representa uma solicitação de treinamento de modelo;
+    \item \textbf{Run}: O resultado de um treinamento, contendo as expressões encontradas;
+    \item \textbf{Profile}: Personalização da interface e blocos de visualização para o usuário.
+\end{itemize}
 
-\section{Back-end}
-O back-end do projeto foi desenvolvido tendo de acordo com o padrão monólito (PRECISO DE UMA CITAÇÃO) de desenvolvimento de código, em oposição ao padrão de micro-serviços. Dessa forma, o servidor é responsável por gerenciar todas as entidades presentes na aplicação (ver lista COLOCAR LISTA DE ENTIDADES).
+O desenvolvimento foi guiado por padrões de projeto como \textit{Repository} e \textit{Data Mapper}, assegurando que as entidades de domínio permaneçam puras e desacopladas da tecnologia de persistência.
 

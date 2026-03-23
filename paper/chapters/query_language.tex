@@ -1,11 +1,56 @@
 \chapter{Linguagem de domínio para exploração de Regressão Simbólica}
 
 \section{Contexto}
-A plataforma proposta nesse projeto tem como um dos objetivos principais permitir a manipulação de modelos de regressão simbólica de maneira similar a outras ferramentas já bem conhecidas no mundo da análise de dados. Uma das ferramentas mais utilizadas na Ciência de Dados é a Structured Query Language (SQL), linguagem de domínio (PRECISO DE REFERÊNCIA) que permite a interação com bancos de dados.
+A plataforma proposta nesse projeto tem como um dos objetivos principais permitir a manipulação de modelos de regressão simbólica de maneira similar a outras ferramentas já bem conhecidas no mundo da análise de dados. Uma das ferramentas mais utilizadas na Ciência de Dados é a Structured Query Language (SQL), uma linguagem de domínio~\cite{sommerville2011software} que permite a interação com bancos de dados relacionais.
 
-SQL é uma linguagem de domínio, ou seja, uma linguagem que busca resolver um problema específico do universo para qual ela foi pensada. No caso do SQL, o problema que ela resolve é a busca e processamento de dados em bancos de dados relacionais.
+SQL é uma linguagem de domínio (Domain-Specific Language - DSL), ou seja, uma linguagem que busca resolver um problema específico do universo para qual ela foi pensada. No caso do SQL, o problema que ela resolve é a busca e processamento de dados em bancos de dados relacionais. Outras linguagens de domínio são amplamente utilizadas em computação para simplificar tarefas complexas por meio de abstrações declarativas.
 
 Para facilitar o uso da ferramenta \textit{rEGGression}~\cite{rEGGression} e permitir o uso da plataforma proposta por usuários que já tem conhecimento prático em outras ferramentas voltadas para predição de dados que se utilizam de dialetos SQL, além da plataforma, este trabalho propõe uma linguagem de domínio denominada Inference Query Language (IQL), com sintaxe similar ao SQL.
 
 \section{Inference Query Language}
-Assim como o SQL, o IQL é uma linguagem declarativa. Linguagem declarativas são aquelas em que o programador diz o que ele precisa que o programa faça e não como ele deve agir (PRECISO DE REFERÊNCIA).
+A Inference Query Language (IQL) foi concebida para permitir que usuários possam consultar soluções dentro de um modelo de regressão simbólica de forma declarativa. Em sistemas de regressão simbólica baseados em grafos de igualdade, como o Eggp~\cite{eggp}, o espaço de soluções pode conter milhares de expressões equivalentes ou sub-expressões que podem ser de interesse para o pesquisador.
+
+Assim como o SQL, o IQL é uma linguagem declarativa. Linguagens declarativas são aquelas em que o programador descreve o que ele deseja obter, sem especificar o fluxo de controle ou os passos procedimentais para alcançar esse resultado~\cite{sommerville2011software}. No contexto do IQL, o usuário pode especificar padrões matemáticos, restrições de complexidade ou métricas de erro, e o sistema é responsável por realizar a busca e filtragem no e-graph.
+
+\subsection{Gramática Formal}
+A IQL é composta por uma sintaxe inspirada no padrão ANSI SQL. Uma consulta básica segue a seguinte estrutura:
+
+\begin{lstlisting}[language=sql, caption=Estrutura básica de uma consulta IQL]
+SELECT <campos> 
+FROM [PARETO | TOP <n>] 
+[WHERE <condicoes>] 
+[PATTERN IS LIKE <padrao>] 
+[ORDER BY <campos> [ASC | DESC]]
+\end{lstlisting}
+
+Os principais componentes da linguagem são:
+\begin{itemize}
+    \item \textbf{SELECT}: Determina quais atributos das expressões serão retornados (ex: \textit{expression, error, complexity});
+    \item \textbf{FROM PARETO}: Filtra as soluções que pertencem à frente de Pareto do modelo, priorizando o equilíbrio entre erro e simplicidade;
+    \item \textbf{FROM TOP <n>}: Seleciona as $n$ melhores expressões baseadas na métrica de erro;
+    \item \textbf{WHERE}: Permite a aplicação de filtros lógicos e aritméticos sobre as métricas (ex: \textit{error < 0.01 AND complexity < 10});
+    \item \textbf{PATTERN IS LIKE}: Introduz uma busca estrutural baseada em padrões de árvores de sintaxe. Utiliza curingas para identificar sub-expressões específicas.
+    \item \textbf{ORDER BY}: Define a ordenação dos resultados.
+\end{itemize}
+
+\subsection{Exemplos de Consultas}
+Abaixo são apresentados exemplos de como a IQL pode ser utilizada para extrair conhecimento de modelos SR complexos:
+
+\begin{enumerate}
+    \item \textbf{Busca por modelos simples na fronteira de Pareto}:
+    \begin{lstlisting}[language=sql]
+    SELECT expression, error FROM PARETO WHERE complexity <= 5
+    \end{lstlisting}
+    
+    \item \textbf{Filtragem por padrão estrutural (ex: funções periódicas)}:
+    \begin{lstlisting}[language=sql]
+    SELECT * FROM TOP 10 PATTERN IS LIKE "sin(*)"
+    \end{lstlisting}
+    
+    \item \textbf{Busca por interações específicas entre variáveis}:
+    \begin{lstlisting}[language=sql]
+    SELECT expression, complexity FROM PARETO WHERE expression IS LIKE "* * x1"
+    \end{lstlisting}
+\end{enumerate}
+
+O uso da IQL permite que o pesquisador aplique o conhecimento prévio sobre o fenômeno físico diretamente no processo de seleção de modelos, algo que é dificultado em ferramentas de regressão tradicionais que retornam apenas a melhor solução numérica disponível.

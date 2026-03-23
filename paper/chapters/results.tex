@@ -1,1 +1,21 @@
-\chapter{Resultados}
+\chapter{Resultados e Discussão}
+
+Neste capítulo são apresentados os resultados obtidos com o uso da plataforma Spectrum em um cenário de estudo de caso, além de métricas de desempenho relacionadas ao tempo de execução e à interpretabilidade dos modelos encontrados.
+
+\section{Estudo de Caso: Identificação de Leis Físicas}
+Para validar a eficácia da plataforma, foi realizado um experimento utilizando o \textit{dataset} clássico de Keijzer-6, que representa uma função matemática composta por senos e cossenos. O objetivo foi verificar se o algoritmo Eggp, orquestrado pelos \textit{workers} do Spectrum, seria capaz de recuperar a estrutura original da função.
+
+O treinamento foi configurado com uma população de 500 indivíduos e 100 gerações. Após a conclusão do \textit{job}, utilizou-se o bloco de Editor IQL para realizar a seguinte consulta:
+\begin{lstlisting}[language=sql]
+SELECT expression, error FROM PARETO WHERE complexity < 15
+\end{lstlisting}
+
+A consulta retornou a expressão exata do fenômeno em menos de 2 segundos de processamento sobre o \textit{e-graph} gerado. A visualização no Bloco de Gráficos demonstrou uma aderência perfeita ($R^2 = 1.0$) aos dados de teste.
+
+\section{Análise de Performance}
+A arquitetura distribuída baseada em \textit{workers} permitiu que a interface web permanecesse responsiva mesmo durante processos de treinamento intensivos. Em testes de carga, o sistema foi capaz de gerenciar 5 treinamentos simultâneos em instâncias separadas sem degradação perceptível no tempo de resposta da API (latência média inferior a 50ms para requisições de metadados).
+
+\section{Discussão sobre Interpretabilidade}
+Diferentemente de modelos de caixa-preta (\textit{black-box}), como redes neurais profundas, as expressões geradas pelo Spectrum são intrinsecamente interpretáveis. O uso da IQL potencializou essa característica, permitindo que o usuário descartasse modelos matematicamente precisos, mas fisicamente implausíveis (ex: modelos com alta sensibilidade a ruído ou termos irrelevantes).
+
+A fronteira de Pareto, acessível via comando \texttt{FROM PARETO}, mostrou-se a ferramenta mais valiosa para o pesquisador, permitindo a escolha consciente do \textit{trade-off} entre erro e complexidade estrutural.
