@@ -11,10 +11,7 @@ export function useCreateProfileFromDatasetMutation() {
 		mutationFn: ({ file, data }: { file: File; data: CreateProfileFromDatasetDto }) =>
 			createProfileFromDataset(file, data),
 
-		onSuccess: (result) => {
-			if (!result.success) return;
-			const newProfile = result.data;
-
+		onSuccess: (newProfile) => {
 			queryClient.invalidateQueries({ queryKey: ["profiles"] });
 			queryClient.invalidateQueries({ queryKey: ["datasets"] });
 

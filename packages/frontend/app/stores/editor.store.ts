@@ -86,6 +86,7 @@ type EditorActions = {
 	redo: () => void;
 
 	runInference: (id: string) => Promise<void>;
+	initializeProfileBlocks: (id: string, profile: Profile) => void;
 };
 
 export type EditorStore = EditorState & EditorActions;
@@ -505,34 +506,96 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 
 		try {
 			// Find the job in the profile that matches this block (or just use the first one for now)
-			const job = tab.data.profile?.jobs?.[0]; 
+			const job = tab.data.profile?.jobs?.[0];
 			if (!job) throw new Error("No job found for inference");
 
-			const runResult = await runJob(tab.data.profileId, job.id);
-			
-			if (runResult.success) {
-				const run = runResult.data;
-				// Update block with run info
-				updateBlock(
-					id,
-					{
-						isRunning: false,
-						results: {
-							metrics: {
-								rmse: 0, // Will be updated by worker
-								mae: 0,
-							},
-							formula: "Running...", // Will be updated by worker
+			const run = await runJob(tab.data.profileId, job.id);
+
+			// Update block with run info
+			updateBlock(
+				id,
+				{
+					isRunning: false,
+					results: {
+						metrics: {
+							rmse: 0, // Will be updated by worker
+							mae: 0,
 						},
+						formula: "Running...", // Will be updated by worker
 					},
-					{ recordHistory: true },
-				);
-			} else {
-				throw new Error("Failed to start run");
-			}
+				},
+				{ recordHistory: true },
+			);
 		} catch (error) {
 			console.error("Inference failed:", error);
 			updateBlock(id, { isRunning: false }, { recordHistory: false });
 		}
 	},
+	initializeProfileBlocks: (id: string, profile) =>
+		set((state) => {
+			const tab = state.tabs[id];
+			if (!tab || tab.type !== "profile") return state;
+
+			const fixedBlocks: EditorBlock[] = [
+				{
+					id: `${id}-metadata`,
+					type: "metadata",
+					data: {
+						name: profile.name,
+						description: profile.description,
+						mode: profile.mode,
+					},
+				},
+				{
+					id: `${id}-datasets`,
+					type: "datasets",
+					data: { datasets: profile.datasets || [] },
+				},
+				{
+					id: `${id}-jobs`,
+					type: "jobs",
+					data: { profileId: profile.id },
+				},
+			];
+
+			// Map dynamic blocks from the backend profile
+			const dynamicBlocks: EditorBlock[] = (profile.blocks || []).map((b) => {
+				if (b.kind === "markdown") {
+					return {
+						id: b.id,
+						type: "markdown",
+						data: { value: b.data.data },
+					} as EditorBlock;
+				}
+				return {
+					id: b.id,
+					type: "inference",
+					data: { code: b.data.data },
+				} as EditorBlock;
+			});
+
+			// If no dynamic blocks, add a default markdown block
+			if (dynamicBlocks.length === 0) {
+				dynamicBlocks.push({
+					id: uuidv4(),
+					type: "markdown",
+					data: { value: "# Getting Started\n\nWrite your analysis here..." },
+				});
+			}
+
+			return {
+				tabs: {
+					...state.tabs,
+					[id]: {
+						...tab,
+						data: {
+							...tab.data,
+							profile,
+							blocks: [...fixedBlocks, ...dynamicBlocks],
+							isDirty: false,
+						},
+					},
+				},
+			};
+		}),
 }));

@@ -1,7 +1,13 @@
+import { useEffect } from "react";
 import { AnimatePresence, type DragControls, Reorder } from "framer-motion";
 import { NotebookCell } from "~/components/ui/notebook/cell.component";
 import { useKeyboardShortcut } from "~/hooks/use-keyboard-shortcut.hook";
-import { type EditorBlock, useEditorStore } from "~/stores/editor.store";
+import { useProfile } from "~/hooks/use-profiles.hook";
+import {
+	type EditorBlock,
+	useEditorStore,
+} from "~/stores/editor.store";
+import type { ProfileTabData } from "~/utils/types/editor.types";
 import { DatasetsBlock } from "./cells/datasets-cell.component";
 import { InferenceBlock } from "./cells/inference-cell.component";
 import { JobsBlock } from "./cells/jobs-cell.component";
@@ -9,6 +15,7 @@ import { MarkdownBlock } from "./cells/markdown-cell.component";
 import { MetadataBlock } from "./cells/metadata-cell.component";
 import { DraggableItem } from "./draggable-item.component";
 import { EditorToolbar } from "./editor-toolbar.component";
+import { ProfileSkeleton } from "./profile-skeleton.component";
 
 type ProfileEditorProps = {
 	tabId: string;
@@ -16,6 +23,23 @@ type ProfileEditorProps = {
 
 export function ProfileEditor({ tabId }: ProfileEditorProps) {
 	const tab = useEditorStore((state) => state.tabs[tabId]);
+	const initializeProfileBlocks = useEditorStore(
+		(state) => state.initializeProfileBlocks,
+	);
+
+	const { data: profile, isLoading } = useProfile(
+		tab?.type === "profile" ? tab.data.profileId : null,
+	);
+
+	useEffect(() => {
+		if (
+			profile &&
+			tab?.type === "profile" &&
+			!(tab.data as ProfileTabData).profile
+		) {
+			initializeProfileBlocks(tabId, profile);
+		}
+	}, [profile, tabId, tab, initializeProfileBlocks]);
 
 	const setActiveBlock = useEditorStore((state) => state.setActiveBlock);
 	const reorderBlocks = useEditorStore((state) => state.reorderBlocks);
@@ -30,14 +54,29 @@ export function ProfileEditor({ tabId }: ProfileEditorProps) {
 		return null;
 	}
 
-	const { blocks, activeBlockId } = tab.data;
+	const profileData = tab.data as ProfileTabData;
 
-	const fixedBlocks = blocks.filter((b) =>
+	if (isLoading && !profileData.profile) {
+		return (
+			<div className="flex-1 h-full overflow-y-auto custom-scrollbar bg-background">
+				<div className="sticky top-0 z-40 w-full flex justify-center py-4 pointer-events-none">
+					<div className="pointer-events-auto">
+						<EditorToolbar />
+					</div>
+				</div>
+				<ProfileSkeleton />
+			</div>
+		);
+	}
+
+	const { blocks, activeBlockId } = profileData;
+
+	const fixedBlocks = blocks.filter((b: EditorBlock) =>
 		["metadata", "datasets", "jobs"].includes(b.type),
 	);
 
 	const dynamicBlocks = blocks.filter(
-		(b) => !["metadata", "datasets", "jobs"].includes(b.type),
+		(b: EditorBlock) => !["metadata", "datasets", "jobs"].includes(b.type),
 	);
 
 	const renderBlock = (
@@ -106,7 +145,7 @@ export function ProfileEditor({ tabId }: ProfileEditorProps) {
 					}}
 				>
 					<AnimatePresence initial={false} mode="popLayout">
-						{dynamicBlocks.map((block, index) => (
+						{dynamicBlocks.map((block: EditorBlock, index: number) => (
 							<DraggableItem
 								key={block.id}
 								isLast={index === blocks.length - 1}

@@ -7,10 +7,10 @@ import {
 } from "lucide-react";
 import { useEditorStore } from "~/stores/editor.store";
 import { cn } from "~/utils/classname.util";
-import type { ProfileSummary } from "~/schemas/responses/profiles/profile-summary.schema";
+import type { Profile } from "~/schemas/domain/profile.schema";
 
 type ProfileItemProps = {
-	profile: ProfileSummary;
+	profile: Profile;
 	active?: boolean;
 };
 
