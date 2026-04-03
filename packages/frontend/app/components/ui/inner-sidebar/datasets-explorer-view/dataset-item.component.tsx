@@ -1,9 +1,7 @@
-import {
-	Database,
-	FileText,
-	MoreVertical,
-} from "lucide-react";
+import { Database, FileText, Import } from "lucide-react";
+import { IconButton } from "~/components/ui/buttons/icon-button.component";
 import type { Dataset } from "~/schemas/domain/dataset.schema";
+import { useEditorStore } from "~/stores/editor.store";
 import { cn } from "~/utils/classname.util";
 
 type DatasetItemProps = {
@@ -22,17 +20,24 @@ function formatBytes(bytes: number) {
 }
 
 export function DatasetItem({ dataset, active = false }: DatasetItemProps) {
+	const openTab = useEditorStore((s) => s.openTab);
+
 	const mainArtifact = dataset.artifacts.find(
 		(a) => a.role === "data" || a.role === "validation",
 	);
 
 	const type = mainArtifact?.path.endsWith(".csv") ? "CSV" : "FILE";
-	const size = mainArtifact ? formatBytes(mainArtifact.sizeInBytes) : "N/A";
+	const size = formatBytes(
+		dataset.artifacts.reduce((acc, artifact) => acc + artifact.sizeInBytes, 0),
+	);
+
+	const onImportIconClick = () => {
+		// TODO: Import to current active profile. For now, it will create a new profile with the dataset as source.
+	};
 
 	return (
 		<div className="flex flex-col">
-			<button
-				type="button"
+			<div
 				className={cn(
 					"group flex items-center justify-between p-2 rounded-md cursor-pointer transition-colors",
 					active
@@ -47,22 +52,20 @@ export function DatasetItem({ dataset, active = false }: DatasetItemProps) {
 						<FileText size={14} className="text-orange-400" />
 					)}
 					<div className="flex flex-col truncate items-start text-left">
-						<span className="text-xs font-medium truncate">
-							{dataset.name}
-						</span>
+						<span className="text-xs font-medium truncate">{dataset.name}</span>
 						<span className="text-[10px] text-gray-600">
 							{size} • {type}
 						</span>
 					</div>
 				</div>
 
-				<button
-					type="button"
-					className="opacity-0 group-hover:opacity-100 p-1 hover:bg-white/10 rounded transition-all cursor-pointer"
-				>
-					<MoreVertical size={14} />
-				</button>
-			</button>
+				<IconButton
+					Icon={Import}
+					variant="sm"
+					className="hover:text-primary-500 hover:bg-primary-500/10"
+					onClick={onImportIconClick}
+				/>
+			</div>
 		</div>
 	);
 }

@@ -1,18 +1,31 @@
 import type { LucideIcon } from "lucide-react";
 import { cn } from "~/utils/classname.util";
 
-type IconButtonProps = {
+type IconButtonProps = React.InputHTMLAttributes<HTMLButtonElement> & {
 	Icon: LucideIcon;
 	className?: string;
-} & React.InputHTMLAttributes<HTMLButtonElement>;
+	variant?: "sm" | "md" | "lg";
+};
 
-export function IconButton({ Icon, className, ...props }: IconButtonProps) {
+export function IconButton({
+	Icon,
+	className,
+	variant: size = "md",
+	...props
+}: IconButtonProps) {
+	const sizeClasses = {
+		sm: "min-w-8 min-h-8",
+		md: "min-w-10 min-h-10",
+		lg: "min-w-12 min-h-12",
+	};
+
 	return (
 		<button
 			{...props}
 			type="button"
 			className={cn(
-				"min-w-10 min-h-10 flex items-center rounded justify-center cursor-pointer",
+				"flex items-center rounded justify-center cursor-pointer",
+				sizeClasses[size],
 				className,
 			)}
 		>

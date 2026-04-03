@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useCreateProfileFromDatasetMutation } from "~/hooks/use-create-profile-from-dataset.hook";
+import { useCreateDatasetMutation } from "~/hooks/use-create-dataset-mutation.hook";
 import { createDatasetWithMultipleArtifactsSchema } from "~/schemas/dtos/dataset.dto";
 import { DatasetPreviewTable } from "./dataset-preview-table.component";
 import { EditDatasetForm } from "./edit-dataset-form.component";
@@ -31,7 +31,7 @@ export default function UploadDatasetTabContent() {
 		mutate,
 		isPending,
 		error: mutationError,
-	} = useCreateProfileFromDatasetMutation();
+	} = useCreateDatasetMutation();
 
 	const handleUpload = handleSubmit((data) => {
 		console.log("Form Data:", data);
@@ -42,10 +42,20 @@ export default function UploadDatasetTabContent() {
 			return;
 		}
 
-		// mutate({
-		// 	file,
-		// 	data: data as CreateProfileFromDatasetDto,
-		// });
+		const fileList = Object.values(files).map((f) => f.file);
+
+		mutate(
+			{
+				files: fileList,
+				data,
+			},
+			{
+				onSuccess: () => {
+					reset();
+					resetUploads();
+				},
+			},
+		);
 	});
 
 	const handleCancel = () => {

@@ -29,7 +29,7 @@ export const datasetSchema = baseMutableObject
 		description: z.string(),
 		owner_id: z.uuid(),
 		visibility: datasetVisibilitySchema,
-		artifacts: z.array(z.any()),
+		artifacts: z.array(artifactSchema),
 		deleted_at: z.coerce.date().nullable().optional(),
 	})
 	.transform((data) => ({
@@ -38,7 +38,7 @@ export const datasetSchema = baseMutableObject
 		description: data.description,
 		ownerId: data.owner_id,
 		visibility: data.visibility,
-		artifacts: (data.artifacts || []) as Artifact[],
+		artifacts: data.artifacts,
 		deletedAt: data.deleted_at,
 		createdAt: data.created_at,
 		updatedAt: data.updated_at,
