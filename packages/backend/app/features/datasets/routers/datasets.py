@@ -1,3 +1,4 @@
+import json
 from uuid import UUID
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, status, UploadFile, File, Form, Query
@@ -33,7 +34,8 @@ async def upload_dataset(
     name: str = Form(...),
     description: str = Form(""),
     visibility: DatasetVisibility = Form(DatasetVisibility.PRIVATE),
-    file: UploadFile = File(...),
+    files: list[UploadFile] = File(...),
+    roles: str = Form(...),
     current_user_id: UUID = Depends(get_current_user),
     uow: UnitOfWork = Depends(get_uow)
 ):
@@ -44,18 +46,28 @@ async def upload_dataset(
         visibility=visibility
     )
 
-    path = f"datasets/{dataset.id}/artifacts/{file.filename}"
-    upload_result = await uow.file_storage.upload(path=path, file=file.file)
+    try:
+        parsed_roles = json.loads(roles)
+        roles_map = {item["fileName"]: item["role"] for item in parsed_roles}
+    except json.JSONDecodeError:
+        raise ValueError("Invalid JSON for roles")
 
-    artifact = Artifact(
-        dataset_id=dataset.id,
-        checksum=upload_result.checksum,
-        size_in_bytes=upload_result.size,
-        path=upload_result.path,
-        role=ArtifactRole.DATA
-    )
+    for file in files:
+        path = f"datasets/{dataset.id}/artifacts/{file.filename}"
+        upload_result = await uow.file_storage.upload(path=path, file=file.file)
 
-    dataset.artifacts.append(artifact)
+        role = ArtifactRole(roles_map.get(file.filename, ArtifactRole.DATA))
+
+        artifact = Artifact(
+            dataset_id=dataset.id,
+            checksum=upload_result.checksum,
+            size_in_bytes=upload_result.size,
+            path=upload_result.path,
+            role=role,
+        )
+
+        dataset.artifacts.append(artifact)
+
     await uow.datasets.add(dataset)
 
     return dataset
