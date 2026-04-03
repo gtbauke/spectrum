@@ -3,10 +3,7 @@ import { AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useCreateProfileFromDatasetMutation } from "~/hooks/use-create-profile-from-dataset.hook";
-import {
-	type CreateProfileFromDatasetDto,
-	createProfileFromDatasetDtoSchema,
-} from "~/schemas/dtos/profile.dto";
+import { createDatasetWithMultipleArtifactsSchema } from "~/schemas/dtos/dataset.dto";
 import { DatasetPreviewTable } from "./dataset-preview-table.component";
 import { EditDatasetForm } from "./edit-dataset-form.component";
 import { useFileUpload } from "./file-upload.context";
@@ -14,21 +11,19 @@ import { UploadFileContainer } from "./upload-file-container.component";
 
 export default function UploadDatasetTabContent() {
 	const [isDragging, setIsDragging] = useState(false);
-	const { files, reset: resetUploads } = useFileUpload();
+	const { files, reset: resetUploads, selectedFileName } = useFileUpload();
 
 	const hasFiles = Object.keys(files).length > 0;
 
-	const {
-		formState: { errors, isValid },
-		register,
-		handleSubmit,
-		reset,
-	} = useForm({
-		resolver: zodResolver(createProfileFromDatasetDtoSchema),
+	const { formState, register, handleSubmit, reset } = useForm({
+		resolver: zodResolver(createDatasetWithMultipleArtifactsSchema),
 		defaultValues: {
 			datasetName: "",
 			datasetDescription: "",
-			datasetRole: "data" as const,
+			roles: Object.entries(files).map(([fileName]) => ({
+				fileName,
+				role: undefined,
+			})),
 		},
 	});
 
@@ -39,6 +34,9 @@ export default function UploadDatasetTabContent() {
 	} = useCreateProfileFromDatasetMutation();
 
 	const handleUpload = handleSubmit((data) => {
+		console.log("Form Data:", data);
+		console.log("Files:", files);
+
 		const filesArray = Object.values(files);
 		if (filesArray.length === 0) {
 			return;
@@ -48,14 +46,19 @@ export default function UploadDatasetTabContent() {
 		// 	file,
 		// 	data: data as CreateProfileFromDatasetDto,
 		// });
-		console.log("Form Data:", data);
-		console.log("Selected File:", filesArray);
 	});
 
 	const handleCancel = () => {
 		reset();
 		resetUploads();
 	};
+
+	const shouldShowPreview =
+		selectedFileName && !files[selectedFileName].isParsing;
+	const previewData = shouldShowPreview
+		? files[selectedFileName]?.previewData
+		: [];
+	const columns = shouldShowPreview ? files[selectedFileName]?.columns : [];
 
 	return (
 		<div className="flex flex-col h-screen bg-[#0d0e12] text-gray-200">
@@ -85,19 +88,22 @@ export default function UploadDatasetTabContent() {
 						isPending={isPending}
 						handleUpload={handleUpload}
 						handleCancel={handleCancel}
-						isValid={isValid}
+						isValid={formState.isValid}
 					/>
 				)}
 
-				{/* {file && !isParsing && previewData.length > 0 && (
-					<div className="space-y-4">
-						<h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">
-							Data Preview (First 50 Rows)
-						</h3>
+				{shouldShowPreview &&
+					previewData &&
+					columns &&
+					previewData.length > 0 && (
+						<div className="space-y-4">
+							<h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">
+								Data Preview for {selectedFileName} (First 50 Rows)
+							</h3>
 
-						<DatasetPreviewTable data={previewData} columns={columns} />
-					</div>
-				)} */}
+							<DatasetPreviewTable data={previewData} columns={columns} />
+						</div>
+					)}
 			</div>
 		</div>
 	);

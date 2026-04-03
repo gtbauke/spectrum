@@ -1,21 +1,27 @@
-import { CheckCircle2, File } from "lucide-react";
+import { Eye, File, Trash2 } from "lucide-react";
 import type { UseFormRegister } from "react-hook-form";
 import { Button } from "~/components/ui/buttons/button.component";
+import { IconButton } from "~/components/ui/buttons/icon-button.component";
 import { SelectInput } from "~/components/ui/forms/input/select-input.component";
 import { TextInput } from "~/components/ui/forms/input/text-input.component";
 import { TextAreaInput } from "~/components/ui/forms/input/textarea-input.component";
-import { artifactRoleSchema } from "~/schemas/domain/enums.schema";
+import {
+	type ArtifactRole,
+	artifactRoleSchema,
+} from "~/schemas/domain/enums.schema";
 import { capitalize } from "~/utils/capitalize.util";
 import { useFileUpload } from "./file-upload.context";
-import { SelectFileDropdown } from "./select-file-dropdown.component";
 
 type EditDatasetFormProps = {
 	handleUpload: (e: React.BaseSyntheticEvent | undefined) => void;
 	handleCancel: () => void;
 	register: UseFormRegister<{
 		datasetName: string;
-		datasetDescription?: string | undefined;
-		datasetRole?: "data" | "validation" | undefined;
+		datasetDescription?: string;
+		roles: {
+			fileName: string;
+			role?: ArtifactRole;
+		}[];
 	}>;
 	isValid: boolean;
 	isPending: boolean;
@@ -28,46 +34,38 @@ export function EditDatasetForm({
 	isValid,
 	isPending,
 }: EditDatasetFormProps) {
-	const { files } = useFileUpload();
-	const errors = Object.entries(files).reduce(
-		(acc, [fileName, file]) => {
-			if (file.error) {
-				acc[fileName] = file.error;
-			}
+	const { files, removeFile, selectFile } = useFileUpload();
 
+	const fileEntries = Object.entries(files);
+	const filesCount = fileEntries.length;
+
+	const fileErrors = fileEntries.reduce(
+		(acc, [fileName, file]) => {
+			if (file.error) acc[fileName] = file.error;
 			return acc;
 		},
 		{} as Record<string, string>,
 	);
+
+	const onFilePreview = (fileName: string) => {
+		selectFile(fileName);
+	};
 
 	return (
 		<form
 			onSubmit={handleUpload}
 			className="flex flex-col gap-6 p-6 bg-[#1e2028] border border-white/5 rounded-lg"
 		>
-			<div className="flex items-center justify-between pb-6 border-b border-white/5">
-				<div className="flex items-center gap-4">
-					<div className="p-3 bg-green-500/10 rounded-lg">
-						<File size={24} className="text-green-500" />
+			<div className="space-y-4 pb-6 border-b border-white/5">
+				<div className="flex items-center gap-3 mb-2">
+					<div className="p-2 bg-blue-500/10 rounded-lg">
+						<File size={20} className="text-blue-500" />
 					</div>
-					<div>
-						<SelectFileDropdown />
-						{/* <h3 className="font-medium text-white flex items-center gap-2">
-							{files[0].file.name}
-							<CheckCircle2 size={16} className="text-green-500" />
-						</h3>
-						<p className="text-xs text-gray-500 mt-1">
-							{(files[0].file.size / 1024 / 1024).toFixed(2)} MB • CSV Format
-							Test
-						</p> */}
-					</div>
+					<h3 className="text-sm font-bold text-gray-200 uppercase tracking-wider">
+						Dataset Details
+					</h3>
 				</div>
-			</div>
 
-			<div className="space-y-4">
-				<h3 className="text-sm font-bold text-gray-200 uppercase tracking-wider">
-					Dataset Details
-				</h3>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="space-y-2">
 						<TextInput
@@ -75,31 +73,96 @@ export function EditDatasetForm({
 							required
 							placeholder="e.g., Q3 Marketing Data"
 							{...register("datasetName")}
-							error={errors.datasetName}
 							disabled={isPending}
-						/>
-
-						<SelectInput
-							label="Dataset Role"
-							required
-							{...register("datasetRole")}
-							error={errors.datasetRole}
-							disabled={isPending}
-							options={artifactRoleSchema.options.map((value) => ({
-								label: capitalize(value),
-								value,
-							}))}
 						/>
 					</div>
 
 					<TextAreaInput
 						label="Description"
-						placeholder="Brief context about this data..."
+						placeholder="Brief context about this data batch..."
 						{...register("datasetDescription")}
-						error={errors.datasetDescription}
 						disabled={isPending}
-						className="min-h-35"
+						className="min-h-24"
 					/>
+				</div>
+			</div>
+
+			<div className="space-y-4">
+				<div className="flex items-center justify-between">
+					<h3 className="text-sm font-bold text-gray-200 uppercase tracking-wider">
+						Artifact Roles ({filesCount})
+					</h3>
+				</div>
+
+				<div className="flex flex-col gap-3 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
+					{filesCount === 0 ? (
+						<p className="text-sm text-gray-500 italic">No files selected.</p>
+					) : (
+						fileEntries.map(([fileName, fileData], index) => (
+							<div
+								key={fileName}
+								className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-lg gap-4"
+							>
+								<div className="flex items-center gap-3 overflow-hidden flex-1">
+									<div className="p-2 bg-green-500/10 rounded-md shrink-0">
+										<File size={20} className="text-green-500" />
+									</div>
+									<div className="flex flex-col min-w-0">
+										<span
+											className="text-sm font-medium text-white truncate"
+											title={fileName}
+										>
+											{fileName}
+										</span>
+										<span className="text-xs text-gray-500">
+											{(fileData.file.size / 1024 / 1024).toFixed(2)} MB
+										</span>
+										{fileErrors[fileName] && (
+											<span className="text-xs text-red-500 mt-0.5">
+												{fileErrors[fileName]}
+											</span>
+										)}
+									</div>
+								</div>
+
+								<input
+									type="hidden"
+									value={fileName}
+									{...register(`roles.${index}.fileName` as const)}
+								/>
+
+								<div className="w-48 shrink-0">
+									<SelectInput
+										required
+										label="Role"
+										aria-label={`Role for ${fileName}`}
+										{...register(`roles.${index}.role`, { required: true })}
+										disabled={isPending}
+										options={artifactRoleSchema.options.map((value) => ({
+											label: capitalize(value),
+											value,
+										}))}
+									/>
+								</div>
+
+								<IconButton
+									Icon={Trash2}
+									aria-label={`Remove ${fileName}`}
+									onClick={() => removeFile(fileName)}
+									disabled={isPending}
+									className="p-2 text-gray-500 hover:bg-red-500/10 hover:text-red-400 transition-colors shrink-0"
+								/>
+
+								<IconButton
+									Icon={Eye}
+									aria-label={`Preview ${fileName}`}
+									onClick={() => onFilePreview(fileName)}
+									disabled={isPending}
+									className="p-2 text-gray-500 hover:bg-blue-500/10 hover:text-blue-400 transition-colors shrink-0"
+								/>
+							</div>
+						))
+					)}
 				</div>
 			</div>
 
@@ -116,7 +179,7 @@ export function EditDatasetForm({
 					type="submit"
 					className="w-fit px-6"
 					isLoading={isPending}
-					disabled={isPending || !files || !isValid}
+					disabled={isPending || filesCount === 0 || !isValid}
 				>
 					Upload & Create
 				</Button>

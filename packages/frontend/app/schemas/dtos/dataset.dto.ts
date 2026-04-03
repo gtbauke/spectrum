@@ -29,3 +29,18 @@ export const datasetFilterSchema = z
 
 export type DatasetFilter = z.infer<typeof datasetFilterSchema>;
 export type DatasetFilterInput = Partial<z.input<typeof datasetFilterSchema>>;
+
+export const createDatasetWithMultipleArtifactsSchema = z.object({
+	datasetName: z.string().min(1),
+	datasetDescription: z.string().optional(),
+	roles: z.array(
+		z.object({
+			fileName: z.string(),
+			role: artifactRoleSchema.default("data"),
+		}),
+	),
+});
+
+export type CreateDatasetWithMultipleArtifactsDto = z.infer<
+	typeof createDatasetWithMultipleArtifactsSchema
+>;

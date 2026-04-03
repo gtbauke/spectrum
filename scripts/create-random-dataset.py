@@ -15,7 +15,7 @@ def main():
         df[col] = pd.Series(np.random.rand(num_rows))
 
     df.to_csv(
-        f"examples/{datetime.now().timestamp()}_random_dataset.csv", index=False)
+        f"examples/{datetime.now().timestamp()}_random_dataset".replace(".", "_") + ".csv", index=False)
 
 
 main()

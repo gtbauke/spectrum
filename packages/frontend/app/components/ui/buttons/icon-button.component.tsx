@@ -12,7 +12,7 @@ export function IconButton({ Icon, className, ...props }: IconButtonProps) {
 			{...props}
 			type="button"
 			className={cn(
-				"min-w-10 min-h-10 flex items-center justify-center cursor-pointer",
+				"min-w-10 min-h-10 flex items-center rounded justify-center cursor-pointer",
 				className,
 			)}
 		>

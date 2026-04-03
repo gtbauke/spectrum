@@ -4,6 +4,7 @@ import {
 	useContext,
 	useState,
 } from "react";
+import type { ArtifactRole } from "../../../schemas/domain/enums.schema";
 
 type UploadedFile = {
 	name: string;
@@ -12,6 +13,7 @@ type UploadedFile = {
 	columns?: string[];
 	isParsing: boolean;
 	previewData?: unknown[];
+	datasetRole?: ArtifactRole;
 };
 
 type FileUploadContextType = {
