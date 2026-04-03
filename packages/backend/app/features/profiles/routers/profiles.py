@@ -1,3 +1,4 @@
+import logging
 from uuid import UUID
 from fastapi import APIRouter, Depends, status, UploadFile, File, Form, Query
 
@@ -5,6 +6,8 @@ from app.api.unit_of_work import get_uow
 from app.features.datasets.errors.dataset_not_found import DatasetNotFound
 from app.features.profiles.dtos.link import LinkDatasetToProfile
 from core.features.datasets.where import DatasetWhere
+from core.features.profiles.blocks.block import Block
+from core.features.profiles.blocks.where import BlockWhere
 from core.ports.unit_of_work import UnitOfWork
 
 from app.features.auth.guards.get_current_user import get_current_user
@@ -38,6 +41,8 @@ profiles_router.include_router(
 
 profiles_router.include_router(
     models_router, prefix="/{profile_id}/models", tags=["Models"])
+
+logger = logging.getLogger(__name__)
 
 
 @profiles_router.post(
@@ -193,16 +198,37 @@ async def update_profile(
     dto: UpdateProfileDto,
     uow: UnitOfWork = Depends(get_uow)
 ):
+    logger.info(f"Updating profile {profile_id}", extra={
+        "dto": dto.model_dump(exclude_unset=True),
+        "profile_id": profile_id
+    })
+
     profile = await uow.profiles.get_unique(ProfileWhere(id=profile_id))
 
     if not profile:
         raise ProfileNotFound()
 
     updated_profile = profile.model_copy(
-        update=dto.model_dump(exclude_unset=True)
+        update=dto.model_dump(exclude_unset=True, exclude={"blocks"})
     )
 
     await uow.profiles.update(updated_profile)
+
+    if dto.blocks is not None:
+        blocks_to_create: list[Block] = []
+        blocks_to_update: list[Block] = []
+
+        for block in dto.blocks:
+            block_exists = await uow.blocks.get_unique(where=BlockWhere(id=block.id))
+
+            if not block_exists:
+                blocks_to_create.append(block)
+            else:
+                blocks_to_update.append(block)
+
+        await uow.blocks.add_many(blocks_to_create)
+        await uow.blocks.update_many(blocks_to_update)
+
     return updated_profile
 
 

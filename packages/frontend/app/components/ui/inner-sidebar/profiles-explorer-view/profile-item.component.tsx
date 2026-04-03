@@ -1,13 +1,8 @@
 import { motion } from "framer-motion";
-import {
-	Globe,
-	Layout,
-	Lock,
-	MoreVertical,
-} from "lucide-react";
+import { Globe, Layout, Lock, MoreVertical } from "lucide-react";
+import type { Profile } from "~/schemas/domain/profile.schema";
 import { useEditorStore } from "~/stores/editor.store";
 import { cn } from "~/utils/classname.util";
-import type { Profile } from "~/schemas/domain/profile.schema";
 
 type ProfileItemProps = {
 	profile: Profile;
@@ -38,6 +33,7 @@ export function ProfileItem({ profile, active = false }: ProfileItemProps) {
 
 	return (
 		<div className="flex flex-col">
+			{/** biome-ignore lint/a11y/useSemanticElements: Must use div for custom button behavior */}
 			<div
 				role="button"
 				tabIndex={0}
@@ -49,6 +45,12 @@ export function ProfileItem({ profile, active = false }: ProfileItemProps) {
 						? "bg-primary-500/10 text-white"
 						: "text-gray-400 hover:bg-white/5 hover:text-gray-200",
 				)}
+				onKeyDown={(e) => {
+					if (e.key === "Enter" || e.key === " ") {
+						e.preventDefault();
+						handleOnDoubleClick();
+					}
+				}}
 			>
 				<div className="flex items-center gap-2 truncate">
 					<div className="relative">

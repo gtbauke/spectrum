@@ -1,5 +1,7 @@
 import { Database, FileText, Import } from "lucide-react";
 import { IconButton } from "~/components/ui/buttons/icon-button.component";
+import { useActivity } from "~/contexts/activity-view.context";
+import { useLinkDatasetToProfileMutation } from "~/hooks/use-link-dataset-to-profile-mutation.hook";
 import type { Dataset } from "~/schemas/domain/dataset.schema";
 import { useEditorStore } from "~/stores/editor.store";
 import { cn } from "~/utils/classname.util";
@@ -20,7 +22,11 @@ function formatBytes(bytes: number) {
 }
 
 export function DatasetItem({ dataset, active = false }: DatasetItemProps) {
-	const openTab = useEditorStore((s) => s.openTab);
+	const tabs = useEditorStore((s) => s.tabs);
+	const activeTabId = useEditorStore((s) => s.activeTabId);
+	const { setActiveView } = useActivity();
+
+	const { mutate } = useLinkDatasetToProfileMutation();
 
 	const mainArtifact = dataset.artifacts.find(
 		(a) => a.role === "data" || a.role === "validation",
@@ -32,7 +38,37 @@ export function DatasetItem({ dataset, active = false }: DatasetItemProps) {
 	);
 
 	const onImportIconClick = () => {
-		// TODO: Import to current active profile. For now, it will create a new profile with the dataset as source.
+		const isActiveTabProfile = activeTabId
+			? tabs[activeTabId].type === "profile"
+			: false;
+
+		if (isActiveTabProfile) {
+			mutate({
+				profile: { id: activeTabId! },
+				data: {
+					dataset_ids: [dataset.id],
+				},
+			});
+
+			return;
+		}
+
+		mutate(
+			{
+				profile: {
+					name: `Profile for ${dataset.name}`,
+					description: `Auto-generated profile for dataset ${dataset.name}`,
+				},
+				data: {
+					dataset_ids: [dataset.id],
+				},
+			},
+			{
+				onSuccess: () => {
+					setActiveView("profiles");
+				},
+			},
+		);
 	};
 
 	return (

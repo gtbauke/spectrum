@@ -64,7 +64,7 @@ export default function UploadDatasetTabContent() {
 	};
 
 	const shouldShowPreview =
-		selectedFileName && !files[selectedFileName].isParsing;
+		selectedFileName && !files[selectedFileName]?.isParsing;
 	const previewData = shouldShowPreview
 		? files[selectedFileName]?.previewData
 		: [];

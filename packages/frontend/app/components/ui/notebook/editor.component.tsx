@@ -12,6 +12,7 @@ import { MarkdownBlock } from "./cells/markdown-cell.component";
 import { MetadataBlock } from "./cells/metadata-cell.component";
 import { DraggableItem } from "./draggable-item.component";
 import { EditorToolbar } from "./editor-toolbar.component";
+import { InsertDivider } from "./insert-divider.component";
 import { ProfileSkeleton } from "./profile-skeleton.component";
 
 type ProfileEditorProps = {
@@ -134,6 +135,8 @@ export function ProfileEditor({ tabId }: ProfileEditorProps) {
 					</div>
 				))}
 
+				<InsertDivider index={fixedBlocks.length} />
+
 				<Reorder.Group
 					axis="y"
 					className="w-full divide-y divide-border"
@@ -144,14 +147,16 @@ export function ProfileEditor({ tabId }: ProfileEditorProps) {
 				>
 					<AnimatePresence initial={false} mode="popLayout">
 						{dynamicBlocks.map((block: EditorBlock, index: number) => (
-							<DraggableItem
-								key={block.id}
-								isLast={index === blocks.length - 1}
-								isActive={activeBlockId === block.id}
-								block={block}
-								index={index}
-								renderBlock={renderBlock}
-							/>
+							<div key={block.id}>
+								<DraggableItem
+									isLast={index === blocks.length - 1}
+									isActive={activeBlockId === block.id}
+									block={block}
+									index={index}
+									renderBlock={renderBlock}
+								/>
+								<InsertDivider index={index + 1} />
+							</div>
 						))}
 					</AnimatePresence>
 				</Reorder.Group>

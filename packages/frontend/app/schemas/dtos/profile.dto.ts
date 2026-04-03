@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { blockSchema } from "../domain/block.schema";
 import { artifactRoleSchema, profileModeSchema } from "../domain/enums.schema";
 
 export const createProfileDtoSchema = z.object({
@@ -12,6 +13,7 @@ export const updateProfileDtoSchema = z.object({
 	name: z.string().optional(),
 	description: z.string().optional(),
 	mode: profileModeSchema.optional(),
+	blocks: z.array(blockSchema).optional(),
 });
 
 export type UpdateProfileDto = z.infer<typeof updateProfileDtoSchema>;
@@ -35,3 +37,11 @@ export const profileFilterSchema = z.object({
 });
 
 export type ProfileFilter = z.infer<typeof profileFilterSchema>;
+
+export const linkDatasetToProfileDtoSchema = z.object({
+	dataset_ids: z.array(z.uuid()),
+});
+
+export type LinkDatasetToProfileDto = z.infer<
+	typeof linkDatasetToProfileDtoSchema
+>;

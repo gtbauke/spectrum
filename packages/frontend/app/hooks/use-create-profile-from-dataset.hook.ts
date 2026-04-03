@@ -1,15 +1,20 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createProfileFromDataset } from "~/api/profiles/from-dataset.api";
-import { useEditorStore } from "~/stores/editor.store";
 import type { CreateProfileFromDatasetDto } from "~/schemas/dtos/profile.dto";
+import { useEditorStore } from "~/stores/editor.store";
 
 export function useCreateProfileFromDatasetMutation() {
 	const queryClient = useQueryClient();
 	const openTab = useEditorStore((s) => s.openTab);
 
 	return useMutation({
-		mutationFn: ({ file, data }: { file: File; data: CreateProfileFromDatasetDto }) =>
-			createProfileFromDataset(file, data),
+		mutationFn: ({
+			file,
+			data,
+		}: {
+			file: File;
+			data: CreateProfileFromDatasetDto;
+		}) => createProfileFromDataset(file, data),
 
 		onSuccess: (newProfile) => {
 			queryClient.invalidateQueries({ queryKey: ["profiles"] });

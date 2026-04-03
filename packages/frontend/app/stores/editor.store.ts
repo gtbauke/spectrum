@@ -1,22 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
 import { create } from "zustand";
-
+import { type Block, blockSchema } from "~/schemas/domain/block.schema";
+import { type Job, jobSchema, type Run } from "~/schemas/domain/job.schema";
+import { type Model, modelSchema } from "~/schemas/domain/model.schema";
+import { type Profile, profileSchema } from "~/schemas/domain/profile.schema";
 import type { User } from "~/schemas/domain/user.schema";
-import { profileSchema, type Profile } from "~/schemas/domain/profile.schema";
-import { jobSchema, type Job, type Run } from "~/schemas/domain/job.schema";
-import { blockSchema, type Block } from "~/schemas/domain/block.schema";
-import { modelSchema, type Model } from "~/schemas/domain/model.schema";
-
-import { listProfiles } from "../api/profiles/list-profiles.api";
-import { getProfile } from "../api/profiles/get-profile.api";
-import { updateProfile } from "../api/profiles/update-profile.api";
-import { createBlocks } from "../api/profiles/blocks/create-blocks.api";
-import { updateBlock as updateBlockApi } from "../api/profiles/blocks/update-block.api";
-import { bulkUpdateBlocks as bulkUpdateBlocksApi } from "../api/profiles/blocks/bulk-update-blocks.api";
-import { deleteBlock as deleteBlockApi } from "../api/profiles/blocks/delete-block.api";
-import { runJob } from "../api/profiles/jobs/run-job.api";
-import { login, logout, me } from "../api/auth/auth.api";
-
 import type {
 	BlockDataMap,
 	BlockType,
@@ -26,6 +14,15 @@ import type {
 	EditorTabType,
 	InferenceData,
 } from "~/utils/types/editor.types";
+import { login, logout, me } from "../api/auth/auth.api";
+import { bulkUpdateBlocks as bulkUpdateBlocksApi } from "../api/profiles/blocks/bulk-update-blocks.api";
+import { createBlocks } from "../api/profiles/blocks/create-blocks.api";
+import { deleteBlock as deleteBlockApi } from "../api/profiles/blocks/delete-block.api";
+import { updateBlock as updateBlockApi } from "../api/profiles/blocks/update-block.api";
+import { getProfile } from "../api/profiles/get-profile.api";
+import { runJob } from "../api/profiles/jobs/run-job.api";
+import { listProfiles } from "../api/profiles/list-profiles.api";
+import { updateProfile } from "../api/profiles/update-profile.api";
 
 export type {
 	BlockDataMap,
@@ -175,7 +172,6 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 						data: {
 							...tab.data,
 							...newData,
-							isDirty: true,
 						},
 					} as EditorTab,
 				},
@@ -499,7 +495,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 		// Find the job associated with this inference block
 		// For now, we assume one-to-one or we find the right job by name/metadata
 		// In a real scenario, the block data would hold the job_id
-		const block = tab.data.blocks.find(b => b.id === id);
+		const block = tab.data.blocks.find((b) => b.id === id);
 		if (!block || block.type !== "inference") return;
 
 		updateBlock(id, { isRunning: true }, { recordHistory: false });
@@ -573,15 +569,6 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 					data: { code: b.data.data },
 				} as EditorBlock;
 			});
-
-			// If no dynamic blocks, add a default markdown block
-			if (dynamicBlocks.length === 0) {
-				dynamicBlocks.push({
-					id: uuidv4(),
-					type: "markdown",
-					data: { value: "# Getting Started\n\nWrite your analysis here..." },
-				});
-			}
 
 			return {
 				tabs: {
