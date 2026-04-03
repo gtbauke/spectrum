@@ -2,6 +2,9 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, status, UploadFile, File, Form, Query
 
 from app.api.unit_of_work import get_uow
+from app.features.datasets.errors.dataset_not_found import DatasetNotFound
+from app.features.profiles.dtos.link import LinkDatasetToProfile
+from core.features.datasets.where import DatasetWhere
 from core.ports.unit_of_work import UnitOfWork
 
 from app.features.auth.guards.get_current_user import get_current_user
@@ -37,7 +40,11 @@ profiles_router.include_router(
     models_router, prefix="/{profile_id}/models", tags=["Models"])
 
 
-@profiles_router.post("", response_model=Profile, status_code=status.HTTP_201_CREATED)
+@profiles_router.post(
+    path="",
+    response_model=Profile,
+    status_code=status.HTTP_201_CREATED
+)
 async def create_profile(
     dto: CreateProfileDto,
     current_user_id: UUID = Depends(get_current_user),
@@ -54,7 +61,39 @@ async def create_profile(
     return profile
 
 
-@profiles_router.post("/from-dataset", response_model=Profile, status_code=status.HTTP_201_CREATED)
+@profiles_router.post(
+    path="/{profile_id}/datasets",
+    response_model=Profile,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(can_edit_profile)]
+)
+async def link_dataset_to_profile(
+    dto: LinkDatasetToProfile,
+    profile_id: UUID,
+    uow: UnitOfWork = Depends(get_uow)
+):
+    profile = await uow.profiles.get_unique(ProfileWhere(id=profile_id))
+
+    if not profile:
+        raise ProfileNotFound()
+
+    for dataset_id in dto.dataset_ids:
+        dataset = await uow.datasets.get_unique(DatasetWhere(id=dataset_id))
+
+        if not dataset:
+            raise DatasetNotFound()
+
+        profile.datasets.append(dataset)
+
+    await uow.profiles.update(profile)
+    return profile
+
+
+@profiles_router.post(
+    path="/from-dataset",
+    response_model=Profile,
+    status_code=status.HTTP_201_CREATED
+)
 async def create_profile_from_dataset(
     profile_name: str = Form(...),
     profile_description: str = Form(""),
