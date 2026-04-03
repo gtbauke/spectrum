@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { NotebookCell } from "./cell.component";
 
 export function ProfileSkeleton() {
@@ -5,7 +6,7 @@ export function ProfileSkeleton() {
 	return (
 		<div className="flex flex-col w-full divide-y divide-border animate-pulse">
 			<NotebookCell
-				id="skeleton-metadata"
+				id={useId()}
 				type="metadata"
 				isActive={false}
 				moveable={false}
@@ -18,7 +19,7 @@ export function ProfileSkeleton() {
 				</div>
 			</NotebookCell>
 			<NotebookCell
-				id="skeleton-datasets"
+				id={useId()}
 				type="datasets"
 				isActive={false}
 				moveable={false}
@@ -34,7 +35,7 @@ export function ProfileSkeleton() {
 				</div>
 			</NotebookCell>
 			<NotebookCell
-				id="skeleton-jobs"
+				id={useId()}
 				type="jobs"
 				isActive={false}
 				moveable={false}

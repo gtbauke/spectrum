@@ -22,10 +22,14 @@ export function DatasetsBlock({ datasets }: DatasetsCellProps) {
 						className="flex justify-between items-center p-3 border-b border-white/5 bg-[#111319]/50 hover:bg-white/5 transition-colors text-sm text-gray-300"
 					>
 						<span>{ds.name || "Dataset"}</span>
-						<span className="text-[10px] uppercase bg-primary-500/10 text-primary-400 px-2 py-0.5 rounded">
-							{/* Dataset doesn't have a role directly in the domain model, but it might be implied or added later */}
-                            Data
-						</span>
+						{ds.artifacts.map((artifact) => (
+							<span
+								key={artifact.id}
+								className="text-[10px] uppercase bg-primary-500/10 text-primary-400 px-2 py-0.5 rounded"
+							>
+								{artifact.role}
+							</span>
+						))}
 					</div>
 				))}
 				{datasets?.length === 0 && (

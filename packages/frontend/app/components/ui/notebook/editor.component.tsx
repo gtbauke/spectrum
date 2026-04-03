@@ -1,12 +1,9 @@
-import { useEffect } from "react";
 import { AnimatePresence, type DragControls, Reorder } from "framer-motion";
+import { useEffect } from "react";
 import { NotebookCell } from "~/components/ui/notebook/cell.component";
 import { useKeyboardShortcut } from "~/hooks/use-keyboard-shortcut.hook";
 import { useProfile } from "~/hooks/use-profiles.hook";
-import {
-	type EditorBlock,
-	useEditorStore,
-} from "~/stores/editor.store";
+import { type EditorBlock, useEditorStore } from "~/stores/editor.store";
 import type { ProfileTabData } from "~/utils/types/editor.types";
 import { DatasetsBlock } from "./cells/datasets-cell.component";
 import { InferenceBlock } from "./cells/inference-cell.component";
@@ -64,6 +61,7 @@ export function ProfileEditor({ tabId }: ProfileEditorProps) {
 						<EditorToolbar />
 					</div>
 				</div>
+
 				<ProfileSkeleton />
 			</div>
 		);

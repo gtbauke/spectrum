@@ -6,7 +6,7 @@ export type TextAreaInputProps = {
 	label: string;
 	className?: string;
 	required?: boolean;
-	error?: FieldError;
+	error?: FieldError | string;
 	labelClassName?: string;
 } & React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 
@@ -18,6 +18,9 @@ export const TextAreaInput = forwardRef<
 		{ label, className, required, error, rows = 4, labelClassName, ...props },
 		ref,
 	) => {
+		const hasError = Boolean(error);
+		const errorMessage = typeof error === "string" ? error : error?.message;
+
 		return (
 			<div className="w-full space-y-2">
 				<label>
@@ -53,9 +56,9 @@ export const TextAreaInput = forwardRef<
 						/>
 					</div>
 
-					{error?.message && (
+					{hasError && (
 						<p className="text-xs text-red-500 mt-1 animate-in fade-in slide-in-from-top-1">
-							{error.message}
+							{errorMessage}
 						</p>
 					)}
 				</label>

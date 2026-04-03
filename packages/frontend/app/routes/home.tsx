@@ -1,6 +1,6 @@
 import { AuthGuard } from "~/components/auth/auth-guard.component";
 import { WorkspaceLayout } from "~/components/layouts/workspace.layout";
-import UploadDatasetTabContent from "~/components/tabs/upload-tab/upload-tab.component";
+import { UploadTabContainer } from "~/components/tabs/upload-tab/upload-tab-container.component";
 import { WelcomeTabContent } from "~/components/tabs/welcome-tab/welcome-tab-content.component";
 import { ProfileEditor } from "~/components/ui/notebook/editor.component";
 import { useEditorStore } from "~/stores/editor.store";
@@ -31,7 +31,7 @@ export default function Home() {
 			return <ProfileEditor tabId={activeTab.id} />;
 		}
 
-		return <UploadDatasetTabContent />;
+		return <UploadTabContainer />;
 	};
 
 	return (
