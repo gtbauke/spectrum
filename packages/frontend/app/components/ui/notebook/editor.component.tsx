@@ -128,7 +128,7 @@ export function ProfileEditor({ tabId }: ProfileEditorProps) {
 					datasets={profile.datasets}
 				/>
 				<ProfileModelsSection models={profile.models} jobs={profile.jobs} />
-				<ProfileWorkspaceSection />
+				<ProfileWorkspaceSection models={profile.models} />
 			</div>
 
 			<div className="h-64" />
