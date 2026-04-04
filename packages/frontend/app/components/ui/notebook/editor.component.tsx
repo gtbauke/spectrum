@@ -47,6 +47,7 @@ export function ProfileEditor({ tabId }: ProfileEditorProps) {
 
 	useKeyboardShortcut("z", undo);
 	useKeyboardShortcut("y", redo);
+	// useKeyboardShortcut("s", save);
 
 	if (!tab || tab.type !== "profile") {
 		return null;
