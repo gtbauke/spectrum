@@ -45,6 +45,23 @@ export function AddJob({
 		formState: { errors },
 	} = useForm({
 		resolver: zodResolver(createJobFormSchema),
+		defaultValues: {
+			name: `Job#${Date.now()}`,
+			runsAgainst: datasets.length > 0 ? datasets[0].id : undefined,
+			loss: lossFunctionSchema.options[0],
+			nonTerminals: ["add", "sub", "mul", "div"],
+			generations: 100,
+			population: 100,
+			simplify: false,
+			maxSize: 15,
+			numberOfTournaments: 5,
+			crossoverProbability: 0.9,
+			mutationProbability: 0.3,
+			optimizationIterations: 5,
+			optimizationRepeats: 3,
+			maxParamCount: -1,
+			split: 1,
+		},
 	});
 
 	useEffect(() => {
@@ -93,75 +110,83 @@ export function AddJob({
 		>
 			<h3 className="text-md font-medium">New Job</h3>
 
-			<div className="grid grid-cols-2 gap-4">
-				<TextInput
-					label="Name"
-					required
-					placeholder="e.g. my-experiment-v1"
-					error={errors.name}
-					{...register("name")}
-				/>
+			<div className="space-y-2">
+				<span className="flex items-center gap-2 text-xs text-gray-400 hover:text-gray-200 transition-colors">
+					Basic Settings
+				</span>
 
-				<SelectInput
-					label="Dataset"
-					required
-					options={
-						datasetOptions.length > 0
-							? datasetOptions
-							: [{ label: "No datasets linked to this profile", value: "" }]
-					}
-					disabled={datasetOptions.length === 0}
-					error={errors.runsAgainst}
-					{...register("runsAgainst")}
-				/>
-			</div>
+				<div className="space-y-4">
+					<div className="grid grid-cols-2 gap-4">
+						<TextInput
+							label="Name"
+							required
+							placeholder="e.g. my-experiment-v1"
+							error={errors.name}
+							{...register("name")}
+						/>
 
-			<div className="grid grid-cols-3 gap-4">
-				<SelectInput
-					label="Loss Function"
-					options={lossOptions}
-					error={errors.loss}
-					{...register("loss")}
-				/>
+						<SelectInput
+							label="Dataset"
+							required
+							options={
+								datasetOptions.length > 0
+									? datasetOptions
+									: [{ label: "No datasets linked to this profile", value: "" }]
+							}
+							disabled={datasetOptions.length === 0}
+							error={errors.runsAgainst}
+							{...register("runsAgainst")}
+						/>
+					</div>
 
-				<TextInput
-					label="Generations"
-					type="number"
-					error={errors.generations}
-					{...register("generations", { valueAsNumber: true })}
-				/>
+					<div className="grid grid-cols-3 gap-4">
+						<SelectInput
+							label="Loss Function"
+							options={lossOptions}
+							error={errors.loss}
+							{...register("loss")}
+						/>
 
-				<TextInput
-					label="Population"
-					type="number"
-					error={errors.population}
-					{...register("population", { valueAsNumber: true })}
-				/>
-			</div>
+						<TextInput
+							label="Generations"
+							type="number"
+							error={errors.generations}
+							{...register("generations", { valueAsNumber: true })}
+						/>
 
-			<Controller
-				name="nonTerminals"
-				control={control}
-				render={({ field }) => (
-					<MultiSelectInput
-						label="Available Functions"
-						options={functionOptions}
-						value={field.value ?? []}
-						onChange={field.onChange}
-						error={
-							errors.nonTerminals as
-								| import("react-hook-form").FieldError
-								| undefined
-						}
+						<TextInput
+							label="Population"
+							type="number"
+							error={errors.population}
+							{...register("population", { valueAsNumber: true })}
+						/>
+					</div>
+
+					<Controller
+						name="nonTerminals"
+						control={control}
+						render={({ field }) => (
+							<MultiSelectInput
+								label="Available Functions"
+								options={functionOptions}
+								value={field.value ?? []}
+								onChange={field.onChange}
+								error={
+									errors.nonTerminals as
+										| import("react-hook-form").FieldError
+										| undefined
+								}
+							/>
+						)}
 					/>
-				)}
-			/>
 
-			<ToggleInput
-				label="Simplify"
-				description="Apply algebraic simplification after evolution"
-				{...register("simplify")}
-			/>
+					<ToggleInput
+						label="Simplify"
+						description="Apply algebraic simplification after evolution"
+						{...register("simplify")}
+					/>
+				</div>
+			</div>
 
 			<div className="border-t border-border pt-2">
 				<button
@@ -240,24 +265,15 @@ export function AddJob({
 				<div className="text-red-500 text-sm font-medium mt-2">{apiError}</div>
 			)}
 
-			<div className="flex justify-end gap-2 pt-4">
-				<Button
-					type="button"
-					onClick={onCancel}
-					disabled={isPending}
-					className="px-4 py-2 text-sm font-medium hover:bg-background-surface active:bg-background-hover rounded"
-				>
+			<Button.Group mode="seamless">
+				<Button onClick={onCancel} variant="outline">
 					Cancel
 				</Button>
 
-				<Button
-					type="submit"
-					disabled={isPending}
-					className="px-4 py-2 text-sm font-medium hover:bg-background-surface active:bg-background-hover rounded"
-				>
+				<Button type="submit" disabled={isPending} variant="primary">
 					{isPending ? "Creating..." : "Create Job"}
 				</Button>
-			</div>
+			</Button.Group>
 		</form>
 	);
 }
