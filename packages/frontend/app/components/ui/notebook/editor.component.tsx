@@ -5,11 +5,6 @@ import { useKeyboardShortcut } from "~/hooks/use-keyboard-shortcut.hook";
 import { useProfile } from "~/hooks/use-profiles.hook";
 import { type EditorBlock, useEditorStore } from "~/stores/editor.store";
 import type { ProfileTabData } from "~/utils/types/editor.types";
-import { DatasetsBlock } from "./cells/datasets-cell.component";
-import { InferenceBlock } from "./cells/inference-cell.component";
-import { JobsBlock } from "./cells/jobs-cell.component";
-import { MarkdownBlock } from "./cells/markdown-cell.component";
-import { MetadataBlock } from "./cells/metadata-cell.component";
 import { DraggableItem } from "./draggable-item.component";
 import { EditorToolbar } from "./editor-toolbar.component";
 import { InsertDivider } from "./insert-divider.component";
@@ -18,6 +13,7 @@ import { ProfileDatasetsSection } from "./sections/datasets/datasets-section.com
 import { ProfileJobsSection } from "./sections/jobs/jobs-section.component";
 import { ProfileMetadataSection } from "./sections/metadata/metadata-section.component";
 import { ProfileModelsSection } from "./sections/models/models-section.component";
+import { ProfileWorkspaceSection } from "./sections/workspace/workspace-section.component";
 
 type ProfileEditorProps = {
 	tabId: string;
@@ -82,44 +78,44 @@ export function ProfileEditor({ tabId }: ProfileEditorProps) {
 		(b: EditorBlock) => !["metadata", "datasets", "jobs"].includes(b.type),
 	);
 
-	const renderBlock = (
-		block: EditorBlock,
-		isActive: boolean,
-		dragControls?: DragControls,
-	) => {
-		const onRun = () => {};
+	// const renderBlock = (
+	// 	block: EditorBlock,
+	// 	isActive: boolean,
+	// 	dragControls?: DragControls,
+	// ) => {
+	// 	const onRun = () => {};
 
-		return (
-			<NotebookCell
-				id={block.id}
-				type={block.type}
-				isActive={isActive}
-				onClick={() => setActiveBlock(block.id)}
-				onRun={onRun}
-				isDeletable={!["metadata", "datasets", "jobs"].includes(block.type)}
-				moveable={!["metadata", "datasets", "jobs"].includes(block.type)}
-				dragControls={dragControls}
-			>
-				{block.type === "metadata" && (
-					<MetadataBlock id={block.id} tabId={tabId} />
-				)}
-				{block.type === "datasets" && (
-					<DatasetsBlock datasets={block.data.datasets} />
-				)}
-				{block.type === "inference" && (
-					<InferenceBlock id={block.id} data={block.data} />
-				)}
-				{block.type === "markdown" && (
-					<MarkdownBlock
-						id={block.id}
-						data={block.data}
-						isActive={activeBlockId === block.id}
-					/>
-				)}
-				{block.type === "jobs" && <JobsBlock id={block.id} data={block.data} />}
-			</NotebookCell>
-		);
-	};
+	// 	return (
+	// 		<NotebookCell
+	// 			id={block.id}
+	// 			type={block.type}
+	// 			isActive={isActive}
+	// 			onClick={() => setActiveBlock(block.id)}
+	// 			onRun={onRun}
+	// 			isDeletable={!["metadata", "datasets", "jobs"].includes(block.type)}
+	// 			moveable={!["metadata", "datasets", "jobs"].includes(block.type)}
+	// 			dragControls={dragControls}
+	// 		>
+	// 			{block.type === "metadata" && (
+	// 				<MetadataBlock id={block.id} tabId={tabId} />
+	// 			)}
+	// 			{block.type === "datasets" && (
+	// 				<DatasetsBlock datasets={block.data.datasets} />
+	// 			)}
+	// 			{block.type === "inference" && (
+	// 				<InferenceBlock id={block.id} data={block.data} />
+	// 			)}
+	// 			{block.type === "markdown" && (
+	// 				<MarkdownBlock
+	// 					id={block.id}
+	// 					data={block.data}
+	// 					isActive={activeBlockId === block.id}
+	// 				/>
+	// 			)}
+	// 			{block.type === "jobs" && <JobsBlock id={block.id} data={block.data} />}
+	// 		</NotebookCell>
+	// 	);
+	// };
 
 	return (
 		<div className="flex-1 h-full p-12 overflow-y-auto custom-scrollbar bg-background">
@@ -131,10 +127,8 @@ export function ProfileEditor({ tabId }: ProfileEditorProps) {
 					jobs={profile.jobs}
 					datasets={profile.datasets}
 				/>
-				<ProfileModelsSection
-					models={profile.models}
-					jobs={profile.jobs}
-				/>
+				<ProfileModelsSection models={profile.models} jobs={profile.jobs} />
+				<ProfileWorkspaceSection />
 			</div>
 
 			<div className="h-64" />

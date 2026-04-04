@@ -475,28 +475,6 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 			const tab = state.tabs[id];
 			if (!tab || tab.type !== "profile") return state;
 
-			const fixedBlocks: EditorBlock[] = [
-				{
-					id: `${id}-metadata`,
-					type: "metadata",
-					data: {
-						name: profile.name,
-						description: profile.description,
-						mode: profile.mode,
-					},
-				},
-				{
-					id: `${id}-datasets`,
-					type: "datasets",
-					data: { datasets: profile.datasets || [] },
-				},
-				{
-					id: `${id}-jobs`,
-					type: "jobs",
-					data: { profileId: profile.id },
-				},
-			];
-
 			// Map dynamic blocks from the backend profile
 			const dynamicBlocks: EditorBlock[] = (profile.blocks || []).map((b) => {
 				if (b.kind === "markdown") {
@@ -521,7 +499,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 						data: {
 							...tab.data,
 							profile,
-							blocks: [...fixedBlocks, ...dynamicBlocks],
+							blocks: dynamicBlocks,
 							isDirty: false,
 						},
 					},
