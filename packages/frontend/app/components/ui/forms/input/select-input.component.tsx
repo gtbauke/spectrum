@@ -42,7 +42,7 @@ export const SelectInput = forwardRef<HTMLSelectElement, SelectInputProps>(
 						</div>
 					</div>
 
-					<div className="relative group mt-2">
+					<div className="relative group">
 						<select
 							{...props}
 							ref={ref}

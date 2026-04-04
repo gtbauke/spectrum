@@ -4,26 +4,27 @@ import {
 	lossFunctionSchema,
 } from "../domain/enums.schema";
 
-export const createJobDtoSchema = z
-	.object({
-		name: z.string().min(1),
-		runsAgainst: z.uuid(),
-		generations: z.number().int().min(1).default(100),
-		population: z.number().int().min(1).default(100),
-		maxSize: z.number().int().min(1).default(15),
-		numberOfTournaments: z.number().int().min(1).default(3),
-		crossoverProbability: z.number().min(0).max(1).default(0.9),
-		mutationProbability: z.number().min(0).max(1).default(0.3),
-		nonTerminals: z
-			.array(availableFunctionSchema)
-			.default(["add", "sub", "mul", "div"]),
-		loss: lossFunctionSchema.default("MSE"),
-		optimizationIterations: z.number().int().min(0).default(50),
-		optimizationRepeats: z.number().int().min(1).default(2),
-		maxParamCount: z.number().int().min(-1).default(-1),
-		split: z.number().int().min(1).default(1),
-		simplify: z.boolean().default(false),
-	})
+export const createJobFormSchema = z.object({
+	name: z.string().min(1),
+	runsAgainst: z.uuid(),
+	generations: z.number().int().min(1).default(100),
+	population: z.number().int().min(1).default(100),
+	maxSize: z.number().int().min(1).default(15),
+	numberOfTournaments: z.number().int().min(1).default(3),
+	crossoverProbability: z.number().min(0).max(1).default(0.9),
+	mutationProbability: z.number().min(0).max(1).default(0.3),
+	nonTerminals: z
+		.array(availableFunctionSchema)
+		.default(["add", "sub", "mul", "div"]),
+	loss: lossFunctionSchema.default("MSE"),
+	optimizationIterations: z.number().int().min(0).default(50),
+	optimizationRepeats: z.number().int().min(1).default(2),
+	maxParamCount: z.number().int().min(-1).default(-1),
+	split: z.number().int().min(1).default(1),
+	simplify: z.boolean().default(false),
+});
+
+export const createJobDtoSchema = createJobFormSchema
 	.transform((data) => ({
 		name: data.name,
 		runs_against: data.runsAgainst,
