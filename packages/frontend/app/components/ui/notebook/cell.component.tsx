@@ -41,16 +41,17 @@ export function NotebookCell({
 			}}
 			transition={{ duration: 0.2 }}
 			className={cn(
-				"group relative flex flex-col w-full bg-background border-l-2 transition-colors duration-200",
-				isActive
-					? "border-primary bg-background-surface"
-					: "border-transparent border-l-0",
+				"group relative flex flex-col w-full bg-background border-l-2 transition-all duration-300",
+				isActive && "bg-background-surface ring-1 ring-white/5",
+				isActive && type === "inference" && "border-secondary",
+				isActive && type === "markdown" && "border-primary",
+				!isActive && "border-transparent border-l-0",
 			)}
 			onClick={onClick}
 			dragListener={false}
 			dragControls={dragControls}
 		>
-			<div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-border opacity-50 group-hover:opacity-100 transition-opacity">
+			<div className="flex items-center justify-between px-4 py-2 bg-white/3 border-b border-border/50 opacity-40 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
 				<div className="flex items-center gap-4">
 					{moveable && (
 						<IconButton
@@ -63,9 +64,26 @@ export function NotebookCell({
 						/>
 					)}
 
-					<span className="text-sm font-mono text-gray-400 uppercase tracking-widest">
-						{type}
-					</span>
+					<div className="flex items-center gap-2">
+						<span
+							className={cn(
+								"text-[10px] font-bold uppercase tracking-[0.2em]",
+								type === "inference"
+									? "text-secondary-500"
+									: "text-primary-500",
+							)}
+						>
+							{type}
+						</span>
+						{isActive && (
+							<div
+								className={cn(
+									"w-1 h-1 rounded-full animate-pulse",
+									type === "inference" ? "bg-secondary" : "bg-primary",
+								)}
+							/>
+						)}
+					</div>
 				</div>
 
 				<div className="flex items-center gap-2">
@@ -99,7 +117,10 @@ export function NotebookCell({
 				</div>
 			</div>
 
-			<div className="p-6">{children}</div>
+			<div className="p-6 relative">
+				<div className="absolute inset-0 bg-linear-to-b from-white/1 to-transparent pointer-events-none" />
+				<div className="relative z-10">{children}</div>
+			</div>
 		</motion.div>
 	);
 }
