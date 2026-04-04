@@ -1,47 +1,49 @@
 import { useState } from "react";
+import type { Dataset } from "~/schemas/domain/dataset.schema";
 import type { Job } from "~/schemas/domain/job.schema";
 import { AddButton } from "../add-button.component";
 import { AddJob } from "./add-job.component";
 
 type ProfileJobsSectionProps = {
-	jobs: Job[];
+  profileId: string;
+  jobs: Job[];
+  datasets: Dataset[];
 };
 
-export function ProfileJobsSection({ jobs }: ProfileJobsSectionProps) {
-	const [isEditing, setIsEditing] = useState(false);
+export function ProfileJobsSection({
+  profileId,
+  jobs,
+  datasets,
+}: ProfileJobsSectionProps) {
+  const [isEditing, setIsEditing] = useState(false);
 
-	const handleEditClick = () => {
-		setIsEditing(true);
-	};
+  return (
+    <div className="bg-background-surface border border-border rounded-lg p-4 shadow-sm space-y-2">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Jobs</h2>
 
-	const handleSaveClick = () => {
-		setIsEditing(false);
-	};
+        <AddButton
+          isEditing={isEditing}
+          onEditClick={() => setIsEditing(true)}
+          onSaveClick={() => setIsEditing(false)}
+          onCancelClick={() => setIsEditing(false)}
+        />
+      </div>
 
-	const handleCancelClick = () => {
-		setIsEditing(false);
-	};
+      {isEditing && (
+        <AddJob
+          profileId={profileId}
+          datasets={datasets}
+          onSuccess={() => setIsEditing(false)}
+          onCancel={() => setIsEditing(false)}
+        />
+      )}
 
-	return (
-		<div className="bg-background-surface border border-border rounded-lg p-4 shadow-sm space-y-2">
-			<div className="flex items-center justify-between">
-				<h2 className="text-lg font-semibold">Jobs</h2>
-
-				<AddButton
-					isEditing={isEditing}
-					onEditClick={handleEditClick}
-					onSaveClick={handleSaveClick}
-					onCancelClick={handleCancelClick}
-				/>
-			</div>
-
-			{isEditing && <AddJob />}
-
-			<div className="space-y-2">
-				{jobs.length === 0 && (
-					<p className="text-sm text-gray-500">No jobs found.</p>
-				)}
-			</div>
-		</div>
-	);
+      <div className="space-y-2">
+        {jobs.length === 0 && (
+          <p className="text-sm text-gray-500">No jobs found.</p>
+        )}
+      </div>
+    </div>
+  );
 }

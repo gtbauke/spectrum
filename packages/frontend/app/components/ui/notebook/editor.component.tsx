@@ -128,7 +128,11 @@ export function ProfileEditor({ tabId }: ProfileEditorProps) {
 			<div className="space-y-4">
 				<ProfileMetadataSection profile={profile} />
 				<ProfileDatasetsSection datasets={profile.datasets} />
-				<ProfileJobsSection jobs={profile.jobs} />
+				<ProfileJobsSection
+					profileId={profile.id}
+					jobs={profile.jobs}
+					datasets={profile.datasets}
+				/>
 			</div>
 
 			<div className="h-64" />
