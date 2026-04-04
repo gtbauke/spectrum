@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, status, UploadFile, File, Form, Query
 from app.api.unit_of_work import get_uow
 from app.features.datasets.errors.dataset_not_found import DatasetNotFound
 from app.features.profiles.dtos.link import LinkDatasetToProfile
+from app.features.profiles.responses.profile_summary import ProfileSummary
 from core.features.datasets.where import DatasetWhere
 from core.features.profiles.blocks.block import Block
 from core.features.profiles.blocks.where import BlockWhere
@@ -30,6 +31,7 @@ from core.utils.filters.field_filter import UUIDFilter, StringFilter, EnumFilter
 from app.features.profiles.blocks.routers.blocks import blocks_router
 from app.features.profiles.jobs.routers.jobs import jobs_router
 from app.features.profiles.models.routers.models import models_router
+from db.features.auth.repository import PaginatedResponse
 
 profiles_router = APIRouter()
 
@@ -140,7 +142,7 @@ async def create_profile_from_dataset(
     return profile
 
 
-@profiles_router.get("", response_model=None)
+@profiles_router.get("", response_model=PaginatedResponse[Profile])
 async def list_profiles(
     limit: int = Query(50, ge=1),
     offset: int = Query(0, ge=0),
@@ -171,6 +173,19 @@ async def list_profiles(
 
     paginated_response = await uow.profiles.list(filter=profile_filter, pagination=pagination)
     return paginated_response
+
+
+@profiles_router.get(
+    path="/summary",
+    response_model=list[ProfileSummary],
+)
+async def get_profiles_summary(
+    uow: UnitOfWork = Depends(get_uow)
+):
+    profiles = await uow.profiles.list_all()
+    summaries = [ProfileSummary.from_profile(profile) for profile in profiles]
+
+    return summaries
 
 
 @profiles_router.get(
