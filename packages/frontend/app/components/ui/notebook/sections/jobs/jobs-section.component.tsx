@@ -3,6 +3,7 @@ import type { Dataset } from "~/schemas/domain/dataset.schema";
 import type { Job } from "~/schemas/domain/job.schema";
 import { AddButton } from "../add-button.component";
 import { AddJob } from "./add-job.component";
+import { JobItem } from "./job-item.component";
 
 type ProfileJobsSectionProps = {
 	profileId: string;
@@ -39,18 +40,13 @@ export function ProfileJobsSection({
 				/>
 			)}
 
-			<div className="space-y-2">
+			<div className="space-y-3">
 				{jobs.length === 0 && (
 					<p className="text-sm text-gray-500">No jobs found.</p>
 				)}
 
 				{jobs.map((job) => (
-					<div
-						key={job.id}
-						className="bg-background border border-border rounded-lg p-4"
-					>
-						<h3 className="text-md font-medium">{job.name}</h3>
-					</div>
+					<JobItem key={job.id} job={job} datasets={datasets} />
 				))}
 			</div>
 		</div>
