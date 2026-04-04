@@ -79,12 +79,7 @@ export function JobItem({ job, datasets }: JobItemProps) {
 	const datasetName =
 		datasets.find((d) => d.id === job.runsAgainst)?.name ?? "Unknown Dataset";
 
-	const latestRun = [...(job.runs || [])].sort((a, b) => {
-		const aTime = a.startedAt?.getTime() ?? 0;
-		const bTime = b.startedAt?.getTime() ?? 0;
-
-		return bTime - aTime;
-	})[0];
+	const latestRun = job.runs.find((run) => run.isLatest);
 
 	const { mutate: deleteJob } = useJobDeleteMutation();
 	const { mutate: runJob } = useRunJobMutation();

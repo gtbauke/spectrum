@@ -44,7 +44,7 @@ export const jobSchema = baseMutableObject
 		max_param_count: z.number().int(),
 		split: z.number().int(),
 		simplify: z.boolean(),
-		runs: z.array(z.any()),
+		runs: z.array(runSchema),
 	})
 	.transform((data) => ({
 		id: data.id,
@@ -64,7 +64,7 @@ export const jobSchema = baseMutableObject
 		maxParamCount: data.max_param_count,
 		split: data.split,
 		simplify: data.simplify,
-		runs: data.runs as Run[],
+		runs: data.runs.map((run: any) => run.jobId ? run : runSchema.parse(run)),
 		createdAt: data.created_at,
 		updatedAt: data.updated_at,
 	}));

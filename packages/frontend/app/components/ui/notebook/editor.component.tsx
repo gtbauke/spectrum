@@ -17,6 +17,7 @@ import { ProfileSkeleton } from "./profile-skeleton.component";
 import { ProfileDatasetsSection } from "./sections/datasets/datasets-section.component";
 import { ProfileJobsSection } from "./sections/jobs/jobs-section.component";
 import { ProfileMetadataSection } from "./sections/metadata/metadata-section.component";
+import { ProfileModelsSection } from "./sections/models/models-section.component";
 
 type ProfileEditorProps = {
 	tabId: string;
@@ -86,10 +87,7 @@ export function ProfileEditor({ tabId }: ProfileEditorProps) {
 		isActive: boolean,
 		dragControls?: DragControls,
 	) => {
-		const onRun =
-			block.type === "inference"
-				? () => useEditorStore.getState().runInference(block.id)
-				: undefined;
+		const onRun = () => {};
 
 		return (
 			<NotebookCell
@@ -133,6 +131,7 @@ export function ProfileEditor({ tabId }: ProfileEditorProps) {
 					jobs={profile.jobs}
 					datasets={profile.datasets}
 				/>
+				<ProfileModelsSection />
 			</div>
 
 			<div className="h-64" />
