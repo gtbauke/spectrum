@@ -1,70 +1,32 @@
+import type React from "react";
 import { forwardRef } from "react";
-import type { FieldError } from "react-hook-form";
 import { cn } from "~/utils/classname.util";
+import { useFieldContext } from "../field/field-context";
 
-export type TextAreaInputProps = {
-	label: string;
-	className?: string;
-	required?: boolean;
-	error?: FieldError | string;
-	labelClassName?: string;
-} & React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+export type TextAreaInputProps =
+	React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 
 export const TextAreaInput = forwardRef<
 	HTMLTextAreaElement,
 	TextAreaInputProps
->(
-	(
-		{ label, className, required, error, rows = 4, labelClassName, ...props },
-		ref,
-	) => {
-		const hasError = Boolean(error);
-		const errorMessage = typeof error === "string" ? error : error?.message;
+>(({ className, id, rows = 4, ...props }, ref) => {
+	const context = useFieldContext();
+	const inputId = id || context.id;
 
-		return (
-			<div className="w-full space-y-2">
-				<label>
-					<div className="flex justify-between items-center">
-						<div>
-							<span
-								className={cn(
-									"text-xs font-medium text-gray-400 uppercase tracking-wider",
-									labelClassName,
-								)}
-							>
-								{label}
-							</span>
-							{required && <span className="text-red-500 ml-1">*</span>}
-						</div>
-					</div>
-
-					<div className="relative group">
-						<textarea
-							{...props}
-							ref={ref}
-							rows={rows}
-							className={cn(
-								"w-full bg-background border rounded-lg px-4 py-3 outline-none transition-all",
-								"placeholder:text-gray-600 text-white",
-								"resize-y min-h-20",
-								error
-									? "border-red-500 focus:ring-1 focus:ring-red-500"
-									: "border-border focus:ring-2 focus:ring-primary-500 hover:border-white/10",
-								className,
-							)}
-							aria-invalid={error ? "true" : "false"}
-						/>
-					</div>
-
-					{hasError && (
-						<p className="text-xs text-red-500 mt-1 animate-in fade-in slide-in-from-top-1">
-							{errorMessage}
-						</p>
-					)}
-				</label>
-			</div>
-		);
-	},
-);
+	return (
+		<textarea
+			ref={ref}
+			id={inputId}
+			rows={rows}
+			className={cn(
+				"flex-1 bg-transparent border-none outline-none p-2 min-w-0 text-white placeholder:text-gray-600 resize-y min-h-20",
+				className,
+			)}
+			aria-invalid={context.error ? "true" : "false"}
+			disabled={context.disabled || props.disabled}
+			{...props}
+		/>
+	);
+});
 
 TextAreaInput.displayName = "TextAreaInput";

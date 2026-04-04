@@ -13,10 +13,11 @@ export type ButtonProps = PropsWithChildren<{
 
 const variantClasses = {
 	primary:
-		"bg-primary-600 text-white border border-primary-600 hover:border-primary-700 hover:bg-primary-700 disabled:bg-gray-800",
+		"bg-primary-600 text-white border border-primary-600 hover:border-primary-700 hover:bg-primary-700 disabled:bg-gray-800 disabled:border-gray-800 disabled:text-gray-500",
 	outline:
-		"bg-transparent border border-primary-600 text-primary-600 hover:bg-primary-500/10",
-	ghost: "bg-transparent text-gray-700 hover:bg-gray-100 hover:text-gray-900",
+		"bg-transparent border border-primary-600 text-primary-600 hover:bg-primary-500/10 hover:border-primary-700 hover:text-primary-700 disabled:border-gray-800 disabled:text-gray-500 disabled:hover:bg-transparent",
+	ghost:
+		"bg-transparent text-gray-700 hover:bg-gray-100 hover:text-gray-900 disabled:text-gray-500 disabled:hover:bg-transparent",
 };
 
 export function ButtonInner({

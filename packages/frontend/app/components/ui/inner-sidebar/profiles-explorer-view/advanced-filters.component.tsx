@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { FilterX } from "lucide-react";
 import type { ProfileFilter } from "~/schemas/dtos/profile.dto";
+import { Field } from "~/components/ui/forms/field/field.component";
 import { SelectInput } from "~/components/ui/forms/input/select-input.component";
 import { TextInput } from "~/components/ui/forms/input/text-input.component";
 import { TextAreaInput } from "~/components/ui/forms/input/textarea-input.component";
@@ -55,47 +56,59 @@ export function ProfilesAdvancedFilters({
 						</div>
 
 						<div className="space-y-3 flex flex-col">
-							<TextInput
-								label="Name"
-								placeholder="Filter by name..."
-								value={filters.name || ""}
-								onChange={(e) => updateFilter("name", e.target.value)}
-								className="py-1.5 px-2 text-xs bg-white/5 border-white/5 focus:border-primary-500/50"
-								labelClassName="text-[10px]"
-							/>
+							<Field>
+								<Field.Label className="text-[10px]">Name</Field.Label>
+								<Field.Control>
+									<TextInput
+										placeholder="Filter by name..."
+										value={filters.name || ""}
+										onChange={(e) => updateFilter("name", e.target.value)}
+										className="py-1.5 px-2 text-xs bg-white/5 border-white/5 focus:border-primary-500/50"
+									/>
+								</Field.Control>
+							</Field>
 
-							<TextAreaInput
-								label="Description"
-								placeholder="Filter by description..."
-								value={filters.description || ""}
-								onChange={(e) => updateFilter("description", e.target.value)}
-								className="py-1.5 px-2 text-xs bg-white/5 border-white/5 focus:border-primary-500/50"
-								labelClassName="text-[10px]"
-							/>
+							<Field>
+								<Field.Label className="text-[10px]">Description</Field.Label>
+								<Field.Control>
+									<TextAreaInput
+										placeholder="Filter by description..."
+										value={filters.description || ""}
+										onChange={(e) => updateFilter("description", e.target.value)}
+										className="py-1.5 px-2 text-xs bg-white/5 border-white/5 focus:border-primary-500/50"
+									/>
+								</Field.Control>
+							</Field>
 
-							<SelectInput
-								label="Mode"
-								value={filters.status}
-								onChange={(e) =>
-									updateFilter(
-										"status",
-										validateEnum(e.target.value, profileModeSchema),
-									)
-								}
-								options={profileModeSchema.options.map((mode) => ({
-									label: capitalize(mode),
-									value: mode,
-								}))}
-								className="py-1.5 px-2 text-xs bg-white/5 border-white/5 focus:border-primary-500/50"
-								labelClassName="text-[10px]"
-							/>
+							<Field>
+								<Field.Label className="text-[10px]">Mode</Field.Label>
+								<Field.Control>
+									<SelectInput
+										value={filters.status}
+										onChange={(e) =>
+											updateFilter(
+												"status",
+												validateEnum(e.target.value, profileModeSchema),
+											)
+										}
+										options={profileModeSchema.options.map((mode) => ({
+											label: capitalize(mode),
+											value: mode,
+										}))}
+										className="py-1.5 px-2 text-xs bg-white/5 border-white/5 focus:border-primary-500/50"
+									/>
+								</Field.Control>
+							</Field>
 
-							<ToggleInput
-								label="Authored by me"
-								checked={filters.onlyMe || false}
-								onChange={(e) => updateFilter("onlyMe", e.target.checked)}
-								labelClassName="text-[10px]"
-							/>
+							<Field>
+								<Field.Control>
+									<ToggleInput
+										checked={filters.onlyMe || false}
+										onChange={(e) => updateFilter("onlyMe", e.target.checked)}
+									/>
+									<Field.Label className="text-[10px] ml-3 mt-0.5">Authored by me</Field.Label>
+								</Field.Control>
+							</Field>
 						</div>
 					</div>
 				</motion.div>

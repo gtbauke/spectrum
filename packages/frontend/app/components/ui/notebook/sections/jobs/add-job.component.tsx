@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "~/components/ui/buttons/button.component";
+import { Field } from "~/components/ui/forms/field/field.component";
 import { MultiSelectInput } from "~/components/ui/forms/input/multi-select-input.component";
 import { SelectInput } from "~/components/ui/forms/input/select-input.component";
 import { TextInput } from "~/components/ui/forms/input/text-input.component";
@@ -117,74 +118,109 @@ export function AddJob({
 
 				<div className="space-y-4">
 					<div className="grid grid-cols-2 gap-4">
-						<TextInput
-							label="Name"
-							required
-							placeholder="e.g. my-experiment-v1"
-							error={errors.name}
-							{...register("name")}
-						/>
+						<Field error={errors.name}>
+							<Field.Label required>Name</Field.Label>
+							<Field.Control>
+								<TextInput
+									placeholder="e.g. my-experiment-v1"
+									{...register("name")}
+								/>
+							</Field.Control>
+							<Field.Error />
+						</Field>
 
-						<SelectInput
-							label="Dataset"
-							required
-							options={
-								datasetOptions.length > 0
-									? datasetOptions
-									: [{ label: "No datasets linked to this profile", value: "" }]
-							}
-							disabled={datasetOptions.length === 0}
-							error={errors.runsAgainst}
-							{...register("runsAgainst")}
-						/>
+						<Field error={errors.runsAgainst}>
+							<Field.Label required>Dataset</Field.Label>
+							<Field.Control>
+								<SelectInput
+									options={
+										datasetOptions.length > 0
+											? datasetOptions
+											: [
+													{
+														label: "No datasets linked to this profile",
+														value: "",
+													},
+												]
+									}
+									disabled={datasetOptions.length === 0}
+									{...register("runsAgainst")}
+								/>
+							</Field.Control>
+							<Field.Error />
+						</Field>
 					</div>
 
 					<div className="grid grid-cols-3 gap-4">
-						<SelectInput
-							label="Loss Function"
-							options={lossOptions}
-							error={errors.loss}
-							{...register("loss")}
-						/>
+						<Field error={errors.loss}>
+							<Field.Label>Loss Function</Field.Label>
+							<Field.Control>
+								<SelectInput options={lossOptions} {...register("loss")} />
+							</Field.Control>
+							<Field.Error />
+						</Field>
 
-						<TextInput
-							label="Generations"
-							type="number"
-							error={errors.generations}
-							{...register("generations", { valueAsNumber: true })}
-						/>
+						<Field error={errors.generations}>
+							<Field.Label>Generations</Field.Label>
+							<Field.Control>
+								<TextInput
+									type="number"
+									{...register("generations", { valueAsNumber: true })}
+								/>
+							</Field.Control>
+							<Field.Error />
+						</Field>
 
-						<TextInput
-							label="Population"
-							type="number"
-							error={errors.population}
-							{...register("population", { valueAsNumber: true })}
-						/>
+						<Field error={errors.population}>
+							<Field.Label>Population</Field.Label>
+							<Field.Control>
+								<TextInput
+									type="number"
+									{...register("population", { valueAsNumber: true })}
+								/>
+							</Field.Control>
+							<Field.Error />
+						</Field>
 					</div>
 
 					<Controller
 						name="nonTerminals"
 						control={control}
 						render={({ field }) => (
-							<MultiSelectInput
-								label="Available Functions"
-								options={functionOptions}
-								value={field.value ?? []}
-								onChange={field.onChange}
+							<Field
 								error={
 									errors.nonTerminals as
 										| import("react-hook-form").FieldError
 										| undefined
 								}
-							/>
+							>
+								<Field.Label>Available Functions</Field.Label>
+								<Field.Control>
+									<MultiSelectInput
+										options={functionOptions}
+										value={field.value ?? []}
+										onChange={field.onChange}
+									/>
+								</Field.Control>
+								<Field.Error />
+							</Field>
 						)}
 					/>
 
-					<ToggleInput
-						label="Simplify"
-						description="Apply algebraic simplification after evolution"
-						{...register("simplify")}
-					/>
+					<Field>
+						<Field.Label>
+							<Field.Control className="p-2 space-x-2">
+								<div className="flex flex-col">
+									<span>Simplify</span>
+									<Field.Description>
+										Apply algebraic simplification after evolution
+									</Field.Description>
+								</div>
+
+								<ToggleInput {...register("simplify")} />
+							</Field.Control>
+						</Field.Label>
+					</Field>
 				</div>
 			</div>
 
@@ -201,63 +237,95 @@ export function AddJob({
 
 			{showAdvanced && (
 				<div className="grid grid-cols-2 gap-4">
-					<TextInput
-						label="Max Size"
-						type="number"
-						error={errors.maxSize}
-						{...register("maxSize", { valueAsNumber: true })}
-					/>
+					<Field error={errors.maxSize}>
+						<Field.Label>Max Size</Field.Label>
+						<Field.Control>
+							<TextInput
+								type="number"
+								{...register("maxSize", { valueAsNumber: true })}
+							/>
+						</Field.Control>
+						<Field.Error />
+					</Field>
 
-					<TextInput
-						label="Number of Tournaments"
-						type="number"
-						error={errors.numberOfTournaments}
-						{...register("numberOfTournaments", { valueAsNumber: true })}
-					/>
+					<Field error={errors.numberOfTournaments}>
+						<Field.Label>Number of Tournaments</Field.Label>
+						<Field.Control>
+							<TextInput
+								type="number"
+								{...register("numberOfTournaments", { valueAsNumber: true })}
+							/>
+						</Field.Control>
+						<Field.Error />
+					</Field>
 
-					<TextInput
-						label="Crossover Probability"
-						type="number"
-						step="0.01"
-						error={errors.crossoverProbability}
-						{...register("crossoverProbability", { valueAsNumber: true })}
-					/>
+					<Field error={errors.crossoverProbability}>
+						<Field.Label>Crossover Probability</Field.Label>
+						<Field.Control>
+							<TextInput
+								type="number"
+								step="0.01"
+								{...register("crossoverProbability", { valueAsNumber: true })}
+							/>
+						</Field.Control>
+						<Field.Error />
+					</Field>
 
-					<TextInput
-						label="Mutation Probability"
-						type="number"
-						step="0.01"
-						error={errors.mutationProbability}
-						{...register("mutationProbability", { valueAsNumber: true })}
-					/>
+					<Field error={errors.mutationProbability}>
+						<Field.Label>Mutation Probability</Field.Label>
+						<Field.Control>
+							<TextInput
+								type="number"
+								step="0.01"
+								{...register("mutationProbability", { valueAsNumber: true })}
+							/>
+						</Field.Control>
+						<Field.Error />
+					</Field>
 
-					<TextInput
-						label="Optimization Iterations"
-						type="number"
-						error={errors.optimizationIterations}
-						{...register("optimizationIterations", { valueAsNumber: true })}
-					/>
+					<Field error={errors.optimizationIterations}>
+						<Field.Label>Optimization Iterations</Field.Label>
+						<Field.Control>
+							<TextInput
+								type="number"
+								{...register("optimizationIterations", { valueAsNumber: true })}
+							/>
+						</Field.Control>
+						<Field.Error />
+					</Field>
 
-					<TextInput
-						label="Optimization Repeats"
-						type="number"
-						error={errors.optimizationRepeats}
-						{...register("optimizationRepeats", { valueAsNumber: true })}
-					/>
+					<Field error={errors.optimizationRepeats}>
+						<Field.Label>Optimization Repeats</Field.Label>
+						<Field.Control>
+							<TextInput
+								type="number"
+								{...register("optimizationRepeats", { valueAsNumber: true })}
+							/>
+						</Field.Control>
+						<Field.Error />
+					</Field>
 
-					<TextInput
-						label="Max Param Count"
-						type="number"
-						error={errors.maxParamCount}
-						{...register("maxParamCount", { valueAsNumber: true })}
-					/>
+					<Field error={errors.maxParamCount}>
+						<Field.Label>Max Param Count</Field.Label>
+						<Field.Control>
+							<TextInput
+								type="number"
+								{...register("maxParamCount", { valueAsNumber: true })}
+							/>
+						</Field.Control>
+						<Field.Error />
+					</Field>
 
-					<TextInput
-						label="Split"
-						type="number"
-						error={errors.split}
-						{...register("split", { valueAsNumber: true })}
-					/>
+					<Field error={errors.split}>
+						<Field.Label>Split</Field.Label>
+						<Field.Control>
+							<TextInput
+								type="number"
+								{...register("split", { valueAsNumber: true })}
+							/>
+						</Field.Control>
+						<Field.Error />
+					</Field>
 				</div>
 			)}
 

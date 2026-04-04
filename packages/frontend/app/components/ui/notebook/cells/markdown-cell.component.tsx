@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
+import { Field } from "~/components/ui/forms/field/field.component";
 import { TextAreaInput } from "~/components/ui/forms/input/textarea-input.component";
 import { useEditorStore } from "~/stores/editor.store";
 import { cn } from "~/utils/classname.util";
@@ -46,15 +47,19 @@ export function MarkdownBlock({ id, data, isActive }: MarkdownBlockProps) {
         // biome-ignore lint/a11y/noStaticElementInteractions: Cannot have nested interactive elements
         <div className="w-full min-h-10" onDoubleClick={() => setIsEditing(true)}>
             {isEditing ? (
-                <TextAreaInput
-                    label="Markdown Editor"
-                    value={data.value}
-                    autoFocus
-                    onChange={(e) => handleTextChange(e.target.value)}
-                    onBlur={handleBlur}
-                    placeholder="Type markdown here..."
-                    className="bg-transparent border-none p-0 focus:ring-0 font-mono text-sm leading-relaxed"
-                />
+                <Field>
+                    <Field.Label className="sr-only">Markdown Editor</Field.Label>
+                    <Field.Control className="bg-transparent border-none p-0 focus-within:ring-0 hover:border-transparent">
+                        <TextAreaInput
+                            value={data.value}
+                            autoFocus
+                            onChange={(e) => handleTextChange(e.target.value)}
+                            onBlur={handleBlur}
+                            placeholder="Type markdown here..."
+                            className="font-mono text-sm leading-relaxed p-0 border-none bg-transparent focus:ring-0 outline-none"
+                        />
+                    </Field.Control>
+                </Field>
             ) : (
                 <div
                     className={cn(

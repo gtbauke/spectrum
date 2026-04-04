@@ -1,13 +1,17 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Logo } from "~/components/ui/brand/logo.component";
 import { Button } from "~/components/ui/buttons/button.component";
+import { Field } from "~/components/ui/forms/field/field.component";
+import { PasswordToggle } from "~/components/ui/forms/input/password-toggle.component";
 import { TextInput } from "~/components/ui/forms/input/text-input.component";
 import { RedirectLink } from "~/components/ui/redirects/redirect-link.component";
 import { useLoginMutation } from "~/hooks/use-login.hook";
 import { loginCredentialsSchema } from "~/schemas/dtos/auth.dto";
 
 export default function Login() {
+	const [showPassword, setShowPassword] = useState(false);
 	const { mutate, isPending, error } = useLoginMutation();
 	const {
 		formState: { errors, isValid },
@@ -61,23 +65,38 @@ export default function Login() {
 					</div>
 
 					<form className="space-y-6" onSubmit={onSubmit}>
-						<TextInput
-							label="Email"
-							type="email"
-							placeholder="name@company.com"
-							error={errors.email}
-							{...register("email")}
-						/>
+						<Field error={errors.email}>
+							<Field.Label>Email</Field.Label>
+							<Field.Control>
+								<TextInput
+									type="email"
+									placeholder="name@company.com"
+									{...register("email")}
+								/>
+							</Field.Control>
+							<Field.Error />
+						</Field>
 
-						<TextInput
-							label="Password"
-							type="password"
-							placeholder="••••••••"
-							error={errors.password}
-							redirect="Forgot?"
-							redirectHref="/password-reset"
-							{...register("password")}
-						/>
+						<Field error={errors.password}>
+							<Field.Header>
+								<Field.Label>Password</Field.Label>
+								<Field.Action to="/password-reset">Forgot?</Field.Action>
+							</Field.Header>
+							<Field.Control>
+								<TextInput
+									type={showPassword ? "text" : "password"}
+									placeholder="••••••••"
+									{...register("password")}
+								/>
+								<Field.Slot side="right">
+									<PasswordToggle
+										visible={showPassword}
+										onToggle={() => setShowPassword((p) => !p)}
+									/>
+								</Field.Slot>
+							</Field.Control>
+							<Field.Error />
+						</Field>
 
 						<Button
 							type="submit"

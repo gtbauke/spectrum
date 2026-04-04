@@ -1,13 +1,17 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Logo } from "~/components/ui/brand/logo.component";
 import { Button } from "~/components/ui/buttons/button.component";
+import { Field } from "~/components/ui/forms/field/field.component";
+import { PasswordToggle } from "~/components/ui/forms/input/password-toggle.component";
 import { TextInput } from "~/components/ui/forms/input/text-input.component";
 import { RedirectLink } from "~/components/ui/redirects/redirect-link.component";
 import { useSignupMutation } from "~/hooks/use-signup.hook";
 import { signupDtoSchema } from "~/schemas/dtos/auth.dto";
 
 export default function SignUp() {
+	const [showPassword, setShowPassword] = useState(false);
 	const { mutate, isPending, error } = useSignupMutation();
 	const {
 		register,
@@ -61,35 +65,58 @@ export default function SignUp() {
 
 					<form onSubmit={onSubmit} className="space-y-6">
 						<div className="grid grid-cols-2 gap-4">
-							<TextInput
-								label="First Name"
-								placeholder="John"
-								{...register("first_name")}
-								error={errors.first_name}
-							/>
-							<TextInput
-								label="Last Name"
-								placeholder="Doe"
-								{...register("last_name")}
-								error={errors.last_name}
-							/>
+							<Field error={errors.first_name}>
+								<Field.Label>First Name</Field.Label>
+								<Field.Control>
+									<TextInput
+										placeholder="John"
+										{...register("first_name")}
+									/>
+								</Field.Control>
+								<Field.Error />
+							</Field>
+
+							<Field error={errors.last_name}>
+								<Field.Label>Last Name</Field.Label>
+								<Field.Control>
+									<TextInput
+										placeholder="Doe"
+										{...register("last_name")}
+									/>
+								</Field.Control>
+								<Field.Error />
+							</Field>
 						</div>
 
-						<TextInput
-							label="Email Address"
-							type="email"
-							placeholder="john@company.com"
-							{...register("email")}
-							error={errors.email}
-						/>
+						<Field error={errors.email}>
+							<Field.Label>Email Address</Field.Label>
+							<Field.Control>
+								<TextInput
+									type="email"
+									placeholder="john@company.com"
+									{...register("email")}
+								/>
+							</Field.Control>
+							<Field.Error />
+						</Field>
 
-						<TextInput
-							label="Password"
-							type="password"
-							placeholder="Create a strong password"
-							{...register("password")}
-							error={errors.password}
-						/>
+						<Field error={errors.password}>
+							<Field.Label>Password</Field.Label>
+							<Field.Control>
+								<TextInput
+									type={showPassword ? "text" : "password"}
+									placeholder="Create a strong password"
+									{...register("password")}
+								/>
+								<Field.Slot side="right">
+									<PasswordToggle
+										visible={showPassword}
+										onToggle={() => setShowPassword((p) => !p)}
+									/>
+								</Field.Slot>
+							</Field.Control>
+							<Field.Error />
+						</Field>
 
 						<Button
 							type="submit"

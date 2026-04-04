@@ -2,6 +2,7 @@ import { Eye, File, Trash2 } from "lucide-react";
 import type { UseFormRegister } from "react-hook-form";
 import { Button } from "~/components/ui/buttons/button.component";
 import { IconButton } from "~/components/ui/buttons/icon-button.component";
+import { Field } from "~/components/ui/forms/field/field.component";
 import { SelectInput } from "~/components/ui/forms/input/select-input.component";
 import { TextInput } from "~/components/ui/forms/input/text-input.component";
 import { TextAreaInput } from "~/components/ui/forms/input/textarea-input.component";
@@ -68,22 +69,29 @@ export function EditDatasetForm({
 
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="space-y-2">
-						<TextInput
-							label="Dataset Name"
-							required
-							placeholder="e.g., Q3 Marketing Data"
-							{...register("datasetName")}
-							disabled={isPending}
-						/>
+						<Field>
+							<Field.Label required>Dataset Name</Field.Label>
+							<Field.Control>
+								<TextInput
+									placeholder="e.g., Q3 Marketing Data"
+									{...register("datasetName")}
+									disabled={isPending}
+								/>
+							</Field.Control>
+						</Field>
 					</div>
 
-					<TextAreaInput
-						label="Description"
-						placeholder="Brief context about this data batch..."
-						{...register("datasetDescription")}
-						disabled={isPending}
-						className="min-h-24"
-					/>
+					<Field>
+						<Field.Label>Description</Field.Label>
+						<Field.Control>
+							<TextAreaInput
+								placeholder="Brief context about this data batch..."
+								{...register("datasetDescription")}
+								disabled={isPending}
+								className="min-h-24"
+							/>
+						</Field.Control>
+					</Field>
 				</div>
 			</div>
 
@@ -132,17 +140,20 @@ export function EditDatasetForm({
 								/>
 
 								<div className="w-48 shrink-0">
-									<SelectInput
-										required
-										label="Role"
-										aria-label={`Role for ${fileName}`}
-										{...register(`roles.${index}.role`, { required: true })}
-										disabled={isPending}
-										options={artifactRoleSchema.options.map((value) => ({
-											label: capitalize(value),
-											value,
-										}))}
-									/>
+									<Field>
+										<Field.Label required>Role</Field.Label>
+										<Field.Control>
+											<SelectInput
+												aria-label={`Role for ${fileName}`}
+												{...register(`roles.${index}.role`, { required: true })}
+												disabled={isPending}
+												options={artifactRoleSchema.options.map((value) => ({
+													label: capitalize(value),
+													value,
+												}))}
+											/>
+										</Field.Control>
+									</Field>
 								</div>
 
 								<IconButton

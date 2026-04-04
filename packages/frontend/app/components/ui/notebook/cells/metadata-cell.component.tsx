@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { Field } from "~/components/ui/forms/field/field.component";
 import { TextInput } from "~/components/ui/forms/input/text-input.component";
 import { TextAreaInput } from "~/components/ui/forms/input/textarea-input.component";
 import { useEditorStore } from "~/stores/editor.store";
@@ -35,37 +36,45 @@ export function MetadataBlock({ tabId }: { id: string; tabId: string }) {
 
 	return (
 		<div className="space-y-4">
-			<TextInput
-				label="Profile Name"
-				value={profile?.name || ""}
-				onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-					handleTextChange("name", e.target.value)
-				}
-				className="bg-transparent border-none px-0 py-0 text-lg font-medium focus:ring-0"
-				onBlur={() => {
-					if (timerRef.current) {
-						clearTimeout(timerRef.current);
-						commit();
-						timerRef.current = null;
-					}
-				}}
-			/>
-			<TextAreaInput
-				label="Description"
-				value={profile?.description || ""}
-				onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-					handleTextChange("description", e.target.value)
-				}
-				className="bg-transparent border-none px-0 py-0 text-sm focus:ring-0 min-h-15"
-				placeholder="Document the objective..."
-				onBlur={() => {
-					if (timerRef.current) {
-						clearTimeout(timerRef.current);
-						commit();
-						timerRef.current = null;
-					}
-				}}
-			/>
+			<Field>
+				<Field.Label className="sr-only">Profile Name</Field.Label>
+				<Field.Control className="bg-transparent border-none px-0 py-0 focus-within:ring-0">
+					<TextInput
+						value={profile?.name || ""}
+						onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+							handleTextChange("name", e.target.value)
+						}
+						className="text-lg font-medium px-0"
+						onBlur={() => {
+							if (timerRef.current) {
+								clearTimeout(timerRef.current);
+								commit();
+								timerRef.current = null;
+							}
+						}}
+					/>
+				</Field.Control>
+			</Field>
+			<Field>
+				<Field.Label className="sr-only">Description</Field.Label>
+				<Field.Control className="bg-transparent border-none px-0 py-0 focus-within:ring-0">
+					<TextAreaInput
+						value={profile?.description || ""}
+						onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+							handleTextChange("description", e.target.value)
+						}
+						className="text-sm min-h-15 px-0"
+						placeholder="Document the objective..."
+						onBlur={() => {
+							if (timerRef.current) {
+								clearTimeout(timerRef.current);
+								commit();
+								timerRef.current = null;
+							}
+						}}
+					/>
+				</Field.Control>
+			</Field>
 		</div>
 	);
 }

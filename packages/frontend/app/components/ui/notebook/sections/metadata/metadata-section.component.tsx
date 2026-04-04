@@ -2,6 +2,7 @@ import { Edit } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/buttons/button.component";
 import { IconButton } from "~/components/ui/buttons/icon-button.component";
+import { Field } from "~/components/ui/forms/field/field.component";
 import { TextInput } from "~/components/ui/forms/input/text-input.component";
 import { TextAreaInput } from "~/components/ui/forms/input/textarea-input.component";
 import { useProfileUpdateMutation } from "~/hooks/use-profile-update-mutation.hook";
@@ -41,22 +42,30 @@ export function ProfileMetadataSection({
 			{isEditing ? (
 				<div className="space-y-4">
 					<div className="flex flex-col gap-4">
-						<TextInput
-							label="Profile Name"
-							value={tempName}
-							onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-								setTempName(e.target.value)
-							}
-						/>
+						<Field>
+							<Field.Label>Profile Name</Field.Label>
+							<Field.Control>
+								<TextInput
+									value={tempName}
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+										setTempName(e.target.value)
+									}
+								/>
+							</Field.Control>
+						</Field>
 
-						<TextAreaInput
-							label="Description"
-							value={tempDescription}
-							onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-								setTempDescription(e.target.value)
-							}
-							placeholder="Document the objective..."
-						/>
+						<Field>
+							<Field.Label>Description</Field.Label>
+							<Field.Control>
+								<TextAreaInput
+									value={tempDescription}
+									onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+										setTempDescription(e.target.value)
+									}
+									placeholder="Document the objective..."
+								/>
+							</Field.Control>
+						</Field>
 					</div>
 
 					<Button type="button" className="py-2" onClick={handleSaveClick}>
