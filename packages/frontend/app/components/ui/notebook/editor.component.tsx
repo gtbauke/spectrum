@@ -14,6 +14,9 @@ import { DraggableItem } from "./draggable-item.component";
 import { EditorToolbar } from "./editor-toolbar.component";
 import { InsertDivider } from "./insert-divider.component";
 import { ProfileSkeleton } from "./profile-skeleton.component";
+import { ProfileDatasetsSection } from "./sections/datasets/datasets-section.component";
+import { ProfileJobsSection } from "./sections/jobs/jobs-section.component";
+import { ProfileMetadataSection } from "./sections/metadata/metadata-section.component";
 
 type ProfileEditorProps = {
 	tabId: string;
@@ -54,7 +57,7 @@ export function ProfileEditor({ tabId }: ProfileEditorProps) {
 
 	const profileData = tab.data as ProfileTabData;
 
-	if (isLoading && !profileData.profile) {
+	if ((isLoading && !profileData.profile) || !profile) {
 		return (
 			<div className="flex-1 h-full overflow-y-auto custom-scrollbar bg-background">
 				<div className="sticky top-0 z-40 w-full flex justify-center py-4 pointer-events-none">
@@ -121,8 +124,16 @@ export function ProfileEditor({ tabId }: ProfileEditorProps) {
 	};
 
 	return (
-		<div className="flex-1 h-full overflow-y-auto custom-scrollbar bg-background">
-			<div className="sticky top-0 z-40 w-full flex justify-center py-4 pointer-events-none">
+		<div className="flex-1 h-full p-12 overflow-y-auto custom-scrollbar bg-background">
+			<div className="space-y-4">
+				<ProfileMetadataSection profile={profile} />
+				<ProfileDatasetsSection datasets={profile.datasets} />
+				<ProfileJobsSection jobs={profile.jobs} />
+			</div>
+
+			<div className="h-64" />
+
+			{/* <div className="sticky top-0 z-40 w-full flex justify-center py-4 pointer-events-none">
 				<div className="pointer-events-auto">
 					<EditorToolbar />
 				</div>
@@ -162,7 +173,7 @@ export function ProfileEditor({ tabId }: ProfileEditorProps) {
 				</Reorder.Group>
 			</div>
 
-			<div className="h-64" />
+			<div className="h-64" /> */}
 		</div>
 	);
 }

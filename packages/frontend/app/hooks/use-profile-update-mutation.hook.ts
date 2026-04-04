@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateProfile } from "~/api/profiles/update-profile.api";
 import type { UpdateProfileDto } from "~/schemas/dtos/profile.dto";
+import { useEditorStore } from "~/stores/editor.store";
 
 type UpdateProfileParams = {
 	profileId: string;
@@ -9,6 +10,7 @@ type UpdateProfileParams = {
 
 export function useProfileUpdateMutation() {
 	const queryClient = useQueryClient();
+	const updateTab = useEditorStore((state) => state.updateTab);
 
 	return useMutation({
 		mutationFn: async ({ profileId, data }: UpdateProfileParams) => {
@@ -17,6 +19,13 @@ export function useProfileUpdateMutation() {
 		},
 		onSuccess: (updatedProfile) => {
 			queryClient.invalidateQueries({ queryKey: ["profiles"] });
+			queryClient.invalidateQueries({
+				queryKey: ["profile", updatedProfile.id],
+			});
+
+			updateTab(updatedProfile.id, "profile", {
+				profile: updatedProfile,
+			});
 		},
 		onError: (error) => {
 			console.error("Failed to update profile:", error);

@@ -5,21 +5,12 @@ import { useLinkDatasetToProfileMutation } from "~/hooks/use-link-dataset-to-pro
 import type { Dataset } from "~/schemas/domain/dataset.schema";
 import { useEditorStore } from "~/stores/editor.store";
 import { cn } from "~/utils/classname.util";
+import { formatBytes } from "~/utils/format-bytes.util";
 
 type DatasetItemProps = {
 	dataset: Dataset;
 	active?: boolean;
 };
-
-function formatBytes(bytes: number) {
-	if (bytes === 0) return "0 B";
-
-	const k = 1024;
-	const sizes = ["B", "KB", "MB", "GB", "TB"];
-	const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-	return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
-}
 
 export function DatasetItem({ dataset, active = false }: DatasetItemProps) {
 	const tabs = useEditorStore((s) => s.tabs);

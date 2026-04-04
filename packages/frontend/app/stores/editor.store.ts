@@ -1,10 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { create } from "zustand";
-import { type Block, blockSchema } from "~/schemas/domain/block.schema";
-import { type Job, jobSchema, type Run } from "~/schemas/domain/job.schema";
-import { type Model, modelSchema } from "~/schemas/domain/model.schema";
-import { type Profile, profileSchema } from "~/schemas/domain/profile.schema";
-import type { User } from "~/schemas/domain/user.schema";
+import type { Profile } from "~/schemas/domain/profile.schema";
 import type {
 	BlockDataMap,
 	BlockType,
@@ -14,15 +10,7 @@ import type {
 	EditorTabType,
 	InferenceData,
 } from "~/utils/types/editor.types";
-import { login, logout, me } from "../api/auth/auth.api";
-import { bulkUpdateBlocks as bulkUpdateBlocksApi } from "../api/profiles/blocks/bulk-update-blocks.api";
-import { createBlocks } from "../api/profiles/blocks/create-blocks.api";
-import { deleteBlock as deleteBlockApi } from "../api/profiles/blocks/delete-block.api";
-import { updateBlock as updateBlockApi } from "../api/profiles/blocks/update-block.api";
-import { getProfile } from "../api/profiles/get-profile.api";
 import { runJob } from "../api/profiles/jobs/run-job.api";
-import { listProfiles } from "../api/profiles/list-profiles.api";
-import { updateProfile } from "../api/profiles/update-profile.api";
 
 export type {
 	BlockDataMap,

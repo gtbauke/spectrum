@@ -30,6 +30,10 @@ export function EditorToolbar() {
 			(block) => !["metadata", "datasets", "jobs"].includes(block.type),
 		);
 
+		const savedBlocks = tab.data.profile.blocks.filter(
+			(block) => !["metadata", "datasets", "jobs"].includes(block.kind),
+		);
+
 		const profileId = tab.data.profile.id;
 		const indexDiff = tab.data.blocks.length - currentBlocks.length;
 

@@ -1,6 +1,6 @@
-import type { Profile } from "~/schemas/domain/profile.schema";
-import type { ProfileMode } from "~/schemas/domain/enums.schema";
 import type { Dataset } from "~/schemas/domain/dataset.schema";
+import type { ProfileMode } from "~/schemas/domain/enums.schema";
+import type { Profile } from "~/schemas/domain/profile.schema";
 
 export type MetadataData = {
 	name: string;
