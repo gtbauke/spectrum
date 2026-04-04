@@ -4,9 +4,14 @@ import {
 	ChevronUp,
 	Clock,
 	Play,
+	PlayIcon,
+	Trash,
 	XCircle,
 } from "lucide-react";
 import { useState } from "react";
+import { IconButton } from "~/components/ui/buttons/icon-button.component";
+import { useJobDeleteMutation } from "~/hooks/use-job-delete-mutation.hook";
+import { useRunJobMutation } from "~/hooks/use-run-job-mutation.hook";
 import type { Dataset } from "~/schemas/domain/dataset.schema";
 import type { Job, Run } from "~/schemas/domain/job.schema";
 
@@ -77,14 +82,51 @@ export function JobItem({ job, datasets }: JobItemProps) {
 	const latestRun = [...(job.runs || [])].sort((a, b) => {
 		const aTime = a.startedAt?.getTime() ?? 0;
 		const bTime = b.startedAt?.getTime() ?? 0;
+
 		return bTime - aTime;
 	})[0];
+
+	const { mutate: deleteJob } = useJobDeleteMutation();
+	const { mutate: runJob } = useRunJobMutation();
+
+	const handleRun = () => {
+		runJob({
+			profileId: job.profileId,
+			jobId: job.id,
+		});
+	};
+
+	const handleDelete = () => {
+		deleteJob({
+			profileId: job.profileId,
+			jobId: job.id,
+		});
+	};
 
 	return (
 		<div className="border border-border rounded-md p-4 space-y-4 bg-background">
 			<div className="flex items-center justify-between">
 				<h3 className="font-bold text-md text-white">{job.name}</h3>
-				<StatusBadge status={latestRun?.status ?? "no_runs"} />
+
+				<div className="flex items-center gap-4">
+					<div className="flex items-center gap-2">
+						<IconButton
+							Icon={PlayIcon}
+							variant="sm"
+							className="text-green-500 hover:text-green-600 active:text-green-700 transition-colors hover:bg-green-500/10 rounded"
+							onClick={handleRun}
+						/>
+
+						<IconButton
+							Icon={Trash}
+							variant="sm"
+							className="text-red-500 hover:text-red-600 active:text-red-700 transition-colors hover:bg-red-500/10 rounded"
+							onClick={handleDelete}
+						/>
+					</div>
+
+					<StatusBadge status={latestRun?.status ?? "no_runs"} />
+				</div>
 			</div>
 
 			<div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-300">

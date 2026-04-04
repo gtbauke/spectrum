@@ -10,7 +10,6 @@ import type {
 	EditorTabType,
 	InferenceData,
 } from "~/utils/types/editor.types";
-import { runJob } from "../api/profiles/jobs/run-job.api";
 
 export type {
 	BlockDataMap,
@@ -70,7 +69,6 @@ type EditorActions = {
 	undo: () => void;
 	redo: () => void;
 
-	runInference: (id: string) => Promise<void>;
 	initializeProfileBlocks: (id: string, profile: Profile) => void;
 };
 
@@ -472,49 +470,6 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 			};
 		}),
 
-	runInference: async (id) => {
-		const updateBlock = get().updateBlock;
-		const activeTabId = get().activeTabId;
-		if (!activeTabId) return;
-
-		const tab = get().tabs[activeTabId];
-		if (tab.type !== "profile") return;
-
-		// Find the job associated with this inference block
-		// For now, we assume one-to-one or we find the right job by name/metadata
-		// In a real scenario, the block data would hold the job_id
-		const block = tab.data.blocks.find((b) => b.id === id);
-		if (!block || block.type !== "inference") return;
-
-		updateBlock(id, { isRunning: true }, { recordHistory: false });
-
-		try {
-			// Find the job in the profile that matches this block (or just use the first one for now)
-			const job = tab.data.profile?.jobs?.[0];
-			if (!job) throw new Error("No job found for inference");
-
-			const run = await runJob(tab.data.profileId, job.id);
-
-			// Update block with run info
-			updateBlock(
-				id,
-				{
-					isRunning: false,
-					results: {
-						metrics: {
-							rmse: 0, // Will be updated by worker
-							mae: 0,
-						},
-						formula: "Running...", // Will be updated by worker
-					},
-				},
-				{ recordHistory: true },
-			);
-		} catch (error) {
-			console.error("Inference failed:", error);
-			updateBlock(id, { isRunning: false }, { recordHistory: false });
-		}
-	},
 	initializeProfileBlocks: (id: string, profile) =>
 		set((state) => {
 			const tab = state.tabs[id];
