@@ -12,6 +12,8 @@ The form lives in `packages/frontend/app/components/ui/notebook/sections/jobs/ad
 
 All fields map directly to `createJobDtoSchema` in `packages/frontend/app/schemas/dtos/job.dto.ts`.
 
+> **Default Values — Source of Truth**: Defaults are authoritative in the **backend** `CreateJobDto` (`packages/backend/app/features/profiles/jobs/dtos/create.py`). The frontend `createJobDtoSchema` mirrors these defaults in its `.default()` calls so the form pre-fills correctly. If a default changes in the future, it must be updated in both places.
+
 ### Basic (always visible)
 
 | Field | Schema key | Component | Default | Notes |
@@ -19,25 +21,25 @@ All fields map directly to `createJobDtoSchema` in `packages/frontend/app/schema
 | Name | `name` | `TextInput` | — | Required |
 | Dataset | `runsAgainst` | `SelectInput` | — | Required; populated from `datasets` prop |
 | Loss Function | `loss` | `SelectInput` | `"MSE"` | Options: `MSE`, `Gaussian`, `Bernoulli`, `Poisson` |
-| Generations | `generations` | `TextInput[number]` | `100` | |
-| Population | `population` | `TextInput[number]` | `100` | |
-| Available Functions | `nonTerminals` | `MultiSelectInput` | `[]` | Options from `availableFunctionSchema.options` (imported from `~/schemas/domain/enums.schema`); must be wired with `Controller` (not `register`) because `MultiSelectInput` uses `value`/`onChange` props |
-| Simplify | `simplify` | `ToggleInput` | `true` | |
+| Generations | `generations` | `TextInput[number]` | `100` | int ≥ 1 |
+| Population | `population` | `TextInput[number]` | `100` | int ≥ 1 |
+| Available Functions | `nonTerminals` | `MultiSelectInput` | `["add", "sub", "mul", "div"]` | Options from `availableFunctionSchema.options` (imported from `~/schemas/domain/enums.schema`); must be wired with `Controller` (not `register`) because `MultiSelectInput` uses `value`/`onChange` props |
+| Simplify | `simplify` | `ToggleInput` | `false` | |
 
 ### Advanced (collapsed by default, toggled by an expander button)
 
 | Field | Schema key | Component | Default | Constraints |
 |---|---|---|---|---|
-| Max Size | `maxSize` | `TextInput[number]` | `40` | int ≥ 1 |
-| Number of Tournaments | `numberOfTournaments` | `TextInput[number]` | `4` | int ≥ 1 |
+| Max Size | `maxSize` | `TextInput[number]` | `15` | int ≥ 1 |
+| Number of Tournaments | `numberOfTournaments` | `TextInput[number]` | `3` | int ≥ 1 |
 | Crossover Probability | `crossoverProbability` | `TextInput[number]` | `0.9` | 0 – 1 |
-| Mutation Probability | `mutationProbability` | `TextInput[number]` | `0.1` | 0 – 1 |
-| Optimization Iterations | `optimizationIterations` | `TextInput[number]` | `0` | int ≥ 0 |
-| Optimization Repeats | `optimizationRepeats` | `TextInput[number]` | `1` | int ≥ 1 |
-| Max Param Count | `maxParamCount` | `TextInput[number]` | `10` | int ≥ 1 |
-| Split (%) | `split` | `TextInput[number]` | `75` | int 1 – 100 |
+| Mutation Probability | `mutationProbability` | `TextInput[number]` | `0.3` | 0 – 1 |
+| Optimization Iterations | `optimizationIterations` | `TextInput[number]` | `50` | int ≥ 0 |
+| Optimization Repeats | `optimizationRepeats` | `TextInput[number]` | `2` | int ≥ 1 |
+| Max Param Count | `maxParamCount` | `TextInput[number]` | `-1` | int ≥ -1 (`-1` means unlimited) |
+| Split | `split` | `TextInput[number]` | `1` | int ≥ 1 |
 
-Numerical constraints are enforced at the Zod schema level using `.min()` / `.max()` refinements added directly in `createJobDtoSchema`. The `Generations` and `Population` basic fields also have the constraint int ≥ 1.
+Numerical constraints are enforced at the Zod schema level using `.min()` / `.max()` refinements. `maxParamCount` allows `-1` as a special sentinel meaning "unlimited parameters".
 
 ### Dataset Selector Mapping
 
@@ -125,6 +127,8 @@ A local boolean state `showAdvanced` controls whether the advanced fields are vi
 
 | File | Change |
 |---|---|
+| `packages/backend/app/features/profiles/jobs/dtos/create.py` | Add `default=` values to all optional fields in `CreateJobDto` |
+| `packages/frontend/app/schemas/dtos/job.dto.ts` | Update `.default()` values in `createJobDtoSchema` to match backend |
 | `add-job.component.tsx` | Full implementation of the form |
 | `jobs-section.component.tsx` | Add `profileId` and `datasets` props; pass to `AddJob`; wire `onSuccess`/`onCancel` |
 | `hooks/use-create-job-mutation.hook.ts` | New file — TanStack Query mutation hook |
