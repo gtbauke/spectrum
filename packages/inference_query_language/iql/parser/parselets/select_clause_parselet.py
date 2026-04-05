@@ -98,6 +98,19 @@ class SelectClauseParselet(PrefixParselet):
 
     # TODO: we should add support for parentheses in the WHERE and PATTERN clauses to allow for more complex expressions
     def parse(self, parser: QueryParser, token: Token) -> BaseAstNode:
+        # Check for optional modifiers immediately after SELECT
+        modifier: Optional[Union[TopNAstNode, ParetoAstNode]] = None
+        
+        pareto_token = parser.matches_and_return(TokenKind.PARETO)
+        if pareto_token:
+            modifier = ParetoAstNode(pareto_token.span)
+        else:
+            top_token = parser.matches_and_return(TokenKind.TOP)
+            if top_token:
+                top_n_expression = parser.parse_expression()
+                span = top_token.span.merge(top_n_expression.span)
+                modifier = TopNAstNode(top_n_expression, span)
+
         results = parser.do_until_matches(
             TokenKind.FROM,
             func=self._parse_select_list_element,
@@ -121,6 +134,7 @@ class SelectClauseParselet(PrefixParselet):
         return SelectClauseAstNode(
             columns=results,
             from_clause=from_clause,
+            modifier=modifier,
             where_clause=where_clause,
             order_by_clause=order_by_clause,
             pattern_matching_expression=pattern_matching_expression,

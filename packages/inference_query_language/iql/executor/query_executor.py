@@ -46,9 +46,10 @@ class QueryExecutor:
         "cost",
     )
 
-    def __init__(self, root_node: BaseAstNode, reggression: Reggression):
+    def __init__(self, root_node: BaseAstNode, reggressions: dict[str, Reggression]):
         self._root_node = root_node
-        self._reggression = reggression
+        self._reggressions = reggressions
+        self._active_reggression: Optional[Reggression] = None
 
     def _calculate_node_value(self, node: BaseAstNode):
         if isinstance(node, IntegerLiteralAstNode):
@@ -135,9 +136,8 @@ class QueryExecutor:
         pattern = pattern_matching_clause.pattern
         return self._build_pattern_string(pattern)
 
-    def _execute_top_n_expression(self, select_clause: SelectClauseAstNode) -> DataFrame:
-        top_n_expression = select_clause.from_clause().top_n_expression()
-        n = self._calculate_top_n(top_n_expression)
+    def _execute_top_n_expression(self, select_clause: SelectClauseAstNode, modifier: TopNAstNode) -> DataFrame:
+        n = self._calculate_top_n(modifier)
 
         where_clause = select_clause.where_clause()
         where_conditions = self._build_where_conditions(
@@ -149,7 +149,10 @@ class QueryExecutor:
         order_by_clause = select_clause.order_by_clause()
         criteria = order_by_clause.criteria().name() if order_by_clause else "fitness"
 
-        result = self._reggression.top(  # type: ignore
+        if self._active_reggression is None:
+            raise ValueError("No active regression object set")
+
+        result = self._active_reggression.top(  # type: ignore
             n=n,
             filters=where_conditions,
             criteria=criteria,
@@ -162,7 +165,10 @@ class QueryExecutor:
         return result
 
     def _execute_pareto_expression(self) -> DataFrame:
-        result = self._reggression.pareto()  # type: ignore
+        if self._active_reggression is None:
+            raise ValueError("No active regression object set")
+
+        result = self._active_reggression.pareto()  # type: ignore
 
         if not isinstance(result, DataFrame):
             raise ResultShouldBeDataFrameError()
@@ -179,15 +185,26 @@ class QueryExecutor:
             if column.name().lower() not in self._QUERYABLE_LITERALS:
                 raise ColumnIsNotSelectableError(column.name())
 
-        from_kind = self._root_node.from_clause().source_kind()
+        model_identifier = self._root_node.from_clause().identifier().name()
+        if model_identifier not in self._reggressions:
+            raise InvalidFromSourceError(model_identifier)
+        
+        self._active_reggression = self._reggressions[model_identifier]
 
-        if from_kind == AstNodeKind.TOP_N_EXPRESSION:
+        modifier = self._root_node.modifier()
+
+        if isinstance(modifier, TopNAstNode):
             result = self._execute_top_n_expression(
-                select_clause=self._root_node)
-        elif from_kind == AstNodeKind.PARETO_EXPRESSION:
+                select_clause=self._root_node, modifier=modifier)
+        elif isinstance(modifier, ParetoAstNode):
             result = self._execute_pareto_expression()
+        elif modifier is None:
+            # Default to TOP 10 if no modifier is provided
+            default_top_n = TopNAstNode(None, self._root_node.span)
+            result = self._execute_top_n_expression(
+                select_clause=self._root_node, modifier=default_top_n)
         else:
-            raise InvalidFromSourceError(from_kind)
+            raise InvalidFromSourceError(type(modifier))
 
         subset = [column.name().lower()
                   for column in self._root_node.columns()]

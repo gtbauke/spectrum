@@ -16,6 +16,7 @@ from core.features.profiles.jobs.repository import IJobsRepository
 from core.features.profiles.models.repository import IModelsRepository
 from core.features.profiles.jobs.runs.repository import IRunsRepository
 from core.features.profiles.repository import IProfilesRepository
+from core.features.profiles.blocks.inference.repository import IInferenceRunRepository, IInferenceResultRepository
 
 
 class UnitOfWork(ABC):
@@ -28,6 +29,8 @@ class UnitOfWork(ABC):
     jobs: IJobsRepository
     models: IModelsRepository
     runs: IRunsRepository
+    inference_runs: IInferenceRunRepository
+    inference_results: IInferenceResultRepository
 
     file_storage: FileStorage
     events_publisher: EventPublisher

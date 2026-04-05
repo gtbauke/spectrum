@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, status, Query
 
 from app.api.unit_of_work import get_uow
 from app.features.profiles.blocks.errors.block_not_found import BlockNotFound
+from app.features.profiles.blocks.inference.routers.inference import inference_router
 from core.ports.unit_of_work import UnitOfWork
 
 from app.features.auth.guards.get_current_user import get_current_user
@@ -16,6 +17,8 @@ from core.features.profiles.blocks.where import BlockWhere, BlockFilter
 from core.utils.filters.field_filter import UUIDFilter
 
 blocks_router = APIRouter()
+
+blocks_router.include_router(inference_router)
 
 
 @blocks_router.post("", response_model=list[Block], status_code=status.HTTP_201_CREATED, dependencies=[Depends(can_edit_profile)])

@@ -82,6 +82,8 @@
 - **Transaction Safety:** NEVER publish a RabbitMQ event before the SQLAlchemy Unit of Work has successfully committed. If the DB transaction rolls back, the event must not be fired.
 - **Broker Injection:** Do not instantiate `aio_pika` connections inside services. The `AioPikaBroker` (or `IMessageBroker` interface) must be injected into the Service or Unit of Work.
 - **Exchange Naming:** Always use explicitly named exchanges (e.g., `MAIN_EXCHANGE_NAME = "spectrum_events"`). Never attempt to configure or declare the default empty string exchange (`""`), as RabbitMQ will throw an `ACCESS_REFUSED` error.
+- **Queue Separation:** Dedicated tasks (e.g., training vs. inference) MUST use separate queues to allow for independent scaling and priority management (e.g., `workers.training`, `workers.inference`).
+- **Handler Isolation:** Each worker queue should have its own set of `EventHandler` implementations, registered within the main consumer loop.
 
 ## Domain Logic & IQL Handling
 

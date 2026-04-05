@@ -1,10 +1,11 @@
-from typing import Optional
+from typing import Optional, Union
 
 from iql.parser.ast.base import AstNodeKind, BaseAstNode
 from iql.parser.ast.identifier import IdentifierAstNode
 from iql.parser.ast.from_clause import FromAstNode
 from iql.parser.ast.order_by_clause import OrderByClauseAstNode
 from iql.parser.ast.pattern_matching_expression import PatternMatchingExpression
+from iql.parser.ast.top_n import TopNAstNode, ParetoAstNode
 from iql.parser.ast.where import WhereAstNode
 from iql.utils.span import Span
 
@@ -15,6 +16,7 @@ class SelectClauseAstNode(BaseAstNode):
         columns: list[IdentifierAstNode],
         span: Span,
         from_clause: FromAstNode,
+        modifier: Optional[Union[TopNAstNode, ParetoAstNode]] = None,
         where_clause: Optional[WhereAstNode] = None,
         order_by_clause: Optional[OrderByClauseAstNode] = None,
         pattern_matching_expression: Optional[PatternMatchingExpression] = None
@@ -22,6 +24,7 @@ class SelectClauseAstNode(BaseAstNode):
         super().__init__(AstNodeKind.SELECT_CLAUSE, span)
         self._columns = columns
         self._from_clause = from_clause
+        self._modifier = modifier
         self._where_clause = where_clause
         self._order_by_clause = order_by_clause
         self._pattern_matching_expression = pattern_matching_expression
@@ -31,6 +34,9 @@ class SelectClauseAstNode(BaseAstNode):
 
     def from_clause(self) -> FromAstNode:
         return self._from_clause
+
+    def modifier(self) -> Optional[Union[TopNAstNode, ParetoAstNode]]:
+        return self._modifier
 
     def where_clause(self) -> Optional[WhereAstNode]:
         return self._where_clause
@@ -43,6 +49,7 @@ class SelectClauseAstNode(BaseAstNode):
 
     def to_string(self, indent: int) -> str:
         indent_str = " " * indent
+        modifier_str = f" {self._modifier.to_string(0)}" if self._modifier else ""
         columns_str = ", ".join(column.to_string(0)
                                 for column in self._columns)
         from_clause_str = self._from_clause.to_string(
@@ -54,4 +61,4 @@ class SelectClauseAstNode(BaseAstNode):
         pattern_matching_expression_str = self._pattern_matching_expression.to_string(
             indent + 2) if self._pattern_matching_expression else ""
 
-        return f"{indent_str}SELECT {columns_str}\n{from_clause_str}{where_clause_str}{order_by_clause_str}{pattern_matching_expression_str}"
+        return f"{indent_str}SELECT{modifier_str} {columns_str}\n{from_clause_str}{where_clause_str}{order_by_clause_str}{pattern_matching_expression_str}"

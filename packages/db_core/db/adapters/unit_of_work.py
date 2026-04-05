@@ -13,6 +13,7 @@ from db.features.profiles.blocks.repository import SqlAlchemyBlocksRepository
 from db.features.profiles.jobs.repository import SqlAlchemyJobsRepository
 from db.features.profiles.jobs.runs.repository import SqlAlchemyRunsRepository
 from db.features.profiles.models.repository import SqlAlchemyModelsRepository
+from db.features.profiles.blocks.inference.repository import SqlAlchemyInferenceRunRepository, SqlAlchemyInferenceResultRepository
 
 from core.ports.events.message_broker import MessageBroker
 from core.ports.unit_of_work import UnitOfWork
@@ -38,6 +39,8 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
         self.jobs = SqlAlchemyJobsRepository(self._session)
         self.runs = SqlAlchemyRunsRepository(self._session)
         self.models = SqlAlchemyModelsRepository(self._session)
+        self.inference_runs = SqlAlchemyInferenceRunRepository(self._session)
+        self.inference_results = SqlAlchemyInferenceResultRepository(self._session)
 
         return self
 
