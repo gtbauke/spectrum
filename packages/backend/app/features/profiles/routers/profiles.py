@@ -223,27 +223,28 @@ async def update_profile(
     if not profile:
         raise ProfileNotFound()
 
+    update_data = dto.model_dump(exclude_unset=True)
+    if "blocks" in update_data and dto.blocks is not None:
+        domain_blocks = []
+
+        for block_dto in dto.blocks:
+            domain_blocks.append(
+                Block(
+                    id=block_dto.id,
+                    profile_id=profile_id,
+                    kind=block_dto.kind,
+                    order_index=block_dto.order_index,
+                    data=block_dto.data
+                )
+            )
+
+        update_data["blocks"] = domain_blocks
+
     updated_profile = profile.model_copy(
-        update=dto.model_dump(exclude_unset=True, exclude={"blocks"})
+        update=update_data,
     )
 
     await uow.profiles.update(updated_profile)
-
-    if dto.blocks is not None:
-        blocks_to_create: list[Block] = []
-        blocks_to_update: list[Block] = []
-
-        for block in dto.blocks:
-            block_exists = await uow.blocks.get_unique(where=BlockWhere(id=block.id))
-
-            if not block_exists:
-                blocks_to_create.append(block)
-            else:
-                blocks_to_update.append(block)
-
-        await uow.blocks.add_many(blocks_to_create)
-        await uow.blocks.update_many(blocks_to_update)
-
     return updated_profile
 
 

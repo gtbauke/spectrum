@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { blockSchema } from "../domain/block.schema";
+import { rawBlockSchema } from "../domain/block.schema";
 import { artifactRoleSchema, profileModeSchema } from "../domain/enums.schema";
 
 export const createProfileDtoSchema = z.object({
@@ -13,7 +13,7 @@ export const updateProfileDtoSchema = z.object({
 	name: z.string().optional(),
 	description: z.string().optional(),
 	mode: profileModeSchema.optional(),
-	blocks: z.array(blockSchema).optional(),
+	blocks: z.array(rawBlockSchema).optional(),
 });
 
 export type UpdateProfileDto = z.infer<typeof updateProfileDtoSchema>;

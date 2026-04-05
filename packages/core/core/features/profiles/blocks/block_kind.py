@@ -1,5 +1,5 @@
 from enum import StrEnum
-from typing import Literal, Union
+from typing import Any, Literal, Union
 from pydantic import BaseModel
 
 
@@ -10,6 +10,7 @@ class BlockKind(StrEnum):
 
 class BaseBlock[T](BaseModel):
     data: T
+    kind: Any
 
 
 class MarkdownBlock(BaseBlock[str]):

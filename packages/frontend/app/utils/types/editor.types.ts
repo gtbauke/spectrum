@@ -1,30 +1,7 @@
-import type { Dataset } from "~/schemas/domain/dataset.schema";
-import type { ProfileMode } from "~/schemas/domain/enums.schema";
 import type { Profile } from "~/schemas/domain/profile.schema";
-
-export type MetadataData = {
-	name: string;
-	description: string | null | undefined;
-	mode: ProfileMode;
-};
-
-export type DatasetData = {
-	datasets: Dataset[];
-};
-
-export type JobsData = {
-	profileId: string;
-};
-
-export type ResultsData = {
-	metrics: Record<string, number>;
-	formula?: string;
-};
 
 export type InferenceData = {
 	code: string;
-	isRunning?: boolean;
-	results?: ResultsData;
 };
 
 export type MarkdownData = {
@@ -32,10 +9,6 @@ export type MarkdownData = {
 };
 
 export type BlockDataMap = {
-	metadata: MetadataData;
-	datasets: DatasetData;
-	jobs: JobsData;
-	results: ResultsData;
 	inference: InferenceData;
 	markdown: MarkdownData;
 };

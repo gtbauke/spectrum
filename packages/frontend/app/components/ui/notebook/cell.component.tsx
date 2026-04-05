@@ -39,9 +39,9 @@ export function NotebookCell({
 				y: -10,
 				transition: { duration: 0.1 },
 			}}
-			transition={{ duration: 0.2 }}
+			transition={{ duration: 0.1 }}
 			className={cn(
-				"group relative flex flex-col w-full bg-background border-l-2 transition-all duration-300",
+				"group relative flex flex-col w-full bg-background border-l-2 transition-colors duration-100",
 				isActive && "bg-background-surface ring-1 ring-white/5",
 				isActive && type === "inference" && "border-secondary",
 				isActive && type === "markdown" && "border-primary",
@@ -78,7 +78,7 @@ export function NotebookCell({
 						{isActive && (
 							<div
 								className={cn(
-									"w-1 h-1 rounded-full animate-pulse",
+									"w-1 h-1 rounded-full",
 									type === "inference" ? "bg-secondary" : "bg-primary",
 								)}
 							/>

@@ -17,21 +17,21 @@ export const blockDataSchema = z.discriminatedUnion("kind", [
 	inferenceBlockDataSchema,
 ]);
 
-export const blockSchema = baseMutableObject
-	.extend({
-		profile_id: z.uuid(),
-		kind: blockKindSchema,
-		order_index: z.number().int(),
-		data: blockDataSchema,
-	})
-	.transform((data) => ({
-		id: data.id,
-		profileId: data.profile_id,
-		kind: data.kind,
-		orderIndex: data.order_index,
-		data: data.data,
-		createdAt: data.created_at,
-		updatedAt: data.updated_at,
-	}));
+export const rawBlockSchema = baseMutableObject.extend({
+	profile_id: z.uuid(),
+	kind: blockKindSchema,
+	order_index: z.number().int(),
+	data: blockDataSchema,
+});
+
+export const blockSchema = rawBlockSchema.transform((data) => ({
+	id: data.id,
+	profileId: data.profile_id,
+	kind: data.kind,
+	orderIndex: data.order_index,
+	data: data.data,
+	createdAt: data.created_at,
+	updatedAt: data.updated_at,
+}));
 
 export type Block = z.infer<typeof blockSchema>;

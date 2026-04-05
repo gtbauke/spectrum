@@ -25,6 +25,7 @@ export function useProfileUpdateMutation() {
 
 			updateTab(updatedProfile.id, "profile", {
 				profile: updatedProfile,
+				isDirty: false,
 			});
 		},
 		onError: (error) => {

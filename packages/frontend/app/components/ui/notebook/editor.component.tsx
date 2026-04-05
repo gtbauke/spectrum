@@ -1,14 +1,10 @@
-import { AnimatePresence, type DragControls, Reorder } from "framer-motion";
 import { useEffect } from "react";
-import { NotebookCell } from "~/components/ui/notebook/cell.component";
 import { useKeyboardShortcut } from "~/hooks/use-keyboard-shortcut.hook";
+import { useProfileUpdateMutation } from "~/hooks/use-profile-update-mutation.hook";
 import { useProfile } from "~/hooks/use-profiles.hook";
-import { type EditorBlock, useEditorStore } from "~/stores/editor.store";
+import { useEditorStore } from "~/stores/editor.store";
+import { mapEditorBlockToProfileBlock } from "~/utils/blocks/map-editor-to-profile-block.util";
 import type { ProfileTabData } from "~/utils/types/editor.types";
-import { DraggableItem } from "./draggable-item.component";
-import { EditorToolbar } from "./editor-toolbar.component";
-import { InsertDivider } from "./insert-divider.component";
-import { ProfileSkeleton } from "./profile-skeleton.component";
 import { ProfileDatasetsSection } from "./sections/datasets/datasets-section.component";
 import { ProfileJobsSection } from "./sections/jobs/jobs-section.component";
 import { ProfileMetadataSection } from "./sections/metadata/metadata-section.component";
@@ -25,7 +21,7 @@ export function ProfileEditor({ tabId }: ProfileEditorProps) {
 		(state) => state.initializeProfileBlocks,
 	);
 
-	const { data: profile, isLoading } = useProfile(
+	const { data: profile } = useProfile(
 		tab?.type === "profile" ? tab.data.profileId : null,
 	);
 
@@ -39,84 +35,53 @@ export function ProfileEditor({ tabId }: ProfileEditorProps) {
 		}
 	}, [profile, tabId, tab, initializeProfileBlocks]);
 
-	const setActiveBlock = useEditorStore((state) => state.setActiveBlock);
-	const reorderBlocks = useEditorStore((state) => state.reorderBlocks);
-
 	const undo = useEditorStore((state) => state.undo);
 	const redo = useEditorStore((state) => state.redo);
 
+	const { mutate: updateProfile } = useProfileUpdateMutation();
+
+	const handleSave = () => {
+		console.log("Saving profile...");
+		if (!profile || tab?.type !== "profile") {
+			return;
+		}
+
+		const blocks = tab.data.blocks
+			.map((block, index) =>
+				mapEditorBlockToProfileBlock({
+					block,
+					profile,
+					index,
+				}),
+			)
+			.map((b) => ({
+				id: b.id,
+				profile_id: b.profileId,
+				kind: b.kind,
+				order_index: b.orderIndex,
+				data: b.data,
+				created_at: b.createdAt,
+				updated_at: b.updatedAt,
+			}));
+
+		updateProfile({
+			profileId: profile.id,
+			data: {
+				name: profile.name,
+				description: profile.description,
+				mode: profile.mode,
+				blocks,
+			},
+		});
+	};
+
 	useKeyboardShortcut("z", undo);
 	useKeyboardShortcut("y", redo);
-	// useKeyboardShortcut("s", save);
+	useKeyboardShortcut("s", handleSave);
 
-	if (!tab || tab.type !== "profile") {
+	if (!tab || tab.type !== "profile" || !profile) {
 		return null;
 	}
-
-	const profileData = tab.data as ProfileTabData;
-
-	if ((isLoading && !profileData.profile) || !profile) {
-		return (
-			<div className="flex-1 h-full overflow-y-auto custom-scrollbar bg-background">
-				<div className="sticky top-0 z-40 w-full flex justify-center py-4 pointer-events-none">
-					<div className="pointer-events-auto">
-						<EditorToolbar />
-					</div>
-				</div>
-
-				<ProfileSkeleton />
-			</div>
-		);
-	}
-
-	const { blocks, activeBlockId } = profileData;
-
-	const fixedBlocks = blocks.filter((b: EditorBlock) =>
-		["metadata", "datasets", "jobs"].includes(b.type),
-	);
-
-	const dynamicBlocks = blocks.filter(
-		(b: EditorBlock) => !["metadata", "datasets", "jobs"].includes(b.type),
-	);
-
-	// const renderBlock = (
-	// 	block: EditorBlock,
-	// 	isActive: boolean,
-	// 	dragControls?: DragControls,
-	// ) => {
-	// 	const onRun = () => {};
-
-	// 	return (
-	// 		<NotebookCell
-	// 			id={block.id}
-	// 			type={block.type}
-	// 			isActive={isActive}
-	// 			onClick={() => setActiveBlock(block.id)}
-	// 			onRun={onRun}
-	// 			isDeletable={!["metadata", "datasets", "jobs"].includes(block.type)}
-	// 			moveable={!["metadata", "datasets", "jobs"].includes(block.type)}
-	// 			dragControls={dragControls}
-	// 		>
-	// 			{block.type === "metadata" && (
-	// 				<MetadataBlock id={block.id} tabId={tabId} />
-	// 			)}
-	// 			{block.type === "datasets" && (
-	// 				<DatasetsBlock datasets={block.data.datasets} />
-	// 			)}
-	// 			{block.type === "inference" && (
-	// 				<InferenceBlock id={block.id} data={block.data} />
-	// 			)}
-	// 			{block.type === "markdown" && (
-	// 				<MarkdownBlock
-	// 					id={block.id}
-	// 					data={block.data}
-	// 					isActive={activeBlockId === block.id}
-	// 				/>
-	// 			)}
-	// 			{block.type === "jobs" && <JobsBlock id={block.id} data={block.data} />}
-	// 		</NotebookCell>
-	// 	);
-	// };
 
 	return (
 		<div className="flex-1 h-full p-12 overflow-y-auto custom-scrollbar bg-background">
@@ -133,48 +98,6 @@ export function ProfileEditor({ tabId }: ProfileEditorProps) {
 			</div>
 
 			<div className="h-64" />
-
-			{/* <div className="sticky top-0 z-40 w-full flex justify-center py-4 pointer-events-none">
-				<div className="pointer-events-auto">
-					<EditorToolbar />
-				</div>
-			</div>
-
-			<div className="flex flex-col w-full divide-y divide-border">
-				{fixedBlocks.map((block) => (
-					<div key={block.id} className="w-full">
-						{renderBlock(block, activeBlockId === block.id)}
-					</div>
-				))}
-
-				<InsertDivider index={fixedBlocks.length} />
-
-				<Reorder.Group
-					axis="y"
-					className="w-full divide-y divide-border"
-					values={dynamicBlocks}
-					onReorder={(newDynamicOrder) => {
-						reorderBlocks([...fixedBlocks, ...newDynamicOrder]);
-					}}
-				>
-					<AnimatePresence initial={false} mode="popLayout">
-						{dynamicBlocks.map((block: EditorBlock, index: number) => (
-							<div key={block.id}>
-								<DraggableItem
-									isLast={index === blocks.length - 1}
-									isActive={activeBlockId === block.id}
-									block={block}
-									index={index}
-									renderBlock={renderBlock}
-								/>
-								<InsertDivider index={index + 1} />
-							</div>
-						))}
-					</AnimatePresence>
-				</Reorder.Group>
-			</div>
-
-			<div className="h-64" /> */}
 		</div>
 	);
 }
