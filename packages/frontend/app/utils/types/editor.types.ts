@@ -1,7 +1,14 @@
 import type { Profile } from "~/schemas/domain/profile.schema";
+import type { InferenceRunStatus } from "~/schemas/domain/enums.schema";
+import type { InferenceResult } from "~/schemas/domain/inference-result.schema";
 
 export type InferenceData = {
 	code: string;
+	status: InferenceRunStatus | "idle";
+	activeRunId?: string;
+	results?: InferenceResult[];
+	executionTimeMs?: number;
+	error?: string;
 };
 
 export type MarkdownData = {

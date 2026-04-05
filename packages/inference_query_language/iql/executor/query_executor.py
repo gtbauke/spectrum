@@ -19,7 +19,7 @@ from iql.parser.ast.select import IdentifierAstNode, PatternMatchingExpression, 
 from iql.executor.errors.root_expression_should_be_select_clause_error import (
     RootExpressionShouldBeSelectClauseError,
 )
-from iql.parser.ast.top_n import TopNAstNode
+from iql.parser.ast.top_n import ParetoAstNode, TopNAstNode
 from iql.parser.ast.number import IntegerLiteralAstNode, NumericLiteralAstNode
 from iql.parser.ast.binary_expression import BinaryExpression
 from iql.utils.result import InferenceResultList, InferenceResult
@@ -49,7 +49,7 @@ class QueryExecutor:
     def __init__(self, root_node: BaseAstNode, reggressions: dict[str, Reggression]):
         self._root_node = root_node
         self._reggressions = reggressions
-        self._active_reggression: Optional[Reggression] = None
+        self._active_reggression: Reggression | None = None
 
     def _calculate_node_value(self, node: BaseAstNode):
         if isinstance(node, IntegerLiteralAstNode):
@@ -185,11 +185,17 @@ class QueryExecutor:
             if column.name().lower() not in self._QUERYABLE_LITERALS:
                 raise ColumnIsNotSelectableError(column.name())
 
-        model_identifier = self._root_node.from_clause().identifier().name()
-        if model_identifier not in self._reggressions:
-            raise InvalidFromSourceError(model_identifier)
-        
-        self._active_reggression = self._reggressions[model_identifier]
+        model_identifier = self._root_node.from_clause().identifier()
+
+        logger.info(
+            f"[QueryExecutor] Executing query for model: {model_identifier.name()}")
+        logger.info(
+            f"[QueryExecutor] Available reggressions: {list(self._reggressions.keys())}")
+
+        if model_identifier.name() not in self._reggressions:
+            raise InvalidFromSourceError(model_identifier.kind)
+
+        self._active_reggression = self._reggressions[model_identifier.name()]
 
         modifier = self._root_node.modifier()
 

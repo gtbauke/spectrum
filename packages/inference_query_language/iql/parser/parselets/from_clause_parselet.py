@@ -1,3 +1,4 @@
+from iql.parser.ast.identifier import IdentifierAstNode
 from iql.parser.parselet import PrefixParselet
 from iql.parser.ast.base import BaseAstNode
 from iql.parser.base import QueryParser
@@ -14,7 +15,10 @@ class FromClauseParselet(PrefixParselet):
     def parse(self, parser: QueryParser, token: Token) -> BaseAstNode:
         identifier = parser.parse_expression()
 
-        # We allow identifiers or potentially strings in the future, 
+        if not isinstance(identifier, IdentifierAstNode):
+            raise ExpectedIdentifierException()
+
+        # We allow identifiers or potentially strings in the future,
         # but for now we consume whatever expression is there as a identifier
         span = token.span.merge(identifier.span)
         return FromAstNode(identifier, span)

@@ -1,8 +1,9 @@
 import logging
 
-from typing import Optional
+from typing import Optional, Union
 
 from iql.parser.ast.pattern_matching_expression import PatternMatchingExpression
+from iql.parser.ast.top_n import ParetoAstNode, TopNAstNode
 from iql.parser.parselet import PrefixParselet
 from iql.parser.base import QueryParser
 from iql.parser.ast.base import BaseAstNode
@@ -100,7 +101,7 @@ class SelectClauseParselet(PrefixParselet):
     def parse(self, parser: QueryParser, token: Token) -> BaseAstNode:
         # Check for optional modifiers immediately after SELECT
         modifier: Optional[Union[TopNAstNode, ParetoAstNode]] = None
-        
+
         pareto_token = parser.matches_and_return(TokenKind.PARETO)
         if pareto_token:
             modifier = ParetoAstNode(pareto_token.span)

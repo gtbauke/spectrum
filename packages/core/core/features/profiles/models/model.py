@@ -11,4 +11,4 @@ class Model(BaseMutableDomainModel):
 
     generated_by: UUID = Field(..., description="The ID of the job")
 
-    path: str = Field(..., description="The path to the model")
+    path: str = Field(..., description="The path to the binary model (e-graph dump)")

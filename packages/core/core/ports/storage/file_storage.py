@@ -9,3 +9,10 @@ class FileStorage(Protocol):
         path: str,
         file: BinaryIO,
     ) -> UploadResult: ...
+
+    async def download(
+        self,
+        *,
+        path: str,
+        destination: str,
+    ) -> None: ...

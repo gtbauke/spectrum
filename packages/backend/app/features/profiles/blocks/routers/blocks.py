@@ -71,11 +71,24 @@ async def update_block(
     uow: UnitOfWork = Depends(get_uow)
 ):
     block = await uow.blocks.get_unique(BlockWhere(id=block_id))
+
     if not block or block.profile_id != profile_id:
         raise BlockNotFound()
 
+    if dto.data is not None and dto.data.kind != block.kind:
+        raise BlockNotFound()
+
+    update_data = dto.model_dump(exclude_unset=True)
+    domain_block = Block(
+        id=block.id,
+        profile_id=profile_id,
+        kind=block.kind,
+        order_index=update_data.get("order_index", block.order_index),
+        data=update_data.get("data", block.data)
+    )
+
     updated_block = block.model_copy(
-        update=dto.model_dump(exclude_unset=True),
+        update=domain_block.model_dump(exclude_unset=True)
     )
 
     await uow.blocks.update(updated_block)

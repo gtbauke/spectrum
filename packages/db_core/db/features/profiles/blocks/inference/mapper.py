@@ -13,7 +13,10 @@ class InferenceRunMapper:
             is_latest=orm.is_latest,
             block_id=orm.block_id,
             profile_id=orm.profile_id,
-            query=orm.query
+            query=orm.query,
+            status=orm.status,
+            execution_time_ms=orm.execution_time_ms,
+            error=orm.error
         )
 
     @staticmethod
@@ -25,7 +28,10 @@ class InferenceRunMapper:
             is_latest=domain.is_latest,
             block_id=domain.block_id,
             profile_id=domain.profile_id,
-            query=domain.query
+            query=domain.query,
+            status=domain.status,
+            execution_time_ms=domain.execution_time_ms,
+            error=domain.error
         )
 
 
@@ -36,6 +42,7 @@ class InferenceResultMapper:
             id=orm.id,
             timestamp=orm.timestamp,
             run_id=orm.run_id,
+            run_version=orm.run_version,
             expression=orm.expression,
             dl=orm.dl,
             fitness=orm.fitness,
@@ -51,6 +58,7 @@ class InferenceResultMapper:
             id=domain.id,
             timestamp=domain.timestamp,
             run_id=domain.run_id,
+            run_version=domain.run_version,
             expression=domain.expression,
             dl=domain.dl,
             fitness=domain.fitness,

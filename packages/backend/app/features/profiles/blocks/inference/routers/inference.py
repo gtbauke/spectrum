@@ -1,5 +1,10 @@
+import json
+import asyncio
+import logging
+
 from uuid import UUID
 from fastapi import APIRouter, Depends, status, Query
+from fastapi.responses import StreamingResponse
 from typing import cast
 
 from app.api.unit_of_work import get_uow
@@ -8,15 +13,16 @@ from app.features.profiles.blocks.inference.errors.inference_run_not_found impor
 from app.features.profiles.guards.can_edit_profile import can_edit_profile
 from core.ports.unit_of_work import UnitOfWork
 from core.features.profiles.blocks.block_kind import BlockKind, InferenceBlock
-from core.features.profiles.blocks.inference.inference_run import InferenceRun
+from core.features.profiles.blocks.inference.inference_run import InferenceRun, InferenceRunStatus
 from core.features.profiles.blocks.inference.events import InferenceRunRequestedEvent
-from core.features.profiles.blocks.inference.where import InferenceRunFilter, InferenceRunWhere
+from core.features.profiles.blocks.inference.where import InferenceRunFilter, InferenceRunWhere, InferenceResultFilter
 from core.features.profiles.blocks.where import BlockWhere
 from core.utils.filters.field_filter import UUIDFilter
 from core.utils.pagination.base import Pagination
 from core.utils.pagination.response import PaginatedResponse
 
 inference_router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @inference_router.get(
@@ -58,6 +64,52 @@ async def get_inference_run(
     return run
 
 
+@inference_router.get(
+    path="/{block_id}/runs/{run_id}/stream",
+    dependencies=[Depends(can_edit_profile)]
+)
+async def stream_inference_run(
+    block_id: UUID,
+    run_id: UUID,
+    uow: UnitOfWork = Depends(get_uow)
+):
+    async def event_generator():
+        last_status = None
+
+        while True:
+            run = await uow.inference_runs.get_unique(InferenceRunWhere(id=run_id))
+
+            if not run or run.block_id != block_id:
+                yield f"data: {json.dumps({'error': 'Run not found'})}\n\n"
+                break
+
+            if run.status != last_status:
+                last_status = run.status
+                data = {
+                    "status": run.status,
+                    "execution_time_ms": run.execution_time_ms,
+                    "error": run.error
+                }
+
+                # If completed, also fetch results
+                if run.status == InferenceRunStatus.COMPLETED:
+                    results = await uow.inference_results.list_all(
+                        InferenceResultFilter(run_id=UUIDFilter(eq=run_id))
+                    )
+                    # We might need a mapper here if InferenceResult has UUIDs that need stringification
+                    data["results"] = [r.model_dump(
+                        mode="json") for r in results]
+
+                yield f"data: {json.dumps(data)}\n\n"
+
+            if run.status in [InferenceRunStatus.COMPLETED, InferenceRunStatus.FAILED]:
+                break
+
+            await asyncio.sleep(1)
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+
 @inference_router.post(
     path="/{block_id}/runs",
     response_model=InferenceRun,
@@ -97,6 +149,8 @@ async def create_inference_run(
         query=run.query
     )
 
+    logger.info(
+        f"Publishing InferenceRunRequestedEvent for run_id={run.id}, block_id={block_id}")
     uow.events_publisher.publish(
         routing_key=event.routing_key,
         payload=event.model_dump(mode="json"),

@@ -7,6 +7,7 @@ from .profiles.blocks.model import BlockORM
 from .profiles.models.model import ModelORM
 from .profiles.jobs.model import JobORM
 from .profiles.jobs.runs.model import RunORM
+from .profiles.blocks.inference.model import InferenceResultORM, InferenceRunORM
 
 __all__ = [
     "UserORM",
@@ -19,4 +20,6 @@ __all__ = [
     "ModelORM",
     "JobORM",
     "RunORM",
+    "InferenceResultORM",
+    "InferenceRunORM",
 ]

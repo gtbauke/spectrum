@@ -102,6 +102,17 @@ class QueryTokenizer:
                 return Token(TokenKind.COMMA, current, Span(self._start, self._current))
             case ";":
                 return Token(TokenKind.SEMICOLON, current, Span(self._start, self._current))
+            case "\"":
+                while self._peek() != "\"":
+                    if self._is_at_end():
+                        raise Exception("Unterminated string")
+
+                    self._advance()
+
+                self._advance()
+
+                lexeme = self._query[self._start + 1:self._current - 1]
+                return Token(TokenKind.IDENTIFIER, lexeme, Span(self._start, self._current))
             case _:
                 return self._identifier_or_keyword()
 

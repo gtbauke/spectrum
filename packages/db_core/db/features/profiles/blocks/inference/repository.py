@@ -26,7 +26,18 @@ class SqlAlchemyInferenceRunRepository(
         super().__init__(session, InferenceRunORM, InferenceRunMapper)
 
     async def get_unique(self, where: InferenceRunWhere) -> InferenceRun | None:
-        return await super()._get_unique(where)
+        query = select(
+            self._model_class
+        ).where(
+            self._model_class.id == where.id,
+            (self._model_class.version == where.version) if where.version is not None
+            else self._model_class.is_latest == True
+        )
+
+        result = await self._session.execute(query)
+        orm = result.scalars().first()
+
+        return self._mapper.to_domain(orm) if orm else None
 
     async def add(self, entity: InferenceRun) -> None:
         return await super()._add(self._mapper.to_orm(entity))
@@ -105,6 +116,9 @@ class SqlAlchemyInferenceRunRepository(
     ) -> Sequence[InferenceRun]:
         query = self._build_query(filter=filter)
         return await self._list_all_query(query=query)
+
+    async def update(self, entity: InferenceRun) -> None:
+        return await super()._update(self._mapper.to_orm(entity))
 
 
 class SqlAlchemyInferenceResultRepository(

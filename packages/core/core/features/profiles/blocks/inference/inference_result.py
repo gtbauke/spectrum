@@ -8,20 +8,26 @@ class InferenceResult(BaseImmutableDomainModel):
     """
     Represents a single result (expression) from an IQL execution run.
     """
-    run_id: UUID = Field(..., description="The ID of the run this result belongs to")
-    
+    run_id: UUID = Field(...,
+                         description="The ID of the run this result belongs to")
+    run_version: int = Field(...,
+                             description="The version of the run this result belongs to")
+
     expression: str = Field(..., description="The mathematical expression")
     dl: Optional[float] = Field(None, description="DL score of the expression")
-    fitness: Optional[float] = Field(None, description="Fitness score of the expression")
+    fitness: Optional[float] = Field(
+        None, description="Fitness score of the expression")
     latex: Optional[str] = Field(None, description="LaTeX representation")
     numpy: Optional[str] = Field(None, description="NumPy representation")
-    parameters: Optional[dict[str, float]] = Field(None, description="Parameters found")
+    parameters: Optional[dict[str, float]] = Field(
+        None, description="Parameters found")
     size: Optional[int] = Field(None, description="Size of the expression")
 
     @classmethod
     def new(
         cls,
         run_id: UUID,
+        run_version: int,
         expression: str,
         dl: Optional[float] = None,
         fitness: Optional[float] = None,
@@ -32,6 +38,7 @@ class InferenceResult(BaseImmutableDomainModel):
     ):
         return cls(
             run_id=run_id,
+            run_version=run_version,
             expression=expression,
             dl=dl,
             fitness=fitness,

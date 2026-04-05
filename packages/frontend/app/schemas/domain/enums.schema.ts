@@ -63,3 +63,14 @@ export const lossFunctionSchema = z.enum([
 ]);
 
 export type LossFunction = z.infer<typeof lossFunctionSchema>;
+
+export const inferenceRunStatusSchema = z.enum([
+	"pending",
+	"resolving_models",
+	"downloading_data",
+	"executing",
+	"completed",
+	"failed",
+]);
+
+export type InferenceRunStatus = z.infer<typeof inferenceRunStatusSchema>;

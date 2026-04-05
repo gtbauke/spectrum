@@ -142,12 +142,14 @@ class RunCreatedHandler(EventHandler[RunCreatedEvent]):
                         egraph_upload.path,
                         egraph_upload.size,
                     )
+                else:
+                    raise ValueError(f"Missing e-graph dump from training results for run {event.run_id}")
 
                 model = Model(
                     name=f"{job.name} - v{event.version}",
                     profile_id=job.profile_id,
                     generated_by=job.id,
-                    path=results_upload.path,
+                    path=egraph_upload.path,
                 )
 
                 await uow.models.add(model)

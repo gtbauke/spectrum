@@ -487,7 +487,10 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 				return {
 					id: b.id,
 					type: "inference",
-					data: { code: b.data.data },
+					data: {
+						code: b.data.data,
+						status: "idle",
+					},
 				} as EditorBlock;
 			});
 

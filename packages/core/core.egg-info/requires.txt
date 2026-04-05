@@ -2,3 +2,4 @@ inference-query-language
 pydantic>=2.12.5
 pydantic-settings>=2.12.0
 reggression>=1.0.10
+python-json-logger>=3.0.0

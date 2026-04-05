@@ -9,8 +9,8 @@ type ModelItemProps = {
 
 export function ModelItem({ model, jobName }: ModelItemProps) {
 	const copyToClipboard = () => {
-		navigator.clipboard.writeText(model.name);
-		toast.success("Model name copied to clipboard");
+		navigator.clipboard.writeText(model.id);
+		toast.success("Model ID copied to clipboard");
 	};
 
 	return (

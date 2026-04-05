@@ -38,3 +38,13 @@ class WorkerLocalStorage(FileStorage):
         checksum = hasher.hexdigest()
 
         return UploadResult(path=spectrum_path, size=size, checksum=checksum)
+
+    async def download(self, *, path: str, destination: str) -> None:
+        source_path = self._base_path / path
+        destination_path = Path(destination)
+
+        if not source_path.exists():
+            raise FileNotFoundError(f"File not found at path: {source_path}")
+
+        destination_path.parent.mkdir(parents=True, exist_ok=True)
+        destination_path.write_bytes(source_path.read_bytes())

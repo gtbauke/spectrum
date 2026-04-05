@@ -6,7 +6,8 @@ from core.utils.filters.base import BaseFilter
 
 
 class InferenceRunWhere(BaseUniqueWhere):
-    id: Optional[UUID] = None
+    id: UUID
+    version: Optional[int] = None
 
 
 class InferenceRunFilter(BaseFilter):

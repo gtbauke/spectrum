@@ -394,6 +394,7 @@ dependencies = [
     { name = "inference-query-language" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
+    { name = "python-json-logger" },
     { name = "reggression" },
 ]
 
@@ -402,6 +403,7 @@ requires-dist = [
     { name = "inference-query-language", editable = "packages/inference_query_language" },
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "pydantic-settings", specifier = ">=2.12.0" },
+    { name = "python-json-logger", specifier = ">=3.0.0" },
     { name = "reggression", specifier = ">=1.0.10" },
 ]
 

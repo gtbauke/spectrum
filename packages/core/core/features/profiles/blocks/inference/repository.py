@@ -7,21 +7,24 @@ from .where import InferenceRunWhere, InferenceRunFilter, InferenceResultWhere, 
 
 
 class IInferenceRunRepository(
-    IVersionedRepository[InferenceRun, InferenceRunWhere, InferenceRunFilter], 
+    IVersionedRepository[InferenceRun, InferenceRunWhere, InferenceRunFilter],
     Protocol
 ):
     """
     Interface for the inference run repository.
     """
-    pass
+
+    async def update(self, entity: InferenceRun) -> None: ...
 
 
 class IInferenceResultRepository(
-    IImmutableRepository[InferenceResult, InferenceResultWhere, InferenceResultFilter],
+    IImmutableRepository[InferenceResult,
+                         InferenceResultWhere, InferenceResultFilter],
     Protocol
 ):
     """
     Interface for the inference result repository.
     Supports bulk addition of results from a single run.
     """
+
     async def add_many(self, entities: Iterable[InferenceResult]) -> None: ...
