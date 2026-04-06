@@ -10,3 +10,13 @@ class RunCreatedEvent(BaseModel):
     @property
     def routing_key(self) -> str:
         return "runs.created"
+
+
+class RunFinishedEvent(BaseModel):
+    run_id: UUID
+    job_id: UUID
+    model_id: UUID
+
+    @property
+    def routing_key(self) -> str:
+        return "runs.finished"

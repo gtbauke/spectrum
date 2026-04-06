@@ -15,6 +15,8 @@ class ModelsMapper(IMapper[ModelORM, Model]):
             profile_id=orm.profile_id,
             generated_by=orm.generated_by,
             path=orm.path,
+            validation_path=orm.validation_path,
+            metrics=orm.metrics,
         )
 
     @staticmethod
@@ -27,4 +29,6 @@ class ModelsMapper(IMapper[ModelORM, Model]):
             profile_id=domain.profile_id,
             generated_by=domain.generated_by,
             path=domain.path,
+            validation_path=domain.validation_path,
+            metrics=domain.metrics,
         )

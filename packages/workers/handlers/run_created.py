@@ -7,7 +7,7 @@ from typing import Any
 
 from core.features.datasets.artifact_role import ArtifactRole
 from core.features.datasets.where import DatasetWhere
-from core.features.profiles.jobs.runs.events import RunCreatedEvent
+from core.features.profiles.jobs.runs.events import RunCreatedEvent, RunFinishedEvent
 from core.features.profiles.jobs.runs.status import JobRunStatus
 from core.features.profiles.jobs.runs.where import RunWhere
 from core.features.profiles.jobs.where import JobWhere
@@ -143,13 +143,16 @@ class RunCreatedHandler(EventHandler[RunCreatedEvent]):
                         egraph_upload.size,
                     )
                 else:
-                    raise ValueError(f"Missing e-graph dump from training results for run {event.run_id}")
+                    raise ValueError(
+                        f"Missing e-graph dump from training results for run {event.run_id}")
 
                 model = Model(
                     name=f"{job.name} - v{event.version}",
                     profile_id=job.profile_id,
                     generated_by=job.id,
                     path=egraph_upload.path,
+                    metrics=None,
+                    validation_path=None,
                 )
 
                 await uow.models.add(model)
@@ -164,6 +167,18 @@ class RunCreatedHandler(EventHandler[RunCreatedEvent]):
                     where=where,
                     status=JobRunStatus.FINISHED,
                     finished_at=datetime.now(tz=timezone.utc),
+                )
+
+                # Emit RunFinishedEvent to trigger validation
+                validation_event = RunFinishedEvent(
+                    run_id=event.run_id,
+                    job_id=event.job_id,
+                    model_id=model.id,
+                )
+
+                uow.events_publisher.publish(
+                    routing_key=validation_event.routing_key,
+                    payload=validation_event.model_dump(mode="json"),
                 )
 
             logger.info("Run %s marked as FINISHED", event.run_id)

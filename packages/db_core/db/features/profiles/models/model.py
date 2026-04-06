@@ -6,7 +6,7 @@ from datetime import datetime
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, ForeignKey, DateTime
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID, JSONB
 
 from db.common.base.mutable import MutableBase
 
@@ -27,6 +27,10 @@ class ModelORM(MutableBase):
         PG_UUID(as_uuid=True), ForeignKey("jobs.id"), nullable=False)
 
     path: Mapped[str] = mapped_column(String, nullable=False)
+
+    validation_path: Mapped[str | None] = mapped_column(String, nullable=True)
+
+    metrics: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
 
     profile: Mapped["ProfileORM"] = relationship(
         "ProfileORM",
