@@ -1,0 +1,940 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nty/global//global/global/global}
+    \entry{Angelis2023}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=da1e44f5242079c8df17f4d276a03a1e}{%
+           family={Angelis},
+           familyi={A\bibinitperiod},
+           given={Dimitrios},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=1534bd8f2c9225468bd3c56c77dc0bed}{%
+           family={Sofos},
+           familyi={S\bibinitperiod},
+           given={Filippos},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5ff2ad7bf52c456e49f449fd229773c0}{%
+           family={Karakasidis},
+           familyi={K\bibinitperiod},
+           given={Theodoros\bibnamedelima E.},
+           giveni={T\bibinitperiod\bibinitdelim E\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{ee5de864a91d5269cd35e0b5fdd4944f}
+      \strng{fullhash}{ee5de864a91d5269cd35e0b5fdd4944f}
+      \strng{fullhashraw}{ee5de864a91d5269cd35e0b5fdd4944f}
+      \strng{bibnamehash}{ee5de864a91d5269cd35e0b5fdd4944f}
+      \strng{authorbibnamehash}{ee5de864a91d5269cd35e0b5fdd4944f}
+      \strng{authornamehash}{ee5de864a91d5269cd35e0b5fdd4944f}
+      \strng{authorfullhash}{ee5de864a91d5269cd35e0b5fdd4944f}
+      \strng{authorfullhashraw}{ee5de864a91d5269cd35e0b5fdd4944f}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Symbolic regression (SR) is a machine learning-based regression method based on genetic programming principles that integrates techniques and processes from heterogeneous scientific fields and is capable of providing analytical equations purely from data. This remarkable characteristic diminishes the need to incorporate prior knowledge about the investigated system. SR can spot profound and elucidate ambiguous relations that can be generalizable, applicable, explainable and span over most scientific, technological, economical, and social principles. In this review, current state of the art is documented, technical and physical characteristics of SR are presented, the available programming techniques are investigated, fields of application are explored, and future perspectives are discussed.}
+      \field{issn}{1886-1784}
+      \field{journaltitle}{Archives of Computational Methods in Engineering}
+      \field{month}{6}
+      \field{number}{6}
+      \field{title}{Artificial Intelligence in Physical Sciences: Symbolic Regression Trends and Perspectives}
+      \field{volume}{30}
+      \field{year}{2023}
+      \field{pages}{3845\bibrangedash 3865}
+      \range{pages}{21}
+      \verb{doi}
+      \verb 10.1007/s11831-023-09922-z
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1007/s11831-023-09922-z
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1007/s11831-023-09922-z
+      \endverb
+    \endentry
+    \entry{Bartlett_2024}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=add7c6b373b88119095dc92f9887717f}{%
+           family={Bartlett},
+           familyi={B\bibinitperiod},
+           given={Deaglan\bibnamedelima J.},
+           giveni={D\bibinitperiod\bibinitdelim J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5f99219339a2be1803a0895fc066afc5}{%
+           family={Desmond},
+           familyi={D\bibinitperiod},
+           given={Harry},
+           giveni={H\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c1c039306901b5c75d6cde9a8094dbb6}{%
+           family={Ferreira},
+           familyi={F\bibinitperiod},
+           given={Pedro\bibnamedelima G.},
+           giveni={P\bibinitperiod\bibinitdelim G\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{2}{%
+        {Institute of Electrical}%
+        {Electronics Engineers (IEEE)}%
+      }
+      \strng{namehash}{1b30478d4e37e57c970d3a093559d061}
+      \strng{fullhash}{1b30478d4e37e57c970d3a093559d061}
+      \strng{fullhashraw}{1b30478d4e37e57c970d3a093559d061}
+      \strng{bibnamehash}{1b30478d4e37e57c970d3a093559d061}
+      \strng{authorbibnamehash}{1b30478d4e37e57c970d3a093559d061}
+      \strng{authornamehash}{1b30478d4e37e57c970d3a093559d061}
+      \strng{authorfullhash}{1b30478d4e37e57c970d3a093559d061}
+      \strng{authorfullhashraw}{1b30478d4e37e57c970d3a093559d061}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{1941-0026}
+      \field{journaltitle}{IEEE Transactions on Evolutionary Computation}
+      \field{month}{8}
+      \field{number}{4}
+      \field{title}{Exhaustive Symbolic Regression}
+      \field{volume}{28}
+      \field{year}{2024}
+      \field{pages}{950\bibrangedash 964}
+      \range{pages}{15}
+      \verb{doi}
+      \verb 10.1109/tevc.2023.3280250
+      \endverb
+      \verb{urlraw}
+      \verb http://dx.doi.org/10.1109/TEVC.2023.3280250
+      \endverb
+      \verb{url}
+      \verb http://dx.doi.org/10.1109/TEVC.2023.3280250
+      \endverb
+    \endentry
+    \entry{Beyer2002}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=695e551c7bda7f41c62840003f872fdb}{%
+           family={Beyer},
+           familyi={B\bibinitperiod},
+           given={Hans-Georg},
+           giveni={H\bibinithyphendelim G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=67288c65997bce06c3796cdeed061ea6}{%
+           family={Schwefel},
+           familyi={S\bibinitperiod},
+           given={Hans-Paul},
+           giveni={H\bibinithyphendelim P\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{ef76889def7bf07771c56b52e8551e6d}
+      \strng{fullhash}{ef76889def7bf07771c56b52e8551e6d}
+      \strng{fullhashraw}{ef76889def7bf07771c56b52e8551e6d}
+      \strng{bibnamehash}{ef76889def7bf07771c56b52e8551e6d}
+      \strng{authorbibnamehash}{ef76889def7bf07771c56b52e8551e6d}
+      \strng{authornamehash}{ef76889def7bf07771c56b52e8551e6d}
+      \strng{authorfullhash}{ef76889def7bf07771c56b52e8551e6d}
+      \strng{authorfullhashraw}{ef76889def7bf07771c56b52e8551e6d}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{This article gives a comprehensive introduction into one of the main branches of evolutionary computation -- the evolution strategies (ES) the history of which dates back to the 1960s in Germany. Starting from a survey of history the philosophical background is explained in order to make understandable why ES are realized in the way they are. Basic ES algorithms and design principles for variation and selection operators as well as theoretical issues are presented, and future branches of ES research are discussed.}
+      \field{issn}{1572-9796}
+      \field{journaltitle}{Natural Computing}
+      \field{month}{3}
+      \field{number}{1}
+      \field{title}{Evolution strategies -- A comprehensive introduction}
+      \field{volume}{1}
+      \field{year}{2002}
+      \field{pages}{3\bibrangedash 52}
+      \range{pages}{50}
+      \verb{doi}
+      \verb 10.1023/A:1015059928466
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1023/A:1015059928466
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1023/A:1015059928466
+      \endverb
+    \endentry
+    \entry{cohn2004user}{book}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=d33712bcde2d63bad054a832b61d01e8}{%
+           family={Cohn},
+           familyi={C\bibinitperiod},
+           given={Mike},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {Addison-Wesley Professional}%
+      }
+      \strng{namehash}{d33712bcde2d63bad054a832b61d01e8}
+      \strng{fullhash}{d33712bcde2d63bad054a832b61d01e8}
+      \strng{fullhashraw}{d33712bcde2d63bad054a832b61d01e8}
+      \strng{bibnamehash}{d33712bcde2d63bad054a832b61d01e8}
+      \strng{authorbibnamehash}{d33712bcde2d63bad054a832b61d01e8}
+      \strng{authornamehash}{d33712bcde2d63bad054a832b61d01e8}
+      \strng{authorfullhash}{d33712bcde2d63bad054a832b61d01e8}
+      \strng{authorfullhashraw}{d33712bcde2d63bad054a832b61d01e8}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{User stories applied: For agile software development}
+      \field{year}{2004}
+    \endentry
+    \entry{heuristiclabDocumentationAboutHeuristicLabx2013}{misc}{}{}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{labeldatesource}{nodate}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://dev.heuristiclab.com/trac.fcgi/wiki/Documentation/AboutHeuristicLab}}
+      \field{note}{[Accessed 19-08-2025]}
+      \field{title}{Documentation/About HeuristicLab; HeuristicLab --- dev.heuristiclab.com}
+    \endentry
+    \entry{evans2004domain}{book}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=a8034da9731f447121ee0dbad3354a82}{%
+           family={Evans},
+           familyi={E\bibinitperiod},
+           given={Eric},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {Addison-Wesley Professional}%
+      }
+      \strng{namehash}{a8034da9731f447121ee0dbad3354a82}
+      \strng{fullhash}{a8034da9731f447121ee0dbad3354a82}
+      \strng{fullhashraw}{a8034da9731f447121ee0dbad3354a82}
+      \strng{bibnamehash}{a8034da9731f447121ee0dbad3354a82}
+      \strng{authorbibnamehash}{a8034da9731f447121ee0dbad3354a82}
+      \strng{authornamehash}{a8034da9731f447121ee0dbad3354a82}
+      \strng{authorfullhash}{a8034da9731f447121ee0dbad3354a82}
+      \strng{authorfullhashraw}{a8034da9731f447121ee0dbad3354a82}
+      \field{sortinit}{E}
+      \field{sortinithash}{8da8a182d344d5b9047633dfc0cc9131}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Domain-driven design: tackling complexity in the heart of software}
+      \field{year}{2004}
+    \endentry
+    \entry{eggp}{inproceedings}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=6614a39ed1831b7c98c54878944fd97c}{%
+           family={França},
+           familyi={F\bibinitperiod},
+           given={Fabricio\bibnamedelima Olivetti},
+           giveni={F\bibinitperiod\bibinitdelim O\bibinitperiod},
+           givenun=0,
+           prefix={de},
+           prefixi={d\bibinitperiod},
+           prefixun=0}}%
+        {{un=0,uniquepart=base,hash=4e7fc4ce8d355b40d67bf4aa32cac29a}{%
+           family={Kronberger},
+           familyi={K\bibinitperiod},
+           given={Gabriel},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{location}{1}{%
+        {Malaga, Spain}%
+      }
+      \list{publisher}{1}{%
+        {Association for Computing Machinery}%
+      }
+      \strng{namehash}{10176ee67566274e3dc30ff56b82ddc8}
+      \strng{fullhash}{10176ee67566274e3dc30ff56b82ddc8}
+      \strng{fullhashraw}{10176ee67566274e3dc30ff56b82ddc8}
+      \strng{bibnamehash}{10176ee67566274e3dc30ff56b82ddc8}
+      \strng{authorbibnamehash}{10176ee67566274e3dc30ff56b82ddc8}
+      \strng{authornamehash}{10176ee67566274e3dc30ff56b82ddc8}
+      \strng{authorfullhash}{10176ee67566274e3dc30ff56b82ddc8}
+      \strng{authorfullhashraw}{10176ee67566274e3dc30ff56b82ddc8}
+      \field{extraname}{1}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradate}{1}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the Genetic and Evolutionary Computation Conference}
+      \field{eprintclass}{cs.LG}
+      \field{eprinttype}{arXiv}
+      \field{isbn}{9798400714658}
+      \field{series}{GECCO '25}
+      \field{title}{Improving Genetic Programming for Symbolic Regression with Equality Graphs}
+      \field{year}{2025}
+      \verb{doi}
+      \verb 10.1145/3712256.3726383
+      \endverb
+      \verb{eprint}
+      \verb 2501.17848
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1145/3712256.3726383
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1145/3712256.3726383
+      \endverb
+      \keyw{Symbolic regression,Genetic programming,Equality saturation,Equality graphs}
+    \endentry
+    \entry{rEGGression}{inproceedings}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=6614a39ed1831b7c98c54878944fd97c}{%
+           family={França},
+           familyi={F\bibinitperiod},
+           given={Fabricio\bibnamedelima Olivetti},
+           giveni={F\bibinitperiod\bibinitdelim O\bibinitperiod},
+           givenun=0,
+           prefix={de},
+           prefixi={d\bibinitperiod},
+           prefixun=0}}%
+        {{un=0,uniquepart=base,hash=4e7fc4ce8d355b40d67bf4aa32cac29a}{%
+           family={Kronberger},
+           familyi={K\bibinitperiod},
+           given={Gabriel},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{location}{1}{%
+        {Malaga, Spain}%
+      }
+      \list{publisher}{1}{%
+        {Association for Computing Machinery}%
+      }
+      \strng{namehash}{10176ee67566274e3dc30ff56b82ddc8}
+      \strng{fullhash}{10176ee67566274e3dc30ff56b82ddc8}
+      \strng{fullhashraw}{10176ee67566274e3dc30ff56b82ddc8}
+      \strng{bibnamehash}{10176ee67566274e3dc30ff56b82ddc8}
+      \strng{authorbibnamehash}{10176ee67566274e3dc30ff56b82ddc8}
+      \strng{authornamehash}{10176ee67566274e3dc30ff56b82ddc8}
+      \strng{authorfullhash}{10176ee67566274e3dc30ff56b82ddc8}
+      \strng{authorfullhashraw}{10176ee67566274e3dc30ff56b82ddc8}
+      \field{extraname}{2}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradate}{2}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the Genetic and Evolutionary Computation Conference}
+      \field{eprintclass}{cs.LG}
+      \field{eprinttype}{arXiv}
+      \field{isbn}{9798400714658}
+      \field{series}{GECCO '25}
+      \field{title}{rEGGression: an Interactive and Agnostic Tool for the Exploration of Symbolic Regression Models}
+      \field{year}{2025}
+      \verb{doi}
+      \verb 10.1145/3712256.3726385
+      \endverb
+      \verb{eprint}
+      \verb 2501.17859
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1145/3712256.3726385
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1145/3712256.3726385
+      \endverb
+      \keyw{Genetic programming,Symbolic regression,Equality saturation,e-graphs}
+    \endentry
+    \entry{lsritr}{inproceedings}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=b3c1792a4197d9e3ddbf7a91d3305698}{%
+           family={Imai\bibnamedelima Aldeia},
+           familyi={I\bibinitperiod\bibinitdelim A\bibinitperiod},
+           given={Guilherme\bibnamedelima Seidyo},
+           giveni={G\bibinitperiod\bibinitdelim S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=743720a5c0e92bf88549276263c8f591}{%
+           family={França},
+           familyi={F\bibinitperiod},
+           given={Fabrício\bibnamedelima Olivetti},
+           giveni={F\bibinitperiod\bibinitdelim O\bibinitperiod},
+           givenun=0,
+           prefix={de},
+           prefixi={d\bibinitperiod},
+           prefixun=0}}%
+      }
+      \strng{namehash}{7d019ecf5c39cefae3dd1ff06f35bee9}
+      \strng{fullhash}{7d019ecf5c39cefae3dd1ff06f35bee9}
+      \strng{fullhashraw}{7d019ecf5c39cefae3dd1ff06f35bee9}
+      \strng{bibnamehash}{7d019ecf5c39cefae3dd1ff06f35bee9}
+      \strng{authorbibnamehash}{7d019ecf5c39cefae3dd1ff06f35bee9}
+      \strng{authornamehash}{7d019ecf5c39cefae3dd1ff06f35bee9}
+      \strng{authorfullhash}{7d019ecf5c39cefae3dd1ff06f35bee9}
+      \strng{authorfullhashraw}{7d019ecf5c39cefae3dd1ff06f35bee9}
+      \field{sortinit}{I}
+      \field{sortinithash}{8d291c51ee89b6cd86bf5379f0b151d8}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{2018 IEEE Congress on Evolutionary Computation (CEC)}
+      \field{title}{Lightweight Symbolic Regression with the Interaction - Transformation Representation}
+      \field{year}{2018}
+      \field{pages}{1\bibrangedash 8}
+      \range{pages}{8}
+      \verb{doi}
+      \verb 10.1109/CEC.2018.8477951
+      \endverb
+      \keyw{Tools;Linear regression;Evolutionary computation;Approximation algorithms;Internet;Browsers;Physics;symbolic regression;interaction-transformation}
+    \endentry
+    \entry{Katoch2021}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=fda3358187a4813b12cc84afd9636dde}{%
+           family={Katoch},
+           familyi={K\bibinitperiod},
+           given={Sourabh},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=034226d7a1f1953f14206341c1b56d66}{%
+           family={Chauhan},
+           familyi={C\bibinitperiod},
+           given={Sumit\bibnamedelima Singh},
+           giveni={S\bibinitperiod\bibinitdelim S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=3c2a6a0658f1ad90e7d4a83eef9c3841}{%
+           family={Kumar},
+           familyi={K\bibinitperiod},
+           given={Vijay},
+           giveni={V\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{cd1ac3ca133eb3560ff89df4cf058d81}
+      \strng{fullhash}{cd1ac3ca133eb3560ff89df4cf058d81}
+      \strng{fullhashraw}{cd1ac3ca133eb3560ff89df4cf058d81}
+      \strng{bibnamehash}{cd1ac3ca133eb3560ff89df4cf058d81}
+      \strng{authorbibnamehash}{cd1ac3ca133eb3560ff89df4cf058d81}
+      \strng{authornamehash}{cd1ac3ca133eb3560ff89df4cf058d81}
+      \strng{authorfullhash}{cd1ac3ca133eb3560ff89df4cf058d81}
+      \strng{authorfullhashraw}{cd1ac3ca133eb3560ff89df4cf058d81}
+      \field{sortinit}{K}
+      \field{sortinithash}{c02bf6bff1c488450c352b40f5d853ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{In this paper, the analysis of recent advances in genetic algorithms is discussed. The genetic algorithms of great interest in research community are selected for analysis. This review will help the new and demanding researchers to provide the wider vision of genetic algorithms. The well-known algorithms and their implementation are presented with their pros and cons. The genetic operators and their usages are discussed with the aim of facilitating new researchers. The different research domains involved in genetic algorithms are covered. The future research directions in the area of genetic operators, fitness function and hybrid algorithms are discussed. This structured review will be helpful for research and graduate teaching.}
+      \field{issn}{1573-7721}
+      \field{journaltitle}{Multimedia Tools and Applications}
+      \field{month}{2}
+      \field{number}{5}
+      \field{title}{A review on genetic algorithm: past, present, and future}
+      \field{volume}{80}
+      \field{year}{2021}
+      \field{pages}{8091\bibrangedash 8126}
+      \range{pages}{36}
+      \verb{doi}
+      \verb 10.1007/s11042-020-10139-6
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1007/s11042-020-10139-6
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1007/s11042-020-10139-6
+      \endverb
+    \endentry
+    \entry{sr_book}{book}{}{}
+      \name{author}{5}{ul=2}{%
+        {{un=0,uniquepart=base,hash=4e7fc4ce8d355b40d67bf4aa32cac29a}{%
+           family={Kronberger},
+           familyi={K\bibinitperiod},
+           given={Gabriel},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=63430ac85366b45ca61e1c26053cc8b8}{%
+           family={Burlacu},
+           familyi={B\bibinitperiod},
+           given={Bogdan},
+           giveni={B\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=62a8866eed8af86dbee0b242c87525d2}{%
+           family={Kommenda},
+           familyi={K\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5f5b4f37e0004d0ab78c2b43f5cf5510}{%
+           family={Winkler},
+           familyi={W\bibinitperiod},
+           given={Stephan},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=3b3bd7ec0b86dacdb3988998da410572}{%
+           family={Affenzeller},
+           familyi={A\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{3a82225c0e4690b2961df98840f64a31}
+      \strng{fullhash}{ba3ea11af277d14f527aaead8616d3d0}
+      \strng{fullhashraw}{ba3ea11af277d14f527aaead8616d3d0}
+      \strng{bibnamehash}{3a82225c0e4690b2961df98840f64a31}
+      \strng{authorbibnamehash}{3a82225c0e4690b2961df98840f64a31}
+      \strng{authornamehash}{3a82225c0e4690b2961df98840f64a31}
+      \strng{authorfullhash}{ba3ea11af277d14f527aaead8616d3d0}
+      \strng{authorfullhashraw}{ba3ea11af277d14f527aaead8616d3d0}
+      \field{sortinit}{K}
+      \field{sortinithash}{c02bf6bff1c488450c352b40f5d853ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{isbn}{9781315166407}
+      \field{month}{07}
+      \field{title}{Symbolic Regression}
+      \field{year}{2024}
+      \verb{doi}
+      \verb 10.1201/9781315166407
+      \endverb
+    \endentry
+    \entry{inefficiency_gp}{inproceedings}{}{}
+      \name{author}{5}{ul=2}{%
+        {{un=0,uniquepart=base,hash=4e7fc4ce8d355b40d67bf4aa32cac29a}{%
+           family={Kronberger},
+           familyi={K\bibinitperiod},
+           given={Gabriel},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=b965f90d252763c6e8281174b80274d8}{%
+           family={Olivetti\bibnamedelimb de\bibnamedelima França},
+           familyi={O\bibinitperiod\bibinitdelim d\bibinitperiod\bibinitdelim F\bibinitperiod},
+           given={Fabricio},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5f99219339a2be1803a0895fc066afc5}{%
+           family={Desmond},
+           familyi={D\bibinitperiod},
+           given={Harry},
+           giveni={H\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=add7c6b373b88119095dc92f9887717f}{%
+           family={Bartlett},
+           familyi={B\bibinitperiod},
+           given={Deaglan\bibnamedelima J.},
+           giveni={D\bibinitperiod\bibinitdelim J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2398ab2a8243f815a987dc8bdd6ba372}{%
+           family={Kammerer},
+           familyi={K\bibinitperiod},
+           given={Lukas},
+           giveni={L\bibinitperiod},
+           givenun=0}}%
+      }
+      \name{editor}{7}{}{%
+        {{hash=3b3bd7ec0b86dacdb3988998da410572}{%
+           family={Affenzeller},
+           familyi={A\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod}}}%
+        {{hash=f08ec0e3ab03f30bba46f1b637d76dae}{%
+           family={Winkler},
+           familyi={W\bibinitperiod},
+           given={Stephan\bibnamedelima M.},
+           giveni={S\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=99a18a49666163c2257997060312e77c}{%
+           family={Kononova},
+           familyi={K\bibinitperiod},
+           given={Anna\bibnamedelima V.},
+           giveni={A\bibinitperiod\bibinitdelim V\bibinitperiod}}}%
+        {{hash=5f68ce10c238f4be96bfe2a8193836de}{%
+           family={Trautmann},
+           familyi={T\bibinitperiod},
+           given={Heike},
+           giveni={H\bibinitperiod}}}%
+        {{hash=08f03c75c9e9b5afea3b578b903ffc47}{%
+           family={Tušar},
+           familyi={T\bibinitperiod},
+           given={Tea},
+           giveni={T\bibinitperiod}}}%
+        {{hash=e4b3739c80831823ba3a2b38d2841643}{%
+           family={Machado},
+           familyi={M\bibinitperiod},
+           given={Penousal},
+           giveni={P\bibinitperiod}}}%
+        {{hash=63db21b1dd89fc12aac7791967820b87}{%
+           family={Bäck},
+           familyi={B\bibinitperiod},
+           given={Thomas},
+           giveni={T\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Cham}%
+      }
+      \list{publisher}{1}{%
+        {Springer Nature Switzerland}%
+      }
+      \strng{namehash}{4b416bc531ee6b55918fb8fa7bdac27a}
+      \strng{fullhash}{f7831a594561ddc76947285ecd35714c}
+      \strng{fullhashraw}{f7831a594561ddc76947285ecd35714c}
+      \strng{bibnamehash}{4b416bc531ee6b55918fb8fa7bdac27a}
+      \strng{authorbibnamehash}{4b416bc531ee6b55918fb8fa7bdac27a}
+      \strng{authornamehash}{4b416bc531ee6b55918fb8fa7bdac27a}
+      \strng{authorfullhash}{f7831a594561ddc76947285ecd35714c}
+      \strng{authorfullhashraw}{f7831a594561ddc76947285ecd35714c}
+      \strng{editorbibnamehash}{2342b3cf9c52f6354ff52bb3a78c1989}
+      \strng{editornamehash}{2342b3cf9c52f6354ff52bb3a78c1989}
+      \strng{editorfullhash}{ef205237566a2ee27234e49b71dcd5d6}
+      \strng{editorfullhashraw}{ef205237566a2ee27234e49b71dcd5d6}
+      \field{sortinit}{K}
+      \field{sortinithash}{c02bf6bff1c488450c352b40f5d853ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{We analyse the search behaviour of genetic programming (GP) for symbolic regression (SR) in search spaces that are small enough to allow exhaustive enumeration, and use an improved exhaustive symbolic regression algorithm to generate the set of semantically unique expression structures, which is orders of magnitude smaller than the original SR search space. The efficiency of GP and a hypothetical random search in this set of unique expressions is compared, whereby the efficiency is quantified via the number of function evaluations performed until a given error threshold is reached, and the percentage of unique expressions evaluated during the search after simplification to a canonical form. The results for two real-world datasets with a single input variable show that GP in such limited search space explores only a small fraction of the search space, and evaluates semantically equivalent expressions repeatedly. GP has a smaller success probability than the idealised random search for such small search spaces.}
+      \field{booktitle}{Parallel Problem Solving from Nature -- PPSN XVIII}
+      \field{isbn}{978-3-031-70055-2}
+      \field{title}{The Inefficiency of Genetic Programming for Symbolic Regression}
+      \field{year}{2024}
+      \field{pages}{273\bibrangedash 289}
+      \range{pages}{17}
+    \endentry
+    \entry{galr}{inproceedings}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=04ae3b92801a6d70750be59ecc5e32ad}{%
+           family={Lambora},
+           familyi={L\bibinitperiod},
+           given={Annu},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=635392fc0e121802abb541a790d1ea75}{%
+           family={Gupta},
+           familyi={G\bibinitperiod},
+           given={Kunal},
+           giveni={K\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=bd2764f4362f72176b4d87d90284f0f9}{%
+           family={Chopra},
+           familyi={C\bibinitperiod},
+           given={Kriti},
+           giveni={K\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{5183eb6b2e8048e5773b526da3daeda7}
+      \strng{fullhash}{5183eb6b2e8048e5773b526da3daeda7}
+      \strng{fullhashraw}{5183eb6b2e8048e5773b526da3daeda7}
+      \strng{bibnamehash}{5183eb6b2e8048e5773b526da3daeda7}
+      \strng{authorbibnamehash}{5183eb6b2e8048e5773b526da3daeda7}
+      \strng{authornamehash}{5183eb6b2e8048e5773b526da3daeda7}
+      \strng{authorfullhash}{5183eb6b2e8048e5773b526da3daeda7}
+      \strng{authorfullhashraw}{5183eb6b2e8048e5773b526da3daeda7}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{2019 International Conference on Machine Learning, Big Data, Cloud and Parallel Computing (COMITCon)}
+      \field{title}{Genetic Algorithm- A Literature Review}
+      \field{year}{2019}
+      \field{pages}{380\bibrangedash 384}
+      \range{pages}{5}
+      \verb{doi}
+      \verb 10.1109/COMITCon.2019.8862255
+      \endverb
+      \keyw{Genetic algorithms;Biological cells;Optimization;Sociology;Statistics;Encoding;Genetics;Genetic Algorithm;Inheritance;Mutation;Selection;Crossover}
+    \endentry
+    \entry{Makke2024}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=2d403d51e733236c6bde2075b1613e3f}{%
+           family={Makke},
+           familyi={M\bibinitperiod},
+           given={Nour},
+           giveni={N\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=54ff2f270b001c9403fc0563fe52d8aa}{%
+           family={Chawla},
+           familyi={C\bibinitperiod},
+           given={Sanjay},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{a7f157d3d7b7d9b1c66fbf91834f8e76}
+      \strng{fullhash}{a7f157d3d7b7d9b1c66fbf91834f8e76}
+      \strng{fullhashraw}{a7f157d3d7b7d9b1c66fbf91834f8e76}
+      \strng{bibnamehash}{a7f157d3d7b7d9b1c66fbf91834f8e76}
+      \strng{authorbibnamehash}{a7f157d3d7b7d9b1c66fbf91834f8e76}
+      \strng{authornamehash}{a7f157d3d7b7d9b1c66fbf91834f8e76}
+      \strng{authorfullhash}{a7f157d3d7b7d9b1c66fbf91834f8e76}
+      \strng{authorfullhashraw}{a7f157d3d7b7d9b1c66fbf91834f8e76}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Symbolic regression is emerging as a promising machine learning method for learning succinct underlying interpretable mathematical expressions directly from data. Whereas it has been traditionally tackled with genetic programming, it has recently gained a growing interest in deep learning as a data-driven model discovery tool, achieving significant advances in various application domains ranging from fundamental to applied sciences. In this survey, we present a structured and comprehensive overview of symbolic regression methods, review the adoption of these methods for model discovery in various areas, and assess their effectiveness. We have also grouped state-of-the-art symbolic regression applications in a categorized manner in a living review.}
+      \field{issn}{1573-7462}
+      \field{journaltitle}{Artificial Intelligence Review}
+      \field{month}{1}
+      \field{number}{1}
+      \field{title}{Interpretable scientific discovery with symbolic regression: a review}
+      \field{volume}{57}
+      \field{year}{2024}
+      \field{pages}{2}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1007/s10462-023-10622-0
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1007/s10462-023-10622-0
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1007/s10462-023-10622-0
+      \endverb
+    \endentry
+    \entry{martin2008clean}{book}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=6f41df64eb0dc4855be70172368604c2}{%
+           family={Martin},
+           familyi={M\bibinitperiod},
+           given={Robert\bibnamedelima C.},
+           giveni={R\bibinitperiod\bibinitdelim C\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{location}{1}{%
+        {Upper Saddle River, NJ}%
+      }
+      \list{publisher}{1}{%
+        {Prentice Hall}%
+      }
+      \strng{namehash}{6f41df64eb0dc4855be70172368604c2}
+      \strng{fullhash}{6f41df64eb0dc4855be70172368604c2}
+      \strng{fullhashraw}{6f41df64eb0dc4855be70172368604c2}
+      \strng{bibnamehash}{6f41df64eb0dc4855be70172368604c2}
+      \strng{authorbibnamehash}{6f41df64eb0dc4855be70172368604c2}
+      \strng{authornamehash}{6f41df64eb0dc4855be70172368604c2}
+      \strng{authorfullhash}{6f41df64eb0dc4855be70172368604c2}
+      \strng{authorfullhashraw}{6f41df64eb0dc4855be70172368604c2}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{isbn}{978-0132350884}
+      \field{title}{Clean Code: A Handbook of Agile Software Craftsmanship}
+      \field{year}{2008}
+    \endentry
+    \entry{Olivetti_de_Fran_a_2018}{article}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=3ded71906947d4e2969c449400f721b3}{%
+           family={Olivetti\bibnamedelimb de\bibnamedelima França},
+           familyi={O\bibinitperiod\bibinitdelim d\bibinitperiod\bibinitdelim F\bibinitperiod},
+           given={Fabrício},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {Elsevier BV}%
+      }
+      \strng{namehash}{3ded71906947d4e2969c449400f721b3}
+      \strng{fullhash}{3ded71906947d4e2969c449400f721b3}
+      \strng{fullhashraw}{3ded71906947d4e2969c449400f721b3}
+      \strng{bibnamehash}{3ded71906947d4e2969c449400f721b3}
+      \strng{authorbibnamehash}{3ded71906947d4e2969c449400f721b3}
+      \strng{authornamehash}{3ded71906947d4e2969c449400f721b3}
+      \strng{authorfullhash}{3ded71906947d4e2969c449400f721b3}
+      \strng{authorfullhashraw}{3ded71906947d4e2969c449400f721b3}
+      \field{sortinit}{O}
+      \field{sortinithash}{2cd7140a07aea5341f9e2771efe90aae}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{0020-0255}
+      \field{journaltitle}{Information Sciences}
+      \field{month}{5}
+      \field{title}{A greedy search tree heuristic for symbolic regression}
+      \field{volume}{442–443}
+      \field{year}{2018}
+      \field{pages}{18\bibrangedash 32}
+      \range{pages}{15}
+      \verb{doi}
+      \verb 10.1016/j.ins.2018.02.040
+      \endverb
+      \verb{urlraw}
+      \verb http://dx.doi.org/10.1016/j.ins.2018.02.040
+      \endverb
+      \verb{url}
+      \verb http://dx.doi.org/10.1016/j.ins.2018.02.040
+      \endverb
+    \endentry
+    \entry{sommerville2011software}{article}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=70341b3bfcce7026902f4eb1e4111b58}{%
+           family={Sommerville},
+           familyi={S\bibinitperiod},
+           given={Ian},
+           giveni={I\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{70341b3bfcce7026902f4eb1e4111b58}
+      \strng{fullhash}{70341b3bfcce7026902f4eb1e4111b58}
+      \strng{fullhashraw}{70341b3bfcce7026902f4eb1e4111b58}
+      \strng{bibnamehash}{70341b3bfcce7026902f4eb1e4111b58}
+      \strng{authorbibnamehash}{70341b3bfcce7026902f4eb1e4111b58}
+      \strng{authornamehash}{70341b3bfcce7026902f4eb1e4111b58}
+      \strng{authorfullhash}{70341b3bfcce7026902f4eb1e4111b58}
+      \strng{authorfullhashraw}{70341b3bfcce7026902f4eb1e4111b58}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{edition}{9th}
+      \field{journaltitle}{Pearson Education}
+      \field{title}{Software Engineering}
+      \field{year}{2011}
+    \endentry
+    \entry{STULP201560}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=5f493367839a6ecf0d54e4abcfdc0211}{%
+           family={Stulp},
+           familyi={S\bibinitperiod},
+           given={Freek},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f028dbfa54ab10f0e51f45bc1a5a3d24}{%
+           family={Sigaud},
+           familyi={S\bibinitperiod},
+           given={Olivier},
+           giveni={O\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{2cd16cc4cadf5a682fbe6b5071700ae6}
+      \strng{fullhash}{2cd16cc4cadf5a682fbe6b5071700ae6}
+      \strng{fullhashraw}{2cd16cc4cadf5a682fbe6b5071700ae6}
+      \strng{bibnamehash}{2cd16cc4cadf5a682fbe6b5071700ae6}
+      \strng{authorbibnamehash}{2cd16cc4cadf5a682fbe6b5071700ae6}
+      \strng{authornamehash}{2cd16cc4cadf5a682fbe6b5071700ae6}
+      \strng{authorfullhash}{2cd16cc4cadf5a682fbe6b5071700ae6}
+      \strng{authorfullhashraw}{2cd16cc4cadf5a682fbe6b5071700ae6}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Regression is the process of learning relationships between inputs and continuous outputs from example data, which enables predictions for novel inputs. The history of regression is closely related to the history of artificial neural networks since the seminal work of Rosenblatt (1958). The aims of this paper are to provide an overview of many regression algorithms, and to demonstrate how the function representation whose parameters they regress fall into two classes: a weighted sum of basis functions, or a mixture of linear models. Furthermore, we show that the former is a special case of the latter. Our ambition is thus to provide a deep understanding of the relationship between these algorithms, that, despite being derived from very different principles, use a function representation that can be captured within one unified model. Finally, step-by-step derivations of the algorithms from first principles and visualizations of their inner workings allow this article to be used as a tutorial for those new to regression.}
+      \field{issn}{0893-6080}
+      \field{journaltitle}{Neural Networks}
+      \field{title}{Many regression algorithms, one unified model: A review}
+      \field{volume}{69}
+      \field{year}{2015}
+      \field{pages}{60\bibrangedash 79}
+      \range{pages}{20}
+      \verb{doi}
+      \verb https://doi.org/10.1016/j.neunet.2015.05.005
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/S0893608015001185
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/S0893608015001185
+      \endverb
+      \keyw{Regression,Locally weighted regression,Gaussian mixture regression,Radial basis function networks,Gaussian process regression}
+    \endentry
+    \entry{turingbot2020}{misc}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=ee8d03023fd449a90e9052ed3a566acf}{%
+           family={{TuringBot Software}},
+           familyi={T\bibinitperiod}}}%
+      }
+      \strng{namehash}{ee8d03023fd449a90e9052ed3a566acf}
+      \strng{fullhash}{ee8d03023fd449a90e9052ed3a566acf}
+      \strng{fullhashraw}{ee8d03023fd449a90e9052ed3a566acf}
+      \strng{bibnamehash}{ee8d03023fd449a90e9052ed3a566acf}
+      \strng{authorbibnamehash}{ee8d03023fd449a90e9052ed3a566acf}
+      \strng{authornamehash}{ee8d03023fd449a90e9052ed3a566acf}
+      \strng{authorfullhash}{ee8d03023fd449a90e9052ed3a566acf}
+      \strng{authorfullhashraw}{ee8d03023fd449a90e9052ed3a566acf}
+      \field{sortinit}{T}
+      \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://turingbotsoftware.com}}
+      \field{note}{[Accessed 23-03-2026]}
+      \field{title}{TuringBot: Symbolic Regression Software}
+      \field{year}{2020}
+    \endentry
+    \entry{wagner2014architecture}{incollection}{}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=b3b555094827b235ef74e410e9c1d817}{%
+           family={Wagner},
+           familyi={W\bibinitperiod},
+           given={Stefan},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {Springer}%
+      }
+      \strng{namehash}{8cf8d289853a08a90f4dadc164804f31}
+      \strng{fullhash}{8cf8d289853a08a90f4dadc164804f31}
+      \strng{fullhashraw}{8cf8d289853a08a90f4dadc164804f31}
+      \strng{bibnamehash}{8cf8d289853a08a90f4dadc164804f31}
+      \strng{authorbibnamehash}{8cf8d289853a08a90f4dadc164804f31}
+      \strng{authornamehash}{8cf8d289853a08a90f4dadc164804f31}
+      \strng{authorfullhash}{8cf8d289853a08a90f4dadc164804f31}
+      \strng{authorfullhashraw}{8cf8d289853a08a90f4dadc164804f31}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Advanced Methods and Applications in Computational Intelligence}
+      \field{series}{Topics in Intelligent Engineering and Informatics}
+      \field{title}{Architecture and Design of the HeuristicLab Optimization Environment}
+      \field{year}{2014}
+      \field{pages}{197\bibrangedash 261}
+      \range{pages}{65}
+      \verb{doi}
+      \verb 10.1007/978-3-319-01433-3_8
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

@@ -19,19 +19,19 @@ Além disso, como um dos objetivos do projeto é a criação de uma plataforma d
     \item \textbf{US1 - Upload de Dados}: Como pesquisador, quero fazer \textit{upload} de arquivos CSV para que eu possa utilizar meus próprios dados experimentais no treinamento de modelos.
     \item \textbf{US2 - Datasets Aleatórios}: Como desenvolvedor, quero gerar conjuntos de dados aleatórios para testar o comportamento dos algoritmos em diferentes cenários matemáticos.
     \item \textbf{US3 - Treinamento de Modelos}: Como usuário, quero configurar os meta-parâmetros do algoritmo Eggp para que eu possa otimizar a busca por expressões que respeitem restrições específicas de domínio.
-    \item \textbf{US4 - Consulta IQL}: Como analista de dados, quero consultar expressões encontradas através da linguagem IQL para identificar padrões matemáticos de interesse na fronteira de Pareto.
+    \item \textbf{US4 - Consulta IQL}: Como analista de dados, quero consultar expressões encontradas através da linguagem IQL para identificar padrões matemáticos de interesse.
     \item \textbf{US5 - Visualização de Métricas}: Como pesquisador, quero observar métricas de performance (MSE, R²) e complexidade estrutural para facilitar a seleção do modelo mais adequado.
     \item \textbf{US6 - Predição e Validação}: Como usuário, quero utilizar os modelos treinados para realizar previsões em novos dados, validando a generalização da solução encontrada.
 \end{itemize}
 
 \section{Interface Web e Blocos de Visualização}
-A plataforma Spectrum utiliza uma interface baseada em "blocos" para visualização e manipulação de dados, permitindo que a interface se adapte às necessidades de cada perfil de usuário. Cada perfil pode ser personalizado com blocos modulares, tais como:
+A plataforma Spectrum utiliza uma interface baseada em "blocos" para visualização e manipulação de dados, permitindo que a interface se adapte às necessidades de cada perfil de usuário. Cada perfil pode ser personalizado com blocos modulares, como por exemplo:
 \begin{itemize}
-    \item \textbf{Bloco de Metadados}: Exibe informações fundamentais do conjunto de dados, como número de amostras, tipos de variáveis e estatísticas descritivas básicas;
-    \item \textbf{Bloco de Gráficos}: Renderiza dispersões multidimensionais e as curvas de ajuste dos modelos SR em tempo real, utilizando bibliotecas gráficas interativas;
     \item \textbf{Bloco de Editor IQL}: Provê uma interface de codificação com realce de sintaxe para execução de consultas declarativas sobre os modelos de regressão;
     \item \textbf{Bloco de Markdown}: Permite a documentação textual diretamente na plataforma, integrando anotações do pesquisador aos experimentos realizados.
 \end{itemize}
+
+A interface em blocs se assemelha a outras plataformas amplamente utilizadas em ambientes de ciência de dados, como o Google Colab. Dessa forma, a plataforma proposta se aproxima de outras ferramentas já utilizadas atualmente, facilitando a utilização dela. Além disso, o objetivo dessa interface modular é integrar as etapas de exploração, escrita e utilização dos modelos de regressão. Ferramentas disponíveis hoje em dia, como HeuristicLab e TuringBot, não permitem a documentação do modelo de forma integrada~\cite{heuristiclabDocumentationAboutHeuristicLabx2013,turingbot2020}, implicando na necessidade de um pesquisador utilizar diversas ferramentas simultaneamente e acarretando em trocas de contexto constantes.
 
 \section{Requisitos não-funcionais}
 Os requisitos não-funcionais definem as restrições e qualidades do sistema Spectrum. Para esta plataforma, os seguintes requisitos foram estabelecidos:
@@ -42,15 +42,69 @@ Os requisitos não-funcionais definem as restrições e qualidades do sistema Sp
     \item \textbf{Portabilidade}: O sistema deve ser capaz de ser executado em diferentes ambientes por meio de conteinerização com Docker.
 \end{enumerate}
 
-\section{Arquitetura do Backend}
+\section{Back-End}
 O back-end do projeto foi desenvolvido seguindo o padrão monólito modularizado, em oposição a uma arquitetura de micro-serviços pura, visando reduzir a complexidade de rede sem abrir mão da separação de responsabilidades. O servidor é responsável por gerenciar as principais entidades do sistema:
 \begin{itemize}
     \item \textbf{User}: Representa os usuários da plataforma;
     \item \textbf{Dataset}: Metadados e referências aos arquivos CSV de dados;
-    \item \textbf{Job}: Representa uma solicitação de treinamento de modelo;
-    \item \textbf{Run}: O resultado de um treinamento, contendo as expressões encontradas;
-    \item \textbf{Profile}: Personalização da interface e blocos de visualização para o usuário.
+    \item \textbf{Job}: Representa uma configuração para o algoritmo eggp, contendo os meta parâmetros do algoritmo;
+    \item \textbf{Run}: O resultado de um treinamento, contendo metadados como tempo de execução;
+    \item \textbf{Profile}: Personalização da interface e blocos de visualização para o usuário;
+    \item \textbf{Model}: Representa um modelo gerado por um \textbf{Job}, com referências para o arquivo egraph gerado;
+    \item \textbf{Block}: Representa um bloco no editor;
+    \item \textbf{Inference Run}: Representa uma requisição em linguagem IQL para determinada \textbf{Profile};
+    \item \textbf{Inference Result}: Representa os resultados de uma consulta IQL.
 \end{itemize}
 
-O desenvolvimento foi guiado por padrões de projeto como \textit{Repository} e \textit{Data Mapper}, assegurando que as entidades de domínio permaneçam puras e desacopladas da tecnologia de persistência.
+As sub-seções seguintes apresentam as rotas disponibilizadas por cada módulo para manipulação do seu domínio, bem como os valores esperadas de entrada e saída para cada rota.
+
+\subsection{Usuários}
+Como forma de permitir a criação de modelos privados, a plataforma Spectrum oferece uma funcionalidade de criação de contas de usuário. Todas as demais entidades do sistem estão relacionadas, direta ou indiretamente, com um usuário. Usuários representam pessoas que utilizam a plataforma. Um usuário é definido a nível de banco de dados pelo código \ref{code:user_db}, e a nível de domínio pelo código \ref{code:user_domain}.
+
+\begin{lstlisting}[language=Sql, caption={Código SQL para criação da tabela de usuários}, label={code:user_db}]
+SQL CODE
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define um usuário}, label={code:user_domain}]
+from datetime import datetime
+from typing import Optional
+
+from pydantic import Field, EmailStr, SecretStr
+from ..base import BaseMutableDomainModel
+
+
+class User(BaseMutableDomainModel):
+    first_name: str = Field(..., description="The user's first name")
+
+    last_name: str = Field(..., description="The user's last name")
+
+    email: EmailStr = Field(..., description="The user's email address")
+
+    password_hash: SecretStr = Field(...,
+                                     description="The hashed password of the user")
+
+    deleted_at: Optional[datetime] = Field(
+        None, description="The timestamp when the user was deleted, if applicable")
+
+    @classmethod
+    def new(
+        cls,
+        *,
+        first_name: str,
+        last_name: str,
+        email: EmailStr,
+        password_hash: SecretStr,
+    ):
+        return cls(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password_hash=password_hash,
+            deleted_at=None,
+        )
+\end{lstlisting}
+
+\section{Workers}
+
+\section{Front-End}
 

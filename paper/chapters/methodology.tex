@@ -298,3 +298,156 @@ class LocalStorage(FileStorage):
             parents=True, exist_ok=True)
         destination_path.write_bytes(source_path.read_bytes())
 \end{lstlisting}
+
+\subsection{Abstrações e Conceitos Base}
+Os pacotes \textbf{core} e \textbf{db\_core} definem as principais abstrações utilizadas pelo sistema como forma de simplificar implementações e definir interfaces de comunicação claras e precisas que permitam a substituição de subsistemas caso necessário, isolando subsistemas do mundo exterior, de acordo com o padrão de código \textit{Ports and Adapters}~\cite{martin2008clean}.
+
+\subsubsection{Abstrações de Banco de Dados}
+O pacote \textbf{db\_core} utiliza as bibliotecas \textit{SQLAlchemy} e \textit{Alembic} para gerenciar as entidades do banco de dados. Para facilitar a implementação das entidades, foram definidas algumas classes utilitárias para padrões comuns:
+\begin{enumerate}
+    \item \textbf{Entidades Mutáveis}: Entidades que podem ser alteradas de forma direta pelo usuário da aplicação. Suportam operações de escrita, leitura e deleção (CRUD). Definido pelo código \ref{code:mutable_db}. Toda entidade mutável apresenta as propriedades \textit{id}, um identificador único gerado pelo padrão UUIDv4; \textit{created\_at}, um marcador temporal de quando a entidade foi criada no sistema; e \textit{updated\_at}, um marcador temporal de quando a entidade foi alterada no sistema;
+    \item \textbf{Entidades Imutáveis}: Entidades que não podem ser alteradas diretamente pelo usuário, podendo ser alteradas apenas pela própria plataforma Spectrum. Suportam apenas operações de criação e leitura. Definido pelo código \ref{code:immutable_db};
+    \item \textbf{Entidades Versionadas}: Entidades que são imutáveis mas apresentam versões diferentes. Versões antigas são mantidas para consulta. Suportam apenas operações de criação e leitura. Definida pelo código \ref{code:versioned_db}
+\end{enumerate}
+
+\begin{lstlisting}[language=Python, caption={Definição de uma entidade mutável em nível de banco de dados}, label={code:mutable_db}]
+from uuid import UUID
+from datetime import datetime
+
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import func, DateTime, text
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+
+from .root import RootBase
+
+
+class MutableBase(RootBase):
+    """
+    Base class for all ORM models in the application.
+    This class provides common functionality that can be shared across all ORM models, such as automatic timestamping of created and updated records.
+
+    Provided properties:
+    - id: A unique identifier for each record, generated using PostgreSQL's `gen_random_uuid()` function.
+    - created_at: A timestamp indicating when the record was created, automatically set to the current time when the record is inserted into the database.
+    - updated_at: A timestamp indicating when the record was last updated, automatically set to the current time whenever the record is updated.
+    """
+    __abstract__ = True
+
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+        server_default=text("gen_random_uuid()"),
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        server_onupdate=func.now(),
+    )
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Definição de uma entidade imutável em nível de banco de dados}, label={code:immutable_db}]
+from typing import Any
+from uuid import UUID
+from datetime import datetime
+
+from sqlalchemy.orm import Mapped, mapped_column, declared_attr
+from sqlalchemy import func, DateTime, UniqueConstraint, Index, Boolean, text
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+
+from .root import RootBase
+
+
+class ImmutableBase(RootBase):
+    """
+    Base class for all immutable ORM models in the application.
+    This class provides common functionality that can be shared across all immutable ORM models, such as automatic
+    timestamping of created records.
+
+    Defined properties:
+    - `id`: A unique identifier for each record, generated using PostgreSQL's `gen_random_uuid()` function.
+    - `timestamp`: A timestamp indicating when the record was created, automatically set to the current time when the record is inserted into the database.
+
+    The class also defines a unique constraint on the `id` field and an index on the `timestamp` field to optimize query performance.
+    """
+    __abstract__ = True
+
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+        server_default=text("gen_random_uuid()"),
+    )
+
+    timestamp: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+
+    @declared_attr.directive
+    def __table_args__(cls) -> Any:
+        return (
+            UniqueConstraint("id", name=f"uq_{cls.__tablename__}_id"),
+            Index(f"idx_{cls.__tablename__}_timestamp", "timestamp"),
+        )
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Definição de uma entidade versionada em nível de banco de dados}, label={code:versioned_db}]
+class ImmutableVersionedBase(ImmutableBase):
+    """
+    Base class for all immutable ORM models in the application.
+    This class provides common functionality that can be shared across all immutable ORM models, such as automatic
+    timestamping of created records and versioning for optimistic concurrency control.
+
+    Defined properties:
+    - `id`: A unique identifier for each record, generated using PostgreSQL's `gen_random_uuid()` function.
+    - `version`: An integer field used for optimistic concurrency control, allowing multiple versions of a record to exist while ensuring that updates are applied to the correct version.
+    - `is_latest`: A boolean field indicating whether the record is the latest version.
+    - `timestamp`: A timestamp indicating when the record was created, automatically set to the current time when the record is inserted into the database.
+
+    The class also defines a unique constraint on the combination of `id` and `version`, as well as indexes on the `id`, `version`, and `is_latest` fields to optimize query performance.
+    """
+    __abstract__ = True
+
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+        server_default=text("gen_random_uuid()"),
+    )
+
+    version: Mapped[int] = mapped_column(
+        nullable=False,
+        primary_key=True,
+        default=1,
+    )
+
+    is_latest: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        nullable=False,
+    )
+
+    timestamp: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+
+    @declared_attr.directive
+    def __table_args__(cls) -> Any:
+        return (
+            UniqueConstraint(
+                "id", "version", name=f"uq_{cls.__tablename__}_id_version"),
+            Index(f"idx_{cls.__tablename__}_id_version", "id", "version"),
+            Index(f"idx_{cls.__tablename__}_is_latest", "is_latest"),
+            Index(f"idx_{cls.__tablename__}_latest", "id",
+                  unique=True, postgresql_where=text("is_latest = true"))
+        )
+\end{lstlisting}
