@@ -146,6 +146,7 @@ export function ModelInsights({ model, onClose }: ModelInsightsProps) {
 					color: colors[i % colors.length],
 				},
 				opacity: 0.8,
+				z: 11,
 			});
 		});
 
