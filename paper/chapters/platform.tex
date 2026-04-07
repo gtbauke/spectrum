@@ -56,23 +56,47 @@ O back-end do projeto foi desenvolvido seguindo o padrão monólito modularizado
     \item \textbf{Inference Result}: Representa os resultados de uma consulta IQL.
 \end{itemize}
 
-As sub-seções seguintes apresentam as rotas disponibilizadas por cada módulo para manipulação do seu domínio, bem como os valores esperadas de entrada e saída para cada rota.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/entity_diagram.png}
+    \caption{Diagrama de entidades do sistema}
+    \label{fig:entity_diagram}
+\end{figure}
+
+O diagrama \ref{fig:entity_diagram} apresenta a estrutura de entidades do sistema, bem como suas relações. As sub-seções seguintes apresentam detalhes de cada módulo, suas regras de negócios, as rotas HTTP disponibilizadas por eles manipulação do seu domínio, bem como os valores esperadas de entrada e saída para cada rota.
 
 \subsection{Usuários}
-Como forma de permitir a criação de modelos privados, a plataforma Spectrum oferece uma funcionalidade de criação de contas de usuário. Todas as demais entidades do sistem estão relacionadas, direta ou indiretamente, com um usuário. Usuários representam pessoas que utilizam a plataforma. Um usuário é definido a nível de banco de dados pelo código \ref{code:user_db}, e a nível de domínio pelo código \ref{code:user_domain}.
+Como forma de permitir a criação de modelos privados, a plataforma Spectrum oferece uma funcionalidade de criação de contas de usuário. Todas as demais entidades do sistema estão relacionadas, direta ou indiretamente, com um usuário. Usuários representam pessoas que utilizam a plataforma. Um usuário é definido a nível de banco de dados pelo código \ref{code:user_db}, e a nível de domínio pelo código \ref{code:user_domain}.
 
-\begin{lstlisting}[language=Sql, caption={Código SQL para criação da tabela de usuários}, label={code:user_db}]
-SQL CODE
+\begin{lstlisting}[language=Python, caption={Código SQLAlchemy para criação da tabela de usuários}, label={code:user_db}]
+class UserORM(MutableBase):
+    __tablename__ = "users"
+
+    first_name: Mapped[str] = mapped_column(String, nullable=False)
+    last_name: Mapped[str] = mapped_column(String, nullable=False)
+
+    email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    password_hash: Mapped[str] = mapped_column(String, nullable=False)
+
+    deleted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True)
+
+    datasets: Mapped[list["DatasetORM"]] = relationship(
+        "DatasetORM",
+        back_populates="owner",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    profiles: Mapped[list["ProfileORM"]] = relationship(
+        "ProfileORM",
+        back_populates="owner",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
 \end{lstlisting}
 
 \begin{lstlisting}[language=Python, caption={Classe de domínio que define um usuário}, label={code:user_domain}]
-from datetime import datetime
-from typing import Optional
-
-from pydantic import Field, EmailStr, SecretStr
-from ..base import BaseMutableDomainModel
-
-
 class User(BaseMutableDomainModel):
     first_name: str = Field(..., description="The user's first name")
 
@@ -103,6 +127,12 @@ class User(BaseMutableDomainModel):
             deleted_at=None,
         )
 \end{lstlisting}
+
+Usuários podem manipular outras duas principais entidades do sistema: \textbf{Datasets} e \textbf{Profiles}. Datasets são abstrações sobre os arquivos CSV de dados que os usuários fazem upload para a plataforma, enquanto Profiles são espaços de trabalho contendo blocos de visualização e modelos de regressão simbólica. Dessa forma, a plataforma garante que cada usuário tenha acesso apenas aos seus próprios dados e modelos, promovendo a privacidade e segurança das informações.
+
+\subsection{Datasets}
+
+\subsection{Profiles}
 
 \section{Workers}
 

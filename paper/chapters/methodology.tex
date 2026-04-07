@@ -322,15 +322,6 @@ from .root import RootBase
 
 
 class MutableBase(RootBase):
-    """
-    Base class for all ORM models in the application.
-    This class provides common functionality that can be shared across all ORM models, such as automatic timestamping of created and updated records.
-
-    Provided properties:
-    - id: A unique identifier for each record, generated using PostgreSQL's `gen_random_uuid()` function.
-    - created_at: A timestamp indicating when the record was created, automatically set to the current time when the record is inserted into the database.
-    - updated_at: A timestamp indicating when the record was last updated, automatically set to the current time whenever the record is updated.
-    """
     __abstract__ = True
 
     id: Mapped[UUID] = mapped_column(
@@ -366,17 +357,6 @@ from .root import RootBase
 
 
 class ImmutableBase(RootBase):
-    """
-    Base class for all immutable ORM models in the application.
-    This class provides common functionality that can be shared across all immutable ORM models, such as automatic
-    timestamping of created records.
-
-    Defined properties:
-    - `id`: A unique identifier for each record, generated using PostgreSQL's `gen_random_uuid()` function.
-    - `timestamp`: A timestamp indicating when the record was created, automatically set to the current time when the record is inserted into the database.
-
-    The class also defines a unique constraint on the `id` field and an index on the `timestamp` field to optimize query performance.
-    """
     __abstract__ = True
 
     id: Mapped[UUID] = mapped_column(
@@ -401,19 +381,6 @@ class ImmutableBase(RootBase):
 
 \begin{lstlisting}[language=Python, caption={Definição de uma entidade versionada em nível de banco de dados}, label={code:versioned_db}]
 class ImmutableVersionedBase(ImmutableBase):
-    """
-    Base class for all immutable ORM models in the application.
-    This class provides common functionality that can be shared across all immutable ORM models, such as automatic
-    timestamping of created records and versioning for optimistic concurrency control.
-
-    Defined properties:
-    - `id`: A unique identifier for each record, generated using PostgreSQL's `gen_random_uuid()` function.
-    - `version`: An integer field used for optimistic concurrency control, allowing multiple versions of a record to exist while ensuring that updates are applied to the correct version.
-    - `is_latest`: A boolean field indicating whether the record is the latest version.
-    - `timestamp`: A timestamp indicating when the record was created, automatically set to the current time when the record is inserted into the database.
-
-    The class also defines a unique constraint on the combination of `id` and `version`, as well as indexes on the `id`, `version`, and `is_latest` fields to optimize query performance.
-    """
     __abstract__ = True
 
     id: Mapped[UUID] = mapped_column(
@@ -450,4 +417,202 @@ class ImmutableVersionedBase(ImmutableBase):
             Index(f"idx_{cls.__tablename__}_latest", "id",
                   unique=True, postgresql_where=text("is_latest = true"))
         )
+\end{lstlisting}
+
+\subsection{Abstrações de Domínio}
+O pacote \textbf{core} define as entidades de domínio do sistema, bem como interfaces comuns aos demais pacotes. As representações de domínio seguem uma estrutura similar àquelas definidas para o banco de dados. No entanto, as entidades de domínio não possuem detalhes de implementação relacionados à persistência, como anotações de tipo específicos para o banco de dados, índices ou restrições de chave estrangeira. Além disso, segundo as práticas do Código Limpo~\cite{martin2008clean}, entidades de domínio não precisam equivaler-se diretamente às entidades de banco de dados, podendo apresentar uma estrutura diferente, desde que as regras de negócio sejam respeitadas.
+
+Assim como as entidades de banco de dados, as entidades de domínio também são divididas em mutáveis (código \ref{code:mutable_domain}), imutáveis (código \ref{code:immutable_domain}) e versionadas (código \ref{code:versioned_domain}). Essas entidades são implementadas utilizando-se a biblioteca \textit{Pydantic}, a qual permite a definição de modelos de dados com validação de dados acoplada, bem como facilita a conversão entre diferentes representações de dados, como dicionários, JSON e objetos Python.
+
+\begin{lstlisting}[language=Python, caption={Definição de uma entidade mutável em nível de domínio}, label={code:mutable_domain}]
+class BaseMutableDomainModel(RootDomainModel):
+    id: UUID = Field(default_factory=uuid4)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Definição de uma entidade imutável em nível de domínio}, label={code:immutable_domain}]
+class BaseImmutableDomainModel(RootDomainModel):
+    id: UUID = Field(default_factory=uuid4)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Definição de uma entidade versionada em nível de domínio}, label={code:versioned_domain}]
+class BaseImmutableVersionedDomainModel(RootDomainModel):
+    id: UUID = Field(default_factory=uuid4)
+    version: int = Field(default=1, description="Version number for optimistic concurrency control")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    is_latest: bool = Field(default=True)
+\end{lstlisting}
+
+Para além das definições bases para entidades de domínio, o pacote \textbf{core} também define os protocolos para os repositórios. Segundo as práticas do Código Limpo~\cite{martin2008clean}, repositórios são classes responsáveis por encapsular a lógica necessária para acessar fontes de dados, como bancos de dados, serviços externos ou mesmo arquivos locais, isolando o restante da aplicação dos detalhes de implementação relacionados à persistência de dados. As implementações específicas dos protocolos estão presentes no pacote \textbf{db\_core}.
+
+A definição dos protocolos de repositórios segue uma estrutura similar àquela das entidades de domínio, apresentando uma divisão entre repositórios para entidades mutáveis (código \ref{code:mutable_repository}), imutáveis (código \ref{code:immutable_repository}) e versionadas (código \ref{code:versioned_repository}). Além disso, também é definido um protocolo para repositórios que permitem operações em lote (código \ref{code:bulk_repository}), ou seja, operações que manipulam múltiplas entidades de forma simultânea.
+
+Para garantir a segurança de tipos em tempo de compilação, os protocolos são implementados utilizando-se da funcionalidade de \textit{Generics} do Python, permitindo a definição de tipos genéricos para as entidades manipuladas pelos repositórios, bem como para os filtros e cláusulas de busca utilizadas nas operações de leitura. Dessa forma, é possível garantir que as implementações específicas dos repositórios respeitem as interfaces definidas pelos protocolos, evitando erros de tipo em tempo de execução.
+
+\begin{lstlisting}[language=Python, caption={Definição de um protocolo de repositório para entidades mutáveis}, label={code:mutable_repository}]
+from typing import Protocol
+
+from core.features.base import (
+    BaseMutableDomainModel,
+)
+
+from core.utils.where import BaseUniqueWhere
+from core.utils.filters.base import BaseFilter
+
+from .immutable import IImmutableRepository
+
+
+class IMutableRepository[
+    T_Mutable: BaseMutableDomainModel,
+    T_Where: BaseUniqueWhere,
+    T_Filter: BaseFilter,
+](IImmutableRepository[T_Mutable, T_Where, T_Filter], Protocol):
+    async def update(self, entity: T_Mutable) -> None: ...
+    async def delete(self, entity: T_Mutable) -> None: ...
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Definição de um protocolo de repositório para entidades imutáveis}, label={code:immutable_repository}]
+from typing import Optional, Protocol, Sequence
+
+from core.features.base import (
+    RootDomainModel,
+)
+
+from core.utils.where import BaseUniqueWhere
+from core.utils.filters.base import BaseFilter
+from core.utils.pagination.response import PaginatedResponse
+from core.utils.pagination.base import Pagination
+
+
+class IImmutableRepository[
+    T_Immutable: RootDomainModel,
+    T_Where: BaseUniqueWhere,
+    T_Filter: BaseFilter,
+](Protocol):
+    async def add(self, entity: T_Immutable) -> None: ...
+    async def get_unique(self, where: T_Where) -> Optional[T_Immutable]: ...
+
+    async def list(self, filter: Optional[T_Filter] = None,
+                   pagination: Optional[Pagination] = None) -> PaginatedResponse[T_Immutable]: ...
+
+    async def list_all(
+        self, filter: Optional[T_Filter] = None) -> Sequence[T_Immutable]: ...
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Definição de um protocolo de repositório para entidades versionadas}, label={code:versioned_repository}]
+from typing import Optional, Protocol
+from uuid import UUID
+
+from core.features.base import BaseImmutableVersionedDomainModel
+from core.utils.where import BaseUniqueWhere
+from core.utils.filters.base import BaseFilter
+
+from .immutable import IImmutableRepository
+
+
+class IVersionedRepository[
+    T_Versioned: BaseImmutableVersionedDomainModel,
+    T_Where: BaseUniqueWhere,
+    T_Filter: BaseFilter,
+](IImmutableRepository[T_Versioned, T_Where, T_Filter], Protocol):
+    async def get_latest_version(
+        self, parent_id: UUID) -> Optional[T_Versioned]: ...
+
+    async def get_version_by_number(
+        self, parent_id: UUID, version: int) -> Optional[T_Versioned]: ...
+
+    async def unset_latest_and_add(
+        self, parent_id: UUID, new_entity: T_Versioned) -> None: ...
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Definição de um protocolo de repositório para operações em lote}, label={code:bulk_repository}]
+from typing import Protocol, Iterable
+
+from core.features.base import (
+    BaseMutableDomainModel,
+)
+
+from core.utils.where import BaseUniqueWhere
+from core.utils.filters.base import BaseFilter
+
+from .mutable import IMutableRepository
+
+
+class IMutableBulkRepository[
+    T_Mutable: BaseMutableDomainModel,
+    T_Where: BaseUniqueWhere,
+    T_Filter: BaseFilter,
+](IMutableRepository[T_Mutable, T_Where, T_Filter], Protocol):
+    async def add_many(self, entities: Iterable[T_Mutable]) -> None: ...
+    async def update_many(self, entities: Iterable[T_Mutable]) -> None: ...
+    async def delete_many(self, entities: Iterable[T_Mutable]) -> None: ...
+\end{lstlisting}
+
+Por fim, o pacote \textbf{core} também define protocolos para o padrão de código \textit{Unit of Work}, definindo quais componentes podem ser controlados dentro de uma determinada unidade de trabalho. O padrão de código \textit{Unit of Work} é um padrão de design que tem como objetivo manter um registro de todas as operações realizadas durante uma transação, garantindo que todas as operações sejam concluídas com sucesso ou revertidas em caso de falha, mantendo a integridade dos dados~\cite{martin2008clean}. Em conjunto com a definição do protocolo de unidades de trabalho, a plataforma também trabalha com o conceito de recursos transacionais, ou seja, recursos que precisam ser controlados dentro de uma unidade de trabalho para garantir a integridade do sistema, mas que não são associados a transações de banco de dados. Os principais recursos transacionais utilizados são conexões com brokers de mensagens e conexões com serviços de armazenamento de dados.
+
+As definições para o protocolo de unidade de trabalho podem ser encontrados no código \ref{code:unit_of_work}, enquanto as definições para o protocolo de recurso transacional podem ser encontradas no código \ref{code:transactional_resource}.
+
+\begin{lstlisting}[language=Python, caption={Definição de um protocolo para o padrão de código Unit of Work}, label={code:unit_of_work}]
+class UnitOfWork(ABC):
+    users: IUsersRepository
+    auth: IAuthRepository
+    datasets: IDatasetsRepository
+    artifacts: IArtifactsRepository
+    profiles: IProfilesRepository
+    blocks: IBlocksRepository
+    jobs: IJobsRepository
+    models: IModelsRepository
+    runs: IRunsRepository
+    inference_runs: IInferenceRunRepository
+    inference_results: IInferenceResultRepository
+
+    file_storage: FileStorage
+    events_publisher: EventPublisher
+
+    def __init__(self) -> None:
+        self._resources: list[TransactionalResource] = []
+        self._on_commit_hooks: list[Callable[[], Awaitable[None]]] = []
+
+    def register(self, resource: TransactionalResource) -> None:
+        self._resources.append(resource)
+
+    async def commit_resources(self) -> None:
+        for resource in self._resources:
+            await resource.commit()
+
+        self._resources.clear()
+
+    async def rollback_resources(self) -> None:
+        for resource in self._resources:
+            await resource.rollback()
+
+        self._resources.clear()
+
+    @abstractmethod
+    async def __aenter__(self) -> UnitOfWork: ...
+
+    @abstractmethod
+    async def __aexit__(self, exc_type: Optional[Type[BaseException]],
+                        exc: Optional[BaseException],
+                        tb: Optional[TracebackType],): ...
+
+    @abstractmethod
+    async def commit(self) -> None: ...
+
+    def on_commit(self, hook: Callable[[], Awaitable[None]]) -> None:
+        self._on_commit_hooks.append(hook)
+
+    @abstractmethod
+    async def rollback(self) -> None: ...
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Definição de um protocolo para recursos transacionais}, label={code:transactional_resource}]
+class TransactionalResource(Protocol):
+    async def commit(self) -> None:
+        ...
+
+    async def rollback(self) -> None:
+        ...
 \end{lstlisting}
