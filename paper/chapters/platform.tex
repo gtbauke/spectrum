@@ -131,30 +131,351 @@ class User(BaseMutableDomainModel):
 Usuários podem manipular outras duas principais entidades do sistema: \textbf{Datasets} e \textbf{Profiles}. Datasets são abstrações sobre os arquivos CSV de dados que os usuários fazem upload para a plataforma, enquanto Profiles são espaços de trabalho contendo blocos de visualização e modelos de regressão simbólica. Dessa forma, a plataforma garante que cada usuário tenha acesso apenas aos seus próprios dados e modelos, promovendo a privacidade e segurança das informações.
 
 \subsection{Datasets}
-Datasets são uma abstração sobre os arquivos CSV de dados que os usuários fazem upload para a plataforma. Além de referências para os arquivos, por meio das entidades de Artefatos, os Datasets também armazenam metadados como nome, descrição, data de criação e usuário proprietário. Um Dataset representa um conjunto de arquivos de dados com funções diferentes, como por exemplo um conjunto de dados de treinamento e outro de validação. A plataforma permite que os usuários façam upload de múltiplos arquivos para um mesmo Dataset, facilitando a organização dos dados experimentais.
+Datasets são uma abstração sobre os arquivos CSV de dados que os usuários fazem upload para a plataforma. Além de referências para os arquivos, por meio das entidades de Artefatos, os Datasets também armazenam metadados como nome, descrição, data de criação e usuário proprietário. Um Dataset representa um conjunto de arquivos de dados com funções diferentes, como por exemplo um conjunto de dados de treinamento e outro de validação. A plataforma permite que os usuários façam upload de múltiplos arquivos para um mesmo Dataset, facilitando a organização dos dados experimentais. O código \ref{code:dataset_domain} apresenta a classe de domínio que define um Dataset e suas propriedades e métodos.
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define um Dataset}, label={code:dataset_domain}]
+class Dataset(BaseMutableDomainModel):
+    name: str = Field()
+    description: str = Field()
+    owner_id: UUID = Field()
+    artifacts: list[Artifact] = Field()
+    deleted_at: datetime | None = Field()
+
+    visibility: DatasetVisibility = Field(
+        DatasetVisibility.PRIVATE,
+    )
+
+    @classmethod
+    def new(
+        cls,
+        name: str,
+        description: str,
+        owner_id: UUID,
+        visibility: DatasetVisibility = DatasetVisibility.PRIVATE
+    ) -> "Dataset":
+        return cls(
+            name=name,
+            description=description,
+            owner_id=owner_id,
+            artifacts=[],
+            deleted_at=None,
+            visibility=visibility
+        )
+\end{lstlisting}
+
+Datasets possuem uma propriedade que controla sua visibilidade na plataforma. Normalmente, datasets são privados, permitindo que apenas o usuário que criou o dataset tenha acesso a ele. Caso a visibilidade seja definida como pública, qualquer usuário da plataforma pode importar esse dataset em sua profile. No entanto, as funcionalidades de editar e deletar o dataset continua sendo restringida apenas para o usuário proprietário, garantindo a integridade dos dados mesmo em casos de compartilhamento. Essa funcionalidade de compartilhamento de datasets é fundamental para promover a colaboração entre os usuários da plataforma, permitindo que eles compartilhem conjuntos de dados experimentais e promovam a comparação e análise de resultados entre diferentes experimentos de regressão simbólica.
+
+Outra regra de negócio importante presente no modelo de domínio do Dataset é a prática do \textit{soft delete}, presente na propriedade \textit{deleted\_at} que pode ser tanto vazia quanto um marcador de tempo. Esse mecanismo diz que uma entidade não pode ser deletada do banco de dados, mas deve ser marcada como deletada, seja por meio de uma \textit{flag} ou pela marcação do horário em que a exclusão aconteceu. Essa pártica permite que os usuários possam recuperar datasets deletados, além de manter o histórico de entidades criadas por um usuário, mesmo que elas tenham sido deletadas posteriormente.
 
 \subsection{Profiles}
-Profiles são espaços de trabalho personalizados para cada usuário, contendo blocos de visualização e modelos de regressão simbólica. Cada Profile pode ser configurado com diferentes blocos, como o Editor IQL para consultas e um bloco de Markdown para documentação. Essa personalização permite que os usuários adaptem a interface às suas necessidades específicas, integrando a exploração, escrita e utilização dos modelos de regressão em um único ambiente. Além disso, os Profiles estão diretamente relacionados aos modelos de regressão simbólica, permitindo que os usuários organizem seus experimentos de forma estruturada e eficiente.
+Profiles são espaços de trabalho personalizados para cada usuário, contendo blocos de visualização e modelos de regressão simbólica. Cada Profile pode ser configurado com diferentes blocos, como o Editor IQL para consultas e um bloco de Markdown para documentação. Essa personalização permite que os usuários adaptem a interface às suas necessidades específicas, integrando a exploração, escrita e utilização dos modelos de regressão em um único ambiente. Além disso, os Profiles estão diretamente relacionados aos modelos de regressão simbólica, permitindo que os usuários organizem seus experimentos de forma estruturada e eficiente. O código \ref{code:profile_domain} apresenta a classe de domínio que define um Profile e suas propriedades e métodos.
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define um Profile}, label={code:profile_domain}]
+class Profile(BaseMutableDomainModel):
+    name: str = Field()
+    description: str = Field()
+    owner_id: UUID = Field()
+    mode: ProfileMode = Field(default=ProfileMode.DRAFT)
+    deleted_at: datetime | None = Field(default=None)
+    datasets: list[Dataset] = Field(default=[])
+    jobs: list[Job] = Field(default=[])
+    models: list[Model] = Field(default=[])
+    blocks: list[Block] = Field(default=[])
+
+    @classmethod
+    def new(
+        cls,
+        name: str,
+        description: str,
+        owner_id: UUID,
+        mode: ProfileMode = ProfileMode.DRAFT
+    ) -> "Profile":
+        return cls(
+            name=name,
+            description=description,
+            owner_id=owner_id,
+            mode=mode,
+            deleted_at=None,
+            datasets=[],
+            jobs=[],
+            models=[],
+            blocks=[],
+        )
+\end{lstlisting}
 
 Dentro da plataforma proposta, Profiles são o ponto de agregação de diversas outras entidades, como Jobs, Runs e Models. Dessa forma, cada Profile pode conter múltiplos Jobs (configurações de treinamento), cada Job pode gerar múltiplos Runs (resultados de treinamento) e cada Run pode estar associado a um Model (modelo de regressão simbólica gerado). Essa estrutura hierárquica facilita a organização dos experimentos e a navegação entre diferentes etapas do processo de modelagem.
 
 Para criar um Job dentro de uma determinada Profile, o usuário deve associar ao Profile um Dataset. Dessa forma, um mesmo Profile pode conter diversos datasets, cada um associado a um Job. Essa flexibilidade permite que os usuários experimentem diferentes conjuntos de dados, ou até o mesmo conjunto com meta-parâmetros completamente diferentes, dentro do mesmo espaço de trabalho, promovendo a comparação e análise de resultados de forma integrada.
 
+As profiles contém uma propriedade que controla o modo de apresentação delas, o qual pode ser definido como \textit{Draft} ou \textit{Published}. Enquanto uma profile estiver em modo \textit{Draft}, apenas o usuário dono da profile pode visualizá-la. Já quando a profile é publicada, ela pode ser visualizada por outros usuários, promovendo a colaboração e compartilhamento de experimentos entre os usuários da plataforma. No entanto, mesmo quando uma profile é publicada, apenas o usuário dono da profile tem permissão para editar ou deletar a profile, garantindo a integridade dos dados e experimentos mesmo em casos de compartilhamento.
+
 \subsubsection{Jobs}
-Jobs representam configurações para o algoritmo Eggp, contendo os meta-parâmetros do algoritmo. Cada Job está associado a um Dataset específico, permitindo que os usuários configurem o treinamento de modelos de regressão simbólica com diferentes conjuntos de dados. Os Jobs são o ponto de partida para a execução do treinamento, e cada execução gera um Run, que contém os resultados do treinamento, como tempo de execução e métricas de performance. A plataforma estabelece um requisito para os datasets associados a um Job, exigindo que eles contenham pelo menos um artefato do tipo \textit{Data} e um artefato do tipo \textit{Validation}, garantindo que os \textit{workers} que atuam sobre o conjunto de dados consigam criar um modelo de regressão simbólica e validá-lo de forma adequada.
+Jobs representam configurações para o algoritmo \textit{EGGP}, contendo os parâmetros do algoritmo. Cada Job possui uma associação com um Dataset específico, permitindo que os usuários configurem o treinamento de modelos de regressão simbólica com diferentes conjuntos de dados. Os Jobs são o ponto de partida para a execução do treinamento, e cada execução gera um Run, que contém os resultados do treinamento, como tempo de execução e métricas de performance. A plataforma estabelece um requisito para os datasets associados a um Job, exigindo que eles contenham pelo menos um artefato do tipo \textit{Data} e um artefato do tipo \textit{Validation}, garantindo que os \textit{workers} que atuam sobre o conjunto de dados consigam criar um modelo de regressão simbólica e validá-lo de forma adequada. A imagem \ref{code:job_domain} apresenta a classe de domínio que define um Job e suas propriedades e métodos.
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define um Job}, label={code:job_domain}]
+class Job(BaseMutableDomainModel):
+    name: str = Field()
+    profile_id: UUID = Field()
+    runs_against: UUID = Field()
+    generations: int = Field()
+    population: int = Field()
+    max_size: int = Field()
+    number_of_tournaments: int = Field()
+    crossover_probability: float = Field()
+    mutation_probability: float = Field()
+    non_terminals: list[AvailableFunction] = Field()
+    loss: LossFunction = Field()
+    optimization_iterations: int = Field()
+    optimization_repeats: int = Field()
+    max_param_count: int = Field()
+    split: int = Field()
+    simplify: bool = Field()
+    runs: list[Run] = Field([])
+
+    @classmethod
+    def new(
+        cls,
+        name: str,
+        profile_id: UUID,
+        runs_against: UUID,
+        generations: int,
+        population: int,
+        max_size: int,
+        number_of_tournaments: int,
+        crossover_probability: float,
+        mutation_probability: float,
+        non_terminals: list[AvailableFunction],
+        loss: LossFunction,
+        optimization_iterations: int,
+        optimization_repeats: int,
+        max_param_count: int,
+        split: int,
+        simplify: bool,
+    ) -> "Job":
+        return cls(
+            name=name,
+            profile_id=profile_id,
+            runs_against=runs_against,
+            generations=generations,
+            population=population,
+            max_size=max_size,
+            number_of_tournaments=number_of_tournaments,
+            crossover_probability=crossover_probability,
+            mutation_probability=mutation_probability,
+            non_terminals=non_terminals,
+            loss=loss,
+            optimization_iterations=optimization_iterations,
+            optimization_repeats=optimization_repeats,
+            max_param_count=max_param_count,
+            split=split,
+            simplify=simplify,
+            runs=[],
+        )
+\end{lstlisting}
+
+Atualmente, a plataforma contém uma lista estática de funções disponíveis para serem utilizadas como funções de perda e como não terminais. Dessa forma, os usuários podem escolher entre as funções disponíveis para configurar seus Jobs, mas não podem criar suas próprias funções personalizadas. As listas de funções de perda e de não terminais podem ser observadas nos códigos \ref{code:loss_functions} e \ref{code:non_terminals}, respectivamente.
+\begin{lstlisting}[language=Python, caption={Lista de funções de perda disponíveis}, label={code:loss_functions}]
+class LossFunction(StrEnum):
+    MSE = "MSE"
+    GAUSSIAN = "Gaussian"
+    BERNOULLI = "Bernoulli"
+    POISSON = "Poisson"
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Lista de não terminais disponíveis}, label={code:non_terminals}]
+class AvailableFunction(StrEnum):
+    ADD = "add"
+    SUB = "sub"
+    MUL = "mul"
+    DIV = "div"
+
+    POWER = "power"
+    POWERABS = "powerabs"
+    SQUARE = "square"
+    CUBE = "cube"
+
+    SQRT = "sqrt"
+    SQRTABS = "sqrtabs"
+    CBRT = "cbrt"
+
+    SIN = "sin"
+    COS = "cos"
+    TAN = "tan"
+    ASIN = "asin"
+    ACOS = "acos"
+    ATAN = "atan"
+
+    SINH = "sinh"
+    COSH = "cosh"
+    TANH = "tanh"
+    ASINH = "asinh"
+    ACOSH = "acosh"
+    ATANH = "atanh"
+
+    ABS = "abs"
+    LOG = "log"
+    LOGABS = "logabs"
+    EXP = "exp"
+    RECIP = "recip"
+    AQ = "aq"
+
+    @staticmethod
+    def from_list(*functions: AvailableFunction) -> str:
+        return ",".join(functions)
+
+    @staticmethod
+    def to_list(functions_str: str) -> list[AvailableFunction]:
+        return [AvailableFunction(func.strip()) for func in functions_str.split(",")]
+
+    @staticmethod
+    def default() -> list[AvailableFunction]:
+        return [
+            AvailableFunction.ADD,
+            AvailableFunction.SUB,
+            AvailableFunction.MUL,
+            AvailableFunction.DIV,
+        ]
+\end{lstlisting}
 
 \subsubsection{Runs}
-Runs representam os resultados de um treinamento, contendo metadados como tempo de execução e métricas de performance. Cada Run está associado a um Job específico, permitindo que os usuários acompanhem o progresso e os resultados de diferentes configurações de treinamento. Os Runs são essenciais para a análise dos modelos gerados, pois fornecem informações sobre a eficácia do treinamento e a qualidade dos modelos de regressão simbólica encontrados. Além disso, os Runs estão diretamente relacionados aos Models, que representam os modelos de regressão simbólica gerados a partir de cada execução, permitindo que os usuários naveguem entre os resultados e os modelos de forma integrada.
+Runs representam os resultados de um treinamento, contendo metadados como tempo de execução e métricas de performance. Cada Run está associado a um Job específico, permitindo que os usuários acompanhem o progresso e os resultados de diferentes configurações de treinamento. Os Runs são essenciais para a análise dos modelos gerados, pois fornecem informações sobre a eficácia do treinamento e a qualidade dos modelos de regressão simbólica encontrados. Além disso, os Runs estão diretamente relacionados aos Models, que representam os modelos de regressão simbólica gerados a partir de cada execução, permitindo que os usuários naveguem entre os resultados e os modelos de forma integrada. O código \ref{code:run_domain} apresenta a classe de domínio que define um Run e suas propriedades e métodos.
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define um Run}, label={code:run_domain}]
+class Run(BaseImmutableVersionedDomainModel):
+    job_id: UUID = Field()
+    status: JobRunStatus = Field(JobRunStatus.WAITING)
+    started_at: datetime | None = Field(default_factory=lambda: None)
+    finished_at: datetime | None = Field(default_factory=lambda: None)
+
+    @classmethod
+    def new(
+        cls,
+        id: UUID | None,
+        job_id: UUID,
+        version: int,
+    ) -> "Run":
+        if id is None:
+            id = uuid4()
+
+        return cls(
+            id=id,
+            job_id=job_id,
+            version=version,
+            status=JobRunStatus.WAITING,
+            is_latest=True,
+        )
+\end{lstlisting}
 
 Dentro da plataforma, Runs são armazenadas de forma versionada, ou seja, executar um mesmo Job múltiplas vezes gera múltiplas Runs com o mesmo identificador, mas com versões diferentes, permitindo que os usuários acompanhem a evolução dos resultados ao longo do tempo. Essa abordagem facilita a comparação entre diferentes execuções do mesmo Job, promovendo a análise de como mudanças nos meta-parâmetros ou nos conjuntos de dados impactam os resultados do treinamento. Além disso, essa forma de armazenamento permite que os usuários mantenham um histórico completo de suas experimentações, facilitando a rastreabilidade e a reprodutibilidade dos resultados obtidos.
 
 \subsubsection{Models}
-Models são uma abstração sobre modelos de regressão simbólica criados pelo algoritmo Eggp. Cada Model está associado a um Run específico, representando o modelo gerado a partir de uma execução de treinamento (Job). Os Models contêm referências para os arquivos e-graph gerados durante o processo de treinamento, permitindo que os usuários acessem e manipulem os modelos de regressão simbólica de forma eficiente. Além disso, os Models estão diretamente relacionados aos Profiles, permitindo que os usuários organizem seus experimentos e modelos dentro de seus espaços de trabalho personalizados.
+Models são uma abstração sobre modelos de regressão simbólica criados pelo algoritmo Eggp. Cada Model está associado a um Run específico, representando o modelo gerado a partir de uma execução de treinamento (Job). Os Models contêm referências para os arquivos e-graph gerados durante o processo de treinamento, permitindo que os usuários acessem e manipulem os modelos de regressão simbólica de forma eficiente. Além disso, os Models estão diretamente relacionados aos Profiles, permitindo que os usuários organizem seus experimentos e modelos dentro de seus espaços de trabalho personalizados. O código \ref{code:model_domain} apresenta a classe de domínio que define um Model e suas propriedades e métodos.
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define um Model}, label={code:model_domain}]
+class Model(BaseMutableDomainModel):
+    name: str = Field()
+    profile_id: UUID = Field()
+    generated_by: UUID = Field()
+    path: str = Field()
+    validation_path: str | None = Field()
+    metrics: dict[str, Any] | None = Field()
+\end{lstlisting}
 
 Na plataforma Spectrum, Models são tratados apenas como entidades de negócio, não representando o artefato em si, mas sim uma abstração sobre ele. Dessa forma, um Model contém metadados como nome, descrição, data de criação e referências para os arquivos e-graph gerados, mas não armazena diretamente o conteúdo do modelo de regressão simbólica. Essa abordagem permite que os usuários manipulem os Models de forma eficiente, sem a necessidade de lidar diretamente com os arquivos e-graph, promovendo uma experiência de usuário mais fluida e integrada. Além disso, essa abstração facilita a integração de diferentes backends de regressão simbólica no futuro, como o PySR, sem a necessidade de mudanças significativas na estrutura de dados dos Models, promovendo a flexibilidade e escalabilidade da plataforma.
 
+A entidade Model, além de armazenar as informações referentes ao modelo, armazena em si a sua fronteira de pareto, permitindo que os usuários acessem e analisem as expressões presentes na fronteira de pareto de forma eficiente por meio da interface web da plataforma. Essa funcionalidade é fundamental para a análise comparativa entre diferentes expressões, permitindo que os usuários identifiquem quais expressões apresentam melhor desempenho em dados não vistos durante o treinamento, promovendo a seleção de expressões mais adequadas e generalizáveis para suas aplicações específicas. As predições de cada expressão da fronteira de pareto, no entanto, é armazena em um arquivo CSV referenciado na propriedade \textit{validation\_path}.
+
 \subsubsection{Blocks, InferenceRuns, InferenceResults}
-Além de armazenarem jobs, resultados e modelos, os Profiles também armazenam os blocos de visualização e as consultas em linguagem IQL. Dessa forma, cada Profile pode conter múltiplos Blocks. Cada Block representa um bloco de visualização na interface, como o Editor IQL ou um bloco de Markdown para documentação. Os Blocks estão diretamente relacionados às InferenceRuns, que representam as consultas em linguagem IQL realizadas pelos usuários. Cada InferenceRun está associada a um Block específico, permitindo que os usuários organizem suas consultas e resultados de forma estruturada dentro de seus Profiles. Além disso, cada InferenceRun gera múltiplos InferenceResults, que representam os resultados das consultas em linguagem IQL, permitindo que os usuários acessem e analisem os resultados de suas consultas de forma eficiente e integrada à interface da plataforma.
+Além de armazenarem jobs, resultados e modelos, os Profiles também armazenam os blocos de visualização e as consultas em linguagem IQL. Dessa forma, cada Profile pode conter múltiplos Blocks. Cada Block representa um bloco de visualização na interface, como o Editor IQL ou um bloco de Markdown para documentação. Os Blocks estão diretamente relacionados às InferenceRuns, que representam as consultas em linguagem IQL realizadas pelos usuários. Cada InferenceRun está associada a um Block específico, permitindo que os usuários organizem suas consultas e resultados de forma estruturada dentro de seus Profiles. Além disso, cada InferenceRun gera múltiplos InferenceResults, que representam os resultados das consultas em linguagem IQL, permitindo que os usuários acessem e analisem os resultados de suas consultas de forma eficiente e integrada à interface da plataforma. O código \ref{code:block_domain} apresenta a classe de domínio que define um Block e suas propriedades e métodos.
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define um Block}, label={code:block_domain}]
+class Block(BaseMutableDomainModel):
+    profile_id: UUID = Field()
+    kind: BlockKind = Field()
+    order_index: int = Field()
+    data: BaseBlock = Field()
+
+    @classmethod
+    def new(cls, profile_id: UUID, kind: BlockKind, order_index: int, data: BaseBlock):
+        return cls(
+            profile_id=profile_id,
+            kind=kind,
+            order_index=order_index,
+            data=data
+        )
+\end{lstlisting}
+
+Um bloco de visualização pode ser tanto do tipo \textit{Inference}, representando um bloco de consulta em linguagem IQL (como mostrado no código \ref{code:inference_block_domain} e na imagem \ref{fig:iql_results}), quanto do tipo \textit{Markdown}, representando um bloco de documentação em linguagem Markdown (como mostrado no código \ref{code:markdown_block_domain}).
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define um bloco de consulta em linguagem IQL}, label={code:inference_block_domain}]
+class BaseBlock[T](BaseModel):
+    data: T
+    kind: Any
+
+class InferenceBlock(BaseBlock[str]):
+    kind: Literal[BlockKind.INFERENCE] = BlockKind.INFERENCE
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define um bloco de consulta em linguagem IQL}, label={code:markdown_block_domain}]
+class MarkdownBlock(BaseBlock[str]):
+    kind: Literal[BlockKind.MARKDOWN] = BlockKind.MARKDOWN
+\end{lstlisting}
+
+Blocos do tipo \textit{Inference} podem estar associados a diversas \textit{InferenceRuns}, entidades que representam os pedidos de execução de consultadas definidas naquele bloco. O código \ref{code:inference_run_domain} apresenta a classe de domínio que define uma InferenceRun e suas propriedades e métodos.
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define uma InferenceRun}, label={code:inference_run_domain}]
+class InferenceRun(BaseImmutableVersionedDomainModel):
+    block_id: UUID = Field()
+    profile_id: UUID = Field()
+    query: str = Field()
+    status: InferenceRunStatus = Field(InferenceRunStatus.PENDING)
+    execution_time_ms: Optional[int] = Field(None)
+    error: Optional[str] = Field(None)
+
+    @classmethod
+    def new(cls, block_id: UUID, profile_id: UUID, query: str, version: int = 1):
+        return cls(
+            block_id=block_id,
+            profile_id=profile_id,
+            query=query,
+            version=version,
+            is_latest=True,
+            status=InferenceRunStatus.PENDING,
+            execution_time_ms=None,
+            error=None
+        )
+\end{lstlisting}
+
+As propriedade de uma \textit{InferenceRun} são atualizadas conforme a execução da consulta IQL é realizada. A seção \ref{sec:iql_query} e o capítulo sobre a linguagem de consulta apresentam em mais detalhes o processo de execução. Quando a execução de uma consulta é finalizada, os resultados gerados são armazenados em uma entidade do tipo \textit{InferenceResult}, que contém as expressões encontradas e as métricas de performance associadas a cada expressão. O código \ref{code:inference_result_domain} apresenta a classe de domínio que define uma InferenceResult e suas propriedades e métodos.
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define uma InferenceResult}, label={code:inference_result_domain}]
+class InferenceResult(BaseImmutableDomainModel):
+    run_id: UUID = Field()
+    run_version: int = Field()
+    expression: str = Field()
+    dl: Optional[float] = Field(None)
+    fitness: Optional[float] = Field(None)
+    latex: Optional[str] = Field(None)
+    numpy: Optional[str] = Field(None)
+    parameters: Optional[dict[str, float]] = Field(None)
+    size: Optional[int] = Field(None)
+
+    @classmethod
+    def new(
+        cls,
+        run_id: UUID,
+        run_version: int,
+        expression: str,
+        dl: Optional[float] = None,
+        fitness: Optional[float] = None,
+        latex: Optional[str] = None,
+        numpy: Optional[str] = None,
+        parameters: Optional[dict[str, float]] = None,
+        size: Optional[int] = None
+    ):
+        return cls(
+            run_id=run_id,
+            run_version=run_version,
+            expression=expression,
+            dl=dl,
+            fitness=fitness,
+            latex=latex,
+            numpy=numpy,
+            parameters=parameters,
+            size=size
+        )
+\end{lstlisting}
 
 \section{Workers}
 Na plataforma proposta neste projeto, \textit{workers} são programas especializados para executar tarefas intensivas em termos de CPU, como treinamento e validação de modelos de regressão simbólica, bem como a execução de consultas em linguagem IQL. Esses programas especializados operam de forma assíncrona, permitindo que o servidor principal do sistema seja responsável apenas por gerenciar as requisições Web, o banco de dados e a lógica de negócios, enquanto os \textit{workers} lidam com as tarefas computacionalmente intensivas. Essa arquitetura de execução remota é fundamental para garantir o desempenho e a escalabilidade da plataforma, permitindo que usuários com diferentes níveis de poder computacional possam utilizar a ferramenta de forma eficiente.
@@ -176,6 +497,7 @@ Além do treinamento, a plataforma Spectrum executa um processo denominado valid
 O processo de validação é iniciado automaticamente após a conclusão do treinamento, no qual o \textit{worker} de treinamento emite uma mensagem na fila de mensagens com a chave de roteamento associada à validação. O \textit{worker} responsável por processar a tarefa de validação monitora a fila de mensagens para identificar quando uma nova tarefa de validação é enfileirada. Ao receber a mensagem, o \textit{worker} consulta o banco de dados para obter as informações necessárias sobre o Run e o Dataset associados. Após obter essas informações, o arquivo do tipo \textit{Validation} é baixado pelo \textit{worker} para ser utilizado como conjunto de dados de validação. Com o arquivo armazenado localmente, o \textit{worker} cria uma instância rEGGression para consultar as informações do e-graph gerado. Primeiramente, a fronteira de pareto é calculada. Então, o \textit{worker} executa a validação dos modelos presentes na fronteira de pareto do modelo gerado durante o treinamento, calculando as métricas de performance utilizando o conjunto de dados de validação. Os resultados da validação são então armazenados no banco de dados, permitindo que os usuários acessem e analisem as métricas de performance dos modelos em seus Profiles. Além disso, o processo de validação é fundamental para a análise comparativa entre diferentes expressões, permitindo que os usuários identifiquem quais expressões apresentam melhor desempenho em dados não vistos durante o treinamento, promovendo a seleção de expressões mais adequadas e generalizáveis para suas aplicações específicas.
 
 \subsection{Consultas IQL}
+\label{sec:iql_query}
 Como forma de interagir com expressões presentes no e-graph de forma declarativa, a plataforma Spectrum implementa um sistema de execução remota para consultas em linguagem IQL. Esse sistema segue uma arquitetura similar àquela utilizada para o treinamento e validação, utilizando a fila de mensagens para processar as consultas de forma assíncrona. Quando um usuário realiza uma consulta em linguagem IQL por meio do Editor IQL na interface web,o servidor principal emite uma mensagem na fila de mensagens com a chave de roteamento associada à execução de consultas IQL, contendo as informações necessárias para a execução da consulta. O \textit{worker} responsável por processar as consultas IQL monitora a fila de mensagens para identificar quando uma nova tarefa de consulta é enfileirada. Ao receber a mensagem, o \textit{worker} consulta o banco de dados para obter as informações necessárias sobre a InferenceRun e o Profile associados. Após obter essas informações, o \textit{worker} cria uma nova instância de rEGGression para consultar as informações do e-graph gerado durante o treinamento. A consulta em linguagem IQL é então executada de forma assíncrona, permitindo que o \textit{worker} continue processando outras tarefas enquanto a consulta está em andamento.
 
 O motor de execução de consultas IQL é responsável por converter o texto da consulta nas funções e parâmetros necessários para se utilizar a instância de rEEGression~\cite{rEGGression}. Ao receber a consulta, o motor de execução converte o texto em uma sequência de tokens, utilizando um processo de tokenização. Em seguida, a sequência de tokens é transformada em uma árvore de sintaxe abstrata (AST) por meio de um processo de parsing. A AST é então interpretada para extrair as informações necessárias para a execução da consulta, como os campos a serem retornados, as condições de filtragem e os padrões de busca. Com essas informações, o motor de execução constrói as chamadas apropriadas para a instância de rEGGression, executando a consulta sobre o e-graph e obtendo os resultados correspondentes. Os resultados da consulta são então armazenados no banco de dados como InferenceResults, permitindo que os usuários acessem e analisem os resultados de suas consultas IQL por meio da interface web da plataforma.
@@ -215,11 +537,121 @@ O fluxo principal de interação dos usuários com a plataforma ocorre por meio 
     \label{fig:editor_screen}
 \end{figure}
 
-A tela do editor contém três principais elementos de navegação e uma área central de atividades. Os dois primeiros elementos de navegação são a barra de atividades, a qual apresenta, por meio de ícones, as principais funcionalidades da plataforma, e a barra lateral, que apresenta visões diferentes de acordo com a funcionalidade selecionada na barra de atividades. Por exemplo, ao selecionar a funcionalidade de Profiles, a barra lateral apresenta uma visão geral dos Profiles do usuário, permitindo que ele navegue entre seus espaços de trabalho personalizados. Já ao selecionar a funcionalidade de Datasets, a barra lateral apresenta uma visão geral dos Datasets do usuário, permitindo que ele gerencie seus conjuntos de dados experimentais. A área central do Editor é onde os usuários podem configurar Jobs para treinamento, observar resultados de treinamento e validação, e realizar consultas em linguagem IQL, integrando todas as funcionalidades oferecidas pela plataforma em um único espaço de trabalho intuitivo e eficiente para a exploração de algoritmos de regressão simbólica. Além disso, a tela do Editor também apresenta uma área de navegação na parte superior na qual Profiles abertas são apresentadas como abas para facilitar a navegação entre diferentes espaços de trabalho. A imagem \ref{fig:editor_sidebars} apresenta os elementos referentes à barra de atividades e à barra lateral, respectivamente.
+\subsubsection{Navegação}
+A tela do editor contém três principais elementos de navegação e uma área central de atividades. Os dois primeiros elementos de navegação são a barra de atividades, a qual apresenta, por meio de ícones, as principais funcionalidades da plataforma, e a barra lateral, que apresenta visões diferentes de acordo com a funcionalidade selecionada na barra de atividades. Por exemplo, ao selecionar a funcionalidade de Profiles, a barra lateral apresenta uma visão geral dos Profiles do usuário, permitindo que ele navegue entre seus espaços de trabalho personalizados. Já ao selecionar a funcionalidade de Datasets, a barra lateral apresenta uma visão geral dos Datasets do usuário, permitindo que ele gerencie seus conjuntos de dados experimentais. A área central do Editor é onde os usuários podem configurar Jobs para treinamento, observar resultados de treinamento e validação, e realizar consultas em linguagem IQL, integrando todas as funcionalidades oferecidas pela plataforma em um único espaço de trabalho intuitivo e eficiente para a exploração de algoritmos de regressão simbólica. Além disso, a tela do Editor também apresenta uma área de navegação na parte superior na qual Profiles abertas são apresentadas como abas para facilitar a navegação entre diferentes espaços de trabalho. A imagem \ref{fig:editor_sidebars} apresenta os elementos referentes à barra de atividades e à barra lateral.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{images/screens/spectrum_activity_bar_and_inner_sidebar.png}
+    \includegraphics[width=0.2\textwidth]{images/screens/spectrum_activity_bar_and_inner_sidebar.png}
     \caption{Elementos de navegação da barra de atividades e da barra lateral do Editor da plataforma Spectrum}
     \label{fig:editor_sidebars}
+\end{figure}
+
+A barra de atividades apresenta duas principais visões: Profiles e Datasets. A visão de Profiles permite que os usuários naveguem entre seus espaços de trabalho, enquanto a visão de Datasets permite que os usuários gerenciem seus conjuntos de dados. Ambas as visões apresentam implementação semelhante, utilizando a biblioteca \textit{React Query} para realizar o gerenciamento do estado e cache das informações vindas do back-end. A imagem \ref{fig:editor_sidebars} apresenta a barra lateral com a visão de Profiles, enquanto a imagem \ref{fig:editor_datasets_sidebar} apresenta a barra lateral com a visão de Datasets.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.2\textwidth]{images/screens/spectrum_datasets_sidebar.png}
+    \caption{Barra lateral do Editor da plataforma Spectrum com a visão de Datasets}
+    \label{fig:editor_datasets_sidebar}
+\end{figure}
+
+Outra funcionalidade importante presente na visão de Datasets é o botão de importar um dataset em específico para uma Profile. Ao clicar nesse botão, caso o usuário tenha uma profile aberta, o dataset é associado à profile, permitindo que o usuário configure um Job para treinamento utilizando os dados do dataset importado. Caso nenhuma profile esteja ativa no editor, uma nova aba é aberta para uma nova profile com o dataset associado.
+
+Além disso, a visão de datasets apresenta um botão que permite a criação de um novo dataset, o qual, ao ser clicado, redireciona o usuário para a página de upload de datasets, a qual é implementada também como uma aba do editor. A imagem \ref{fig:editor_upload_dataset} apresenta a tela de upload de datasets, onde os usuários podem fazer upload de arquivos CSV para serem utilizados em seus experimentos de regressão simbólica.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/screens/spectrum_editor_upload_dataset.png}
+    \caption{Tela de upload de datasets da plataforma Spectrum}
+    \label{fig:editor_upload_dataset}
+\end{figure}
+
+Ambas as visões também apresentam a funcionalidade de filtrar os itens apresentados por meio de campos de busca localizados na parte superior. Inicialmente, apenas o filtro de nome é visível, mas a plataforma também implementa filtros adicionais que podem ser acessados por meio do menu de filtros avançados, localizado ao lado do campo de busca, os quais podem ser vistos na imagem \ref{fig:editor_advanced_filters}.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.2\textwidth]{images/screens/advanced_filters.png}
+    \caption{Menu de filtros avançados presente nas visões de Profiles da plataforma Spectrum}
+    \label{fig:editor_advanced_filters}
+\end{figure}
+
+As barras de navegação laterais tem como objetivo facilitar a navegação entre os principais elementos do sistema, permitindo que os usuários acessem espaços de trabalho e gerenciem datasets de forma eficiente. A área central implementa um sistema de abas para permitir que diferentes Profiles sejam abertas simultaneamente, promovendo a comparação e análise de resultados entre diferentes espaços de trabalho.
+
+\subsubsection{Upload de Datasets}
+O upload de datasets é feito por meio da aba de upload, acessada na visão de datasets da barra de atividades. A figura \ref{fig:editor_upload_dataset} apresenta o estado inicial da tela, o qual espera que o usuário faça o upload de pelo menos um arquivo CSV. Após a escolha dos arquivos, a tela permite que o usuário configure o nome, descrição e papéis dos arquivos, os quais podem ser do tipo \textit{Data} ou do tipo \textit{Validation}. O primeiro é utilizado para o treinamento dos modelos de regressão simbólica, enquanto o segundo é utilizado para a validação dos modelos gerados. O upload de datasets é uma etapa fundamental para a utilização da plataforma, permitindo que os usuários forneçam os dados necessários para o treinamento e validação de seus modelos de regressão simbólica. As imagens \ref{fig:upload_config} e \ref{fig:upload_preview} apresentam, respectivamente, a seção de configuração dos artefatos do dataset sendo criado, e a seção de pré-visualização dos dados presentes nos arquivos CSV enviados.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/screens/upload_config.png}
+    \caption{Seção de configuração dos artefatos do dataset sendo criado na plataforma Spectrum}
+    \label{fig:upload_config}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/screens/upload_data_preview.png}
+    \caption{Seção de pré-visualização dos dados presentes nos arquivos CSV enviados na plataforma Spectrum}
+    \label{fig:upload_preview}
+\end{figure}
+
+Quando o botão de criar dataset é clicado, os arquivos e os metadados configurados são enviados para o back-end via requisição HTTP. Após a resposta do back-end, a plataforma redireciona o usuário para a visão de Datasets e invalida o cache do \textit{React Query}, forçando uma nova requisição para o back-end para obter a lista atualizada de datasets, incluindo o novo dataset criado.
+
+\subsubsection{Aba de Profiles}
+A aba de Profiles é o espaço de trabalho central da plataforma, onde os usuários podem interagir com seus modelos de regressão e demais entidades do sistema. A parte superior da aba de Profiles contém seções para metadados (como nome e descrição), uma seção de datasets, que mostram quais datasets foram importados para a Profile, uma seção de Jobs, que mostram os Jobs configurados para a Profile, uma seção de modelos, e uma seção de blocos, que mostram os blocos de visualização presentes na Profile. A parte inferior da aba de Profiles é dedicada à área de blocos, onde os usuários podem configurar e organizar os blocos de visualização de acordo com suas necessidades específicas. As imagens \ref{fig:profile_screen} e \ref{fig:profile_screen_workspace} apresentam a tela de uma Profile, onde é possível observar as seções mencionadas.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/screens/profile_aberta.png}
+    \caption{Tela de uma Profile na plataforma Spectrum, onde é possível observar as seções de metadados, datasets, Jobs e blocos}
+    \label{fig:profile_screen}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/screens/profile_aberta_workspace.png}
+    \caption{Área de blocos de uma Profile na plataforma Spectrum, onde os usuários podem configurar e organizar os blocos de visualização de acordo com suas necessidades específicas}
+    \label{fig:profile_screen_workspace}
+\end{figure}
+
+Quando um bloco de consulta IQL é executado, o estado atual da Profile é atualizado no back-end. O front-end então envia uma requisição HTTP solicitando a execução da consulta IQL, a qual é processada por um \textit{worker} de forma assíncrona. Durante a execução da consulta, os resultados parciais são enviados para o front-end por meio de Server Side Events (SSE), permitindo que os usuários visualizem em tempo real as etapas de execução de suas consultas. Ao final da execução, os resultados completos da consulta são armazenados no banco de dados como InferenceResults, permitindo que os usuários acessem e analisem os resultados de suas consultas IQL por meio da interface web da plataforma. A imagem \ref{fig:iql_results} apresenta um exemplo de resultados de uma consulta IQL sendo exibidos em tempo real por meio de SSE.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/screens/inference_block_results.png}
+    \caption{Exemplo de resultados de uma consulta IQL sendo exibidos em tempo real por meio de Server Side Events (SSE) na plataforma Spectrum}
+    \label{fig:iql_results}
+\end{figure}
+
+Na seção de Jobs, os usuários podem configurar novos Jobs, visualizar Jobs configurados, executar Jobs, acompanhar o progresso de execução e analisar o histórico de execuções de cada Job. A figura \ref{fig:jobs_section} apresenta a seção de Jobs de uma Profile, onde é possível observar as funcionalidades mencionadas.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/screens/jobs_section.png}
+    \caption{Seção de Jobs de uma Profile na plataforma Spectrum, onde os usuários podem configurar novos Jobs, visualizar Jobs configurados, executar Jobs, acompanhar o progresso de execução e analisar o histórico de execuções de cada Job}
+    \label{fig:jobs_section}
+\end{figure}
+
+A figura \ref{fig:add_job} apresenta a tela de configuração de um novo Job, onde os usuários podem configurar os meta-parâmetros do algoritmo Eggp, como o número de gerações, o tamanho da população e as funções a serem utilizadas, entre outros. Após a configuração, o Job é criado e sua execução começa imediatamente, gerando um novo Run associado ao Job. O progresso da execução do Job pode ser acompanhado em tempo real por meio da interface web, permitindo que os usuários monitorem o andamento do treinamento de seus modelos de regressão simbólica.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/screens/add_job_section.png}
+    \caption{Tela de configuração de um novo Job na plataforma Spectrum, onde os usuários podem configurar os meta-parâmetros do algoritmo Eggp, como o número de gerações, o tamanho da população e as funções a serem utilizadas, entre outros}
+    \label{fig:add_job}
+\end{figure}
+
+Na seção de modelos, os usuários podem visualizar os modelos de regressão simbólica gerados a partir de suas execuções, bem como acessar as métricas de performance associadas a cada modelo. A figura \ref{fig:models_section} apresenta a seção de modelos de uma Profile, onde é possível observar as funcionalidades mencionadas.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/screens/models_section.png}
+    \caption{Seção de modelos de uma Profile na plataforma Spectrum, onde é possível visualizar os modelos de regressão simbólica gerados a partir de suas execuções, bem como acessar as métricas de performance associadas a cada modelo}
+    \label{fig:models_section}
+\end{figure}
+
+Ao clicar no botão de métricas, um modal é aberto exibindo a comparação entre as expressões da fronteira de pareto encontradas durante o processo de validação e a comparação entre os valores reais do conjunto de validação e os valores preditos por cada expressão, permitindo que os usuários analisem a performance de cada modelo de regressão simbólica gerado. A figura \ref{fig:model_metrics_pareto} apresenta a comparação entre as expressões da fronteira de pareto, enquanto a figura \ref{fig:model_metrics_comparison} apresenta a comparação entre os valores reais do conjunto de validação e os valores preditos por cada expressão.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/screens/model_metrics_pareto.png}
+    \caption{Comparação entre as expressões da fronteira de pareto encontradas durante o processo de validação na plataforma Spectrum}
+    \label{fig:model_metrics_pareto}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/screens/model_metrics_comparison.png}
+    \caption{Comparação entre os valores reais do conjunto de validação e os valores preditos por cada expressão na plataforma Spectrum}
+    \label{fig:model_metrics_comparison}
 \end{figure}

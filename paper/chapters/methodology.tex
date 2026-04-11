@@ -168,22 +168,28 @@ O diagrama \ref{fig:high_level} apresenta a arquitetura de alto nível do projet
 \end{enumerate}
 
 \subsubsection{Front-End}
-O front-end é responsável por mostrar ao usuário os dados vindos da API (\textit{Application Programming Interface}) e permitir a manipulacão desses dados. Por meio da interface, o usuário pode:
+O front-end é responsável por mostrar ao usuário os dados vindos da API (\textit{Application Programming Interface}) e permitir a manipulação desses dados. Por meio da interface, o usuário pode:
 \begin{enumerate}
     \item Fazer upload de conjunto de dados
     \item Criar \textit{Profiles}, ou seja, espaços nos quais os conjuntos de dados podem ser importados para treinamento e manipulação de modelos
     \item Criar modelos de regressão simbólica para os conjuntos de dados de uma \textit{Profile}
-    \item Gerenciar (atualziar e/ou excluir) conjuntos de dados e \textit{Profiles}
+    \item Gerenciar (atualizar e/ou excluir) conjuntos de dados e \textit{Profiles}
     \item Criar uma conta na plataforma
     \item Fazer login na conta criada
     \item Escrever scripts IQL para manipulação dos modelos criados
     \item Observar, por meio de elementos visuais como gráficos, propriedades dos modelos criados
 \end{enumerate}
 
-Toda comunicação com o back-end é feita de forma assíncrona, por meio de requisições HTTP ou \textit{Server Side Events (SSE)}, os quais permitem o back-end se comunicar diretamente com o front-end enviando dados via \textit{Streaming}.
+Toda comunicação com o back-end é feita de forma assíncrona, por meio de requisições HTTP ou \textit{Server Side Events (SSE)}, os quais permitem o back-end se comunicar diretamente com o front-end enviando dados via \textit{Streaming}. O front-end é implementado utilizando-se duas bibliotecas para gerenciar o estado da aplicação. O estado interno, ou seja, informações contidas apenas no front-end é gerenciado pela biblioteca \textit{Zustand}, enquanto o estado assíncrono, ou seja, informações vindas do back-end, é gerenciado pela biblioteca \textit{Tanstack React Query}, a qual também oferece funcionalidades de cache e controle de estado de requisições HTTP, como estados de carregamento e erro. A imagem \ref{fig:frontend} apresenta um diagrama de alto nível da arquitetura do front-end, mostrando o fluxo de dados e a divisão de responsabilidades entre os componentes.
+\begin{figure}
+    \centering
+    \caption{Diagrama de alto nível da arquitetura do front-end.}
+    \includegraphics[width=0.8\textwidth]{images/frontend.png}
+    \label{fig:frontend}
+\end{figure}
 
 \subsubsection{Back-End}
-O back-end é resopnsável pelas regras de negócio da aplicação. Ele foi desenvolvido de forma modular, ou seja, cada módulo apresenta suas próprias regras de negócio e interfaces de comunicação próprias. É de responsabilidade do back-end também a comunicação com os demais serviços da plataforma, como os serviços de armazenamento (local ou S3, por exemplo), brokers de mensagens e \textit{workers}.
+O back-end é responsável pelas regras de negócio da aplicação. Ele foi desenvolvido de forma modular, ou seja, cada módulo apresenta suas próprias regras de negócio e interfaces de comunicação próprias. É de responsabilidade do back-end também a comunicação com os demais serviços da plataforma, como os serviços de armazenamento (local ou S3, por exemplo), brokers de mensagens e \textit{workers}.
 
 \begin{figure}
     \centering
@@ -192,7 +198,7 @@ O back-end é resopnsável pelas regras de negócio da aplicação. Ele foi dese
     \label{fig:backend}
 \end{figure}
 
-O diagrama \ref{fig:backend} mostra o fluxo de uma requisição HTTP na aplicação, bem como a divisão de escopos para as entidades presentes. O principal padrão estrutural do back-end é o \textit{Unit of Work}, o qual possibilita retornar o estado da aplicação ao estado inicial caso um fluxo de mudanças encontre um erro. Esse padrão se utiliza de transações de banco de dados para garantir integridade do sistema (PROCURAR CITAÇÃO). As transações são controladas implicitamente pelo fluxo da aplicação Python, sendo automaticamente realizada a operação de \textit{commit} assim que o escopo da função responsável por determinada funcionalidade se encerra, ou sendo realizado o \textit{rollback} caso uma exceção seja levantada em código. Toda manipulação que necessita do banco de dados é realizada por meio de um repositório, o qual é uma classe que define operações base para cada entidade do sistema.
+O diagrama \ref{fig:backend} mostra o fluxo de uma requisição HTTP na aplicação, bem como a divisão de escopos para as entidades presentes. O principal padrão estrutural do back-end é o \textit{Unit of Work}, o qual possibilita retornar o estado da aplicação ao estado inicial caso um fluxo de mudanças encontre um erro. Esse padrão se utiliza de transações de banco de dados para garantir integridade do sistema~\cite{martin2008clean}. As transações são controladas implicitamente pelo fluxo da aplicação Python, sendo automaticamente realizada a operação de \textit{commit} assim que o escopo da função responsável por determinada funcionalidade se encerra, ou sendo realizado o \textit{rollback} caso uma exceção seja levantada em código. Toda manipulação que necessita do banco de dados é realizada por meio de um repositório, o qual é uma classe que define operações base para cada entidade do sistema.
 
 \subsubsection{Workers}
 Os \textit{workers} são responsáveis por treinar os modelos de regressão utilizando a biblioteca \textit{eggp}~\cite{eggp}, e por validar os modelos criados, ou seja, calcular a fronteira de pareto do modelo e calcular os valores gerados por cada expressão de pareto. Assim como o \text{back-end}, as manipulações ao banco de dados são feitas via repositórios. O padrão \textit{Unit of Work} também é utilizado, mas, diferentemente do back-end, o controle das transações é feito de forma manual.
@@ -209,7 +215,7 @@ O componente de armazenamento é responsável por armazenar os dados que não po
 
 O componente de armazenamento apresenta dois modos de operação: modo local e modo remoto. No modo local, os arquivos são armazenados no sistema de arquivos do servidor que hospeda a aplicação. No modo remoto, os arquivos são armazenados em um S3, serviço da AWS para armazenar arquivos.
 
-A interface de aramazenamento é definida de forma abstrata, por meio de protocolos, no pacote \textit{core}:
+A interface de armazenamento é definida de forma abstrata, por meio de protocolos, no pacote \textit{core}:
 \begin{lstlisting}[language=Python, caption={Definição da interface de armazenamento}]
 from typing import Protocol, BinaryIO
 from .upload_result import UploadResult
@@ -231,7 +237,7 @@ class FileStorage(Protocol):
     ) -> None: ...
 \end{lstlisting}
 
-Uma implementação para essa interface deve definir os métodos \textit{upload} e \textit{download}. Cada componente da aplicação que acessa o componente de armazenamento define sua própria implementação, permitindo que detalhes de implementção sejam escondidos do restante da aplicação que necessita utilizar esse componente. Esse padrão é chamado de \textit{Ports and Adapters} e permite a troca de implementações de serviços específicos dentro da aplicação desde que os métodos necessários sejam oferecidos por cada implementação. Abaixo, segue exemplo de implementação do serviço de armazenamento para o \textit{back-end}:
+Uma implementação para essa interface deve definir os métodos \textit{upload} e \textit{download}. Cada componente da aplicação que acessa o componente de armazenamento define sua própria implementação, permitindo que detalhes de implementação sejam escondidos do restante da aplicação que necessita utilizar esse componente. Esse padrão é chamado de \textit{Ports and Adapters} e permite a troca de implementações de serviços específicos dentro da aplicação desde que os métodos necessários sejam oferecidos por cada implementação. Abaixo, segue exemplo de implementação do serviço de armazenamento para o \textit{back-end}:
 \begin{lstlisting}[language=Python, caption={Implementação da interface de armazenamento no back-end}]
 import hashlib
 
