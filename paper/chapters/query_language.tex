@@ -15,11 +15,11 @@ Assim como o SQL, o IQL é uma linguagem declarativa. Linguagens declarativas s�
 \subsection{Gramática Formal}
 A IQL é composta por uma sintaxe inspirada no padrão ANSI SQL. Uma consulta básica segue a seguinte estrutura:
 
-\begin{lstlisting}[language=sql, caption=Estrutura básica de uma consulta IQL]
-SELECT <campos> 
-FROM [PARETO | TOP <n>] 
-[WHERE <condicoes>] 
-[PATTERN IS LIKE <padrao>] 
+\begin{lstlisting}[language=Sql, caption=Estrutura básica de uma consulta IQL]
+SELECT [TOP <n> | PARETO] <campos>
+FROM [<nome do modelo ou identificador>]
+[WHERE <condicoes>]
+[PATTERN IS LIKE <padrao>]
 [ORDER BY <campos> [ASC | DESC]]
 \end{lstlisting}
 
@@ -38,19 +38,24 @@ Abaixo são apresentados exemplos de como a IQL pode ser utilizada para extrair 
 
 \begin{enumerate}
     \item \textbf{Busca por modelos simples na fronteira de Pareto}:
-    \begin{lstlisting}[language=sql]
-    SELECT expression, error FROM PARETO WHERE complexity <= 5
+    \begin{lstlisting}[language=Sql]
+    SELECT PARETO expression, size FROM my_model WHERE size <= 5
     \end{lstlisting}
-    
+
     \item \textbf{Filtragem por padrão estrutural (ex: funções periódicas)}:
-    \begin{lstlisting}[language=sql]
-    SELECT * FROM TOP 10 PATTERN IS LIKE "sin(*)"
+    \begin{lstlisting}[language=Sql]
+    SELECT TOP 10 expression, fitness, size FROM my_model PATTERN IS LIKE "sin(v0)"
     \end{lstlisting}
-    
+
     \item \textbf{Busca por interações específicas entre variáveis}:
-    \begin{lstlisting}[language=sql]
-    SELECT expression, complexity FROM PARETO WHERE expression IS LIKE "* * x1"
+    \begin{lstlisting}[language=Sql]
+    SELECT PARETO expression, size FROM my_model WHERE PATTERN IS LIKE "x1 * x2"
     \end{lstlisting}
 \end{enumerate}
 
-O uso da IQL permite que o pesquisador aplique o conhecimento prévio sobre o fenômeno físico diretamente no processo de seleção de modelos, algo que é dificultado em ferramentas de regressão tradicionais que retornam apenas a melhor solução numérica disponível.
+O uso da IQL permite que o usuário aplique o conhecimento prévio sobre o fenômeno físico diretamente no processo de seleção de modelos, algo que é dificultado em ferramentas de regressão tradicionais que retornam apenas a melhor solução numérica disponível.
+
+\section{Execução}
+A implementação da IQL é realizada através de um módulo de consulta que se integra ao back-end da plataforma. O módulo é responsável por transformar a sequência de caracteres enviada pelo usuário em uma árvore de sintaxe abstrata (AST), que é então interpretada para realizar a busca no e-graph do modelo de regressão simbólica. A execução da consulta envolve a aplicação de filtros lógicos, avaliação de métricas e correspondência de padrões estruturais, utilizando as funções de manipulação de e-graphs fornecidas pelo rEGGression~\cite{rEGGression}.
+
+O processamento de tokenização é feito via análise léxica utilizando laços de repetição e condições para identificar os componentes da consulta (palavras-chave, identificadores, operadores, etc.). A construção da AST é realizada por meio de uma técnica chamada Pratt Parsing, a qual associa operadores e precedências para construir a estrutura hierárquica da consulta. O Pratt Parsing permite a criação de \textit{parselets}, classes especializadas em converter uma sequência de tokens em um nó específico da árvore de sintaxe abstrata, para cada tipo de token inicial de uma expressão, facilitando a extensão da linguagem com novos operadores ou funcionalidades no futuro.
