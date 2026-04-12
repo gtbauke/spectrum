@@ -6,7 +6,6 @@ import numpy as np
 from pathlib import Path
 from reggression import Reggression  # type: ignore
 
-from core.common.config import Settings
 from core.features.profiles.models.model import Model
 
 logger = logging.getLogger(__name__)
@@ -16,21 +15,11 @@ class ValidationService:
     """Service to evaluate Pareto front expressions against validation datasets."""
 
     def __init__(self) -> None:
-        settings = Settings()
-        current_dir = Path(__file__).parent
-        project_root = current_dir.parent.parent.parent
-        self._base_path = (project_root /
-                           settings.FILE_STORAGE_SPECTRUM_DATA_PATH).resolve()
+        pass
 
     def _load_dataset(self, artifact_path: str) -> pd.DataFrame:
-        """Loads a CSV dataset from storage."""
-        path = Path(artifact_path)
-        if path.is_absolute():
-            full_path = path
-        else:
-            full_path = self._base_path / artifact_path.lstrip("/")
-
-        return pd.read_csv(full_path)
+        """Loads a CSV dataset from local storage."""
+        return pd.read_csv(artifact_path)
 
     def _run_validation(
         self,

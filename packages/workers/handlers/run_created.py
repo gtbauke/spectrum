@@ -1,5 +1,6 @@
 import io
 import logging
+import os
 import tempfile
 
 from datetime import datetime, timezone
@@ -95,16 +96,25 @@ class RunCreatedHandler(EventHandler[RunCreatedEvent]):
         try:
             output_dir = f"profiles/{job.profile_id}/models/{event.run_id}"
 
-            with tempfile.NamedTemporaryFile(
-                suffix=".egraph", delete=False,
-            ) as tmp:
-                dump_path = tmp.name
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                dataset_tmp_path = os.path.join(tmp_dir, "dataset.csv")
+                dump_path = os.path.join(tmp_dir, "model.egraph")
 
-            result = await self._training_service.train(
-                job=job,
-                artifact_path=artifact_path,
-                dump_path=dump_path,
-            )
+                async with WorkerUnitOfWork(
+                    session_factory=AsyncSessionLocal,
+                    broker=self._broker,
+                ) as uow:
+                    logger.info("Downloading dataset for training from %s", artifact_path)
+                    await uow.file_storage.download(
+                        path=artifact_path,
+                        destination=dataset_tmp_path,
+                    )
+
+                result = await self._training_service.train(
+                    job=job,
+                    artifact_path=dataset_tmp_path,
+                    dump_path=dump_path,
+                )
 
             logger.info("Training complete for run %s", event.run_id)
 

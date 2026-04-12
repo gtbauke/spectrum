@@ -16,3 +16,17 @@ class FileStorage(Protocol):
         path: str,
         destination: str,
     ) -> None: ...
+
+    async def generate_upload_url(
+        self,
+        *,
+        path: str,
+        expiration: int = 3600,
+    ) -> str: ...
+
+    async def generate_download_url(
+        self,
+        *,
+        path: str,
+        expiration: int = 3600,
+    ) -> str: ...

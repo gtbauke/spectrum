@@ -10,7 +10,6 @@ import pandas as pd
 
 from eggp import EGGP
 
-from core.common.config import Settings
 from core.features.profiles.jobs.job import Job
 
 logger = logging.getLogger(__name__)
@@ -31,13 +30,7 @@ class TrainingService:
     """
 
     def __init__(self) -> None:
-        settings = Settings()
-
-        current_dir = Path(__file__).parent
-        project_root = current_dir.parent.parent.parent
-
-        self._base_path = (project_root /
-                           settings.FILE_STORAGE_SPECTRUM_DATA_PATH).resolve()
+        pass
 
     def _build_estimator(self, job: Job, *, dump_path: str) -> EGGP:
         """Maps Job domain fields to EGGP constructor parameters."""
@@ -60,13 +53,11 @@ class TrainingService:
             dumpTo=dump_path,
         )
 
-    def _load_dataset(self, artifact_path: str) -> tuple[np.ndarray, np.ndarray]:
+    def _load_dataset(self, full_path: str) -> tuple[np.ndarray, np.ndarray]:
         """Reads a CSV file from disk and splits into X (features) and y (target).
 
         Convention: all columns except the last are features, the last is the target.
         """
-        full_path = self._base_path / artifact_path.lstrip("/")
-
         logger.info("Loading dataset from %s", full_path)
         df = pd.read_csv(full_path)
 
@@ -105,7 +96,7 @@ class TrainingService:
         job : Job
             The job configuration with training hyperparameters.
         artifact_path : str
-            Relative path to the dataset CSV within file storage.
+            Absolute local path to the dataset CSV file.
         dump_path : str
             Absolute path where the e-graph dump should be written by eggp.
 

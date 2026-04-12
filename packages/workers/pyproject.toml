@@ -9,4 +9,11 @@ dependencies = [
     "pandas>=3.0.0",
     "pyarrow>=19.0.1",
     "aio-pika>=9.5.4",
+    "aioboto3>=13.4.0",
+    "core",
+    "db-core",
 ]
+
+[tool.uv.sources]
+core = { workspace = true }
+db-core = { workspace = true }
