@@ -421,6 +421,18 @@ wheels = [
 ]
 
 [[package]]
+name = "botocore-stubs"
+version = "1.42.41"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "types-awscrt" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/0c/a8/a26608ff39e3a5866c6c79eda10133490205cbddd45074190becece3ff2a/botocore_stubs-1.42.41.tar.gz", hash = "sha256:dbeac2f744df6b814ce83ec3f3777b299a015cbea57a2efc41c33b8c38265825", size = 42411, upload-time = "2026-02-03T20:46:14.479Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/32/76/cab7af7f16c0b09347f2ebe7ffda7101132f786acb767666dce43055faab/botocore_stubs-1.42.41-py3-none-any.whl", hash = "sha256:9423110fb0e391834bd2ed44ae5f879d8cb370a444703d966d30842ce2bcb5f0", size = 66759, upload-time = "2026-02-03T20:46:13.02Z" },
+]
+
+[[package]]
 name = "certifi"
 version = "2026.1.4"
 source = { registry = "https://pypi.org/simple" }
@@ -569,6 +581,7 @@ dependencies = [
     { name = "pydantic-settings" },
     { name = "python-json-logger" },
     { name = "reggression" },
+    { name = "types-aiobotocore", extra = ["s3"] },
 ]
 
 [package.metadata]
@@ -578,6 +591,7 @@ requires-dist = [
     { name = "pydantic-settings", specifier = ">=2.12.0" },
     { name = "python-json-logger", specifier = ">=3.0.0" },
     { name = "reggression", specifier = ">=1.0.10" },
+    { name = "types-aiobotocore", extras = ["s3"], specifier = ">=3.4.0" },
 ]
 
 [[package]]
@@ -2429,6 +2443,41 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/36/bf/8825b5929afd84d0dabd606c67cd57b8388cb3ec385f7ef19c5cc2202069/typer-0.21.1.tar.gz", hash = "sha256:ea835607cd752343b6b2b7ce676893e5a0324082268b48f27aa058bdb7d2145d", size = 110371, upload-time = "2026-01-06T11:21:10.989Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a0/1d/d9257dd49ff2ca23ea5f132edf1281a0c4f9de8a762b9ae399b670a59235/typer-0.21.1-py3-none-any.whl", hash = "sha256:7985e89081c636b88d172c2ee0cfe33c253160994d47bdfdc302defd7d1f1d01", size = 47381, upload-time = "2026-01-06T11:21:09.824Z" },
+]
+
+[[package]]
+name = "types-aiobotocore"
+version = "3.4.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "botocore-stubs" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/77/95/349d980d5e7da4e3f300bba5f09de71ffd70f3d96ad70b260420a4f4ff89/types_aiobotocore-3.4.0.tar.gz", hash = "sha256:010fa82ddc8aba6084e18edbf22981e541b7efc1f85e49e2320501c22913ef35", size = 87621, upload-time = "2026-04-08T02:46:37.316Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a7/e2/f2e1baa388a1ef70522132c287b1d9b23c89b4d6a7ec2981fa2f2d65c1a4/types_aiobotocore-3.4.0-py3-none-any.whl", hash = "sha256:17a52c57d879d5f9fbf7b69671dae8d8f593544a89a6f794b9bed4680e7fd334", size = 54653, upload-time = "2026-04-08T02:46:34.185Z" },
+]
+
+[package.optional-dependencies]
+s3 = [
+    { name = "types-aiobotocore-s3" },
+]
+
+[[package]]
+name = "types-aiobotocore-s3"
+version = "3.4.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/31/12/070369e99af9c9f29b101386b8bda024e79b93ba926414907b2c1015f854/types_aiobotocore_s3-3.4.0.tar.gz", hash = "sha256:c85ef911ad4206a5af45656fc82f73bd49d364f40823f3cc9fb3887704c3f72b", size = 77156, upload-time = "2026-04-08T02:45:34.329Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2b/fe/995476195978ddf5441ff5a1204dac0d385dc924d954c529557dd1e20631/types_aiobotocore_s3-3.4.0-py3-none-any.whl", hash = "sha256:4356c21155818fbb75ea60639069441a432c90ed1d4f38364f6ccf090838355b", size = 84917, upload-time = "2026-04-08T02:45:33.313Z" },
+]
+
+[[package]]
+name = "types-awscrt"
+version = "0.31.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/76/26/0aa563e229c269c528a3b8c709fc671ac2a5c564732fab0852ac6ee006cf/types_awscrt-0.31.3.tar.gz", hash = "sha256:09d3eaf00231e0f47e101bd9867e430873bc57040050e2a3bd8305cb4fc30865", size = 18178, upload-time = "2026-03-08T02:31:14.569Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3e/e5/47a573bbbd0a790f8f9fe452f7188ea72b212d21c9be57d5fc0cbc442075/types_awscrt-0.31.3-py3-none-any.whl", hash = "sha256:e5ce65a00a2ab4f35eacc1e3d700d792338d56e4823ee7b4dbe017f94cfc4458", size = 43340, upload-time = "2026-03-08T02:31:13.38Z" },
 ]
 
 [[package]]

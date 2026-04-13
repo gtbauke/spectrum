@@ -5,6 +5,8 @@ core.egg-info/SOURCES.txt
 core.egg-info/dependency_links.txt
 core.egg-info/requires.txt
 core.egg-info/top_level.txt
+core/adapters/storage/local_storage.py
+core/adapters/storage/s3_storage.py
 core/common/__init__.py
 core/common/config.py
 core/common/logging.py
@@ -54,6 +56,7 @@ core/features/users/user.py
 core/features/users/where.py
 core/ports/transactional_resource.py
 core/ports/unit_of_work.py
+core/ports/events/buffered_events_publisher.py
 core/ports/events/event_handler.py
 core/ports/events/message_broker.py
 core/ports/events/publisher.py
