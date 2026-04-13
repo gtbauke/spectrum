@@ -18,10 +18,14 @@ FROM models/<run_id>
 ```
 
 ### Parameters Mapping
-- **`TOP <N>`**: Maps to `fromTop`. Sets the number of models to sample from the e-graph (sorted by the `ORDER BY` criteria, default: fitness).
-- **`DISTRIBUTION`**: Mode flag. Changes the execution context from model selection to pattern extraction.
-- **`pattern, frequency`**: Restricted columns for distribution mode.
-- **`WHERE <conditions>`**: Maps to `filters`. Filters the extracted patterns (e.g., `size < 10`).
+- **`TOP <N>`**: Maps to `fromTop`. Sets the number of models to sample from the e-graph (sorted by the `ORDER BY` criteria, default: fitness). **Default: 5000**.
+- **`DISTRIBUTION`**: Mode flag. Changes the execution context from model selection to pattern extraction. 
+    - When active, the only allowed columns are `pattern` and `frequency`.
+- **`pattern, frequency`**: Restricted columns for distribution mode. 
+    - `pattern` maps to the sub-expression string.
+    - `frequency` maps to the occurrence count.
+- **`WHERE <conditions>`**: Maps to `filters`. Filters the extracted patterns (e.g., `size < 10`). 
+    - **Note**: In distribution mode, `WHERE` semantic shifts from filtering models to filtering the resulting patterns.
 - **`AT LEAST <N>`**: Maps to `atLeast`. The minimum number of occurrences for a pattern to be returned.
 - **`LIMIT <N>`**: Maps to `limitedAt`. The maximum number of patterns to return in the result set.
 
@@ -33,28 +37,27 @@ FROM models/<run_id>
 
 ### 2. AST (`iql.parser.ast`)
 - Update `SelectClauseAstNode` to include:
-    - `is_distribution: bool`
-    - `at_least: Optional[IntegerLiteralAstNode]`
-    - `limit: Optional[IntegerLiteralAstNode]`
-- Create `AtLeastAstNode` and `LimitAstNode` if needed for structural clarity, or integrate directly into the select node.
+    - `is_distribution: bool = False`
+    - `at_least: Optional[IntegerLiteralAstNode] = None`
+    - `limit: Optional[IntegerLiteralAstNode] = None`
 
 ### 3. Parser (`iql.parser.parselets`)
 - Update `SelectClauseParselet` to:
     - Recognize the `DISTRIBUTION` keyword.
-    - Parse `pattern, frequency` as required identifiers when in distribution mode.
-    - Parse optional `AT LEAST <N>` clause.
+    - Validate that only `pattern` and `frequency` (in any order or subset) are selected.
+    - Parse optional `AT LEAST <N>` clause using a new helper or inline logic.
     - Parse optional `LIMIT <N>` clause.
 
 ### 4. Executor (`iql.executor`)
 - Update `QueryExecutor.execute` to:
     - Detect the distribution mode.
-    - Extract and validate parameters (`sample_size`, `at_least`, `limit`, `filters`).
+    - Extract and validate parameters.
     - Call `self._active_reggression.distribution(...)`.
-    - Transform the resulting DataFrame into `InferenceResult` objects with `expression` (aliased to pattern) and `frequency`.
+    - Transform the results: `pattern` will be stored in the `expression` field of `InferenceResult`, and `frequency` will be added as an extra attribute.
 
 ## Performance Considerations
 Pattern distribution analysis can be computationally expensive on large e-graphs. The use of `TOP <N>` (fromTop) and `AT LEAST <N>` is critical for maintaining responsive query times.
 
 ## Verification Plan
-1. **Unit Tests**: Add tests to `packages/inference_query_language/tests` covering the new grammar and parser logic.
-2. **Integration Tests**: Update `packages/workers/tests/verify_inference_pipeline.py` to include a distribution query case and verify broker events are triggered correctly with the new result schema.
+1. **Unit Tests**: Add tests to `packages/inference_query_language/tests` (to be created or found) covering the new grammar and parser logic.
+2. **Integration Tests**: Update `packages/workers/tests/verify_inference_pipeline.py` to include a distribution query case.
