@@ -90,6 +90,10 @@ class InferenceResultORM(ImmutableBase):
         Integer,
         nullable=True
     )
+    frequency: Mapped[int] = mapped_column(
+        Integer,
+        nullable=True
+    )
 
     @declared_attr.directive
     def __table_args__(cls) -> Any:

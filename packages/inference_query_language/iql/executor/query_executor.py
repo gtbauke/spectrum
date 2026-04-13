@@ -38,6 +38,8 @@ class QueryExecutor:
         "numpy",
         "parameters",
         "size",
+        "pattern",
+        "frequency",
     )
 
     _ACCEPTED_WHERE_LITERALS = (
@@ -175,6 +177,49 @@ class QueryExecutor:
 
         return result
 
+    def _execute_distribution_expression(self, select_clause: SelectClauseAstNode) -> DataFrame:
+        modifier = select_clause.modifier()
+        from_top = self._calculate_top_n(
+            modifier) if isinstance(modifier, TopNAstNode) else 5000
+
+        where_clause = select_clause.where_clause()
+        filters = self._build_where_conditions(
+            where_clause) if where_clause else []
+
+        at_least_node = select_clause.at_least()
+        at_least = at_least_node.value() if at_least_node else 10
+
+        limit_node = select_clause.limit()
+        limited_at = limit_node.value() if limit_node else 1000
+
+        order_by_clause = select_clause.order_by_clause()
+        by_fitness = True
+        dsc = True
+
+        if order_by_clause:
+            criteria = order_by_clause.criteria().name().lower()
+            by_fitness = criteria == "fitness"
+            # In current IQL, ORDER BY is always interpreted as DESC if it's the default,
+            # or we might need explicit DESC/ASC tokens which aren't fully implemented as flags yet.
+            # For distribution, we'll assume the intention is DESC (top models).
+
+        if self._active_reggression is None:
+            raise ValueError("No active regression object set")
+
+        result = self._active_reggression.distribution(  # type: ignore
+            filters=filters,
+            limitedAt=limited_at,
+            dsc=dsc,
+            byFitness=by_fitness,
+            atLeast=at_least,
+            fromTop=from_top
+        )
+
+        if not isinstance(result, DataFrame):
+            raise ResultShouldBeDataFrameError()
+
+        return result
+
     # TODO: Implement support for other SQL-like features.
     # TODO: Implement distribution analysis
     def execute(self) -> InferenceResultList:
@@ -199,7 +244,9 @@ class QueryExecutor:
 
         modifier = self._root_node.modifier()
 
-        if isinstance(modifier, TopNAstNode):
+        if self._root_node.is_distribution():
+            result = self._execute_distribution_expression(self._root_node)
+        elif isinstance(modifier, TopNAstNode):
             result = self._execute_top_n_expression(
                 select_clause=self._root_node, modifier=modifier)
         elif isinstance(modifier, ParetoAstNode):
@@ -214,10 +261,31 @@ class QueryExecutor:
 
         subset = [column.name().lower()
                   for column in self._root_node.columns()]
+
+        logger.info(f"Raw result columns: {result.columns.tolist()}")
+        logger.info(f"Raw result sample:\n{result.head()}")
+
+        # Map 'pattern' column to 'expression' in the final result for consistency
+        if "Pattern" in result.columns:
+            result = result.rename(columns={"Pattern": "expression"})
+            subset = ["expression" if c == "pattern" else c for c in subset]
+
+        if "Count" in result.columns:
+            result = result.rename(columns={"Count": "frequency"})
+            subset = ["frequency" if c == "count" else c for c in subset]
+
+        if "AvgFit" in result.columns:
+            result = result.rename(columns={"AvgFit": "fitness"})
+            subset = ["fitness" if c == "avgfit" else c for c in subset]
+
         mask = result.columns.str.contains("|".join(subset), case=False)
 
         final_result = result.loc[:, mask]
         final_result.columns = final_result.columns.str.lower()
+
+        logger.info(
+            f"Final result columns after filtering and renaming: {final_result.columns.tolist()}")
+        logger.info(f"Final result sample:\n{final_result.head()}")
 
         results = [
             InferenceResult(**item) for  # type: ignore

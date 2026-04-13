@@ -32,6 +32,10 @@ class TokenKind(StrEnum):
     PATTERN = "PATTERN"
     LIKE = "LIKE"
     IS = "IS"
+    DISTRIBUTION = "DISTRIBUTION"
+    AT = "AT"
+    LEAST = "LEAST"
+    LIMIT = "LIMIT"
 
     NUMBER = "NUMBER"
     IDENTIFIER = "IDENTIFIER"
@@ -45,6 +49,9 @@ class TokenKind(StrEnum):
             TokenKind.WHERE,
             TokenKind.ORDER,
             TokenKind.PATTERN,
+            TokenKind.AT,
+            TokenKind.LIMIT,
+            TokenKind.DISTRIBUTION,
         }
 
     @staticmethod
@@ -78,6 +85,14 @@ class TokenKind(StrEnum):
                 return TokenKind.LIKE
             case "IS":
                 return TokenKind.IS
+            case "DISTRIBUTION":
+                return TokenKind.DISTRIBUTION
+            case "AT":
+                return TokenKind.AT
+            case "LEAST":
+                return TokenKind.LEAST
+            case "LIMIT":
+                return TokenKind.LIMIT
             case _:
                 return TokenKind.IDENTIFIER
 

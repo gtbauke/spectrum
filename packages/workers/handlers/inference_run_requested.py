@@ -22,7 +22,7 @@ from core.features.datasets.where import DatasetWhere
 from core.features.datasets.artifact_role import ArtifactRole
 from core.features.profiles.blocks.inference.inference_run import InferenceRunStatus
 
-from core.utils.filters.field_filter import StringFilter, UUIDFilter
+from core.utils.filters.field_filter import UUIDFilter
 
 from core.ports.events.event_handler import EventHandler
 from core.ports.events.message_broker import MessageBroker
@@ -159,6 +159,11 @@ class InferenceRunRequestedHandler(EventHandler[InferenceRunRequestedEvent]):
 
                     query_result = await asyncio.to_thread(run_heavy_execution)
 
+                    logger.info("Inference execution completed for run %s. Got %d results.",
+                                event.run_id, len(query_result.results))
+
+                    logger.info(f"Sample results: {query_result.results[:10]}")
+
                     # 7. Persist Results
                     domain_results = [
                         InferenceResult.new(
@@ -170,6 +175,8 @@ class InferenceRunRequestedHandler(EventHandler[InferenceRunRequestedEvent]):
                             numpy=r.numpy,
                             parameters={i: p for i, p in map(lambda _i: (str(_i[0]), _i[1]), enumerate(
                                 r.parameters)) if p is not None} if r.parameters else None,
+                            size=r.size,
+                            frequency=r.frequency,
                         ) for r in query_result.results
                     ]
 

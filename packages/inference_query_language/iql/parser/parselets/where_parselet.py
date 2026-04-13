@@ -15,6 +15,8 @@ class WhereParselet(PrefixParselet):
         conditions = parser.do_until_matches(
             TokenKind.ORDER,
             TokenKind.PATTERN,
+            TokenKind.AT,
+            TokenKind.LIMIT,
             TokenKind.EOF,
             func=self._parse_condition_element
         )

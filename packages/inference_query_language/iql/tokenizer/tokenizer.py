@@ -60,7 +60,7 @@ class QueryTokenizer:
         return Token(TokenKind.NUMBER, lexeme, Span(self._start, self._current))
 
     def _identifier_or_keyword(self) -> Token:
-        while self._peek().isalnum():
+        while self._peek().isalnum() or self._peek() == "_":
             self._advance()
 
         lexeme = self._query[self._start:self._current].upper()

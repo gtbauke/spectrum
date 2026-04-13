@@ -49,7 +49,8 @@ class InferenceResultMapper:
             latex=orm.latex,
             numpy=orm.numpy,
             parameters=orm.parameters,
-            size=orm.size
+            size=orm.size,
+            frequency=orm.frequency,
         )
 
     @staticmethod
@@ -65,5 +66,6 @@ class InferenceResultMapper:
             latex=domain.latex,
             numpy=domain.numpy,
             parameters=domain.parameters,
-            size=domain.size
+            size=domain.size,
+            frequency=domain.frequency
         )

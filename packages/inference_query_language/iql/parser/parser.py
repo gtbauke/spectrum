@@ -20,6 +20,9 @@ class InferenceQueryParser(QueryParser):
         self.register_prefix_parselet(
             TokenKind.SELECT, SelectClauseParselet())
 
+        self.register_prefix_parselet(
+            TokenKind.PATTERN, IdentifierParselet())
+
         self.register_infix_parselets(
             BinaryExpressionParselet(Precedence.TERM),
             TokenKind.PLUS,

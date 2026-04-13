@@ -10,6 +10,7 @@ export const inferenceResultRawSchema = baseImmutableObject.extend({
 	numpy: z.string().nullable(),
 	parameters: z.record(z.string(), z.number()).nullable(),
 	size: z.number().int().nullable(),
+	frequency: z.number().int().nullable(),
 });
 
 export type InferenceResultRaw = z.infer<typeof inferenceResultRawSchema>;
@@ -25,6 +26,7 @@ export const inferenceResultSchema = inferenceResultRawSchema.transform((data: I
 	numpy: data.numpy,
 	parameters: data.parameters,
 	size: data.size,
+	frequency: data.frequency,
 }));
 
 export type InferenceResult = z.infer<typeof inferenceResultSchema>;

@@ -19,6 +19,8 @@ class InferenceResult(BaseModel):
                                               description="Parameters used in the expression")
     size: Optional[int] = Field(None,
                                 description="Size of the expression (number of nodes in the AST)")
+    frequency: Optional[int] = Field(None,
+                                     description="Frequency of the expression in the dataset")
 
     model_config = {
         "extra": "allow",

@@ -4,6 +4,7 @@ from typing import Optional, Union
 
 from iql.parser.ast.pattern_matching_expression import PatternMatchingExpression
 from iql.parser.ast.top_n import ParetoAstNode, TopNAstNode
+from iql.parser.ast.number import IntegerLiteralAstNode
 from iql.parser.parselet import PrefixParselet
 from iql.parser.base import QueryParser
 from iql.parser.ast.base import BaseAstNode
@@ -97,6 +98,33 @@ class SelectClauseParselet(PrefixParselet):
 
         return order_by_clause
 
+    def _parse_at_least_clause(self, parser: QueryParser) -> Optional[IntegerLiteralAstNode]:
+        at_token = parser.matches_and_return(TokenKind.AT)
+        if at_token is None:
+            return None
+
+        parser.consume(TokenKind.LEAST)
+        at_least_expression = parser.parse_expression()
+
+        if not isinstance(at_least_expression, IntegerLiteralAstNode):
+            raise ValueError(
+                f"Expected integer for AT LEAST clause, but got {type(at_least_expression)}")
+
+        return at_least_expression
+
+    def _parse_limit_clause(self, parser: QueryParser) -> Optional[IntegerLiteralAstNode]:
+        limit_token = parser.matches_and_return(TokenKind.LIMIT)
+        if limit_token is None:
+            return None
+
+        limit_expression = parser.parse_expression()
+
+        if not isinstance(limit_expression, IntegerLiteralAstNode):
+            raise ValueError(
+                f"Expected integer for LIMIT clause, but got {type(limit_expression)}")
+
+        return limit_expression
+
     # TODO: we should add support for parentheses in the WHERE and PATTERN clauses to allow for more complex expressions
     def parse(self, parser: QueryParser, token: Token) -> BaseAstNode:
         # Check for optional modifiers immediately after SELECT
@@ -112,10 +140,18 @@ class SelectClauseParselet(PrefixParselet):
                 span = top_token.span.merge(top_n_expression.span)
                 modifier = TopNAstNode(top_n_expression, span)
 
+        is_distribution = parser.matches(TokenKind.DISTRIBUTION)
+
         results = parser.do_until_matches(
             TokenKind.FROM,
             func=self._parse_select_list_element,
         )
+
+        if is_distribution:
+            for result in results:
+                if result.name().lower() not in ["pattern", "frequency", "fitness"]:
+                    raise ValueError(
+                        f"Only 'pattern', 'frequency', and 'fitness' columns are allowed in DISTRIBUTION mode, but got '{result.name()}'")
 
         from_clause = self._parse_from_clause(parser)
         where_clause = self._parse_where_clause(parser)
@@ -124,12 +160,16 @@ class SelectClauseParselet(PrefixParselet):
             parser)
 
         order_by_clause = self._parse_order_by_clause(parser)
+        at_least = self._parse_at_least_clause(parser)
+        limit = self._parse_limit_clause(parser)
 
         span = token.span.merge_with_last_non_none(
             from_clause.span,
             where_clause.span if where_clause else None,
             pattern_matching_expression.span if pattern_matching_expression else None,
-            order_by_clause.span if order_by_clause else None
+            order_by_clause.span if order_by_clause else None,
+            at_least.span if at_least else None,
+            limit.span if limit else None
         )
 
         return SelectClauseAstNode(
@@ -139,5 +179,8 @@ class SelectClauseParselet(PrefixParselet):
             where_clause=where_clause,
             order_by_clause=order_by_clause,
             pattern_matching_expression=pattern_matching_expression,
+            is_distribution=is_distribution,
+            at_least=at_least,
+            limit=limit,
             span=span
         )

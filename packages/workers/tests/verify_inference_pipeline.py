@@ -38,6 +38,12 @@ class TestInferencePipeline(unittest.IsolatedAsyncioTestCase):
         mock_uow = AsyncMock()
         mock_uow_cls.return_value.__aenter__.return_value = mock_uow
         
+        # Mock Run resolution
+        mock_run = MagicMock()
+        mock_run.profile_id = uuid4()
+        mock_run.version = 1
+        mock_uow.inference_runs.get_unique.return_value = mock_run
+
         # Mock Model resolution
         model_id = uuid4()
         mock_model = MagicMock(spec=Model)
@@ -46,6 +52,7 @@ class TestInferencePipeline(unittest.IsolatedAsyncioTestCase):
         mock_model.generated_by = uuid4()
         mock_model.path = "models/model.egraph"
         
+        mock_uow.models.get_unique.return_value = mock_model
         mock_uow.models.list_all.return_value = [mock_model]
         
         # Mock Job resolution
@@ -84,6 +91,72 @@ class TestInferencePipeline(unittest.IsolatedAsyncioTestCase):
         mock_reggression_cls.assert_called_with(dataset="/tmp/fake/dataset.csv", loadFrom="/tmp/fake/model.egraph")
         mock_uow.inference_results.add_many.assert_called_once()
         print("\nVerification successful: Handler correctly orchestrated the execution pipeline.")
+
+    @patch("handlers.inference_run_requested.WorkerUnitOfWork")
+    @patch("handlers.inference_run_requested.Reggression")
+    @patch("handlers.inference_run_requested.QueryExecutor")
+    @patch("handlers.inference_run_requested.os.path.join")
+    @patch("handlers.inference_run_requested.tempfile.TemporaryDirectory")
+    async def test_handle_distribution_success(self, mock_tmp_dir, mock_path_join, mock_executor_cls, mock_reggression_cls, mock_uow_cls):
+        # Setup Event
+        event = InferenceRunRequestedEvent(
+            run_id=uuid4(),
+            block_id=uuid4(),
+            profile_id=uuid4(),
+            query="SELECT DISTRIBUTION pattern, frequency FROM my_model AT LEAST 10"
+        )
+
+        # Setup Mocks (similar to test_handle_success)
+        mock_uow = AsyncMock()
+        mock_uow_cls.return_value.__aenter__.return_value = mock_uow
+        
+        mock_run = MagicMock()
+        mock_run.profile_id = uuid4()
+        mock_run.version = 1
+        mock_uow.inference_runs.get_unique.return_value = mock_run
+
+        mock_model = MagicMock(spec=Model)
+        mock_model.id = uuid4()
+        mock_model.name = "my_model"
+        mock_model.generated_by = uuid4()
+        mock_model.path = "models/model.egraph"
+        mock_uow.models.list_all.return_value = [mock_model]
+        mock_uow.models.get_unique.return_value = mock_model
+
+        mock_uow.jobs.get_unique.return_value = MagicMock(spec=Job, runs_against=uuid4())
+        mock_uow.datasets.get_unique.return_value = MagicMock(spec=Dataset, id=uuid4(), artifacts=[MagicMock(role=ArtifactRole.DATA, path="d.csv")])
+        mock_tmp_dir.return_value.__enter__.return_value = "/tmp/fake"
+        mock_path_join.side_effect = lambda a, b: f"{a}/{b}"
+
+        # Mock Executor returning distribution results
+        mock_executor = MagicMock()
+        mock_executor_cls.return_value = mock_executor
+        mock_result = MagicMock()
+        
+        # Ensure all fields expected by InferenceResult.new are provided as valid types
+        mock_dist_result = MagicMock()
+        mock_dist_result.expression = "x + 1"
+        mock_dist_result.frequency = 15
+        mock_dist_result.fitness = 0.0
+        mock_dist_result.latex = "x + 1"
+        mock_dist_result.numpy = "x + 1"
+        mock_dist_result.parameters = None
+        
+        mock_result.results = [mock_dist_result]
+        mock_executor.execute.return_value = mock_result
+
+        # Run Handler
+        await self.handler.handle(event)
+
+        # Verifications
+        mock_uow.inference_results.add_many.assert_called_once()
+        args, _ = mock_uow.inference_results.add_many.call_args
+        results = args[0]
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].frequency, 15)
+        self.assertEqual(results[0].expression, "x + 1")
+        
+        print("\nVerification successful: Distribution query frequency correctly passed to repository.")
 
 if __name__ == "__main__":
     unittest.main()

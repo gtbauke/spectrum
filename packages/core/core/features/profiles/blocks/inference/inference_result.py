@@ -22,6 +22,8 @@ class InferenceResult(BaseImmutableDomainModel):
     parameters: Optional[dict[str, float]] = Field(
         None, description="Parameters found")
     size: Optional[int] = Field(None, description="Size of the expression")
+    frequency: Optional[int] = Field(
+        None, description="Frequency of the pattern/expression")
 
     @classmethod
     def new(
@@ -34,7 +36,8 @@ class InferenceResult(BaseImmutableDomainModel):
         latex: Optional[str] = None,
         numpy: Optional[str] = None,
         parameters: Optional[dict[str, float]] = None,
-        size: Optional[int] = None
+        size: Optional[int] = None,
+        frequency: Optional[int] = None,
     ):
         return cls(
             run_id=run_id,
@@ -45,5 +48,6 @@ class InferenceResult(BaseImmutableDomainModel):
             latex=latex,
             numpy=numpy,
             parameters=parameters,
-            size=size
+            size=size,
+            frequency=frequency,
         )

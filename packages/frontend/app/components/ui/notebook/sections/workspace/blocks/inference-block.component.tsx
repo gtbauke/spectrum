@@ -34,6 +34,8 @@ export function InferenceBlock({
 	models,
 	orderIndex,
 }: InferenceBlockProps) {
+	console.log("Rendering InferenceBlock with data:", data);
+
 	const updateBlock = useEditorStore((state) => state.updateBlock);
 	const activeTabId = useEditorStore((state) => state.activeTabId);
 	const tabs = useEditorStore((state) => state.tabs);
@@ -216,9 +218,24 @@ function ResultItem({
 				</div>
 
 				<div className="flex items-center gap-3">
-					<MetricBadge label="R²" value={result.fitness?.toFixed(4) || "N/A"} />
-					<MetricBadge label="DL" value={result.dl?.toFixed(2) || "N/A"} />
-					<MetricBadge label="Size" value={result.size?.toString() || "N/A"} />
+					{result.frequency !== undefined && result.frequency !== null && (
+						<MetricBadge label="Freq" value={result.frequency.toString()} />
+					)}
+
+					{result.fitness !== undefined && result.fitness !== null && (
+						<MetricBadge
+							label="Fit"
+							value={result.fitness.toFixed(2) || "N/A"}
+						/>
+					)}
+
+					{result.dl !== undefined && result.dl !== null && (
+						<MetricBadge label="DL" value={result.dl.toFixed(2) || "N/A"} />
+					)}
+
+					{result.size !== undefined && result.size !== null && (
+						<MetricBadge label="Size" value={result.size.toString() || "N/A"} />
+					)}
 				</div>
 			</div>
 
@@ -241,27 +258,6 @@ function MetricBadge({ label, value }: { label: string; value: string }) {
 				{label}
 			</span>
 			<span className="text-xs font-mono font-bold text-white/80">{value}</span>
-		</div>
-	);
-}
-
-function MetricCard({
-	label,
-	value,
-	accent,
-}: {
-	label: string;
-	value: string;
-	accent: "emerald" | "purple";
-}) {
-	return (
-		<div className="p-4 rounded-xl border border-white/5 bg-white/[0.02] flex flex-col gap-1 transition-all hover:border-white/10 hover:bg-white/[0.05]">
-			<span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-				{label}
-			</span>
-			<span className="text-xl font-mono font-medium text-white/90">
-				{value}
-			</span>
 		</div>
 	);
 }
