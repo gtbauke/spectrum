@@ -14,6 +14,17 @@ class BlockMapper(IMapper[BlockORM, Block]):
                 data = MarkdownBlock.model_validate(orm.data)
             case BlockKind.INFERENCE:
                 data = InferenceBlock.model_validate(orm.data)
+                # Populate results and status from the latest inference run if available
+                # We expect the repository to have loaded the inference_runs relationship
+                latest_run = next(
+                    (r for r in orm.inference_runs if r.is_latest), None)
+                if latest_run:
+                    from db.features.profiles.blocks.inference.mapper import InferenceResultMapper
+                    data.status = latest_run.status
+                    data.execution_time_ms = latest_run.execution_time_ms
+                    data.error = latest_run.error
+                    data.results = [InferenceResultMapper.to_domain(
+                        r) for r in latest_run.results]
             case _:
                 raise ValueError(f"Unknown block kind: {orm.kind}")
 

@@ -484,12 +484,16 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 						data: { value: b.data.data },
 					} as EditorBlock;
 				}
+				const inferenceData = b.data as any;
 				return {
 					id: b.id,
 					type: "inference",
 					data: {
-						code: b.data.data,
-						status: "idle",
+						code: inferenceData.data,
+						results: inferenceData.results || [],
+						status: inferenceData.status || "idle",
+						executionTimeMs: inferenceData.execution_time_ms,
+						error: inferenceData.error,
 					},
 				} as EditorBlock;
 			});

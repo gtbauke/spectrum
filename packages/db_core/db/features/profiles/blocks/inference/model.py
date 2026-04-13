@@ -1,11 +1,16 @@
 from typing import Any
 from uuid import UUID
 from sqlalchemy import ForeignKey, String, Integer, Float, Enum, UniqueConstraint, Index, ForeignKeyConstraint
-from sqlalchemy.orm import Mapped, mapped_column, declared_attr
+from sqlalchemy.orm import Mapped, mapped_column, declared_attr, relationship
+from typing import TYPE_CHECKING
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 
 from core.features.profiles.blocks.inference.inference_run import InferenceRunStatus
 from db.common.base.immutable import ImmutableBase, ImmutableVersionedBase
+
+
+if TYPE_CHECKING:
+    from db.features.profiles.blocks.model import BlockORM
 
 
 class InferenceRunORM(ImmutableVersionedBase):
@@ -40,6 +45,19 @@ class InferenceRunORM(ImmutableVersionedBase):
     error: Mapped[str] = mapped_column(
         String,
         nullable=True
+    )
+
+    block: Mapped["BlockORM"] = relationship(
+        "BlockORM",
+        back_populates="inference_runs"
+    )
+
+    results: Mapped[list["InferenceResultORM"]] = relationship(
+        "InferenceResultORM",
+        primaryjoin="and_(foreign(InferenceResultORM.run_id) == InferenceRunORM.id, "
+                    "foreign(InferenceResultORM.run_version) == InferenceRunORM.version)",
+        lazy="selectin",
+        viewonly=True
     )
 
 

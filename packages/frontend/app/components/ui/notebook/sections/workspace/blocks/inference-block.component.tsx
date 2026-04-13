@@ -1,13 +1,22 @@
 import Editor, { useMonaco } from "@monaco-editor/react";
+import * as Tooltip from "@radix-ui/react-tooltip";
+import {
+	createColumnHelper,
+	flexRender,
+	getCoreRowModel,
+	useReactTable,
+} from "@tanstack/react-table";
 import {
 	AlertCircle,
 	CheckCircle2,
+	LayoutList,
 	Loader2,
 	Play,
+	Table2,
 	Timer,
 	Zap,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as katex from "react-katex";
 import { useInferenceStream } from "~/hooks/use-inference-stream.hook";
 import { useRunInferenceMutation } from "~/hooks/use-run-inference-mutation.hook";
@@ -138,27 +147,30 @@ export function InferenceBlock({
 
 function ResultsPane({ data }: { data: InferenceData }) {
 	const { status, results, executionTimeMs, error } = data;
+	const [viewMode, setViewMode] = useState<"list" | "table">("list");
 
 	if (status === "idle" && !results) return null;
 
 	return (
 		<div className="flex flex-col gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
 			<div className="flex items-center gap-2 px-1">
-				{status === "completed" ? (
-					<CheckCircle2 className="w-4 h-4 text-emerald-500" />
-				) : status === "failed" ? (
-					<AlertCircle className="w-4 h-4 text-red-500" />
-				) : (
-					<Loader2 className="w-4 h-4 text-primary animate-spin" />
-				)}
+				<div className="flex items-center gap-2">
+					{status === "completed" ? (
+						<CheckCircle2 className="w-4 h-4 text-emerald-500" />
+					) : status === "failed" ? (
+						<AlertCircle className="w-4 h-4 text-red-500" />
+					) : (
+						<Loader2 className="w-4 h-4 text-primary animate-spin" />
+					)}
 
-				<span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">
-					{status === "completed"
-						? "Execution Complete"
-						: status === "failed"
-							? "Execution Failed"
-							: `Inference Stage: ${status.replace(/_/g, " ")}`}
-				</span>
+					<span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">
+						{status === "completed"
+							? "Execution Complete"
+							: status === "failed"
+								? "Execution Failed"
+								: `Inference Stage: ${status.replace(/_/g, " ")}`}
+					</span>
+				</div>
 
 				{executionTimeMs !== undefined && (
 					<div className="flex items-center gap-1.5 ml-4 px-2 py-0.5 rounded-full bg-white/5 border border-white/5">
@@ -169,7 +181,36 @@ function ResultsPane({ data }: { data: InferenceData }) {
 					</div>
 				)}
 
-				<div className="h-px flex-1 bg-linear-to-r from-white/10 to-transparent ml-2" />
+				<div className="h-px flex-1 bg-linear-to-r from-white/10 to-transparent mx-2" />
+
+				<div className="flex items-center gap-1 p-1 rounded-lg bg-black/20 border border-white/5">
+					<button
+						type="button"
+						onClick={() => setViewMode("list")}
+						className={cn(
+							"p-1.5 rounded-md transition-all",
+							viewMode === "list"
+								? "bg-primary/20 text-primary shadow-xs"
+								: "text-white/40 hover:text-white/60 hover:bg-white/5",
+						)}
+						title="List View"
+					>
+						<LayoutList className="w-3.5 h-3.5" />
+					</button>
+					<button
+						type="button"
+						onClick={() => setViewMode("table")}
+						className={cn(
+							"p-1.5 rounded-md transition-all",
+							viewMode === "table"
+								? "bg-primary/20 text-primary shadow-xs"
+								: "text-white/40 hover:text-white/60 hover:bg-white/5",
+						)}
+						title="Table View"
+					>
+						<Table2 className="w-3.5 h-3.5" />
+					</button>
+				</div>
 			</div>
 
 			{error && (
@@ -180,13 +221,170 @@ function ResultsPane({ data }: { data: InferenceData }) {
 			)}
 
 			{results && results.length > 0 && (
-				<div className="flex flex-col gap-4">
-					{results.map((result, idx) => (
-						<ResultItem key={result.id} result={result} isPrimary={idx === 0} />
-					))}
+				<div>
+					{viewMode === "list" ? (
+						<div className="flex flex-col gap-4">
+							{results.map((result, idx) => (
+								<ResultItem
+									key={result.id}
+									result={result}
+									isPrimary={idx === 0}
+								/>
+							))}
+						</div>
+					) : (
+						<ResultsTable results={results} />
+					)}
 				</div>
 			)}
 		</div>
+	);
+}
+
+function ResultsTable({ results }: { results: InferenceResult[] }) {
+	const columnHelper = createColumnHelper<InferenceResult>();
+
+	const columns = useMemo(
+		() => [
+			columnHelper.accessor("id", {
+				header: "ID",
+				cell: (info) => (
+					<span className="text-[10px] font-mono text-white/40">
+						{info.getValue().slice(0, 4)}
+					</span>
+				),
+			}),
+			columnHelper.accessor("expression", {
+				header: "Expression",
+				cell: (info) => (
+					<Tooltip.Root>
+						<Tooltip.Trigger asChild>
+							<div className="max-w-75 truncate font-mono text-xs text-white/70 cursor-help hover:text-white transition-colors">
+								{info.getValue()}
+							</div>
+						</Tooltip.Trigger>
+						<Tooltip.Portal>
+							<Tooltip.Content
+								className="z-50 p-4 rounded-xl border border-primary/20 bg-background-surface/90 backdrop-blur-xl shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+								sideOffset={5}
+							>
+								<div className="flex flex-col gap-2 pointer-events-none">
+									<div className="text-[9px] uppercase tracking-widest text-white/30 font-bold border-b border-white/5 pb-2 mb-1">
+										Mathematical Formula
+									</div>
+									<div className="text-lg">
+										<katex.BlockMath
+											math={info.row.original.latex || info.getValue()}
+										/>
+									</div>
+								</div>
+								<Tooltip.Arrow className="fill-background-surface border-t border-l border-primary/20" />
+							</Tooltip.Content>
+						</Tooltip.Portal>
+					</Tooltip.Root>
+				),
+			}),
+			columnHelper.accessor("fitness", {
+				header: "Fitness",
+				cell: (info) => {
+					const val = info.getValue();
+					return (
+						<span className="font-mono text-xs font-bold text-emerald-400/90">
+							{val !== null && val !== undefined ? val.toFixed(2) : "—"}
+						</span>
+					);
+				},
+			}),
+			columnHelper.accessor("dl", {
+				header: "DL",
+				cell: (info) => {
+					const val = info.getValue();
+					return (
+						<span className="font-mono text-xs font-bold text-primary/80">
+							{val !== null && val !== undefined ? val.toFixed(2) : "—"}
+						</span>
+					);
+				},
+			}),
+			columnHelper.accessor("size", {
+				header: "Size",
+				cell: (info) => (
+					<span className="font-mono text-xs text-white/60">
+						{info.getValue() ?? "—"}
+					</span>
+				),
+			}),
+			columnHelper.accessor("frequency", {
+				header: "Freq",
+				cell: (info) => {
+					const val = info.getValue();
+					return val ? (
+						<span className="px-1.5 py-0.5 rounded-sm bg-primary/10 border border-primary/20 text-[10px] font-bold text-primary">
+							{val}
+						</span>
+					) : (
+						<span className="font-mono text-xs text-white/20">—</span>
+					);
+				},
+			}),
+		],
+		[columnHelper],
+	);
+
+	const table = useReactTable({
+		data: results,
+		columns,
+		getCoreRowModel: getCoreRowModel(),
+	});
+
+	return (
+		<Tooltip.Provider delayDuration={200}>
+			<div className="relative rounded-xl border border-white/5 bg-white/2 backdrop-blur-md overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-500">
+				<div className="overflow-x-auto custom-scrollbar">
+					<table className="w-full text-left border-collapse min-w-150">
+						<thead className="bg-white/3 border-b border-white/5">
+							{table.getHeaderGroups().map((headerGroup) => (
+								<tr key={headerGroup.id}>
+									{headerGroup.headers.map((header) => (
+										<th
+											key={header.id}
+											className="px-4 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-white/40"
+										>
+											{header.isPlaceholder
+												? null
+												: flexRender(
+														header.column.columnDef.header,
+														header.getContext(),
+													)}
+										</th>
+									))}
+								</tr>
+							))}
+						</thead>
+						<tbody className="divide-y divide-white/5">
+							{table.getRowModel().rows.map((row) => (
+								<tr
+									key={row.id}
+									className={cn(
+										"group/row hover:bg-primary/5 transition-all duration-200",
+										row.index === 0 && "bg-primary/5",
+									)}
+								>
+									{row.getVisibleCells().map((cell) => (
+										<td key={cell.id} className="px-4 py-3 align-middle">
+											{flexRender(
+												cell.column.columnDef.cell,
+												cell.getContext(),
+											)}
+										</td>
+									))}
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</Tooltip.Provider>
 	);
 }
 

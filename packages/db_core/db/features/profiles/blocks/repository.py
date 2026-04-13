@@ -8,10 +8,12 @@ from core.features.profiles.blocks.where import BlockWhere, BlockFilter
 from core.utils.pagination.base import Pagination
 from core.utils.pagination.response import PaginatedResponse
 
+from sqlalchemy.orm import selectinload
 from db.common.repositories.sql_alchemy_bulk_repository import SqlAlchemyBulkRepository
 
 from .mapper import BlockMapper
 from .model import BlockORM
+from db.features.profiles.blocks.inference.model import InferenceRunORM
 
 
 class SqlAlchemyBlocksRepository(
@@ -47,7 +49,11 @@ class SqlAlchemyBlocksRepository(
         await super()._delete_many(entities=orms)
 
     async def get_unique(self, where: BlockWhere) -> Block | None:
-        return await super()._get_unique(where=where)
+        return await super()._get_unique(
+            where,
+            selectinload(BlockORM.inference_runs).selectinload(
+                InferenceRunORM.results)
+        )
 
     def _build_query(
         self,
@@ -56,11 +62,14 @@ class SqlAlchemyBlocksRepository(
         resolved_filters = filter.resolve(
             self._model_class) if filter else None
 
-        query = select(self._model_class).distinct()
+        query = select(self._model_class).options(
+            selectinload(self._model_class.inference_runs).selectinload(
+                InferenceRunORM.results)
+        ).distinct()
 
         if resolved_filters:
             query = query.where(*resolved_filters)
-            
+
         return query
 
     async def list(

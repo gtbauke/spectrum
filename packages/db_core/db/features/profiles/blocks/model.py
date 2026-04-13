@@ -22,6 +22,7 @@ from core.features.profiles.blocks.block_kind import BlockKind
 
 if TYPE_CHECKING:
     from db.features.profiles.model import ProfileORM
+    from db.features.profiles.blocks.inference.model import InferenceRunORM
 
 
 class BlockORM(MutableBase):
@@ -51,4 +52,12 @@ class BlockORM(MutableBase):
     data: Mapped[dict] = mapped_column(
         JSONB,
         nullable=False,
+    )
+
+    inference_runs: Mapped[list["InferenceRunORM"]] = relationship(
+        "InferenceRunORM",
+        back_populates="block",
+        cascade="all, delete-orphan",
+        primaryjoin="foreign(InferenceRunORM.block_id) == BlockORM.id",
+        lazy="selectin"
     )

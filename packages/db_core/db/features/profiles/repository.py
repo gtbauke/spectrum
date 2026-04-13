@@ -10,6 +10,8 @@ from core.utils.pagination.base import Pagination
 from core.utils.pagination.response import PaginatedResponse
 
 from db.common.repositories.sql_alchemy_base_repository import SqlAlchemyBaseRepository
+from db.features.profiles.blocks.inference.model import InferenceRunORM
+from db.features.profiles.blocks.model import BlockORM
 
 from .mapper import ProfilesMapper
 from .model import ProfileORM
@@ -40,7 +42,9 @@ class SqlAlchemyProfilesRepository(
             select(self._model_class)
             .options(
                 selectinload(self._model_class.datasets),
-                selectinload(self._model_class.blocks),
+                selectinload(self._model_class.blocks)
+                .selectinload(BlockORM.inference_runs)
+                .selectinload(InferenceRunORM.results),
                 selectinload(self._model_class.jobs),
                 selectinload(self._model_class.models),
             )
@@ -66,7 +70,9 @@ class SqlAlchemyProfilesRepository(
             select(self._model_class)
             .options(
                 selectinload(self._model_class.datasets),
-                selectinload(self._model_class.blocks),
+                selectinload(self._model_class.blocks)
+                .selectinload(BlockORM.inference_runs)
+                .selectinload(InferenceRunORM.results),
                 selectinload(self._model_class.jobs),
                 selectinload(self._model_class.models),
             )
