@@ -15,6 +15,8 @@ type DatasetItemProps = {
 export function DatasetItem({ dataset, active = false }: DatasetItemProps) {
 	const tabs = useEditorStore((s) => s.tabs);
 	const activeTabId = useEditorStore((s) => s.activeTabId);
+	const openTab = useEditorStore((s) => s.openTab);
+
 	const { setActiveView } = useActivity();
 
 	const { mutate } = useLinkDatasetToProfileMutation();
@@ -28,14 +30,20 @@ export function DatasetItem({ dataset, active = false }: DatasetItemProps) {
 		dataset.artifacts.reduce((acc, artifact) => acc + artifact.sizeInBytes, 0),
 	);
 
-	const onImportIconClick = () => {
+	const onImportIconClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+		e.stopPropagation();
+
 		const isActiveTabProfile = activeTabId
 			? tabs[activeTabId].type === "profile"
 			: false;
 
 		if (isActiveTabProfile) {
+			if (!activeTabId) {
+				return;
+			}
+
 			mutate({
-				profile: { id: activeTabId! },
+				profile: { id: activeTabId },
 				data: {
 					dataset_ids: [dataset.id],
 				},
@@ -62,8 +70,27 @@ export function DatasetItem({ dataset, active = false }: DatasetItemProps) {
 		);
 	};
 
+	const handleDatasetClick = () => {
+		openTab({
+			id: dataset.id,
+			type: "dataset",
+			data: {
+				datasetId: dataset.id,
+				tabId: dataset.id,
+			},
+		});
+	};
+
+	const handleDatasetKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+		if (e.key === "Enter" || e.key === " ") {
+			e.preventDefault();
+			handleDatasetClick();
+		}
+	};
+
 	return (
 		<div className="flex flex-col">
+			{/** biome-ignore lint/a11y/useSemanticElements: Cannot have multiple nested interactive elements */}
 			<div
 				className={cn(
 					"group flex items-center justify-between p-2 rounded-md cursor-pointer transition-colors",
@@ -71,6 +98,10 @@ export function DatasetItem({ dataset, active = false }: DatasetItemProps) {
 						? "bg-primary-500/10 text-white"
 						: "text-gray-400 hover:bg-white/5 hover:text-gray-200",
 				)}
+				onClick={handleDatasetClick}
+				role="button"
+				tabIndex={0}
+				onKeyDown={handleDatasetKeyDown}
 			>
 				<div className="flex items-center gap-3 truncate">
 					{type === "CSV" ? (

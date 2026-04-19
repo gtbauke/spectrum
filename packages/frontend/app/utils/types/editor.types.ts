@@ -1,6 +1,6 @@
-import type { Profile } from "~/schemas/domain/profile.schema";
 import type { InferenceRunStatus } from "~/schemas/domain/enums.schema";
 import type { InferenceResult } from "~/schemas/domain/inference-result.schema";
+import type { Profile } from "~/schemas/domain/profile.schema";
 
 export type InferenceData = {
 	code: string;
@@ -53,9 +53,15 @@ export type UploadTabData = {
 	file: File | null;
 };
 
+export type DatasetTabData = {
+	tabId: string;
+	datasetId: string;
+};
+
 export type EditorTabDataMap = {
 	profile: ProfileTabData;
 	upload: UploadTabData;
+	dataset: DatasetTabData;
 };
 
 export type EditorTabType = keyof EditorTabDataMap;

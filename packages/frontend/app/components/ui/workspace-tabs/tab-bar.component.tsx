@@ -1,6 +1,7 @@
 import { useEditorStore } from "~/stores/editor.store";
 import type { EditorTab } from "~/utils/types/editor.types";
 import { NewTabButton } from "./new-tab-button.component";
+import { DatasetTabItem } from "./tabs/dataset-tab.component";
 import { ProfileTabItem } from "./tabs/profile-tab.component";
 import { SystemTabItem } from "./tabs/system-tab.component";
 
@@ -13,7 +14,7 @@ export function TabBar() {
 	const handleTabClick = (tab: EditorTab) => {
 		setActiveTab(tab.id);
 
-		if (tab.type === "profile") {
+		if (tab.type === "profile" || tab.type === "dataset") {
 			setActiveTab(tab.id);
 			return;
 		}
@@ -33,6 +34,17 @@ export function TabBar() {
 				if (tab.type === "upload") {
 					return (
 						<SystemTabItem
+							key={tab.id}
+							tab={tab.data}
+							onClick={() => handleTabClick(tab)}
+							onClose={() => handleTabClose(tab)}
+						/>
+					);
+				}
+
+				if (tab.type === "dataset") {
+					return (
+						<DatasetTabItem
 							key={tab.id}
 							tab={tab.data}
 							onClick={() => handleTabClick(tab)}
