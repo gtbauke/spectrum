@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 
 import aio_pika
 
@@ -25,6 +26,7 @@ async def main() -> None:
     setup_logging()
 
     settings = Settings()
+    worker_type = os.getenv("WORKER_TYPE", "all").lower()
 
     logger.info("Connecting to RabbitMQ at %s...", settings.RABBITMQ_URL)
 
@@ -56,32 +58,43 @@ async def main() -> None:
             broker=broker,
         )
 
-        training_consumer = AioPikaConsumer(
-            channel=channel,
-            exchange_name=MAIN_EXCHANGE_NAME,
-            queue_name=WORKER_QUEUE_NAME,
-            handlers=[run_created_handler],
-        )
+        tasks = []
 
-        inference_consumer = AioPikaConsumer(
-            channel=channel,
-            exchange_name=MAIN_EXCHANGE_NAME,
-            queue_name=INFERENCE_QUEUE_NAME,
-            handlers=[inference_handler],
-        )
+        if worker_type in ("all", "training"):
+            logger.info("Registering training consumer...")
+            training_consumer = AioPikaConsumer(
+                channel=channel,
+                exchange_name=MAIN_EXCHANGE_NAME,
+                queue_name=WORKER_QUEUE_NAME,
+                handlers=[run_created_handler],
+            )
+            tasks.append(training_consumer.start())
 
-        validation_consumer = AioPikaConsumer(
-            channel=channel,
-            exchange_name=MAIN_EXCHANGE_NAME,
-            queue_name=VALIDATION_QUEUE_NAME,
-            handlers=[run_finished_handler],
-        )
+        if worker_type in ("all", "inference", "iql"):
+            logger.info("Registering inference (IQL) consumer...")
+            inference_consumer = AioPikaConsumer(
+                channel=channel,
+                exchange_name=MAIN_EXCHANGE_NAME,
+                queue_name=INFERENCE_QUEUE_NAME,
+                handlers=[inference_handler],
+            )
+            tasks.append(inference_consumer.start())
 
-        await asyncio.gather(
-            training_consumer.start(),
-            validation_consumer.start(),
-            inference_consumer.start()
-        )
+        if worker_type in ("all", "validation", "verification"):
+            logger.info("Registering validation (verification) consumer...")
+            validation_consumer = AioPikaConsumer(
+                channel=channel,
+                exchange_name=MAIN_EXCHANGE_NAME,
+                queue_name=VALIDATION_QUEUE_NAME,
+                handlers=[run_finished_handler],
+            )
+            tasks.append(validation_consumer.start())
+
+        if not tasks:
+            logger.error("No consumers matched WORKER_TYPE='%s'. Exiting.", worker_type)
+            return
+
+        await asyncio.gather(*tasks)
 
         logger.info("Worker is running. Press Ctrl+C to exit.")
 
