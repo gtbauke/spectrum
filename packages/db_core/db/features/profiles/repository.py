@@ -114,3 +114,9 @@ class SqlAlchemyProfilesRepository(
     ) -> Sequence[Profile]:
         query = self._build_query(filter=filter)
         return await self._list_all_query(query=query)
+
+    async def list_recent(self, filter: ProfileFilter | None = None, max: int = 5) -> Sequence[Profile]:
+        query = self._build_query(filter=filter)
+        query = query.order_by(self._model_class.updated_at.desc()).limit(max)
+
+        return await self._list_all_query(query=query)

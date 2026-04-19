@@ -8,9 +8,34 @@ import { cn } from "~/utils/classname.util";
 type ProfileItemProps = {
 	profile: ProfileSummary;
 	active?: boolean;
+	lastUpdated?: Date | null;
 };
 
-export function ProfileItem({ profile, active = false }: ProfileItemProps) {
+function formatRelativeTime(lastUpdatedDate: Date) {
+	const now = new Date();
+	const diffInSeconds = Math.floor(
+		(now.getTime() - lastUpdatedDate.getTime()) / 1000,
+	);
+
+	if (diffInSeconds < 60) {
+		return `${diffInSeconds} seconds ago`;
+	} else if (diffInSeconds < 3600) {
+		const minutes = Math.floor(diffInSeconds / 60);
+		return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+	} else if (diffInSeconds < 86400) {
+		const hours = Math.floor(diffInSeconds / 3600);
+		return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+	}
+
+	const days = Math.floor(diffInSeconds / 86400);
+	return `${days} day${days > 1 ? "s" : ""} ago`;
+}
+
+export function ProfileItem({
+	profile,
+	active = false,
+	lastUpdated = null,
+}: ProfileItemProps) {
 	const openTab = useEditorStore((s) => s.openTab);
 	const { mutate: deleteProfile } = useProfileDeleteMutation();
 
@@ -79,12 +104,18 @@ export function ProfileItem({ profile, active = false }: ProfileItemProps) {
 					</div>
 				</div>
 
-				<IconButton
-					Icon={Trash}
-					variant="sm"
-					className="opacity-0 group-hover:opacity-100 p-1 text-gray-500 hover:bg-red-500/10 hover:text-red-500 transition-colors cursor-pointer rounded"
-					onClick={handleDeleteClick}
-				/>
+				{lastUpdated ? (
+					<span className="text-xs text-gray-500">
+						{formatRelativeTime(lastUpdated)}
+					</span>
+				) : (
+					<IconButton
+						Icon={Trash}
+						variant="sm"
+						className="opacity-0 group-hover:opacity-100 p-1 text-gray-500 hover:bg-red-500/10 hover:text-red-500 transition-colors cursor-pointer rounded"
+						onClick={handleDeleteClick}
+					/>
+				)}
 			</div>
 		</div>
 	);

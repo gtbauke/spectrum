@@ -189,6 +189,25 @@ async def get_profiles_summary(
 
 
 @profiles_router.get(
+    path="/recent",
+    response_model=list[Profile],
+)
+async def get_latest_profile(
+    uow: UnitOfWork = Depends(get_uow),
+    user_id: UUID = Depends(get_current_user)
+):
+    filter = ProfileFilter(
+        owner_id=UUIDFilter(eq=user_id),
+    )
+
+    profiles = await uow.profiles.list_recent(
+        filter=filter,
+    )
+
+    return profiles
+
+
+@profiles_router.get(
     path="/{profile_id}",
     response_model=Profile,
     dependencies=[Depends(get_current_user)]

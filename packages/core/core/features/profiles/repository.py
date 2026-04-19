@@ -1,3 +1,5 @@
+from typing import Sequence
+
 from core.common.repositories.base.mutable import IMutableRepository
 
 from core.features.profiles.profile import Profile
@@ -5,4 +7,5 @@ from core.features.profiles.where import ProfileWhere, ProfileFilter
 
 
 class IProfilesRepository(IMutableRepository[Profile, ProfileWhere, ProfileFilter]):
-    pass
+    async def list_recent(self, filter: ProfileFilter |
+                          None = None, max: int = 5) -> Sequence[Profile]: ...
