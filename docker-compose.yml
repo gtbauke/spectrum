@@ -58,7 +58,9 @@ services:
         environment:
             - POSTGRES_HOST=postgres
             - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-spectrum}
+            - FILE_STORAGE_SPECTRUM_DATA_PATH=/app/spectrum_data
             - UV_COMPILE_BYTECODE=0
+            - PYTHONDONTWRITEBYTECODE=1
 
     backend:
         build:
@@ -80,14 +82,17 @@ services:
             - RABBITMQ_HOST=rabbitmq
             - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-spectrum}
             - RABBITMQ_URL=amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/
+            - FILE_STORAGE_SPECTRUM_DATA_PATH=/app/spectrum_data
             - UV_COMPILE_BYTECODE=0
+            - PYTHONDONTWRITEBYTECODE=1
         volumes:
             - ./packages/backend:/app/packages/backend
             - ./packages/core:/app/packages/core
             - ./packages/db_core:/app/packages/db_core
             - ./packages/inference_query_language:/app/packages/inference_query_language
             - ./spectrum_data:/app/spectrum_data
-        command: ["uv", "run", "--package", "backend", "fastapi", "dev", "packages/backend/app/main.py", "--host", "0.0.0.0", "--port", "8000"]
+        working_dir: /app/packages/backend
+        command: ["uv", "run", "fastapi", "dev", "app/main.py", "--host", "0.0.0.0", "--port", "8000"]
 
     worker-training:
         build:
@@ -108,13 +113,16 @@ services:
             - RABBITMQ_HOST=rabbitmq
             - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-spectrum}
             - RABBITMQ_URL=amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/
+            - FILE_STORAGE_SPECTRUM_DATA_PATH=/app/spectrum_data
             - UV_COMPILE_BYTECODE=0
+            - PYTHONDONTWRITEBYTECODE=1
         volumes:
             - ./packages/workers:/app/packages/workers
             - ./packages/core:/app/packages/core
             - ./packages/db_core:/app/packages/db_core
             - ./spectrum_data:/app/spectrum_data
-        command: ["uv", "run", "--package", "workers", "python", "packages/workers/main.py"]
+        working_dir: /app/packages/workers
+        command: ["uv", "run", "python", "main.py"]
 
     worker-verification:
         build:
@@ -135,13 +143,16 @@ services:
             - RABBITMQ_HOST=rabbitmq
             - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-spectrum}
             - RABBITMQ_URL=amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/
+            - FILE_STORAGE_SPECTRUM_DATA_PATH=/app/spectrum_data
             - UV_COMPILE_BYTECODE=0
+            - PYTHONDONTWRITEBYTECODE=1
         volumes:
             - ./packages/workers:/app/packages/workers
             - ./packages/core:/app/packages/core
             - ./packages/db_core:/app/packages/db_core
             - ./spectrum_data:/app/spectrum_data
-        command: ["uv", "run", "--package", "workers", "python", "packages/workers/main.py"]
+        working_dir: /app/packages/workers
+        command: ["uv", "run", "python", "main.py"]
 
     worker-iql:
         build:
@@ -162,14 +173,17 @@ services:
             - RABBITMQ_HOST=rabbitmq
             - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-spectrum}
             - RABBITMQ_URL=amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/
+            - FILE_STORAGE_SPECTRUM_DATA_PATH=/app/spectrum_data
             - UV_COMPILE_BYTECODE=0
+            - PYTHONDONTWRITEBYTECODE=1
         volumes:
             - ./packages/workers:/app/packages/workers
             - ./packages/core:/app/packages/core
             - ./packages/db_core:/app/packages/db_core
             - ./packages/inference_query_language:/app/packages/inference_query_language
             - ./spectrum_data:/app/spectrum_data
-        command: ["uv", "run", "--package", "workers", "python", "packages/workers/main.py"]
+        working_dir: /app/packages/workers
+        command: ["uv", "run", "python", "main.py"]
 
     frontend:
         build:
