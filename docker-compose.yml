@@ -111,7 +111,7 @@ services:
             - ./packages/core:/app/packages/core
             - ./packages/db_core:/app/packages/db_core
             - ./spectrum_data:/app/spectrum_data
-        command: ["python", "packages/workers/main.py"]
+        command: ["uv", "run", "python", "packages/workers/main.py"]
 
     worker-verification:
         build:
@@ -137,7 +137,7 @@ services:
             - ./packages/core:/app/packages/core
             - ./packages/db_core:/app/packages/db_core
             - ./spectrum_data:/app/spectrum_data
-        command: ["python", "packages/workers/main.py"]
+        command: ["uv", "run", "python", "packages/workers/main.py"]
 
     worker-iql:
         build:
@@ -164,7 +164,7 @@ services:
             - ./packages/db_core:/app/packages/db_core
             - ./packages/inference_query_language:/app/packages/inference_query_language
             - ./spectrum_data:/app/spectrum_data
-        command: ["python", "packages/workers/main.py"]
+        command: ["uv", "run", "python", "packages/workers/main.py"]
 
     frontend:
         build:
