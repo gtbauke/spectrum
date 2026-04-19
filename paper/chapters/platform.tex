@@ -56,9 +56,254 @@ O back-end do projeto foi desenvolvido seguindo o padrão monólito modularizado
     \item \textbf{Inference Result}: Representa os resultados de uma consulta IQL.
 \end{itemize}
 
-\begin{figure}
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.8\textwidth]{images/entity_diagram.png}
+%     \caption{Diagrama de entidades do sistema}
+%     \label{fig:entity_diagram}
+% \end{figure}
+\begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/entity_diagram.png}
+    \resizebox{\textwidth}{!}{%
+    \begin{tikzpicture}[
+        table/.style={
+            draw=black,
+            thick,
+            rectangle split,
+            rectangle split parts=2,
+            rectangle split part fill={gray!20, white},
+            align=left,
+            font=\sffamily\footnotesize,
+            rounded corners=2pt
+        },
+        relation/.style={->, >=stealth, thick, draw=gray!70}
+    ]
+
+    % --------------------------------------------------------
+    % 1. DEFINE THE TABLES (NODES)
+    % --------------------------------------------------------
+
+    \node[table] (users) {
+        \textbf{users}
+        \nodepart{two}
+        \pk{id} (uuid) PK\\
+        first\_name (varchar)\\
+        last\_name (varchar)\\
+        email (varchar)\\
+        password\_hash (varchar)\\
+        deleted\_at (timestamp)\\
+        created\_at (timestamp)\\
+        updated\_at (timestamp)
+    };
+
+    \node[table, below=1cm of users] (refresh_tokens) {
+        \textbf{refresh\_tokens}
+        \nodepart{two}
+        \pk{id} (uuid) PK\\
+        \fk{user\_id} (uuid) FK\\
+        token\_hash (varchar)\\
+        expires\_at (timestamp)\\
+        revoked (boolean)\\
+        created\_at (timestamp)\\
+        updated\_at (timestamp)
+    };
+
+    \node[table, right=2.5cm of users] (datasets) {
+        \textbf{datasets}
+        \nodepart{two}
+        \pk{id} (uuid) PK\\
+        \fk{owner\_id} (uuid) FK\\
+        name (varchar)\\
+        description (varchar)\\
+        deleted\_at (timestamp)\\
+        created\_at (timestamp)\\
+        updated\_at (timestamp)\\
+        visibility (datasetvisibility)
+    };
+
+    \node[table, right=1.5cm of datasets] (artifacts) {
+        \textbf{artifacts}
+        \nodepart{two}
+        \pk{id} (uuid) PK\\
+        \fk{dataset\_id} (uuid) FK\\
+        checksum (varchar)\\
+        size\_in\_bytes (integer)\\
+        path (varchar)\\
+        role (artifactrole)\\
+        timestamp (timestamp)
+    };
+
+    \node[table, right=2cm of artifacts] (profiles) {
+        \textbf{profiles}
+        \nodepart{two}
+        \pk{id} (uuid) PK\\
+        \fk{owner\_id} (uuid) FK\\
+        name (varchar)\\
+        description (varchar)\\
+        mode (profilemode)\\
+        deleted\_at (timestamp)\\
+        created\_at (timestamp)\\
+        updated\_at (timestamp)
+    };
+
+    \node[table, right=1cm of profiles] (profiles_datasets) {
+        \textbf{profiles\_datasets}
+        \nodepart{two}
+        \pk{id} (uuid) PK\\
+        \fk{profile\_id} (uuid) FK\\
+        \fk{dataset\_id} (uuid) FK\\
+        timestamp (timestamp)
+    };
+
+    \node[table, below=2cm of profiles] (jobs) {
+        \textbf{jobs}
+        \nodepart{two}
+        \pk{id} (uuid) PK\\
+        \fk{profile\_id} (uuid) FK\\
+        \fk{runs\_against} (uuid) FK\\
+        name (varchar)\\
+        generations (integer)\\
+        population (integer)\\
+        max\_size (integer)\\
+        number\_of\_tournaments (integer)\\
+        crossover\_probability (double)\\
+        mutation\_probability (double)\\
+        non\_terminals (varchar)\\
+        loss (lossfunction)\\
+        optimization\_iteration (integer)\\
+        optimization\_repeat (integer)\\
+        max\_param\_count (integer)\\
+        split (integer)\\
+        simplify (boolean)\\
+        created\_at (timestamp)\\
+        updated\_at (timestamp)
+    };
+
+    \node[table, below=1cm of jobs] (runs) {
+        \textbf{runs}
+        \nodepart{two}
+        \pk{id} (uuid) PK\\
+        \pk{version} (integer) PK\\
+        \fk{job\_id} (uuid) FK\\
+        status (jobrunstatus)\\
+        started\_at (timestamp)\\
+        finished\_at (timestamp)\\
+        is\_latest (boolean)\\
+        timestamp (timestamp)
+    };
+
+    \node[table, left=3.5cm of jobs] (blocks) {
+        \textbf{blocks}
+        \nodepart{two}
+        \pk{id} (uuid) PK\\
+        \fk{profile\_id} (uuid) FK\\
+        kind (blockkind)\\
+        order\_index (integer)\\
+        data (jsonb)\\
+        created\_at (timestamp)\\
+        updated\_at (timestamp)
+    };
+
+    \node[table, below=1cm of blocks] (inference_runs) {
+        \textbf{inference\_runs}
+        \nodepart{two}
+        \pk{id} (uuid) PK\\
+        \pk{version} (integer) PK\\
+        \fk{block\_id} (uuid) FK\\
+        \fk{profile\_id} (uuid) FK\\
+        query (varchar)\\
+        status (inferencerunstatus)\\
+        execution\_time\_ms (integer)\\
+        error (varchar)\\
+        is\_latest (boolean)\\
+        timestamp (timestamp)
+    };
+
+    \node[table, left=1cm of inference_runs] (models) {
+        \textbf{models}
+        \nodepart{two}
+        \pk{id} (uuid) PK\\
+        \fk{profile\_id} (uuid) FK\\
+        \fk{generated\_by} (uuid) FK\\
+        name (varchar)\\
+        path (varchar)\\
+        deleted\_at (timestamp)\\
+        created\_at (timestamp)\\
+        updated\_at (timestamp)\\
+        validation\_path (varchar)\\
+        metrics (jsonb)
+    };
+
+    \node[table, below=3.5cm of refresh_tokens] (inference_results) {
+        \textbf{inference\_results}
+        \nodepart{two}
+        \pk{id} (uuid) PK\\
+        \fk{run\_id} (uuid) FK\\
+        \fk{run\_version} (integer) FK\\
+        expression (varchar)\\
+        dl (double)\\
+        fitness (double)\\
+        latex (varchar)\\
+        numpy (varchar)\\
+        parameters (jsonb)\\
+        size (integer)\\
+        timestamp (timestamp)
+    };
+
+
+    % --------------------------------------------------------
+% 2. DRAW THE RELATIONSHIPS (EDGES)
+% --------------------------------------------------------
+\begin{scope}[on background layer]
+
+    % refresh_tokens -> users (Straight up)
+    \draw[relation] (refresh_tokens.north) -- node[left, font=\tiny, text=gray] {user\_id:id} (users.south);
+
+    % datasets -> users (Straight left)
+    \draw[relation] (datasets.west) -- node[below, font=\tiny, text=gray] {owner\_id:id} (users.east);
+
+    % profiles -> users (Route over the top to avoid cutting through datasets/artifacts)
+    \draw[relation] (profiles.north) |- +(0, 0.8) -| node[near start, above, font=\tiny, text=gray] {owner\_id:id} (users.north);
+
+    % artifacts -> datasets (Straight left)
+    \draw[relation] (artifacts.west) -- node[below, font=\tiny, text=gray] {dataset\_id:id} (datasets.east);
+
+    % profiles_datasets -> profiles (Straight left)
+    \draw[relation] (profiles_datasets.west) -- node[below, font=\tiny, text=gray] {profile\_id:id} (profiles.east);
+
+    % profiles_datasets -> datasets (Route high over the top)
+    \draw[relation] (profiles_datasets.north) |- +(0, 1.2) -| node[near start, above, font=\tiny, text=gray] {dataset\_id:id} (datasets.north);
+
+    % jobs -> profiles (Straight up)
+    \draw[relation] (jobs.north) -- node[right, font=\tiny, text=gray] {profile\_id:id} (profiles.south);
+
+    % jobs -> datasets (Route out the right, up, and over to the left to avoid middle clutter)
+    \draw[relation] (jobs.east) -| +(1.5, 0) |- node[near end, above, font=\tiny, text=gray] {runs\_against:id} (datasets.east);
+
+    % runs -> jobs (Straight up)
+    \draw[relation] (runs.north) -- node[right, font=\tiny, text=gray] {job\_id:id} (jobs.south);
+
+    % blocks -> profiles (Route up and right)
+    \draw[relation] (blocks.north) |- +(0, 0.8) -| node[near start, above, font=\tiny, text=gray] {profile\_id:id} (profiles.south west);
+
+    % inference_runs -> blocks (Straight up)
+    \draw[relation] (inference_runs.north) -- node[left, font=\tiny, text=gray] {block\_id:id} (blocks.south);
+
+    % inference_runs -> profiles (Route out right, up, and to the east side of profiles)
+    \draw[relation] (inference_runs.east) -| +(3.5, 0) |- node[near start, below right, font=\tiny, text=gray] {profile\_id:id} (profiles.east);
+
+    % models -> profiles (Route up and right)
+    \draw[relation] (models.north) |- +(0, 1) -| node[near start, above, font=\tiny, text=gray] {profile\_id:id} (profiles.west);
+
+    % models -> jobs (Route out bottom, across right, up to jobs bottom)
+    \draw[relation] (models.south) -- +(0,-0.8) -| node[near start, below, font=\tiny, text=gray] {generated\_by:id} (jobs.south);
+
+    % inference_results -> inference_runs (Straight right)
+    \draw[relation] (inference_results.east) -- node[above, font=\tiny, text=gray] {run\_id, run\_version:id, version} (inference_runs.west);
+
+\end{scope}
+    \end{tikzpicture}%
+    }
     \caption{Diagrama de entidades do sistema}
     \label{fig:entity_diagram}
 \end{figure}
