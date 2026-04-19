@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { create } from "zustand";
 import type { Profile } from "~/schemas/domain/profile.schema";
@@ -38,6 +39,10 @@ type UpdateActionOptions = {
 
 type EditorActions = {
 	openTab: (tab: EditorTab) => void;
+
+	openUploadTab: () => void;
+	openProfileTab: (profileId: string) => void;
+
 	closeTab: (id: string) => void;
 	updateTab: <T extends EditorTabType>(
 		id: string,
@@ -94,6 +99,50 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 				pastTabs: newPastTabs,
 			};
 		}),
+
+	openUploadTab: () => {
+		const datasetId = crypto.randomUUID();
+
+		get().openTab({
+			type: "upload",
+			id: datasetId,
+			data: {
+				file: null,
+				name: "New Dataset",
+				tabId: datasetId,
+			},
+		});
+	},
+
+	openProfileTab: (profileId) => {
+		get().openTab({
+			type: "profile",
+			id: profileId,
+			data: {
+				tabId: profileId,
+				profileId,
+				versionId: profileId,
+				blocks: [],
+				past: [],
+				future: [],
+				isDirty: true,
+				activeBlockId: null,
+				profile: {
+					id: profileId,
+					name: "Untitled Profile",
+					description: "",
+					ownerId: "",
+					mode: "draft",
+					datasets: [],
+					jobs: [],
+					models: [],
+					blocks: [],
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
+			},
+		});
+	},
 
 	closeTab: (id) =>
 		set((state) => {
