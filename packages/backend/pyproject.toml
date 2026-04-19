@@ -27,8 +27,8 @@ dependencies = [
     "python-jose[cryptography]>=3.5.0",
 ]
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "pytest",
     "pytest-asyncio",
     "httpx",

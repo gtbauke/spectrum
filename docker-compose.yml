@@ -58,6 +58,7 @@ services:
         environment:
             - POSTGRES_HOST=postgres
             - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-spectrum}
+            - UV_COMPILE_BYTECODE=0
 
     backend:
         build:
@@ -79,6 +80,7 @@ services:
             - RABBITMQ_HOST=rabbitmq
             - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-spectrum}
             - RABBITMQ_URL=amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/
+            - UV_COMPILE_BYTECODE=0
         volumes:
             - ./packages/backend:/app/packages/backend
             - ./packages/core:/app/packages/core
@@ -106,12 +108,13 @@ services:
             - RABBITMQ_HOST=rabbitmq
             - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-spectrum}
             - RABBITMQ_URL=amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/
+            - UV_COMPILE_BYTECODE=0
         volumes:
             - ./packages/workers:/app/packages/workers
             - ./packages/core:/app/packages/core
             - ./packages/db_core:/app/packages/db_core
             - ./spectrum_data:/app/spectrum_data
-        command: ["uv", "run", "python", "packages/workers/main.py"]
+        command: ["uv", "run", "--package", "workers", "python", "packages/workers/main.py"]
 
     worker-verification:
         build:
@@ -132,12 +135,13 @@ services:
             - RABBITMQ_HOST=rabbitmq
             - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-spectrum}
             - RABBITMQ_URL=amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/
+            - UV_COMPILE_BYTECODE=0
         volumes:
             - ./packages/workers:/app/packages/workers
             - ./packages/core:/app/packages/core
             - ./packages/db_core:/app/packages/db_core
             - ./spectrum_data:/app/spectrum_data
-        command: ["uv", "run", "python", "packages/workers/main.py"]
+        command: ["uv", "run", "--package", "workers", "python", "packages/workers/main.py"]
 
     worker-iql:
         build:
@@ -158,13 +162,14 @@ services:
             - RABBITMQ_HOST=rabbitmq
             - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-spectrum}
             - RABBITMQ_URL=amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/
+            - UV_COMPILE_BYTECODE=0
         volumes:
             - ./packages/workers:/app/packages/workers
             - ./packages/core:/app/packages/core
             - ./packages/db_core:/app/packages/db_core
             - ./packages/inference_query_language:/app/packages/inference_query_language
             - ./spectrum_data:/app/spectrum_data
-        command: ["uv", "run", "python", "packages/workers/main.py"]
+        command: ["uv", "run", "--package", "workers", "python", "packages/workers/main.py"]
 
     frontend:
         build:
