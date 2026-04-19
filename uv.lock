@@ -576,6 +576,7 @@ name = "core"
 version = "0.1.0"
 source = { editable = "packages/core" }
 dependencies = [
+    { name = "email-validator" },
     { name = "inference-query-language" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
@@ -586,6 +587,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "email-validator", specifier = ">=2.2.0" },
     { name = "inference-query-language", editable = "packages/inference_query_language" },
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "pydantic-settings", specifier = ">=2.12.0" },
@@ -662,13 +664,17 @@ version = "0.1.0"
 source = { editable = "packages/db_core" }
 dependencies = [
     { name = "alembic" },
+    { name = "asyncpg" },
     { name = "core" },
+    { name = "sqlalchemy" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "alembic", specifier = ">=1.18.3" },
+    { name = "asyncpg", specifier = ">=0.31.0" },
     { name = "core", editable = "packages/core" },
+    { name = "sqlalchemy", specifier = ">=2.0.46" },
 ]
 
 [[package]]
