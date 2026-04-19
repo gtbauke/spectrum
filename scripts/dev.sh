@@ -4,7 +4,7 @@ set -e
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 ENV_FILE="$ROOT_DIR/.env"
 
-echo "Starting Spectrum (local development)..."
+echo "🚀 Starting Spectrum (Docker Development Mode)..."
 echo "Project Root: $ROOT_DIR"
 
 if [ ! -f "$ENV_FILE" ]; then
@@ -12,135 +12,28 @@ if [ ! -f "$ENV_FILE" ]; then
   exit 1
 fi
 
-echo "Loading environment variables from $ENV_FILE..."
-set -o allexport
-source "$ENV_FILE"
-set +o allexport
-
-REQUIRED_VARS=(
-    DATABASE_URL
-    RABBITMQ_USER
-    RABBITMQ_PASSWORD
-    RABBITMQ_HOST
-    RABBITMQ_PORT
-)
-
-for var in "${REQUIRED_VARS[@]}"; do
-  if [ -z "${!var}" ]; then
-    echo "Error: Environment variable '$var' is not set. Please check your .env file."
-    exit 1
-  fi
-done
-
-if ! command -v uv > /dev/null 2>&1; then
-  echo "Error: 'uv' command not found. Please install uv with: `pip install uv`"
-  exit 1
-fi
-
+# Cleanup on exit
 cleanup() {
     echo ""
-    echo "Shutting down Spectrum..."
+    echo "🛑 Shutting down Spectrum..."
     docker compose down
-    kill $(jobs -p) 2>/dev/null || true
-    clear
     exit 0
 }
 
 trap cleanup SIGINT SIGTERM
 
-if nc -z localhost 5432 2>/dev/null; then
-    echo "⚠️  Local Postgres detected on port 5432"
-
-    if command -v systemctl > /dev/null; then
-        echo "🛑 Stopping Postgres via systemctl"
-        sudo systemctl stop postgresql || true
-        sudo systemctl stop postgresql@* || true
-    else
-        echo "⚠️  systemctl not found, skipping Postgres stop"
-    fi
-else
-    echo "✅ No local Postgres running"
-fi
-
-if nc -z localhost 5672 2>/dev/null; then
-    echo "⚠️  Local RabbitMQ detected on port 5672"
-
-    if command -v systemctl > /dev/null; then
-        echo "🛑 Stopping RabbitMQ via systemctl"
-        sudo systemctl stop rabbitmq-server || true
-    else
-        echo "⚠️  systemctl not found, skipping RabbitMQ stop"
-    fi
-else
-    echo "✅ No local RabbitMQ running"
-fi
-
-echo "Starting Postgres and RabbitMQ services with Docker Compose..."
-(
-    cd "$ROOT_DIR"
-    docker compose up -d
-)
-
-echo "Waiting for Postgres and RabbitMQ to be ready..."
-until docker exec spectrum-postgres pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" > /dev/null 2>&1; do
-    echo "Waiting for Postgres to be ready..."
-    sleep 1
+# Check for port conflicts
+CONFLICT_PORTS=(5432 5433 5672 15672 8000 5173)
+for port in "${CONFLICT_PORTS[@]}"; do
+  if nc -z localhost "$port" 2>/dev/null; then
+    echo "⚠️  Warning: Port $port is already in use by a local process. This might conflict with Docker."
+  fi
 done
 
-echo "Waiting for RabbitMQ to be ready..."
-until docker exec spectrum-rabbitmq rabbitmqctl status > /dev/null 2>&1; do
-    echo "Waiting for RabbitMQ to be ready..."
-    sleep 1
-done
-
-echo "Running database migrations with uv..."
-(
-    cd "$ROOT_DIR/packages/db_core"
-    uv run alembic upgrade head
-)
-
-# echo "Generating Zod schemas from domain models..."
-# (
-#     cd "$ROOT_DIR"
-#     uv sync --all-packages
-#     cd "$ROOT_DIR/packages/core"
-#     uv run python scripts/generate_zod_schemas.py
-# )
-
-echo "Starting backend server with uv..."
+echo "📦 Orchestrating services with Docker Compose..."
 (
     cd "$ROOT_DIR"
-    uv sync --all-packages
-    uv run --package backend fastapi dev packages/backend/app/main.py
-) &
-
-# echo "Starting outbox worker with uv"
-# (
-#     cd "$ROOT_DIR"
-#     uv run python packages/workers/main.py outbox_worker
-# ) &
-
-# echo "Starting dataset worker with uv..."
-# (
-#     cd "$ROOT_DIR/packages/backend"
-#     uv run python -m app.workers.orchestrators.datasets.dataset_processing_orchestrator
-# ) &
-
-echo "Starting model training worker with uv..."
-(
-    cd "$ROOT_DIR/packages/workers"
-    uv run python main.py
-) &
-
-echo "Starting frontend..."
-(
-    cd "$ROOT_DIR/packages/frontend"
-    npm install
-    npm run dev
-) &
-
-echo "All services started. Press Ctrl+C to stop."
-echo "Backend: http://localhost:8000"
-echo "Frontend: http://localhost:5173"
-
-wait
+    # Build and start services
+    # We use --build to ensure code changes are picked up if the image needs refreshing
+    docker compose up --build
+)
