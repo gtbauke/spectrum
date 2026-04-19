@@ -22,11 +22,16 @@ cleanup() {
 
 trap cleanup SIGINT SIGTERM
 
+# Extract ports from .env for conflict detection
+PG_PORT=$(grep POSTGRES_PORT "$ENV_FILE" | cut -d '=' -f2 || echo "5432")
+RMQ_PORT=$(grep RABBITMQ_PORT "$ENV_FILE" | cut -d '=' -f2 || echo "5672")
+
 # Check for port conflicts
-CONFLICT_PORTS=(5432 5433 5672 15672 8000 5173)
+CONFLICT_PORTS=("$PG_PORT" "$RMQ_PORT" 15672 8000 5173)
 for port in "${CONFLICT_PORTS[@]}"; do
   if nc -z localhost "$port" 2>/dev/null; then
-    echo "⚠️  Warning: Port $port is already in use by a local process. This might conflict with Docker."
+    echo "⚠️  Warning: Port $port is already in use by a local process. This will likely cause Docker startup failures."
+    echo "   Please stop the service running on $port or change the port in your .env file."
   fi
 done
 
@@ -34,6 +39,5 @@ echo "📦 Orchestrating services with Docker Compose..."
 (
     cd "$ROOT_DIR"
     # Build and start services
-    # We use --build to ensure code changes are picked up if the image needs refreshing
     docker compose up --build
 )
