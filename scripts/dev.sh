@@ -12,16 +12,6 @@ if [ ! -f "$ENV_FILE" ]; then
   exit 1
 fi
 
-# Cleanup on exit
-cleanup() {
-    echo ""
-    echo "🛑 Shutting down Spectrum..."
-    docker compose down
-    exit 0
-}
-
-trap cleanup SIGINT SIGTERM
-
 # Extract ports from .env for conflict detection
 PG_PORT=$(grep POSTGRES_PORT "$ENV_FILE" | cut -d '=' -f2 || echo "5432")
 RMQ_PORT=$(grep RABBITMQ_PORT "$ENV_FILE" | cut -d '=' -f2 || echo "5672")
@@ -36,8 +26,9 @@ for port in "${CONFLICT_PORTS[@]}"; do
 done
 
 echo "📦 Orchestrating services with Docker Compose..."
-(
-    cd "$ROOT_DIR"
-    # Build and start services
-    docker compose up --build
-)
+# Build and start services
+docker compose up --build || true
+
+echo ""
+echo "🛑 Shutting down Spectrum..."
+docker compose down
