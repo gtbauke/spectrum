@@ -6,16 +6,16 @@ services:
         env_file:
             - .env
         environment:
-            POSTGRES_USER: ${POSTGRES_USER}
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-            POSTGRES_DB: ${POSTGRES_DB}
+            POSTGRES_USER: ${POSTGRES_USER:-postgres}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+            POSTGRES_DB: ${POSTGRES_DB:-spectrum}
         ports:
-            - "${POSTGRES_PORT}:5432"
+            - "${POSTGRES_PORT:-5432}:5432"
         volumes:
             - spectrum_pg_data:/var/lib/postgresql/data
             - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
         healthcheck:
-            test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+            test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
             interval: 10s
             timeout: 5s
             retries: 5
@@ -27,10 +27,10 @@ services:
         env_file:
             - .env
         environment:
-            RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
-            RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+            RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+            RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
         ports:
-            - "${RABBITMQ_PORT}:5672"
+            - "${RABBITMQ_PORT:-5672}:5672"
             - "15672:15672"
         volumes:
             - spectrum_rmq_data:/var/lib/rabbitmq
@@ -40,6 +40,144 @@ services:
             interval: 10s
             timeout: 5s
             retries: 5
+
+    migration:
+        build:
+            context: .
+            target: build
+        container_name: spectrum-migration
+        command: ["uv", "run", "--package", "db-core", "alembic", "upgrade", "head"]
+        depends_on:
+            postgres:
+                condition: service_healthy
+        env_file:
+            - .env
+        environment:
+            - POSTGRES_HOST=postgres
+            - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-spectrum}
+
+    backend:
+        build:
+            context: .
+            target: build
+        container_name: spectrum-backend
+        restart: unless-stopped
+        ports:
+            - "8000:8000"
+        depends_on:
+            migration:
+                condition: service_completed_successfully
+            rabbitmq:
+                condition: service_healthy
+        env_file:
+            - .env
+        environment:
+            - POSTGRES_HOST=postgres
+            - RABBITMQ_HOST=rabbitmq
+            - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-spectrum}
+            - RABBITMQ_URL=amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/
+        volumes:
+            - ./packages/backend:/app/packages/backend
+            - ./packages/core:/app/packages/core
+            - ./packages/db_core:/app/packages/db_core
+            - ./packages/inference_query_language:/app/packages/inference_query_language
+            - ./spectrum_data:/app/spectrum_data
+        command: ["uv", "run", "--package", "backend", "fastapi", "dev", "packages/backend/app/main.py", "--host", "0.0.0.0", "--port", "8000"]
+
+    worker-training:
+        build:
+            context: .
+            target: build
+        container_name: spectrum-worker-training
+        restart: unless-stopped
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+            migration:
+                condition: service_completed_successfully
+        env_file:
+            - .env
+        environment:
+            - WORKER_TYPE=training
+            - POSTGRES_HOST=postgres
+            - RABBITMQ_HOST=rabbitmq
+            - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-spectrum}
+            - RABBITMQ_URL=amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/
+        volumes:
+            - ./packages/workers:/app/packages/workers
+            - ./packages/core:/app/packages/core
+            - ./packages/db_core:/app/packages/db_core
+            - ./spectrum_data:/app/spectrum_data
+        command: ["python", "packages/workers/main.py"]
+
+    worker-verification:
+        build:
+            context: .
+            target: build
+        container_name: spectrum-worker-verification
+        restart: unless-stopped
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+            migration:
+                condition: service_completed_successfully
+        env_file:
+            - .env
+        environment:
+            - WORKER_TYPE=verification
+            - POSTGRES_HOST=postgres
+            - RABBITMQ_HOST=rabbitmq
+            - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-spectrum}
+            - RABBITMQ_URL=amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/
+        volumes:
+            - ./packages/workers:/app/packages/workers
+            - ./packages/core:/app/packages/core
+            - ./packages/db_core:/app/packages/db_core
+            - ./spectrum_data:/app/spectrum_data
+        command: ["python", "packages/workers/main.py"]
+
+    worker-iql:
+        build:
+            context: .
+            target: build
+        container_name: spectrum-worker-iql
+        restart: unless-stopped
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+            migration:
+                condition: service_completed_successfully
+        env_file:
+            - .env
+        environment:
+            - WORKER_TYPE=iql
+            - POSTGRES_HOST=postgres
+            - RABBITMQ_HOST=rabbitmq
+            - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-spectrum}
+            - RABBITMQ_URL=amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/
+        volumes:
+            - ./packages/workers:/app/packages/workers
+            - ./packages/core:/app/packages/core
+            - ./packages/db_core:/app/packages/db_core
+            - ./packages/inference_query_language:/app/packages/inference_query_language
+            - ./spectrum_data:/app/spectrum_data
+        command: ["python", "packages/workers/main.py"]
+
+    frontend:
+        build:
+            context: ./packages/frontend
+        container_name: spectrum-frontend
+        restart: unless-stopped
+        ports:
+            - "5173:5173"
+        env_file:
+            - .env
+        environment:
+            - VITE_API_BASE_URL=http://localhost:8000/api/v1
+        volumes:
+            - ./packages/frontend:/app
+            - /app/node_modules
+        command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 
 volumes:
     spectrum_pg_data:
