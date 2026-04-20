@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, status, UploadFile, File, Form, Query
 
 from app.api.unit_of_work import get_uow
 from app.features.datasets.errors.dataset_not_found import DatasetNotFound
-from app.features.datasets.guards import can_edit_dataset
+
 
 from app.features.auth.guards.get_current_user import get_current_user
 from app.features.datasets.guards.can_edit_dataset import can_edit_dataset
@@ -20,6 +20,7 @@ from core.features.datasets.where import DatasetWhere, DatasetFilter, ArtifactFi
 from core.utils.pagination.base import Pagination
 from core.utils.filters.field_filter import UUIDFilter, StringFilter, NumberFilter, EnumFilter
 
+from app.features.datasets.dtos.update_dataset import UpdateDatasetDto
 from .artifacts import artifacts_router
 
 datasets_router = APIRouter()
@@ -177,3 +178,31 @@ async def delete_dataset(
     await uow.datasets.update(dataset)
 
     return None
+
+
+@datasets_router.put(
+    path="/{dataset_id}",
+    response_model=Dataset,
+    dependencies=[
+        Depends(can_edit_dataset)
+    ]
+)
+async def update_dataset(
+    dataset_id: UUID,
+    payload: UpdateDatasetDto,
+    uow: UnitOfWork = Depends(get_uow)
+):
+    dataset = await uow.datasets.get_unique(DatasetWhere(id=dataset_id))
+
+    if not dataset:
+        raise DatasetNotFound()
+
+    if payload.name is not None:
+        dataset.name = payload.name
+    
+    if payload.description is not None:
+        dataset.description = payload.description
+
+    await uow.datasets.update(dataset)
+
+    return dataset

@@ -46,10 +46,10 @@ export function DatasetPreviewTable({
 	});
 
 	return (
-		<div className="rounded-md border border-white/10 overflow-hidden bg-[#1e2028]">
-			<div className="overflow-x-auto custom-scrollbar">
+		<div className="h-full rounded-md border border-white/10 bg-[#1e2028] flex flex-col min-h-0">
+			<div className="flex-1 overflow-auto custom-scrollbar">
 				<table className="w-full text-sm text-left font-mono">
-					<thead className="text-xs text-gray-400 bg-black/40 uppercase sticky top-0">
+					<thead className="text-xs text-gray-400 uppercase sticky top-0 z-10 bg-[#1a1c23] shadow-md">
 						{table.getHeaderGroups().map((headerGroup) => (
 							<tr key={headerGroup.id}>
 								{headerGroup.headers.map((header) => (
