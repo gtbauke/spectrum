@@ -98,6 +98,10 @@ class QueryTokenizer:
                     return Token(TokenKind.LESS_EQUAL, "<=", Span(self._start, self._current))
 
                 return Token(TokenKind.LESS, current, Span(self._start, self._current))
+            case "(":
+                return Token(TokenKind.LEFT_PAREN, current, Span(self._start, self._current))
+            case ")":
+                return Token(TokenKind.RIGHT_PAREN, current, Span(self._start, self._current))
             case ",":
                 return Token(TokenKind.COMMA, current, Span(self._start, self._current))
             case ";":

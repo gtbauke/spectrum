@@ -24,6 +24,10 @@ class InferenceResult(BaseImmutableDomainModel):
     size: Optional[int] = Field(None, description="Size of the expression")
     frequency: Optional[int] = Field(
         None, description="Frequency of the pattern/expression")
+    prediction: Optional[list[float]] = Field(
+        None, description="Prediction output array")
+    egraph_id: Optional[str] = Field(
+        None, description="The internal egraph ID referencing this expression")
 
     @classmethod
     def new(
@@ -38,6 +42,8 @@ class InferenceResult(BaseImmutableDomainModel):
         parameters: Optional[dict[str, float]] = None,
         size: Optional[int] = None,
         frequency: Optional[int] = None,
+        prediction: Optional[list[float]] = None,
+        egraph_id: Optional[str] = None,
     ):
         return cls(
             run_id=run_id,
@@ -50,4 +56,6 @@ class InferenceResult(BaseImmutableDomainModel):
             parameters=parameters,
             size=size,
             frequency=frequency,
+            prediction=prediction,
+            egraph_id=egraph_id,
         )

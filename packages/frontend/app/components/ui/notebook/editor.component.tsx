@@ -25,8 +25,6 @@ export function ProfileEditor({ tabId }: ProfileEditorProps) {
 		tab?.type === "profile" ? tab.data.profileId : null,
 	);
 
-	console.log("Rendering ProfileEditor with profile:", profile);
-
 	useEffect(() => {
 		if (
 			profile &&

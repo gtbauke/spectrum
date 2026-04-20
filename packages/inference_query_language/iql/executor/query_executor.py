@@ -23,6 +23,7 @@ from iql.parser.ast.top_n import ParetoAstNode, TopNAstNode
 from iql.parser.ast.number import IntegerLiteralAstNode, NumericLiteralAstNode
 from iql.parser.ast.binary_expression import BinaryExpression
 from iql.utils.result import InferenceResultList, InferenceResult
+from iql.parser.ast.predict_clause import PredictClauseAstNode
 
 
 logger = logging.getLogger(__name__)
@@ -40,9 +41,11 @@ class QueryExecutor:
         "size",
         "pattern",
         "frequency",
+        "prediction",
     )
 
     _ACCEPTED_WHERE_LITERALS = (
+        "id",
         "size",
         "parameters",
         "cost",
@@ -227,8 +230,10 @@ class QueryExecutor:
             raise RootExpressionShouldBeSelectClauseError()
 
         for column in self._root_node.columns():
-            if column.name().lower() not in self._QUERYABLE_LITERALS:
-                raise ColumnIsNotSelectableError(column.name())
+            col_name = "prediction" if isinstance(
+                column, PredictClauseAstNode) else column.name().lower()
+            if col_name not in self._QUERYABLE_LITERALS:
+                raise ColumnIsNotSelectableError(col_name)
 
         model_identifier = self._root_node.from_clause().identifier()
 
@@ -259,7 +264,10 @@ class QueryExecutor:
         else:
             raise InvalidFromSourceError(type(modifier))
 
-        subset = [column.name().lower()
+        predict_clauses = [col for col in self._root_node.columns(
+        ) if isinstance(col, PredictClauseAstNode)]
+
+        subset = ["prediction" if isinstance(column, PredictClauseAstNode) else column.name().lower()
                   for column in self._root_node.columns()]
 
         logger.info(f"Raw result columns: {result.columns.tolist()}")
@@ -277,6 +285,32 @@ class QueryExecutor:
         if "AvgFit" in result.columns:
             result = result.rename(columns={"AvgFit": "fitness"})
             subset = ["fitness" if c == "avgfit" else c for c in subset]
+
+        if "Id" in result.columns:
+            result = result.rename(columns={"Id": "egraph_id"})
+            subset = ["egraph_id" if c == "id" else c for c in subset]
+            # Force inclusion of egraph_id for predictability across backend lookups
+            if "egraph_id" not in subset:
+                subset.append("egraph_id")
+
+        if predict_clauses:
+            from core.features.profiles.blocks.inference.prediction_service import PredictionEvaluationService
+            service = PredictionEvaluationService()
+
+            # Use the first PREDICT clause
+            predict_clause = predict_clauses[0]
+            variables = {m.variable.name(): [m.value.value()]
+                         for m in predict_clause.mappings}
+
+            predictions = []
+            for _, row in result.iterrows():
+                expr = row.get("expression", row.get(
+                    "Pattern", row.get("Numpy", "")))
+                params = row.get("parameters", row.get("Parameters", "[]"))
+                pred = service.evaluate_expression(expr, variables, params)
+                predictions.append(pred.tolist())
+
+            result["prediction"] = predictions
 
         mask = result.columns.str.contains("|".join(subset), case=False)
 

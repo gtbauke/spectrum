@@ -5,6 +5,7 @@ from iql.parser.parselets.select_clause_parselet import SelectClauseParselet
 from iql.parser.parselets.number_parselet import NumberParselet
 from iql.parser.parselets.binary_expression_parselet import BinaryExpressionParselet
 from iql.parser.precedence import Precedence
+from iql.parser.parselets.function_call_parselet import FunctionCallParselet
 
 
 class InferenceQueryParser(QueryParser):
@@ -22,6 +23,10 @@ class InferenceQueryParser(QueryParser):
 
         self.register_prefix_parselet(
             TokenKind.PATTERN, IdentifierParselet())
+
+        self.register_prefix_parselet(
+            TokenKind.PREDICT, IdentifierParselet()
+        )
 
         self.register_infix_parselets(
             BinaryExpressionParselet(Precedence.TERM),
@@ -62,3 +67,8 @@ class InferenceQueryParser(QueryParser):
         self.register_infix_parselet(
             TokenKind.OR,
             BinaryExpressionParselet(Precedence.OR))
+
+        self.register_infix_parselet(
+            TokenKind.LEFT_PAREN,
+            FunctionCallParselet()
+        )

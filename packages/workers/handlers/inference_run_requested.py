@@ -177,6 +177,8 @@ class InferenceRunRequestedHandler(EventHandler[InferenceRunRequestedEvent]):
                                 r.parameters)) if p is not None} if r.parameters else None,
                             size=r.size,
                             frequency=r.frequency,
+                            prediction=r.prediction,
+                            egraph_id=str(r.egraph_id) if r.egraph_id is not None else None,
                         ) for r in query_result.results
                     ]
 

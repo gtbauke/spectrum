@@ -2,6 +2,7 @@ import logging
 
 from typing import Optional, Union
 
+from iql.executor.query_executor import PredictClauseAstNode
 from iql.parser.ast.pattern_matching_expression import PatternMatchingExpression
 from iql.parser.ast.top_n import ParetoAstNode, TopNAstNode
 from iql.parser.ast.number import IntegerLiteralAstNode
@@ -39,12 +40,9 @@ class SelectClauseParselet(PrefixParselet):
         self._order_by_clause_parselet = OrderByClauseParselet()
         self._pattern_matching_expression_parselet = PatternMatchingExpressionParselet()
 
-    def _parse_select_list_element(self, parser: QueryParser) -> IdentifierAstNode:
+    def _parse_select_list_element(self, parser: QueryParser) -> BaseAstNode:
         parser.consume_optional(TokenKind.COMMA)
         expression = parser.parse_expression()
-
-        if not isinstance(expression, IdentifierAstNode):
-            raise SelectClauseInvalidIdentifierError(expression)
 
         return expression
 
@@ -149,9 +147,13 @@ class SelectClauseParselet(PrefixParselet):
 
         if is_distribution:
             for result in results:
+                if not isinstance(result, IdentifierAstNode):
+                    raise SelectClauseInvalidIdentifierError(result)
+
                 if result.name().lower() not in ["pattern", "frequency", "fitness"]:
+                    name = result.name() if hasattr(result, "name") else "PREDICT"
                     raise ValueError(
-                        f"Only 'pattern', 'frequency', and 'fitness' columns are allowed in DISTRIBUTION mode, but got '{result.name()}'")
+                        f"Only 'pattern', 'frequency', and 'fitness' columns are allowed in DISTRIBUTION mode, but got '{name}'")
 
         from_clause = self._parse_from_clause(parser)
         where_clause = self._parse_where_clause(parser)
@@ -172,8 +174,17 @@ class SelectClauseParselet(PrefixParselet):
             limit.span if limit else None
         )
 
+        columns = []
+        for result in results:
+            if isinstance(result, IdentifierAstNode):
+                columns.append(result)
+            elif isinstance(result, PredictClauseAstNode):
+                columns.append(result)
+            else:
+                raise SelectClauseInvalidIdentifierError(result)
+
         return SelectClauseAstNode(
-            columns=results,
+            columns=columns,
             from_clause=from_clause,
             modifier=modifier,
             where_clause=where_clause,

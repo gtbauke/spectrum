@@ -58,6 +58,8 @@ class ValidationService:
         Returns a DataFrame where each column is the predicted values for an expression,
         identified by its stable Pareto Front ID.
         """
+        from core.features.profiles.blocks.inference.prediction_service import PredictionEvaluationService
+        
         # Load dataset using helper to ensure correct absolute path
         df = self._load_dataset(dataset_path)
 
@@ -74,74 +76,19 @@ class ValidationService:
 
         feature_cols = [c for c in df.columns if c != target_col]
         actual_y = df[target_col].values
-
-        # Prepare 2D Feature Matrix 'x' (N x D) for NumPy indexing x[:, i]
-        x_matrix = df[feature_cols].values
-
-        # Prepare results container
         results = {"actual": actual_y}
-
-        # Shared evaluation context (math and features)
-        base_context = {
-            "np": np,
-            "sin": np.sin,
-            "cos": np.cos,
-            "tan": np.tan,
-            "exp": np.exp,
-            "log": np.log,
-            "sqrt": np.sqrt,
-            "abs": np.abs,
-            "pow": np.power,
-            "x": x_matrix,
-        }
-
-        # Add x0, x1... and original feature names as fallbacks
+        
+        variables = {}
         for i, col in enumerate(feature_cols):
             val = df[col].values
-            base_context[f"x{i}"] = val
-            base_context[col] = val
+            variables[f"x{i}"] = val
+            variables[col] = val
 
+        prediction_service = PredictionEvaluationService()
+        
         for model_id, expr, p_list in zip(ids, expressions, parameters):
-            try:
-                # Decode parameters if they are strings (JSON serialized)
-                p_values = []
-                if isinstance(p_list, str):
-                    try:
-                        p_values = json.loads(p_list)
-                    except json.JSONDecodeError:
-                        logger.warning("Failed to decode parameters for model %s: %s", model_id, p_list)
-                        p_values = []
-                else:
-                    p_values = p_list
-
-                # Add parameters 't' to context for this specific model
-                eval_context = base_context.copy()
-                if isinstance(p_values, (list, np.ndarray)):
-                    eval_context["t"] = p_values
-                    # Fallback for individual t0, t1...
-                    for j, p in enumerate(p_values):
-                        eval_context[f"t{j}"] = p
-
-                # Evaluate expression
-                python_expr = expr.replace("^", "**")
-                predicted_y = eval(
-                    python_expr, {"__builtins__": {}}, eval_context)
-
-                # Handle scalar return values (constant models)
-                if isinstance(predicted_y, (int, float, np.number)):
-                    predicted_y = np.full_like(
-                        actual_y, predicted_y, dtype=float)
-
-                # Clean up values (clamping)
-                predicted_y = np.nan_to_num(
-                    predicted_y, nan=0.0, posinf=1e9, neginf=-1e9)
-
-                # Use stable Model ID as column name
-                results[f"model_{model_id}"] = predicted_y
-            except Exception as e:
-                logger.warning(
-                    "Failed to evaluate model %s expression '%s': %s", model_id, expr, e)
-                results[f"model_{model_id}"] = np.zeros_like(actual_y)
+            predicted_y = prediction_service.evaluate_expression(expr, variables, p_list)
+            results[f"model_{model_id}"] = predicted_y
 
         return pd.DataFrame(results)
 

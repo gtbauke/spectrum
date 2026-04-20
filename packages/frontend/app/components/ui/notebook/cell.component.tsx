@@ -1,5 +1,5 @@
 import { type DragControls, motion } from "framer-motion";
-import { GripVertical, MoreHorizontal, Play, Trash2 } from "lucide-react";
+import { GripVertical, MoreHorizontal, Trash2 } from "lucide-react";
 import { type BlockType, useEditorStore } from "~/stores/editor.store";
 import { cn } from "~/utils/classname.util";
 import { IconButton } from "../buttons/icon-button.component";
@@ -10,7 +10,6 @@ type NotebookCellProps = {
 	isActive: boolean;
 	children: React.ReactNode;
 	onClick: () => void;
-	onRun?: () => void;
 	isDeletable?: boolean;
 	moveable?: boolean;
 	dragControls?: DragControls;
@@ -22,7 +21,6 @@ export function NotebookCell({
 	isActive,
 	onClick,
 	children,
-	onRun,
 	isDeletable = true,
 	moveable = true,
 	dragControls,
@@ -87,17 +85,6 @@ export function NotebookCell({
 				</div>
 
 				<div className="flex items-center gap-2">
-					{onRun && (
-						<IconButton
-							Icon={Play}
-							className="p-1.5 rounded transition-colors hover:bg-emerald-500/10 text-emerald-500/60 hover:text-emerald-500"
-							title="Run cell"
-							onClick={(e) => {
-								e.stopPropagation();
-								onRun();
-							}}
-						/>
-					)}
 					{isDeletable && (
 						<IconButton
 							Icon={Trash2}

@@ -51,6 +51,8 @@ class InferenceResultMapper:
             parameters=orm.parameters,
             size=orm.size,
             frequency=orm.frequency,
+            prediction=orm.prediction,
+            egraph_id=orm.egraph_id,
         )
 
     @staticmethod
@@ -67,5 +69,7 @@ class InferenceResultMapper:
             numpy=domain.numpy,
             parameters=domain.parameters,
             size=domain.size,
-            frequency=domain.frequency
+            frequency=domain.frequency,
+            egraph_id=domain.egraph_id,
+            prediction=domain.prediction,
         )

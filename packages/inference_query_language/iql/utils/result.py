@@ -21,6 +21,10 @@ class InferenceResult(BaseModel):
                                 description="Size of the expression (number of nodes in the AST)")
     frequency: Optional[int] = Field(None,
                                      description="Frequency of the expression in the dataset")
+    prediction: Optional[list[float]] = Field(None,
+                                              description="Prediction output array from the expression")
+    egraph_id: Optional[str] = Field(None,
+                                     description="The internal egraph ID referencing this expression")
 
     model_config = {
         "extra": "allow",

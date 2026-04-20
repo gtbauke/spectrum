@@ -113,6 +113,17 @@ class InferenceResultORM(ImmutableBase):
         nullable=True
     )
 
+    egraph_id: Mapped[str] = mapped_column(
+        String,
+        index=True,
+        nullable=True
+    )
+
+    prediction: Mapped[list[float]] = mapped_column(
+        JSONB,
+        nullable=True
+    )
+
     @declared_attr.directive
     def __table_args__(cls) -> Any:
         return (

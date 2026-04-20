@@ -17,6 +17,8 @@ class TokenKind(StrEnum):
     LESS = "LESS"
     COMMA = "COMMA"
     SEMICOLON = "SEMICOLON"
+    LEFT_PAREN = "LEFT_PAREN"
+    RIGHT_PAREN = "RIGHT_PAREN"
 
     SELECT = "SELECT"
     FROM = "FROM"
@@ -36,6 +38,7 @@ class TokenKind(StrEnum):
     AT = "AT"
     LEAST = "LEAST"
     LIMIT = "LIMIT"
+    PREDICT = "PREDICT"
 
     NUMBER = "NUMBER"
     IDENTIFIER = "IDENTIFIER"
@@ -93,6 +96,8 @@ class TokenKind(StrEnum):
                 return TokenKind.LEAST
             case "LIMIT":
                 return TokenKind.LIMIT
+            case "PREDICT":
+                return TokenKind.PREDICT
             case _:
                 return TokenKind.IDENTIFIER
 

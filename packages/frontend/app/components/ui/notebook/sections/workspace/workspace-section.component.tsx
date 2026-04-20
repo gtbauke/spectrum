@@ -83,11 +83,6 @@ export function ProfileWorkspaceSection({
 								type={block.type}
 								isActive={activeBlockId === block.id}
 								onClick={() => setActiveBlock(block.id)}
-								onRun={
-									block.type === "inference"
-										? () => console.log("Run inference", block.id)
-										: undefined
-								}
 							>
 								{block.type === "inference" && (
 									<InferenceBlock

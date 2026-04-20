@@ -16,6 +16,7 @@ import {
 	Timer,
 	Zap,
 } from "lucide-react";
+import { evaluate } from "mathjs";
 import { useEffect, useMemo, useState } from "react";
 import * as katex from "react-katex";
 import { useInferenceStream } from "~/hooks/use-inference-stream.hook";
@@ -43,8 +44,6 @@ export function InferenceBlock({
 	models,
 	orderIndex,
 }: InferenceBlockProps) {
-	console.log("Rendering InferenceBlock with data:", data);
-
 	const updateBlock = useEditorStore((state) => state.updateBlock);
 	const activeTabId = useEditorStore((state) => state.activeTabId);
 	const tabs = useEditorStore((state) => state.tabs);
@@ -327,6 +326,26 @@ function ResultsTable({ results }: { results: InferenceResult[] }) {
 					);
 				},
 			}),
+			columnHelper.accessor("prediction", {
+				header: "Prediction",
+				cell: (info) => {
+					const val = info.getValue();
+					return val ? (
+						<div className="flex flex-wrap gap-1">
+							{val.map((v, i) => (
+								<span
+									key={i.toString()}
+									className="px-2 py-1 rounded-sm bg-emerald-500/20 border border-emerald-500/30 text-[10px] font-bold text-emerald-400"
+								>
+									{v.toFixed(2)}
+								</span>
+							))}
+						</div>
+					) : (
+						<span className="font-mono text-xs text-white/20">—</span>
+					);
+				},
+			}),
 		],
 		[columnHelper],
 	);
@@ -443,6 +462,95 @@ function ResultItem({
 				</div>
 				<div className="text-xl text-white/90 group-hover/result:text-white transition-colors overflow-x-auto max-w-full">
 					<katex.BlockMath math={result.latex || result.expression} />
+				</div>
+			</div>
+
+			{result.parameters && <TestVariables result={result} />}
+		</div>
+	);
+}
+
+function TestVariables({ result }: { result: InferenceResult }) {
+	const [variables, setVariables] = useState<Record<string, string>>({});
+	const [prediction, setPrediction] = useState<number | null>(null);
+
+	const varNames = useMemo(() => {
+		const match = (result.numpy || result.expression).match(/x\d+/g) || [];
+		return Array.from(new Set(match)).sort();
+	}, [result]);
+
+	useEffect(() => {
+		if (varNames.length === 0) {
+			return;
+		}
+
+		try {
+			const scope: Record<string, number> = {};
+			for (const name of varNames) {
+				scope[name] = parseFloat(variables[name] || "0");
+			}
+
+			if (result.parameters) {
+				const parameters = Object.entries(result.parameters).reduce(
+					(acc, [key, value]) => {
+						const newKey = `t${key}`;
+						acc[newKey] = value;
+
+						return acc;
+					},
+					{} as Record<string, number>,
+				);
+
+				Object.assign(scope, parameters);
+			}
+
+			const expr = result.expression.replace(/\^/g, "^");
+			const pred = evaluate(expr, scope);
+			setPrediction(pred);
+		} catch (error) {
+			console.error("Error evaluating expression:", error);
+			setPrediction(null);
+		}
+	}, [variables, varNames, result]);
+
+	if (varNames.length === 0) return null;
+
+	return (
+		<div className="flex flex-col gap-3 mt-2 border-t border-white/5 pt-4">
+			<div className="text-[10px] uppercase tracking-widest text-primary/70 font-bold flex items-center gap-1.5">
+				<Zap className="w-3 h-3" />
+				Test Input Variables
+			</div>
+			<div className="flex items-center gap-4 bg-black/20 p-3 rounded-lg border border-white/5 flex-wrap">
+				{varNames.map((name) => (
+					<div key={name} className="flex items-center gap-2">
+						<span className="text-xs font-mono font-bold text-white/50">
+							{name}
+						</span>
+						<span className="text-xs text-white/20">=</span>
+						<input
+							type="number"
+							value={variables[name] || ""}
+							onChange={(e) =>
+								setVariables((v) => ({ ...v, [name]: e.target.value }))
+							}
+							placeholder="0"
+							className="w-20 bg-white/5 border border-white/10 rounded px-2 py-1 text-xs font-mono text-white focus:outline-none focus:border-primary/50 transition-colors"
+						/>
+					</div>
+				))}
+
+				<div className="flex-1" />
+
+				<div className="flex items-center gap-3 pl-4 border-l border-white/10">
+					<span className="text-[10px] uppercase tracking-widest text-white/40 font-bold">
+						Output
+					</span>
+					<span className="text-lg font-mono font-black text-emerald-400">
+						{prediction !== null && !Number.isNaN(prediction)
+							? Number(prediction.toFixed(6))
+							: "—"}
+					</span>
 				</div>
 			</div>
 		</div>

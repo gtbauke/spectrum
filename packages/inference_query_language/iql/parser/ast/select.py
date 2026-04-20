@@ -11,10 +11,13 @@ from iql.parser.ast.where import WhereAstNode
 from iql.utils.span import Span
 
 
+from iql.parser.ast.predict_clause import PredictClauseAstNode
+
+
 class SelectClauseAstNode(BaseAstNode):
     def __init__(
         self,
-        columns: list[IdentifierAstNode],
+        columns: list[Union[IdentifierAstNode, PredictClauseAstNode]],
         span: Span,
         from_clause: FromAstNode,
         modifier: Optional[Union[TopNAstNode, ParetoAstNode]] = None,
@@ -36,7 +39,7 @@ class SelectClauseAstNode(BaseAstNode):
         self._at_least = at_least
         self._limit = limit
 
-    def columns(self) -> list[IdentifierAstNode]:
+    def columns(self) -> list[Union[IdentifierAstNode, PredictClauseAstNode]]:
         return self._columns
 
     def from_clause(self) -> FromAstNode:

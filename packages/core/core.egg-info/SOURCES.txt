@@ -36,6 +36,7 @@ core/features/profiles/blocks/where.py
 core/features/profiles/blocks/inference/events.py
 core/features/profiles/blocks/inference/inference_result.py
 core/features/profiles/blocks/inference/inference_run.py
+core/features/profiles/blocks/inference/prediction_service.py
 core/features/profiles/blocks/inference/repository.py
 core/features/profiles/blocks/inference/where.py
 core/features/profiles/jobs/available_function.py
