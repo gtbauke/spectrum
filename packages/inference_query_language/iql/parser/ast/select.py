@@ -1,5 +1,6 @@
 from typing import Optional, Union
 
+from iql.executor.query_executor import FunctionCallAstNode
 from iql.parser.ast.base import AstNodeKind, BaseAstNode
 from iql.parser.ast.identifier import IdentifierAstNode
 from iql.parser.ast.from_clause import FromAstNode
@@ -11,13 +12,10 @@ from iql.parser.ast.where import WhereAstNode
 from iql.utils.span import Span
 
 
-from iql.parser.ast.predict_clause import PredictClauseAstNode
-
-
 class SelectClauseAstNode(BaseAstNode):
     def __init__(
         self,
-        columns: list[Union[IdentifierAstNode, PredictClauseAstNode]],
+        columns: list[Union[IdentifierAstNode, FunctionCallAstNode]],
         span: Span,
         from_clause: FromAstNode,
         modifier: Optional[Union[TopNAstNode, ParetoAstNode]] = None,
@@ -39,7 +37,7 @@ class SelectClauseAstNode(BaseAstNode):
         self._at_least = at_least
         self._limit = limit
 
-    def columns(self) -> list[Union[IdentifierAstNode, PredictClauseAstNode]]:
+    def columns(self) -> list[Union[IdentifierAstNode, FunctionCallAstNode]]:
         return self._columns
 
     def from_clause(self) -> FromAstNode:

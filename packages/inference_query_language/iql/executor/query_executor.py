@@ -12,6 +12,7 @@ from iql.executor.errors.invalid_top_n_expression_error import InvalidTopNExpres
 from iql.executor.errors.result_should_be_dataframe_error import ResultShouldBeDataFrameError
 from iql.executor.errors.column_is_not_selectable_error import ColumnIsNotSelectableError
 
+from iql.parser.ast.function_call import FunctionCallAstNode
 from iql.parser.ast.where import WhereAstNode
 from iql.parser.base import BaseAstNode
 from iql.parser.ast.base import AstNodeKind
@@ -23,7 +24,6 @@ from iql.parser.ast.top_n import ParetoAstNode, TopNAstNode
 from iql.parser.ast.number import IntegerLiteralAstNode, NumericLiteralAstNode
 from iql.parser.ast.binary_expression import BinaryExpression
 from iql.utils.result import InferenceResultList, InferenceResult
-from iql.parser.ast.predict_clause import PredictClauseAstNode
 
 
 logger = logging.getLogger(__name__)
@@ -224,14 +224,13 @@ class QueryExecutor:
         return result
 
     # TODO: Implement support for other SQL-like features.
-    # TODO: Implement distribution analysis
     def execute(self) -> InferenceResultList:
         if not isinstance(self._root_node, SelectClauseAstNode):
             raise RootExpressionShouldBeSelectClauseError()
 
         for column in self._root_node.columns():
             col_name = "prediction" if isinstance(
-                column, PredictClauseAstNode) else column.name().lower()
+                column, FunctionCallAstNode) else column.name().lower()
             if col_name not in self._QUERYABLE_LITERALS:
                 raise ColumnIsNotSelectableError(col_name)
 
@@ -265,9 +264,9 @@ class QueryExecutor:
             raise InvalidFromSourceError(type(modifier))
 
         predict_clauses = [col for col in self._root_node.columns(
-        ) if isinstance(col, PredictClauseAstNode)]
+        ) if isinstance(col, FunctionCallAstNode)]
 
-        subset = ["prediction" if isinstance(column, PredictClauseAstNode) else column.name().lower()
+        subset = ["prediction" if isinstance(column, FunctionCallAstNode) else column.name().lower()
                   for column in self._root_node.columns()]
 
         logger.info(f"Raw result columns: {result.columns.tolist()}")
@@ -300,7 +299,7 @@ class QueryExecutor:
             # Use the first PREDICT clause
             predict_clause = predict_clauses[0]
             variables = {m.variable.name(): [m.value.value()]
-                         for m in predict_clause.mappings}
+                         for m in predict_clause.arguments}
 
             predictions = []
             for _, row in result.iterrows():

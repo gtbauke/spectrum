@@ -2,7 +2,7 @@ from iql.parser.parselet import InfixParselet
 from iql.parser.ast.base import BaseAstNode
 from iql.parser.ast.identifier import IdentifierAstNode
 from iql.parser.ast.number import NumericLiteralAstNode
-from iql.parser.ast.predict_clause import PredictClauseAstNode, PredictMapping
+from iql.parser.ast.function_call import FunctionCallAstNode, FunctionArgument
 from iql.parser.precedence import Precedence
 from iql.tokenizer.token import Token, TokenKind
 from iql.utils.span import Span
@@ -41,14 +41,14 @@ class FunctionCallParselet(InfixParselet):
                 raise ExpectedNumberParseError(
                     "Expected number for variable value in PREDICT mapping.", value.span)
 
-            mappings.append(PredictMapping(variable, value))
+            mappings.append(FunctionArgument(variable, value))
 
             if not parser.matches(TokenKind.COMMA):
                 last_token = parser.consume(TokenKind.RIGHT_PAREN)
                 break
 
         span = Span(left.span.start, last_token.span.end)
-        return PredictClauseAstNode(mappings, span)
+        return FunctionCallAstNode(function_name, mappings, span)
 
     def precedence(self) -> Precedence:
         return Precedence.CALL

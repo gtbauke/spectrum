@@ -2,7 +2,7 @@ import logging
 
 from typing import Optional, Union
 
-from iql.executor.query_executor import PredictClauseAstNode
+from iql.parser.ast.function_call import FunctionCallAstNode
 from iql.parser.ast.pattern_matching_expression import PatternMatchingExpression
 from iql.parser.ast.top_n import ParetoAstNode, TopNAstNode
 from iql.parser.ast.number import IntegerLiteralAstNode
@@ -178,7 +178,7 @@ class SelectClauseParselet(PrefixParselet):
         for result in results:
             if isinstance(result, IdentifierAstNode):
                 columns.append(result)
-            elif isinstance(result, PredictClauseAstNode):
+            elif isinstance(result, FunctionCallAstNode):
                 columns.append(result)
             else:
                 raise SelectClauseInvalidIdentifierError(result)
