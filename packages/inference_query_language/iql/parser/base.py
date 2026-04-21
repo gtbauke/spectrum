@@ -94,6 +94,29 @@ class QueryParser(ABC):
 
         return results
 
+    def parse_comma_separated_list[T: BaseAstNode](self, func: Callable[[QueryParser], T]) -> list[T]:
+        """
+        Parses a comma-separated list of elements using the provided parsing function.
+        The parsing function should consume the necessary tokens for each element and return an AST node.
+
+        Trailing commas are allowed, and the function will stop parsing when it encounters a token that is not a comma or when it reaches the end of the token stream.
+        A comma can also be present before the first element, in which case it will be ignored and parsing will continue with the next token.
+        """
+        results: list[T] = []
+
+        while True:
+            if self.peek().kind == TokenKind.COMMA:
+                self.advance()
+                continue
+
+            if self.is_at_end():
+                break
+
+            result = func(self)
+            results.append(result)
+
+        return results
+
     def _get_precedence(self) -> Precedence:
         if self.peek().kind.is_clause_boundary():
             return Precedence.NONE

@@ -94,6 +94,18 @@ class QueryTokenizer:
 
         return Token(TokenKind.IDENTIFIER, lexeme, Span(self._start, self._current))
 
+    def _string_literal(self) -> Token:
+        while self._peek() != "'":
+            if self._is_at_end():
+                raise UnterminatedStringError(Span(self._start, self._current))
+
+            self._advance()
+
+        self._advance()
+        lexeme = self._query[self._start + 1:self._current - 1]
+
+        return Token(TokenKind.STRING, lexeme, Span(self._start, self._current))
+
     def _next(self) -> Token:
         self._skip_comment()
         self._skip_whitespace()
@@ -135,6 +147,8 @@ class QueryTokenizer:
                 return Token(TokenKind.SEMICOLON, current, Span(self._start, self._current))
             case "\"":
                 return self._quoted_identifier()
+            case "'":
+                return self._string_literal()
             case _:
                 return self._identifier_or_keyword()
 

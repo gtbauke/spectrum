@@ -6,7 +6,11 @@ from iql.utils.span import Span
 
 
 class FromAstNode(BaseAstNode):
-    def __init__(self, identifier: IdentifierAstNode, span: Span):
+    def __init__(
+        self,
+        identifier: IdentifierAstNode,
+        span: Span
+    ):
         super().__init__(AstNodeKind.FROM_CLAUSE, span)
         self._identifier = identifier
 

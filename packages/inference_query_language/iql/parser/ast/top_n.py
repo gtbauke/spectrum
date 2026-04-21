@@ -22,3 +22,11 @@ class ParetoAstNode(BaseAstNode):
 
     def to_string(self, indent: int) -> str:
         return f"{' ' * indent}PARETO()"
+
+
+class DistributionAstNode(BaseAstNode):
+    def __init__(self, span: Span):
+        super().__init__(AstNodeKind.DISTRIBUTION_EXPRESSION, span)
+
+    def to_string(self, indent: int) -> str:
+        return f"{' ' * indent}DISTRIBUTION()"

@@ -1,7 +1,8 @@
 from iql.parser.base import QueryParser
+from iql.parser.parselets.string_parselet import StringLiteralParselet
 from iql.tokenizer.token import Token, TokenKind
 from iql.parser.parselets.identifier_parselet import IdentifierParselet
-from iql.parser.parselets.select_clause_parselet import SelectClauseParselet
+from iql.parser.parselets.commands.select_command_parselet import SelectCommandParselet
 from iql.parser.parselets.number_parselet import NumberParselet
 from iql.parser.parselets.binary_expression_parselet import BinaryExpressionParselet
 from iql.parser.precedence import Precedence
@@ -19,7 +20,10 @@ class InferenceQueryParser(QueryParser):
             TokenKind.NUMBER, NumberParselet())
 
         self.register_prefix_parselet(
-            TokenKind.SELECT, SelectClauseParselet())
+            TokenKind.STRING, StringLiteralParselet())
+
+        self.register_prefix_parselet(
+            TokenKind.SELECT, SelectCommandParselet())
 
         self.register_prefix_parselet(
             TokenKind.PATTERN, IdentifierParselet())

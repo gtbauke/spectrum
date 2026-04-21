@@ -42,6 +42,7 @@ class TokenKind(StrEnum):
 
     NUMBER = "NUMBER"
     IDENTIFIER = "IDENTIFIER"
+    STRING = "STRING"
 
     EOF = "EOF"
 
