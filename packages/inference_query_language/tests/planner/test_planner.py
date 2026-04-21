@@ -14,6 +14,7 @@ def planner_context(regressions):
     registry = create_default_registry()
     ctx = AnalysisContext(available_model_names=list(
         regressions.keys()), function_registry=registry)
+
     return ctx
 
 
@@ -31,7 +32,6 @@ def test_planner_creates_scan_search_project(planner_context):
     planner = Planner(ast, analysis_result, errors)
     plan = planner.create_plan()
 
-    # Structure: ProjectNode -> SearchNode -> ScanNode
     root = plan.root
     assert isinstance(root, ProjectNode)
     assert root.columns == ["expression"]
@@ -57,8 +57,9 @@ def test_planner_includes_filter(planner_context):
     planner = Planner(ast, analysis_result, IqlErrorCollector())
     plan = planner.create_plan()
 
-    # Structure: ProjectNode -> SearchNode -> FilterNode -> ScanNode
     search = plan.root.child
+    assert search is not None
+
     filter_node = search.child
     assert isinstance(filter_node, FilterNode)
     assert "SIZE > 10" in filter_node.conditions or "size > 10" in filter_node.conditions
@@ -75,8 +76,66 @@ def test_planner_includes_apply_for_predict(planner_context):
     planner = Planner(ast, analysis_result, IqlErrorCollector())
     plan = planner.create_plan()
 
-    # Structure: ProjectNode -> ApplyNode -> SearchNode -> ScanNode
     apply_node = plan.root.child
     assert isinstance(apply_node, ApplyNode)
     assert apply_node.function_name == "PREDICT"
     assert apply_node.arguments == {"x": 1.0}
+
+
+def test_planner_handles_distribution_modifier(planner_context):
+    query = "SELECT DISTRIBUTION expression, frequency FROM model_a"
+    tokenizer = QueryTokenizer(query)
+    tokens = tokenizer.tokenize()
+    parser = InferenceQueryParser(tokens)
+    ast = parser.parse_expression()
+
+    analysis_result = SemanticAnalyzer(planner_context).analyze(ast)
+    planner = Planner(ast, analysis_result, IqlErrorCollector())
+    plan = planner.create_plan()
+
+    search = plan.root.child
+    assert isinstance(search, SearchNode)
+    assert search.mode == SearchMode.DISTRIBUTION
+    assert search.n == 5000
+    assert search.at_least == 10
+    assert search.limit == 1000
+
+
+def test_planner_handles_pareto_modifier(planner_context):
+    query = "SELECT PARETO id, expression FROM model_a"
+    tokenizer = QueryTokenizer(query)
+    tokens = tokenizer.tokenize()
+    parser = InferenceQueryParser(tokens)
+    ast = parser.parse_expression()
+
+    analysis_result = SemanticAnalyzer(planner_context).analyze(ast)
+    planner = Planner(ast, analysis_result, IqlErrorCollector())
+    plan = planner.create_plan()
+
+    search = plan.root.child
+    assert isinstance(search, SearchNode)
+    assert search.mode == SearchMode.PARETO
+    assert search.n is None
+    assert search.pattern is None
+    assert search.at_least is None
+    assert search.limit is None
+
+
+def test_planner_resolves_default_search(planner_context):
+    query = "SELECT expression FROM model_a"
+    tokenizer = QueryTokenizer(query)
+    tokens = tokenizer.tokenize()
+    parser = InferenceQueryParser(tokens)
+    ast = parser.parse_expression()
+
+    analysis_result = SemanticAnalyzer(planner_context).analyze(ast)
+    planner = Planner(ast, analysis_result, IqlErrorCollector())
+    plan = planner.create_plan()
+
+    search = plan.root.child
+    assert isinstance(search, SearchNode)
+    assert search.mode == SearchMode.TOP_N
+    assert search.n == 10
+    assert search.pattern is None
+    assert search.at_least is None
+    assert search.limit is None
