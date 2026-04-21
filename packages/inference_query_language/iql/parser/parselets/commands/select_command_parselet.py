@@ -134,7 +134,7 @@ class SelectCommandParselet(PrefixParselet):
             modifier=modifier,
             where=where_clause,
             pattern_matching_expression=pattern_expression,
-            order_by=None,
+            # order_by=None,
             is_distribution=isinstance(modifier, DistributionAstNode),
             at_least=at_least,
             limit=limit,

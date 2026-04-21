@@ -153,8 +153,8 @@ class QueryExecutor:
         pattern = select_clause.pattern_matching_expression()
         pattern_str = self._build_pattern_matching(pattern) if pattern else ""
 
-        order_by_clause = select_clause.order_by()
-        criteria = order_by_clause.criteria().name() if order_by_clause else "fitness"
+        # order_by_clause = select_clause.order_by()
+        # criteria = order_by_clause.criteria().name() if order_by_clause else "fitness"
 
         if self._active_reggression is None:
             raise ValueError("No active regression object set")
@@ -162,7 +162,7 @@ class QueryExecutor:
         result = self._active_reggression.top(  # type: ignore
             n=n,
             filters=where_conditions,
-            criteria=criteria,
+            # criteria=criteria,
             pattern=pattern_str
         )
 
@@ -201,16 +201,16 @@ class QueryExecutor:
         limit_node = select_clause.limit()
         limited_at = limit_node.value() if limit_node else 1000
 
-        order_by_clause = select_clause.order_by()
-        by_fitness = True
-        dsc = True
+        # order_by_clause = select_clause.order_by()
+        # by_fitness = True
+        # dsc = True
 
-        if order_by_clause:
-            criteria = order_by_clause.criteria().name().lower()
-            by_fitness = criteria == "fitness"
-            # In current IQL, ORDER BY is always interpreted as DESC if it's the default,
-            # or we might need explicit DESC/ASC tokens which aren't fully implemented as flags yet.
-            # For distribution, we'll assume the intention is DESC (top models).
+        # if order_by_clause:
+        #     criteria = order_by_clause.criteria().name().lower()
+        #     by_fitness = criteria == "fitness"
+        # In current IQL, ORDER BY is always interpreted as DESC if it's the default,
+        # or we might need explicit DESC/ASC tokens which aren't fully implemented as flags yet.
+        # For distribution, we'll assume the intention is DESC (top models).
 
         if self._active_reggression is None:
             raise ValueError("No active regression object set")
@@ -218,8 +218,8 @@ class QueryExecutor:
         result = self._active_reggression.distribution(  # type: ignore
             filters=filters,
             limitedAt=limited_at,
-            dsc=dsc,
-            byFitness=by_fitness,
+            # dsc=dsc,
+            # byFitness=by_fitness,
             atLeast=at_least,
             fromTop=from_top
         )
