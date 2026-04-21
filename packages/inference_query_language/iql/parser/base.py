@@ -98,9 +98,6 @@ class QueryParser(ABC):
         """
         Parses a comma-separated list of elements using the provided parsing function.
         The parsing function should consume the necessary tokens for each element and return an AST node.
-
-        Trailing commas are allowed, and the function will stop parsing when it encounters a token that is not a comma or when it reaches the end of the token stream.
-        A comma can also be present before the first element, in which case it will be ignored and parsing will continue with the next token.
         """
         results: list[T] = []
 
@@ -109,11 +106,14 @@ class QueryParser(ABC):
                 self.advance()
                 continue
 
-            if self.is_at_end():
+            if self.is_at_end() or self.peek().kind.is_clause_boundary():
                 break
 
             result = func(self)
             results.append(result)
+            
+            if self.peek().kind != TokenKind.COMMA:
+                break
 
         return results
 
