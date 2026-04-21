@@ -27,3 +27,4 @@ __pycache__
 spectrum_data
 .worktrees/
 .superpowers/
+.ruff_cache/
