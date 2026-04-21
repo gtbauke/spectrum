@@ -107,9 +107,20 @@ class QueryTokenizer:
         return Token(TokenKind.STRING, lexeme, Span(self._start, self._current))
 
     def _next(self) -> Token:
-        self._skip_comment()
-        self._skip_whitespace()
+        while True:
+            self._skip_whitespace()
+
+            if (self._peek() == "-" and self._peek(1) == "-") or \
+               (self._peek() == "/" and self._peek(1) == "*"):
+                self._skip_comment()
+                continue
+
+            break
+
         self._start = self._current
+
+        if self._is_at_end():
+            return Token(TokenKind.EOF, "", Span(self._current, self._current))
 
         current = self._advance()
 
@@ -157,7 +168,8 @@ class QueryTokenizer:
 
         while not self._is_at_end():
             token = self._next()
-            tokens.append(token)
+            if token.kind != TokenKind.EOF:
+                tokens.append(token)
 
         tokens.append(Token(TokenKind.EOF, "", Span(
             self._current, self._current)))

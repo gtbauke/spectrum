@@ -8,3 +8,26 @@ dependencies = [
     "pandas>=3.0.0",
     "pydantic>=2.12.5",
 ]
+
+[dependency-groups]
+dev = [
+    "hypothesis>=6.152.1",
+    "eggp>=1.0.16",
+    "reggression>=1.0.10",
+    "pytest>=9.0.2",
+    "pytest-cov>=7.1.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=inference_query_language --cov-report=term-missing"
+
+[tool.coverage.report]
+exclude_also = [
+    "def to_string",
+    "def __repr__",
+    "def __str__",
+    "if __name__ == '__main__'",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING",
+]

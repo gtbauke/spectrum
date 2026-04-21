@@ -9,5 +9,4 @@ class StringLiteralParselet(PrefixParselet):
         super().__init__()
 
     def parse(self, parser: QueryParser, token: Token) -> StringLiteralAstNode:
-        value = token.lexeme[1:-1]
-        return StringLiteralAstNode(value=value, span=token.span)
+        return StringLiteralAstNode(value=token.lexeme, span=token.span)

@@ -147,9 +147,19 @@ class QueryExecutor:
 
         if "Id" in result.columns:
             result = result.rename(columns={"Id": "egraph_id"})
+            # Ensure egraph_id is a string as expected by InferenceResult DTO
+            result["egraph_id"] = result["egraph_id"].astype(str)
             subset = ["egraph_id" if c == "id" else c for c in subset]
             if "egraph_id" not in subset:
                 subset.append("egraph_id")
+
+        if "Fitness" in result.columns:
+            result = result.rename(columns={"Fitness": "fitness"})
+            subset = ["fitness" if c == "fitness" else c for c in subset]
+
+        if "Numpy" in result.columns:
+            result = result.rename(columns={"Numpy": "numpy"})
+            subset = ["numpy" if c == "numpy" else c for c in subset]
 
         # Project columns
         mask = result.columns.str.contains("|".join(subset), case=False)

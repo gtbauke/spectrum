@@ -12,3 +12,13 @@ dependencies = [
 [tool.uv.workspace]
 members = ["packages/*"]
 exclude = ["packages/frontend"]
+
+[tool.coverage.report]
+exclude_also = [
+    "def to_string",
+    "def __repr__",
+    "def __str__",
+    "if __name__ == '__main__'",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING",
+]

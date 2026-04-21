@@ -12,6 +12,7 @@ from iql.parser.parselet import PrefixParselet
 from iql.parser.parselets.commands.errors.expression_cannot_be_a_pattern import ExpressionCannotBeAPatternError
 from iql.parser.parselets.commands.errors.expression_is_not_numeric import ExpressionIsNotNumericError
 from iql.parser.parselets.commands.errors.expression_is_not_selectable import ExpressionIsNotSelectableError
+from iql.parser.parselets.commands.errors.missing_columns_error import MissingColumnsError
 from iql.tokenizer.token import Token, TokenKind
 
 
@@ -102,6 +103,8 @@ class SelectCommandParselet(PrefixParselet):
 
         modifier = self._parse_modifier(parser)
         columns = parser.parse_comma_separated_list(self._parse_selectable)
+        if not columns:
+            raise MissingColumnsError(self._initial_span)
 
         parser.consume(TokenKind.FROM)
         model_identifier_token = parser.consume(TokenKind.IDENTIFIER)
