@@ -1,5 +1,6 @@
 import logging
 
+from iql.tokenizer.errors.unterminated_string_error import UnterminatedStringError
 from iql.tokenizer.token import Token, TokenKind
 from iql.utils.span import Span
 
@@ -36,6 +37,19 @@ class QueryTokenizer:
         while not self._is_at_end() and self._peek().isspace():
             self._advance()
 
+    def _skip_comment(self):
+        if self._peek() == "-" and self._peek(1) == "-":
+            while not self._is_at_end() and self._peek() != "\n":
+                self._advance()
+        elif self._peek() == "/" and self._peek(1) == "*":
+            while not self._is_at_end():
+                if self._peek() == "*" and self._peek(1) == "/":
+                    self._advance()
+                    self._advance()
+                    break
+
+                self._advance()
+
     def _matches(self, expected: str) -> bool:
         if self._is_at_end():
             return False
@@ -68,7 +82,20 @@ class QueryTokenizer:
 
         return Token(kind, lexeme, Span(self._start, self._current))
 
+    def _quoted_identifier(self) -> Token:
+        while self._peek() != "\"":
+            if self._is_at_end():
+                raise UnterminatedStringError(Span(self._start, self._current))
+
+            self._advance()
+
+        self._advance()
+        lexeme = self._query[self._start + 1:self._current - 1]
+
+        return Token(TokenKind.IDENTIFIER, lexeme, Span(self._start, self._current))
+
     def _next(self) -> Token:
+        self._skip_comment()
         self._skip_whitespace()
         self._start = self._current
 
@@ -107,16 +134,7 @@ class QueryTokenizer:
             case ";":
                 return Token(TokenKind.SEMICOLON, current, Span(self._start, self._current))
             case "\"":
-                while self._peek() != "\"":
-                    if self._is_at_end():
-                        raise Exception("Unterminated string")
-
-                    self._advance()
-
-                self._advance()
-
-                lexeme = self._query[self._start + 1:self._current - 1]
-                return Token(TokenKind.IDENTIFIER, lexeme, Span(self._start, self._current))
+                return self._quoted_identifier()
             case _:
                 return self._identifier_or_keyword()
 

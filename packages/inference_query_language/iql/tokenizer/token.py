@@ -27,7 +27,6 @@ class TokenKind(StrEnum):
     NOT = "NOT"
     ORDER = "ORDER"
     BY = "BY"
-    ALL = "ALL"
     AND = "AND"
     OR = "OR"
     PARETO = "PARETO"
@@ -38,7 +37,8 @@ class TokenKind(StrEnum):
     AT = "AT"
     LEAST = "LEAST"
     LIMIT = "LIMIT"
-    PREDICT = "PREDICT"
+    INSERT = "INSERT"
+    PLOT = "PLOT"
 
     NUMBER = "NUMBER"
     IDENTIFIER = "IDENTIFIER"
@@ -55,6 +55,8 @@ class TokenKind(StrEnum):
             TokenKind.AT,
             TokenKind.LIMIT,
             TokenKind.DISTRIBUTION,
+            TokenKind.INSERT,
+            TokenKind.PLOT,
         }
 
     @staticmethod
@@ -74,8 +76,6 @@ class TokenKind(StrEnum):
                 return TokenKind.ORDER
             case "BY":
                 return TokenKind.BY
-            case "ALL":
-                return TokenKind.ALL
             case "AND":
                 return TokenKind.AND
             case "OR":
@@ -96,8 +96,10 @@ class TokenKind(StrEnum):
                 return TokenKind.LEAST
             case "LIMIT":
                 return TokenKind.LIMIT
-            case "PREDICT":
-                return TokenKind.PREDICT
+            case "INSERT":
+                return TokenKind.INSERT
+            case "PLOT":
+                return TokenKind.PLOT
             case _:
                 return TokenKind.IDENTIFIER
 
