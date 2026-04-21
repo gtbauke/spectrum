@@ -11,8 +11,7 @@ from reggression import Reggression  # type: ignore
 
 from iql.tokenizer.tokenizer import QueryTokenizer
 from iql.parser.parser import InferenceQueryParser
-from iql.parser.ast.select import SelectClauseAstNode
-from iql.executor.query_executor import QueryExecutor
+from iql.executor.query_executor import QueryExecutor, SelectCommandAstNode
 
 from core.features.profiles.blocks.inference.events import InferenceRunRequestedEvent
 from core.features.profiles.blocks.inference.inference_result import InferenceResult
@@ -73,10 +72,10 @@ class InferenceRunRequestedHandler(EventHandler[InferenceRunRequestedEvent]):
                 parser = InferenceQueryParser(tokens)
                 root_node = parser.parse_expression()
 
-                if not isinstance(root_node, SelectClauseAstNode):
+                if not isinstance(root_node, SelectCommandAstNode):
                     raise ValueError("Query must be a SELECT statement")
 
-                model_identifier = root_node.from_clause().identifier().name()
+                model_identifier = root_node.from_model().name()
                 logger.info("Query references model: %s", model_identifier)
 
                 # 2. Resolve Model
@@ -178,7 +177,8 @@ class InferenceRunRequestedHandler(EventHandler[InferenceRunRequestedEvent]):
                             size=r.size,
                             frequency=r.frequency,
                             prediction=r.prediction,
-                            egraph_id=str(r.egraph_id) if r.egraph_id is not None else None,
+                            egraph_id=str(
+                                r.egraph_id) if r.egraph_id is not None else None,
                         ) for r in query_result.results
                     ]
 
