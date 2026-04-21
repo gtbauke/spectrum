@@ -5,15 +5,34 @@ A plataforma proposta nesse projeto tem como um dos objetivos principais permiti
 
 SQL é uma linguagem de domínio (Domain-Specific Language - DSL), ou seja, uma linguagem que busca resolver um problema específico do universo para qual ela foi pensada. No caso do SQL, o problema que ela resolve é a busca e processamento de dados em bancos de dados relacionais. Outras linguagens de domínio são amplamente utilizadas em computação para simplificar tarefas complexas por meio de abstrações declarativas.
 
-Para facilitar o uso da ferramenta \textit{rEGGression}~\cite{rEGGression} e permitir o uso da plataforma proposta por usuários que já tem conhecimento prático em outras ferramentas voltadas para predição de dados que se utilizam de dialetos SQL, além da plataforma, este trabalho propõe uma linguagem de domínio denominada Inference Query Language (IQL), com sintaxe similar ao SQL.
+Para facilitar o uso da ferramenta \textit{rEGGression}~\cite{rEGGression} e permitir o uso da plataforma proposta por usuários que já têm conhecimento prático em outras ferramentas voltadas para predição de dados que se utilizam de dialetos SQL, além da plataforma, este trabalho propõe uma linguagem de domínio denominada Inference Query Language (IQL), com sintaxe similar ao SQL.
+
+A Tabela~\ref{tab:iql_sql_comparison} apresenta um quadro comparativo entre as estruturas tradicionais da linguagem SQL e os seus equivalentes desenvolvidos para a IQL. Enquanto o SQL opera sobre as tabelas e colunas relacionais, a IQL opera sobre o espaço de busca e extrai as propriedades abstratas das expressões matemáticas candidatas resultantes.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Comparação estrutural e comportamental entre estruturas primitivas da linguagem relacional SQL e a DSL Inference Query Language proposta}
+    \label{tab:iql_sql_comparison}
+    \begin{tabular}{p{2.5cm} p{6cm} p{6cm}}
+        \toprule
+        \textbf{Estrutura} & \textbf{SQL (Banco de Dados)} & \textbf{IQL (Regressão Simbólica)} \\
+        \midrule
+        \texttt{SELECT} & Define as colunas a serem retornadas na projeção & Define as propriedades estruturais da equação (\texttt{expression}, \texttt{size}) projetadas \\
+        \texttt{FROM} & Especifica a tabela de origem no esquema relacional & Especifica o modelo para instanciar o subjacente \textit{e-graph} em memória \\
+        \texttt{WHERE} & Filtra linhas de acordo com predicados & Filtra equações empíricas por complexidade ou taxa de erro \\
+        \texttt{LIKE} & Busca de similaridade léxica (\texttt{\%}) sob dados em \textit{strings} & Executa correspondência morfológica (\textit{pattern matching}) na AST da equação \\
+        \texttt{ORDER BY} & Ordena a saída de modo indexado por colunas sequenciais & Ordena por métricas de aptidão intrínseca (\textit{fitness}) ou complexidade (\textit{size}) \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
 \section{Inference Query Language}
 A Inference Query Language (IQL) foi concebida para permitir que usuários possam consultar soluções dentro de um modelo de regressão simbólica de forma declarativa. Em sistemas de regressão simbólica baseados em grafos de igualdade, como o Eggp~\cite{eggp}, o espaço de soluções pode conter milhares de expressões equivalentes ou sub-expressões que podem ser de interesse para o pesquisador.
 
-Assim como o SQL, o IQL é uma linguagem declarativa. Linguagens declarativas são aquelas em que o programador descreve o que ele deseja obter, sem especificar o fluxo de controle ou os passos procedimentais para alcançar esse resultado~\cite{sommerville2011software}. No contexto do IQL, o usuário pode especificar padrões matemáticos, restrições de complexidade ou métricas de erro, e o sistema é responsável por realizar a busca e filtragem no e-graph.
+Assim como o SQL, o IQL é uma linguagem declarativa. Linguagens declarativas são aquelas em que o programador descreve o que ele deseja obter, sem especificar o fluxo de controle ou os passos procedimentais para alcançar esse resultado~\cite{sommerville2011software}. No contexto do IQL, o usuário pode especificar padrões matemáticos, restrições de complexidade ou métricas de erro, e o sistema é responsável por realizar a busca e filtragem de forma automática no \textit{e-graph}.
 
 \subsection{Gramática Formal}
-A IQL é composta por uma sintaxe inspirada no padrão ANSI SQL. A gramática formal da linguagem, apresentada na Figura~\ref{fig:iql_grammar}, foi especificada em Extended Backus-Naur Form (EBNF) e define todas as produções aceitas pelo parser da plataforma.
+A IQL é composta por uma sintaxe inspirada no padrão ANSI SQL. A gramática formal da linguagem, apresentada na Figura~\ref{fig:iql_grammar}, foi especificada em Extended Backus-Naur Form (EBNF) e define todas as produções expressamente aceitas pelo parser da plataforma.
 
 \begin{figure}[htbp]
     \caption{Gramática formal da Inference Query Language (IQL) em notação EBNF, definindo a sintaxe completa para consultas declarativas sobre modelos de regressão simbólica baseados em e-graphs}
@@ -61,63 +80,77 @@ A IQL é composta por uma sintaxe inspirada no padrão ANSI SQL. A gramática fo
     \label{fig:iql_grammar}
 \end{figure}
 
-A produção raiz \textit{query} exige obrigatoriamente as cláusulas \texttt{SELECT} e \texttt{FROM}; as demais cláusulas são opcionais. A linguagem opera em três modos principais, controlados pelo modificador que sucede a palavra-chave \texttt{SELECT}:
+A produção raiz \textit{query} exige obrigatoriamente as cláusulas primárias \texttt{SELECT} e \texttt{FROM}. Todavia, as demais cláusulas de filtro operam de maneira inteiramente opcional. A linguagem opera em três sub-modos principais, controlados logicamente pelos modificadores que sucedem e interagem com a palavra-chave central \texttt{SELECT}:
 
 \begin{itemize}
-    \item \textbf{TOP \textit{n}}: Seleciona as $n$ melhores expressões do e-graph de acordo com uma métrica de aptidão (\textit{fitness}). Quando nenhum modificador é especificado, o sistema assume \texttt{TOP 10} como valor padrão;
-    \item \textbf{PARETO}: Retorna todas as expressões pertencentes à fronteira de Pareto do modelo, priorizando o equilíbrio entre erro e complexidade estrutural;
-    \item \textbf{DISTRIBUTION}: Realiza uma análise de distribuição de padrões estruturais presentes no e-graph, retornando os sub-padrões mais frequentes. Nesse modo, apenas as colunas \texttt{pattern}, \texttt{frequency} e \texttt{fitness} são permitidas na lista de seleção.
+    \item \textbf{TOP \textit{n}}: Seleciona as \textit{n} melhores expressões do \textit{e-graph} de acordo com uma métrica de aptidão (\textit{fitness}). Em caso de em que o modificador não é especificado, a linguagem considera \texttt{TOP 10} como valor nativo padrão para o ambiente de execução;
+    \item \textbf{PARETO}: Seleciona as expressões que compõem a fronteira de Pareto do espaço de soluções, ou seja, aquelas que não são dominadas por nenhuma outra em termos de aptidão e complexidade. A fronteira de Pareto é um conceito fundamental em otimização multiobjetivo, onde se busca encontrar soluções que sejam ótimas em múltiplos critérios simultaneamente;
+    \item \textbf{DISTRIBUTION}: Em vez de retornar as expressões diretamente, este modificador instrui a linguagem a calcular a distribuição de um determinado padrão de expressão dentro do \textit{e-graph}, retornando a frequência de ocorrência e a aptidão média para cada padrão encontrado. Este modo é especialmente útil para análises estatísticas e para entender a prevalência de certos tipos de expressões dentro do espaço de soluções.
 \end{itemize}
 
-Os campos que podem ser consultados na cláusula \texttt{SELECT} são determinados pelo executor da linguagem e correspondem às propriedades extraídas das expressões armazenadas no e-graph: \texttt{expression}, \texttt{dl}, \texttt{fitness}, \texttt{latex}, \texttt{numpy}, \texttt{parameters}, \texttt{size}, \texttt{pattern}, \texttt{frequency} e \texttt{prediction}. Além desses campos, a IQL suporta a função \texttt{PREDICT}, que permite ao usuário avaliar expressões com valores específicos para as variáveis independentes, como por exemplo \texttt{PREDICT(x0 = 1.5, x1 = 2.0)}.
+Independentemente do modo de execução, a IQL opera sobre um modelo específico de regressão simbólica, especificado na cláusula \texttt{FROM}. Antes da execução da consulta, a plataforma fornece ao ambiente de execução uma lista de modelos disponíveis na \textbf{profile} associada ao código IQL. A cláusula \textit{FROM} deve referenciar um desses modelos, via nome ou identificador único, para que a consulta seja processada. O modelo referenciado é então instanciado em memória, e o \textit{e-graph} correspondente é construído para que as operações de busca e filtragem possam ser realizadas.
 
-A cláusula \texttt{WHERE} aceita condições de filtragem sobre um subconjunto de campos numéricos: \texttt{id}, \texttt{size}, \texttt{parameters} e \texttt{cost}. As condições podem ser compostas por meio dos operadores lógicos \texttt{AND} e \texttt{OR}. A cláusula \texttt{PATTERN IS LIKE} permite a busca por padrões estruturais nas árvores de sintaxe das expressões, utilizando expressões aritméticas como referência para correspondência. A cláusula \texttt{ORDER BY} define a métrica utilizada para ordenar os resultados, enquanto as cláusulas \texttt{AT LEAST} e \texttt{LIMIT} controlam, respectivamente, a frequência mínima dos padrões retornados e o número máximo de resultados no modo \texttt{DISTRIBUTION}.
+Diferentemente do SQL, onde a cláusula \texttt{SELECT} é seguida por uma lista de colunas a serem recuperadas da tabela especificada na cláusula \texttt{FROM}, na IQL a cláusula \texttt{SELECT} é seguida por uma lista de propriedades ou métricas das expressões matemáticas que se deseja obter como resultado da consulta. Nesse sentido, todas as consultas operam sobre o mesmo espaço de propriedades selecionáveis, sendo elas:
+\begin{itemize}
+    \item \textbf{id}: O identificador único da expressão dentro do \textit{e-graph}, que pode ser utilizado para referência em outras partes da consulta ou para operações de filtragem;
+    \item \textbf{expression}: A expressão matemática completa da solução encontrada, representada como uma string ou uma estrutura de dados que pode ser interpretada posteriormente;
+    \item \textbf{dl}: Comprimento de descrição da expressão, que é uma representação da quantidade de informação necessária para descrever a expressão, geralmente relacionada à sua complexidade estrutural;
+    \item \textbf{fitness}: A métrica de aptidão associada à expressão;
+    \item \textbf{latex}: A representação em LaTeX da expressão, que pode ser útil para visualização ou documentação;
+    \item \textbf{numpy}: A representação da expressão em formato compatível com a biblioteca NumPy, que pode ser utilizada para avaliação numérica ou manipulação programática;
+    \item \textbf{parameters}: Uma lista de parâmetros livres presentes na expressão;
+    \item \textbf{size}: A métrica de complexidade associada à expressão;
+    \item \textbf{pattern}: A estrutura de padrão da expressão, que pode ser utilizada para correspondência de padrões ou análises morfológicas;
+    \item \textbf{frequency}: A frequência de ocorrência da expressão dentro do \textit{e-graph}, que é especialmente relevante quando o modificador \texttt{DISTRIBUTION} é utilizado.
+\end{itemize}
+
+Além disso, também é possível utilizar funções pré-definidas dentro da lista de seleção. A função mais relevante é a função de predição \texttt{PREDICT}, que permite ao usuário realizar predições com base em uma expressão específica, fornecendo um mapeamento de variáveis para valores numéricos. Por exemplo, a chamada \texttt{PREDICT(x0 = 1.5, x1 = 2.0)} instrui o sistema a avaliar a expressão selecionada substituindo as variáveis \texttt{x0} e \texttt{x1} pelos valores 1.5 e 2.0, respectivamente, e retornar o resultado da avaliação.
+
+A cláusula \texttt{WHERE} aplica filtros condicionais sobre as expressões candidatas, utilizando comparadores tradicionais como \texttt{=}, \texttt{<}, \texttt{>} e seus equivalentes de comparação. Esses filtros permitem restringir o conjunto de soluções retornadas com base em métricas como complexidade, número de parâmetros livres ou custo da expressão. Além disso, é possível filtrar especificamente pelos identificadores únicos das expressões, o que é útil para operações de referência cruzada ou para análises específicas sobre soluções previamente identificadas, desde que conhecidos esses identificadores. Múltiplas condições podem ser combinadas utilizando os operadores lógicos \texttt{AND} e \texttt{OR}, permitindo a construção de filtros complexos e específicos para as necessidades do usuário.
+
+A cláusula \texttt{PATTERN IS LIKE} realiza uma filtragem baseada nos padrões matemáticos contidos nas expressões geradas pelo modelo. Essa cláusula é especialmente útil para identificar expressões que compartilham uma estrutura comum, independentemente dos parâmetros específicos ou da complexidade. Por exemplo, a consulta \texttt{PATTERN IS LIKE sin(v0)} retornaria todas as expressões que contêm a função seno aplicada a uma variável, independentemente de outras operações ou termos presentes na expressão. A correspondência de padrões é realizada através da análise da Árvore de Sintaxe Abstrata (AST) das expressões, possibilitada pela estrutura de dados do \textit{e-graph} que mantém a representação abstrata da expressão matemática. Isso permite uma correspondência morfológica eficiente e flexível, que pode ser utilizada para explorar o espaço de soluções de maneira mais direcionada e intuitiva.
+
+A cláusula \texttt{ORDER BY} permite a ordenação dos resultados com base em uma métrica específica, como aptidão ou complexidade. Isso é especialmente útil para priorizar as soluções mais relevantes ou mais simples, dependendo do contexto da análise. A ordenação é realizada de forma ascendente por padrão, mas pode ser configurada para ordenação descendente se necessário.
+
+A cláusula \texttt{AT LEAST} é utilizada para especificar um número mínimo de ocorrências de um determinado padrão ou expressão dentro do \textit{e-graph}. Isso é particularmente útil quando se deseja identificar expressões que são recorrentes ou que possuem uma frequência significativa dentro do espaço de soluções, o que pode indicar uma relevância maior ou uma tendência estrutural importante. Já a cláusula \texttt{LIMIT} restringe o número total de resultados retornados pela consulta, o que é útil para evitar sobrecarga de informações e para focar em um subconjunto mais gerenciável de soluções, especialmente quando o espaço de soluções é muito grande.
 
 \subsection{Exemplos de Consultas}
-Abaixo são apresentados exemplos de como a IQL pode ser utilizada para extrair conhecimento de modelos de regressão simbólica:
-
+Abaixo são apresentados exemplos de como a IQL pode ser utilizada para extrair informações específicas de um modelo de regressão simbólica:
 \begin{enumerate}
     \item \textbf{Busca por modelos simples na fronteira de Pareto}:
-    \begin{lstlisting}[language=Sql]
+    \begin{lstlisting}[language=SQL]
     SELECT PARETO expression, size FROM my_model WHERE size <= 5
     \end{lstlisting}
 
-    \item \textbf{Filtragem por padrão estrutural (ex: funções periódicas)}:
-    \begin{lstlisting}[language=Sql]
+    \item \textbf{Identificação de expressões que contenham um padrão específico, nesse caso, a função seno aplicada a uma variável}:
+    \begin{lstlisting}[language=SQL]
     SELECT TOP 10 expression, fitness, size FROM my_model
     PATTERN IS LIKE sin(v0)
     \end{lstlisting}
 
-    \item \textbf{Busca por interações específicas entre variáveis}:
-    \begin{lstlisting}[language=Sql]
+    \item \textbf{Busca por expressões que contenham um padrão de multiplicação entre duas variáveis}:
+    \begin{lstlisting}[language=SQL]
     SELECT PARETO expression, size FROM my_model
     PATTERN IS LIKE x1 * x2
     \end{lstlisting}
 
-    \item \textbf{Análise de distribuição de padrões}:
-    \begin{lstlisting}[language=Sql]
+    \item \textbf{Análise de distribuição de padrões específicos dentro do espaço de soluções, buscando identificar quais padrões são mais frequentes e qual é a aptidão média associada a esses padrões}:
+    \begin{lstlisting}[language=SQL]
     SELECT TOP 100 DISTRIBUTION pattern, frequency, fitness
     FROM my_model AT LEAST 5 LIMIT 500
     \end{lstlisting}
 
-    \item \textbf{Predição com valores específicos}:
-    \begin{lstlisting}[language=Sql]
+    \item \textbf{Realização de predições com base em expressões selecionadas, substituindo variáveis por valores numéricos específicos para avaliar o resultado da expressão sob essas condições}:
+    \begin{lstlisting}[language=SQL]
     SELECT TOP 5 expression, fitness, PREDICT(x0 = 1.5, x1 = 2.0)
     FROM my_model WHERE size <= 10
     \end{lstlisting}
 \end{enumerate}
 
-O uso da IQL permite que o usuário aplique o conhecimento prévio sobre o fenômeno físico diretamente no processo de seleção de modelos, algo que é dificultado em ferramentas de regressão tradicionais que retornam apenas a melhor solução numérica disponível.
-
 \section{Execução}
-A implementação da IQL é realizada através de um módulo de consulta que se integra ao back-end da plataforma. O módulo é responsável por transformar a sequência de caracteres enviada pelo usuário em uma árvore de sintaxe abstrata (AST), que é então interpretada para realizar a busca no e-graph do modelo de regressão simbólica. A execução da consulta envolve a aplicação de filtros lógicos, avaliação de métricas e correspondência de padrões estruturais, utilizando as funções de manipulação de e-graphs fornecidas pelo rEGGression~\cite{rEGGression}.
-
-O processamento de tokenização é feito via análise léxica utilizando laços de repetição e condições para identificar os componentes da consulta (palavras-chave, identificadores, operadores, etc.). A construção da AST é realizada por meio de uma técnica chamada Pratt Parsing, a qual associa operadores e precedências para construir a estrutura hierárquica da consulta. O Pratt Parsing permite a criação de \textit{parselets}, classes especializadas em converter uma sequência de tokens em um nó específico da árvore de sintaxe abstrata, para cada tipo de token inicial de uma expressão, facilitando a extensão da linguagem com novos operadores ou funcionalidades no futuro.
-
-A Figura \ref{fig:iql_execution_pipeline} apresenta o diagrama completo do pipeline de execução de uma consulta IQL, desde a entrada textual do usuário até o armazenamento dos resultados no banco de dados.
-
+A arquitetura de execução da IQL é composta por um \textit{pipeline} de processamento que envolve várias etapas, desde a análise léxica e sintática da consulta até a execução propriamente dita e o retorno dos resultados. A Figura~\ref{fig:iql_execution_pipeline} ilustra esse processo de maneira detalhada, mostrando como a consulta textual é transformada em uma estrutura de dados que pode ser interpretada e executada para extrair as informações desejadas do modelo de regressão simbólica.
 \begin{figure}[htbp]
-    \caption{Pipeline de execução de uma consulta IQL, desde a entrada textual do usuário até o armazenamento dos resultados como InferenceResults no banco de dados}
+    \caption{Pipeline de processamento, análise e execução de uma consulta IQL, desde a entrada textual oriunda da \textit{request} do usuário até o armazenamento dos dados}
     \centering
     \begin{tikzpicture}[
         scale=0.72, transform shape,
@@ -177,3 +210,58 @@ A Figura \ref{fig:iql_execution_pipeline} apresenta o diagrama completo do pipel
     \end{tikzpicture}
     \label{fig:iql_execution_pipeline}
 \end{figure}
+
+\subsection{Análise Léxica (Tokenização)}
+O processo de análise léxica, ou tokenização, é a primeira etapa do \textit{pipeline} de execução da IQL. Nessa etapa, a consulta textual fornecida pelo usuário é processada para identificar os componentes léxicos que compõem a consulta, como palavras-chave, identificadores, operadores e literais. O resultado dessa etapa é uma lista de tokens, onde cada token representa um componente específico da consulta. O tokenizer é responsável por reconhecer a sintaxe da linguagem, identificar os tipos de tokens e lidar com possíveis erros de formatação ou caracteres inválidos. Por exemplo, para a consulta:
+\begin{lstlisting}[language=SQL]
+SELECT TOP 10 expression, fitness FROM model WHERE fitness < 1.5
+\end{lstlisting}
+
+O tokenizer processaria essa string e geraria uma lista de tokens como a seguinte:
+\begin{lstlisting}[language=Python]
+[
+  Token(SELECT, "SELECT"),
+  Token(TOP, "TOP"),
+  Token(NUMBER, "10"),
+  Token(IDENTIFIER, "expression"),
+  Token(COMMA, ","),
+  Token(IDENTIFIER, "fitness"),
+  Token(FROM, "FROM"),
+  Token(IDENTIFIER, "model"),
+  Token(WHERE, "WHERE"),
+  Token(IDENTIFIER, "fitness"),
+  Token(OPERATOR, "<"),
+  Token(NUMBER, "1.5")
+]
+\end{lstlisting}
+
+\subsection{Análise Sintática e o Pratt Parser}
+A segunda fase do \textit{pipeline} de execução da IQL é a análise sintática. Nesta etapa, a lista de tokens gerada anteriormente é processada para construir uma árvore que representa a estrutura hierárquica da consulta, conhecida como Árvore de Sintaxe Abstrata (AST). A análise sintática é realizada utilizando um Pratt Parser, que é uma técnica de parsing eficiente e flexível para linguagens com operadores de precedência~\cite{pratt1973top}. O Pratt Parser utiliza uma abordagem baseada em parselets, onde cada tipo de token tem um parselet associado que define como ele deve ser processado em relação aos outros tokens. O resultado dessa etapa é uma AST que representa a estrutura lógica da consulta, onde cada nó da árvore corresponde a um componente da consulta, como cláusulas, expressões ou operadores. Por exemplo, para a consulta mencionada anteriormente, a AST resultante poderia ser representada graficamente como mostrado na Figura~\ref{fig:iql_ast_example}, onde os nós representam as diferentes partes da consulta e as arestas representam as relações hierárquicas entre elas. Essa estrutura é fundamental para a etapa de execução, pois permite que o sistema interprete a consulta de maneira eficiente e extraia as informações desejadas do modelo de regressão simbólica.
+\begin{figure}[htbp]
+    \caption{Visualização gráfica representativa consolidada limitante da Árvore de Sintaxe Abstrata (AST) compilada sequencial e contígua pelas classes iterativas do modo de leitura descendente restrito subjacente do Pratt Parser contido primariamente local sob o escopo formal da linguagem}
+    \centering
+    \begin{tikzpicture}[
+        level 1/.style={sibling distance=3.3cm},
+        level 2/.style={sibling distance=1.7cm},
+        edge from parent/.style={draw, ->, >=stealth, thick},
+        every node/.style={draw, thick, rounded corners=3pt, font=\sffamily\small, align=center, fill=gray!10, text depth=0.25ex, text height=1.5ex}
+    ]
+    \node {SelectClause}
+        child { node {Modifier\\(TOP 10)} }
+        child { node {Columns}
+            child { node {expression} }
+            child { node {fitness} }
+        }
+        child { node {FromClause\\(model)} }
+        child { node {WhereClause}
+            child { node {Condition\\(<)}
+                child { node {Identifier\\(fitness)} }
+                child { node {Number\\(1.5)} }
+            }
+        };
+    \end{tikzpicture}
+    \label{fig:iql_ast_example}
+\end{figure}
+
+\subsection{Execução}
+A etapa de execução é onde a consulta, representada pela AST gerada na etapa anterior, é interpretada e processada para extrair as informações desejadas do modelo de regressão simbólica. O executor é responsável por percorrer a AST, identificar as operações a serem realizadas e interagir com o modelo de regressão simbólica (rEGGression) para obter os resultados. Dependendo dos modificadores e cláusulas presentes na consulta, o executor pode realizar diferentes tipos de buscas no \textit{e-graph}, como buscar as melhores expressões de acordo com uma métrica de aptidão, identificar expressões que correspondam a um padrão específico ou calcular distribuições de padrões dentro do espaço de soluções. O resultado da execução é então formatado em um DataFrame do Pandas, que é uma estrutura de dados tabular amplamente utilizada em Python para manipulação e análise de dados. Esse DataFrame é posteriormente mapeado para um formato específico de resultados (InferenceResults) que pode ser armazenado ou retornado ao usuário para visualização ou análise adicional.
