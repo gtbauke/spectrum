@@ -15,6 +15,8 @@ from iql.executor.plan.nodes import (
     SearchMode,
     SearchNode,
 )
+from iql.utils.planner_constants import PREDICT_FUNCTION_NAME
+from iql.utils.prediction_solver import PredictionEvaluationService
 from iql.utils.result import InferenceResult, InferenceResultList
 
 logger = logging.getLogger(__name__)
@@ -109,14 +111,16 @@ class QueryExecutor:
             raise QueryExecutionError(
                 "ApplyNode executed before returning a DataFrame.")
 
-        if node.function_name.upper() == "PREDICT":
-            from core.features.profiles.blocks.inference.prediction_service import PredictionEvaluationService
+        if node.function_name.upper() == PREDICT_FUNCTION_NAME:
             service = PredictionEvaluationService()
 
             predictions = []
             for _, row in df.iterrows():
-                expr = row.get("expression", row.get(
-                    "Pattern", row.get("Numpy", "")))
+                expr = row.get("Numpy", None)
+                if expr is None:
+                    raise QueryExecutionError(
+                        "ApplyNode with PREDICT function requires 'Numpy' column in the DataFrame.")
+
                 params = row.get("parameters", row.get("Parameters", "[]"))
                 pred = service.evaluate_expression(
                     expr, node.arguments, params)
@@ -147,7 +151,6 @@ class QueryExecutor:
 
         if "Id" in result.columns:
             result = result.rename(columns={"Id": "egraph_id"})
-            # Ensure egraph_id is a string as expected by InferenceResult DTO
             result["egraph_id"] = result["egraph_id"].astype(str)
             subset = ["egraph_id" if c == "id" else c for c in subset]
             if "egraph_id" not in subset:
@@ -161,7 +164,6 @@ class QueryExecutor:
             result = result.rename(columns={"Numpy": "numpy"})
             subset = ["numpy" if c == "numpy" else c for c in subset]
 
-        # Project columns
         mask = result.columns.str.contains("|".join(subset), case=False)
         final_result = result.loc[:, mask]
         final_result.columns = final_result.columns.str.lower()

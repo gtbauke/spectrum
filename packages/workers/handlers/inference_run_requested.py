@@ -95,13 +95,6 @@ class InferenceRunRequestedHandler(EventHandler[InferenceRunRequestedEvent]):
                     raise ValueError(
                         "No model identifier resolved during compilation")
 
-                def is_valid_uuid(s: str) -> bool:
-                    try:
-                        UUID(s)
-                        return True
-                    except ValueError:
-                        return False
-
                 resolved_model = None
                 for m in available_models:
                     if m.name == model_identifier or str(m.id) == model_identifier:

@@ -80,6 +80,7 @@ iql/tokenizer/errors/unexpected_character_error.py
 iql/tokenizer/errors/unterminated_string_error.py
 iql/utils/__init__.py
 iql/utils/planner_constants.py
+iql/utils/prediction_solver.py
 iql/utils/result.py
 iql/utils/span.py
 tests/test_compiler.py
