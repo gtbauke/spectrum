@@ -19,9 +19,10 @@ logger = logging.getLogger(__name__)
 class CompilerResult:
     """The result of an IQL compilation pass."""
 
-    def __init__(self, plan: LogicalPlan | None, errors: IqlErrorCollector):
+    def __init__(self, plan: LogicalPlan | None, errors: IqlErrorCollector, resolved_model_identifier: str | None = None):
         self.plan = plan
         self.errors = errors
+        self.resolved_model_identifier = resolved_model_identifier
 
     @property
     def is_success(self) -> bool:
@@ -69,7 +70,7 @@ class IqlCompiler:
                 root=ast, analysis=analysis_result, errors=errors)
             logical_plan = planner.create_plan()
 
-            return CompilerResult(plan=logical_plan, errors=errors)
+            return CompilerResult(plan=logical_plan, errors=errors, resolved_model_identifier=analysis_result.resolved_model_name)
         except Exception as e:
             logger.error(f"Compiler unhandled error: {traceback.format_exc()}")
 

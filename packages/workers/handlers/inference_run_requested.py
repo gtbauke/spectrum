@@ -4,22 +4,22 @@ import os
 import tempfile
 import time
 
-from typing import Any, cast
+from typing import Any
 from uuid import UUID
 
 from reggression import Reggression  # type: ignore
 
-from iql.tokenizer.tokenizer import QueryTokenizer
-from iql.parser.parser import InferenceQueryParser
-from iql.executor.query_executor import QueryExecutor, SelectCommandAstNode
+from iql.compiler import IqlCompiler
+from iql.executor.query_executor import QueryExecutor
 
 from core.features.profiles.blocks.inference.events import InferenceRunRequestedEvent
 from core.features.profiles.blocks.inference.inference_result import InferenceResult
 from core.features.profiles.blocks.inference.where import InferenceRunWhere
-from core.features.profiles.models.where import ModelWhere, ModelFilter
+from core.features.profiles.models.where import ModelFilter
 from core.features.datasets.where import DatasetWhere
 from core.features.datasets.artifact_role import ArtifactRole
 from core.features.profiles.blocks.inference.inference_run import InferenceRunStatus
+from core.features.profiles.jobs.where import JobWhere
 
 from core.utils.filters.field_filter import UUIDFilter
 
@@ -66,57 +66,57 @@ class InferenceRunRequestedHandler(EventHandler[InferenceRunRequestedEvent]):
                 await uow.inference_runs.update(run)
                 await uow.commit()
 
-                # 1. Parse Query to find referenced model
-                tokenizer = QueryTokenizer(event.query)
-                tokens = tokenizer.tokenize()
-                parser = InferenceQueryParser(tokens)
-                root_node = parser.parse_expression()
+                available_models = await uow.models.list_all(
+                    filter=ModelFilter(
+                        profile_id=UUIDFilter(eq=run.profile_id),
+                    )
+                )
 
-                if not isinstance(root_node, SelectCommandAstNode):
-                    raise ValueError("Query must be a SELECT statement")
+                model_identifiers = [
+                    m.name for m in available_models] + [str(m.id) for m in available_models]
 
-                model_identifier = root_node.from_model().name()
-                logger.info("Query references model: %s", model_identifier)
-
-                # 2. Resolve Model
-                # Try by ID first, then by name
-                model = None
-                try:
-                    model_id = UUID(model_identifier)
-                    model = await uow.models.get_unique(ModelWhere(id=model_id))
-                except ValueError:
-                    # Not a UUID, search by name
-                    models = await uow.models.list_all(ModelFilter(
-                        profile_id=UUIDFilter(eq=run.profile_id)
-                    ))
-
-                    logger.info("Found %d models with name '%s'", len(models), model_identifier, extra={
-                        "models": [m.name for m in models]
-                    })
-
-                    same_name_models = [
-                        m for m in models if m.name == model_identifier]
-                    if len(same_name_models) == 1:
-                        model = same_name_models[0]
-
-                if not model:
-                    raise ValueError(f"Model '{model_identifier}' not found")
+                compiler = IqlCompiler()
+                compilation_result = compiler.compile(
+                    query=event.query,
+                    available_models=model_identifiers,
+                )
 
                 run.status = InferenceRunStatus.DOWNLOADING_DATA
                 await uow.inference_runs.update(run)
                 await uow.commit()
 
-                # 3. Resolve Dataset for this model
-                if not model.generated_by:
+                if not compilation_result.is_success:
                     raise ValueError(
-                        f"Model '{model.id}' has no associated Job (generated_by is null)")
+                        f"Failed to compile query: {compilation_result.errors.errors[0]}"
+                    )
 
-                from core.features.profiles.jobs.where import JobWhere
-                job = await uow.jobs.get_unique(JobWhere(id=model.generated_by))
+                model_identifier = compilation_result.resolved_model_identifier
+                if not model_identifier:
+                    raise ValueError(
+                        "No model identifier resolved during compilation")
 
+                def is_valid_uuid(s: str) -> bool:
+                    try:
+                        UUID(s)
+                        return True
+                    except ValueError:
+                        return False
+
+                resolved_model = None
+                for m in available_models:
+                    if m.name == model_identifier or str(m.id) == model_identifier:
+                        resolved_model = m
+                        break
+
+                if not resolved_model:
+                    raise ValueError(
+                        f"Resolved model identifier '{model_identifier}' does not match any available model"
+                    )
+
+                job = await uow.jobs.get_unique(JobWhere(id=resolved_model.generated_by))
                 if not job:
                     raise ValueError(
-                        f"Job '{model.generated_by}' not found for model '{model.id}'")
+                        f"Job '{resolved_model.generated_by}' not found")
 
                 dataset = await uow.datasets.get_unique(DatasetWhere(id=job.runs_against))
                 if not dataset:
@@ -131,28 +131,27 @@ class InferenceRunRequestedHandler(EventHandler[InferenceRunRequestedEvent]):
 
                 dataset_artifact = data_artifacts[0]
 
-                # 4. Download files
                 with tempfile.TemporaryDirectory() as tmp_dir:
                     dataset_path = os.path.join(tmp_dir, "dataset.csv")
                     model_path = os.path.join(tmp_dir, "model.egraph")
 
-                    # Download dataset CSV
                     await uow.file_storage.download(path=dataset_artifact.path, destination=dataset_path)
-                    # Download model result (e-graph)
-                    await uow.file_storage.download(path=model.path, destination=model_path)
+                    await uow.file_storage.download(path=resolved_model.path, destination=model_path)
 
                     run.status = InferenceRunStatus.EXECUTING
                     await uow.inference_runs.update(run)
                     await uow.commit()
 
                     def run_heavy_execution():
-                        # 5. Initialize Reggression and Executor
+                        if compilation_result.plan is None:
+                            raise ValueError(
+                                "No execution plan generated during compilation")
+
                         reggression = Reggression(
                             dataset=dataset_path, loadFrom=model_path)
-                        executor = QueryExecutor(root_node=root_node, reggressions={
-                            model_identifier: reggression})
+                        executor = QueryExecutor(reggressions={
+                            model_identifier: reggression}, plan=compilation_result.plan)
 
-                        # 6. Execute
                         query_result = executor.execute()
                         return query_result
 
@@ -163,7 +162,6 @@ class InferenceRunRequestedHandler(EventHandler[InferenceRunRequestedEvent]):
 
                     logger.info(f"Sample results: {query_result.results[:10]}")
 
-                    # 7. Persist Results
                     domain_results = [
                         InferenceResult.new(
                             run_id=event.run_id,
