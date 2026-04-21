@@ -28,4 +28,3 @@
 \contentsline {lstlisting}{\numberline {4.12}{\ignorespaces Classe de domínio que define um bloco de consulta em linguagem IQL}}{63}{lstlisting.4.12}%
 \contentsline {lstlisting}{\numberline {4.13}{\ignorespaces Classe de domínio que define uma InferenceRun}}{63}{lstlisting.4.13}%
 \contentsline {lstlisting}{\numberline {4.14}{\ignorespaces Classe de domínio que define uma InferenceResult}}{64}{lstlisting.4.14}%
-\contentsline {lstlisting}{\numberline {5.1}{\ignorespaces Estrutura básica de uma consulta IQL}}{80}{lstlisting.5.1}%

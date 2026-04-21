@@ -13,28 +13,68 @@ A Inference Query Language (IQL) foi concebida para permitir que usuários possa
 Assim como o SQL, o IQL é uma linguagem declarativa. Linguagens declarativas são aquelas em que o programador descreve o que ele deseja obter, sem especificar o fluxo de controle ou os passos procedimentais para alcançar esse resultado~\cite{sommerville2011software}. No contexto do IQL, o usuário pode especificar padrões matemáticos, restrições de complexidade ou métricas de erro, e o sistema é responsável por realizar a busca e filtragem no e-graph.
 
 \subsection{Gramática Formal}
-A IQL é composta por uma sintaxe inspirada no padrão ANSI SQL. Uma consulta básica segue a seguinte estrutura:
+A IQL é composta por uma sintaxe inspirada no padrão ANSI SQL. A gramática formal da linguagem, apresentada na Figura~\ref{fig:iql_grammar}, foi especificada em Extended Backus-Naur Form (EBNF) e define todas as produções aceitas pelo parser da plataforma.
 
-\begin{lstlisting}[language=Sql, caption=Estrutura básica de uma consulta IQL]
-SELECT [TOP <n> | PARETO] <campos>
-FROM [<nome do modelo ou identificador>]
-[WHERE <condicoes>]
-[PATTERN IS LIKE <padrao>]
-[ORDER BY <campos> [ASC | DESC]]
-\end{lstlisting}
+\begin{figure}[htbp]
+    \caption{Gramática formal da Inference Query Language (IQL) em notação EBNF, definindo a sintaxe completa para consultas declarativas sobre modelos de regressão simbólica baseados em e-graphs}
+    \centering
+    \begin{tabular}{rcl}
+        \toprule
+        \textit{query} & ::= & \texttt{SELECT} [\textit{modifier}] [\texttt{DISTRIBUTION}]
+            \textit{column-list} \\
+        & & \texttt{FROM} \textit{identifier}
+            [\textit{where-clause}] \\
+        & & [\textit{pattern-clause}]
+            [\textit{order-clause}] \\
+        & & [\textit{at-least-clause}]
+            [\textit{limit-clause}] \\[4pt]
+        \textit{modifier} & ::= & \texttt{TOP} \textit{integer}
+            $\mid$ \texttt{PARETO} \\[4pt]
+        \textit{column-list} & ::= & \textit{column}
+            (\texttt{,} \textit{column})* \\[4pt]
+        \textit{column} & ::= & \textit{identifier}
+            $\mid$ \textit{predict-call} \\[4pt]
+        \textit{predict-call} & ::= & \texttt{PREDICT} \texttt{(} \textit{mapping}
+            (\texttt{,} \textit{mapping})* \texttt{)} \\[4pt]
+        \textit{mapping} & ::= & \textit{identifier} \texttt{=} \textit{number} \\[4pt]
+        \textit{where-clause} & ::= & \texttt{WHERE} \textit{condition}
+            (\textit{bool-op} \textit{condition})* \\[4pt]
+        \textit{condition} & ::= & \textit{identifier} \textit{comparator}
+            \textit{number} \\[4pt]
+        \textit{comparator} & ::= & \texttt{=} $\mid$ \texttt{<} $\mid$ \texttt{>}
+            $\mid$ \texttt{<=} $\mid$ \texttt{>=} \\[4pt]
+        \textit{bool-op} & ::= & \texttt{AND} $\mid$ \texttt{OR} \\[4pt]
+        \textit{pattern-clause} & ::= & \texttt{PATTERN IS LIKE} \textit{pattern-expr} \\[4pt]
+        \textit{pattern-expr} & ::= & \textit{identifier}
+            $\mid$ \textit{pattern-expr} \textit{arith-op} \textit{pattern-expr} \\[4pt]
+        \textit{arith-op} & ::= & \texttt{+} $\mid$ \texttt{-}
+            $\mid$ \texttt{*} $\mid$ \texttt{/} \\[4pt]
+        \textit{order-clause} & ::= & \texttt{ORDER BY} \textit{identifier} \\[4pt]
+        \textit{at-least-clause} & ::= & \texttt{AT LEAST} \textit{integer} \\[4pt]
+        \textit{limit-clause} & ::= & \texttt{LIMIT} \textit{integer} \\[4pt]
+        \textit{identifier} & ::= & \textit{letter} (\textit{letter} $\mid$ \textit{digit}
+            $\mid$ \texttt{\_})* \\[4pt]
+        \textit{number} & ::= & \textit{digit}+ [\texttt{.} \textit{digit}+] \\[4pt]
+        \textit{integer} & ::= & \textit{digit}+ \\
+        \bottomrule
+    \end{tabular}
+    \label{fig:iql_grammar}
+\end{figure}
 
-Os principais componentes da linguagem são:
+A produção raiz \textit{query} exige obrigatoriamente as cláusulas \texttt{SELECT} e \texttt{FROM}; as demais cláusulas são opcionais. A linguagem opera em três modos principais, controlados pelo modificador que sucede a palavra-chave \texttt{SELECT}:
+
 \begin{itemize}
-    \item \textbf{SELECT}: Determina quais atributos das expressões serão retornados (ex: \textit{expression, error, complexity});
-    \item \textbf{FROM PARETO}: Filtra as soluções que pertencem à frente de Pareto do modelo, priorizando o equilíbrio entre erro e simplicidade;
-    \item \textbf{FROM TOP <n>}: Seleciona as $n$ melhores expressões baseadas na métrica de erro;
-    \item \textbf{WHERE}: Permite a aplicação de filtros lógicos e aritméticos sobre as métricas (ex: \textit{error < 0.01 AND complexity < 10});
-    \item \textbf{PATTERN IS LIKE}: Introduz uma busca estrutural baseada em padrões de árvores de sintaxe. Utiliza curingas para identificar sub-expressões específicas.
-    \item \textbf{ORDER BY}: Define a ordenação dos resultados.
+    \item \textbf{TOP \textit{n}}: Seleciona as $n$ melhores expressões do e-graph de acordo com uma métrica de aptidão (\textit{fitness}). Quando nenhum modificador é especificado, o sistema assume \texttt{TOP 10} como valor padrão;
+    \item \textbf{PARETO}: Retorna todas as expressões pertencentes à fronteira de Pareto do modelo, priorizando o equilíbrio entre erro e complexidade estrutural;
+    \item \textbf{DISTRIBUTION}: Realiza uma análise de distribuição de padrões estruturais presentes no e-graph, retornando os sub-padrões mais frequentes. Nesse modo, apenas as colunas \texttt{pattern}, \texttt{frequency} e \texttt{fitness} são permitidas na lista de seleção.
 \end{itemize}
 
+Os campos que podem ser consultados na cláusula \texttt{SELECT} são determinados pelo executor da linguagem e correspondem às propriedades extraídas das expressões armazenadas no e-graph: \texttt{expression}, \texttt{dl}, \texttt{fitness}, \texttt{latex}, \texttt{numpy}, \texttt{parameters}, \texttt{size}, \texttt{pattern}, \texttt{frequency} e \texttt{prediction}. Além desses campos, a IQL suporta a função \texttt{PREDICT}, que permite ao usuário avaliar expressões com valores específicos para as variáveis independentes, como por exemplo \texttt{PREDICT(x0 = 1.5, x1 = 2.0)}.
+
+A cláusula \texttt{WHERE} aceita condições de filtragem sobre um subconjunto de campos numéricos: \texttt{id}, \texttt{size}, \texttt{parameters} e \texttt{cost}. As condições podem ser compostas por meio dos operadores lógicos \texttt{AND} e \texttt{OR}. A cláusula \texttt{PATTERN IS LIKE} permite a busca por padrões estruturais nas árvores de sintaxe das expressões, utilizando expressões aritméticas como referência para correspondência. A cláusula \texttt{ORDER BY} define a métrica utilizada para ordenar os resultados, enquanto as cláusulas \texttt{AT LEAST} e \texttt{LIMIT} controlam, respectivamente, a frequência mínima dos padrões retornados e o número máximo de resultados no modo \texttt{DISTRIBUTION}.
+
 \subsection{Exemplos de Consultas}
-Abaixo são apresentados exemplos de como a IQL pode ser utilizada para extrair conhecimento de modelos SR complexos:
+Abaixo são apresentados exemplos de como a IQL pode ser utilizada para extrair conhecimento de modelos de regressão simbólica:
 
 \begin{enumerate}
     \item \textbf{Busca por modelos simples na fronteira de Pareto}:
@@ -44,12 +84,26 @@ Abaixo são apresentados exemplos de como a IQL pode ser utilizada para extrair 
 
     \item \textbf{Filtragem por padrão estrutural (ex: funções periódicas)}:
     \begin{lstlisting}[language=Sql]
-    SELECT TOP 10 expression, fitness, size FROM my_model PATTERN IS LIKE "sin(v0)"
+    SELECT TOP 10 expression, fitness, size FROM my_model
+    PATTERN IS LIKE sin(v0)
     \end{lstlisting}
 
     \item \textbf{Busca por interações específicas entre variáveis}:
     \begin{lstlisting}[language=Sql]
-    SELECT PARETO expression, size FROM my_model WHERE PATTERN IS LIKE "x1 * x2"
+    SELECT PARETO expression, size FROM my_model
+    PATTERN IS LIKE x1 * x2
+    \end{lstlisting}
+
+    \item \textbf{Análise de distribuição de padrões}:
+    \begin{lstlisting}[language=Sql]
+    SELECT TOP 100 DISTRIBUTION pattern, frequency, fitness
+    FROM my_model AT LEAST 5 LIMIT 500
+    \end{lstlisting}
+
+    \item \textbf{Predição com valores específicos}:
+    \begin{lstlisting}[language=Sql]
+    SELECT TOP 5 expression, fitness, PREDICT(x0 = 1.5, x1 = 2.0)
+    FROM my_model WHERE size <= 10
     \end{lstlisting}
 \end{enumerate}
 
@@ -59,3 +113,67 @@ O uso da IQL permite que o usuário aplique o conhecimento prévio sobre o fenô
 A implementação da IQL é realizada através de um módulo de consulta que se integra ao back-end da plataforma. O módulo é responsável por transformar a sequência de caracteres enviada pelo usuário em uma árvore de sintaxe abstrata (AST), que é então interpretada para realizar a busca no e-graph do modelo de regressão simbólica. A execução da consulta envolve a aplicação de filtros lógicos, avaliação de métricas e correspondência de padrões estruturais, utilizando as funções de manipulação de e-graphs fornecidas pelo rEGGression~\cite{rEGGression}.
 
 O processamento de tokenização é feito via análise léxica utilizando laços de repetição e condições para identificar os componentes da consulta (palavras-chave, identificadores, operadores, etc.). A construção da AST é realizada por meio de uma técnica chamada Pratt Parsing, a qual associa operadores e precedências para construir a estrutura hierárquica da consulta. O Pratt Parsing permite a criação de \textit{parselets}, classes especializadas em converter uma sequência de tokens em um nó específico da árvore de sintaxe abstrata, para cada tipo de token inicial de uma expressão, facilitando a extensão da linguagem com novos operadores ou funcionalidades no futuro.
+
+A Figura \ref{fig:iql_execution_pipeline} apresenta o diagrama completo do pipeline de execução de uma consulta IQL, desde a entrada textual do usuário até o armazenamento dos resultados no banco de dados.
+
+\begin{figure}[htbp]
+    \caption{Pipeline de execução de uma consulta IQL, desde a entrada textual do usuário até o armazenamento dos resultados como InferenceResults no banco de dados}
+    \centering
+    \begin{tikzpicture}[
+        scale=0.72, transform shape,
+        node distance=1.8cm and 1.4cm,
+        stage/.style={
+            rectangle, draw=black, thick, rounded corners=4pt,
+            minimum height=1.2cm, minimum width=2.8cm,
+            text centered, font=\sffamily\small,
+            fill=gray!10
+        },
+        data/.style={
+            rectangle, draw=gray!70, thick, rounded corners=2pt,
+            minimum height=0.9cm, minimum width=2.2cm,
+            text centered, font=\sffamily\footnotesize,
+            fill=white, dashed
+        },
+        external/.style={
+            rectangle, draw=black, thick, rounded corners=4pt,
+            minimum height=1.2cm, minimum width=2.8cm,
+            text centered, font=\sffamily\small,
+            fill=gray!25
+        },
+        arrow/.style={->, >=stealth, thick, draw=gray!80},
+        label/.style={font=\sffamily\tiny, text=gray!70}
+    ]
+        % Row 1: Input -> Tokenizer -> Token List
+        \node[data] (input) {\shortstack{Consulta IQL\\(texto)}};
+        \node[stage, right=of input] (tokenizer) {Tokenizer};
+        \node[data, right=of tokenizer] (tokens) {\shortstack{Lista de\\Tokens}};
+
+        % Row 1: -> Parser -> AST
+        \node[stage, right=of tokens] (parser) {\shortstack{Pratt Parser\\+ Parselets}};
+        \node[data, right=of parser] (ast) {AST};
+
+        % Row 2: Executor -> rEGGression -> DataFrame -> Results
+        \node[stage, below=1.5cm of ast] (executor) {Executor};
+        \node[external, left=of executor] (reggression) {\shortstack{rEGGression\\(e-graph)}};
+        \node[data, left=of reggression] (dataframe) {\shortstack{DataFrame\\(Pandas)}};
+        \node[stage, left=of dataframe] (mapper) {\shortstack{Mapeamento\\de Colunas}};
+        \node[data, below=1.5cm of mapper] (results) {InferenceResults};
+
+        % Arrows Row 1
+        \draw[arrow] (input) -- (tokenizer);
+        \draw[arrow] (tokenizer) -- node[above, label] {análise léxica} (tokens);
+        \draw[arrow] (tokens) -- (parser);
+        \draw[arrow] (parser) -- node[above, label] {precedência} (ast);
+
+        % Arrow down
+        \draw[arrow] (ast) -- node[right, label] {interpretação} (executor);
+
+        % Arrows Row 2
+        \draw[arrow] (executor) -- node[above, label] {top/pareto/dist.} (reggression);
+        \draw[arrow] (reggression) -- node[above, label] {busca no e-graph} (dataframe);
+        \draw[arrow] (dataframe) -- node[above, label] {renomear/filtrar} (mapper);
+        \draw[arrow] (mapper) -- node[right, label] {persistência} (results);
+
+    \end{tikzpicture}
+    \label{fig:iql_execution_pipeline}
+\end{figure}
