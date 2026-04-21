@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 import pathlib
-import os
+
 from eggp import EGGP  # type: ignore
 from reggression import Reggression  # type: ignore
 
@@ -12,7 +12,8 @@ from iql.registry.function import create_default_registry
 @pytest.fixture(scope="session")
 def real_reggression_model(tmp_path_factory):
     """Trains a real but small EGGP model on an example dataset."""
-    dataset_path = pathlib.Path("/home/gusta/dev/spectrum/examples/faculty_salary/FacultySalaries_data.csv")
+    dataset_path = pathlib.Path(
+        "/home/gusta/dev/spectrum/examples/faculty_salary/FacultySalaries_data.csv")
     if not dataset_path.exists():
         pytest.skip(f"Example dataset not found at {dataset_path}")
 
@@ -21,11 +22,9 @@ def real_reggression_model(tmp_path_factory):
     X = df.iloc[:, :-1].to_numpy()
     y = df.iloc[:, -1].to_numpy()
 
-    # Define paths
     tmp_dir = tmp_path_factory.mktemp("iql_real_models")
     dump_path = tmp_dir / "model.eg"
 
-    # Train (very small to be fast)
     estimator = EGGP(
         gen=2,
         nPop=20,
@@ -34,17 +33,19 @@ def real_reggression_model(tmp_path_factory):
     )
     estimator.fit(X, y)
 
-    # Load with Reggression
     reg = Reggression(dataset=str(dataset_path), loadFrom=str(dump_path))
     return reg
+
 
 @pytest.fixture
 def function_registry():
     return create_default_registry()
 
+
 @pytest.fixture
 def compiler():
     return IqlCompiler()
+
 
 @pytest.fixture
 def regressions(real_reggression_model):
@@ -54,7 +55,7 @@ def regressions(real_reggression_model):
         "model_b": real_reggression_model
     }
 
-# Mock old name to avoid breaking things too early if we missed some files
+
 @pytest.fixture
 def mock_regressions(regressions):
     return regressions

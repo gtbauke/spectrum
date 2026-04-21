@@ -22,7 +22,6 @@ from iql.utils.planner_constants import QUERYABLE_LITERALS
 
 logger = logging.getLogger(__name__)
 
-# Columns that can appear on the left side of a WHERE condition.
 _ACCEPTED_WHERE_IDENTIFIERS = frozenset({
     "id",
     "size",
@@ -74,10 +73,6 @@ class SemanticAnalyzer:
         self._errors = IqlErrorCollector()
         self._resolved_model: str | None = None
 
-    # ------------------------------------------------------------------
-    # Public API
-    # ------------------------------------------------------------------
-
     def analyze(self, root: BaseAstNode) -> AnalysisResult:
         """Run semantic analysis over the given AST root."""
         if not isinstance(root, SelectCommandAstNode):
@@ -87,19 +82,13 @@ class SemanticAnalyzer:
         self._analyze_select(root)
         return self._build_result()
 
-    # ------------------------------------------------------------------
-    # SELECT analysis
-    # ------------------------------------------------------------------
-
     def _analyze_select(self, node: SelectCommandAstNode) -> None:
-        # Validate columns
         for column in node.columns():
             if isinstance(column, FunctionCallAstNode):
                 self._analyze_function_call(column)
             elif isinstance(column, IdentifierAstNode):
                 self._analyze_selectable_column(column)
             else:
-                # AliasClauseAstNode — validate the inner identifier
                 if hasattr(column, "name"):
                     col_name = column.name()
                     if col_name not in QUERYABLE_LITERALS:
@@ -107,9 +96,9 @@ class SemanticAnalyzer:
                             ColumnNotSelectableError(col_name, column.span)
                         )
 
-        # Validate FROM model
         model_ident = node.from_model()
         model_name = model_ident.name()
+
         if model_name in self._context.available_model_names:
             self._resolved_model = model_name
             self._symbol_table.define(
@@ -120,14 +109,9 @@ class SemanticAnalyzer:
                 ModelNotFoundError(model_name, model_ident.span)
             )
 
-        # Validate WHERE clause
         where_clause = node.where()
         if where_clause:
             self._analyze_where_conditions(where_clause.conditions())
-
-    # ------------------------------------------------------------------
-    # Column validation
-    # ------------------------------------------------------------------
 
     def _analyze_selectable_column(self, node: IdentifierAstNode) -> None:
         col_name = node.name()
@@ -140,10 +124,6 @@ class SemanticAnalyzer:
                 Symbol(col_name, SymbolKind.COLUMN, IqlType.ANY)
             )
 
-    # ------------------------------------------------------------------
-    # Function call validation
-    # ------------------------------------------------------------------
-
     def _analyze_function_call(self, node: FunctionCallAstNode) -> None:
         fn_name = node.function_name.upper()
         definition = self._context.function_registry.get(fn_name)
@@ -155,10 +135,6 @@ class SemanticAnalyzer:
             self._symbol_table.define(
                 Symbol(fn_name, SymbolKind.FUNCTION, definition.return_type)
             )
-
-    # ------------------------------------------------------------------
-    # WHERE clause validation
-    # ------------------------------------------------------------------
 
     def _analyze_where_conditions(self, conditions: list[BaseAstNode]) -> None:
         for condition in conditions:
@@ -181,10 +157,6 @@ class SemanticAnalyzer:
                 self._errors.add(
                     InvalidWhereIdentifierError(left.name(), left.span)
                 )
-
-    # ------------------------------------------------------------------
-    # Result builder
-    # ------------------------------------------------------------------
 
     def _build_result(self) -> AnalysisResult:
         return AnalysisResult(

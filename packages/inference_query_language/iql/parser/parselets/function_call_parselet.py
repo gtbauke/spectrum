@@ -8,7 +8,6 @@ from iql.tokenizer.token import Token, TokenKind
 from iql.utils.span import Span
 from iql.parser.parselets.errors.expected_identifier import ExpectedIdentifierParseError
 from iql.parser.parselets.errors.expected_number import ExpectedNumberParseError
-from iql.parser.parselets.errors.unknown_function import UnknownFunctionParseError
 
 import logging
 
@@ -24,10 +23,6 @@ class FunctionCallParselet(InfixParselet):
                 "Expected function identifier before '('.", left.span)
 
         function_name = left.name().upper()
-        if function_name != "PREDICT":
-            raise UnknownFunctionParseError(
-                f"Unsupported function call '{function_name}'.", left.span)
-
         mappings = []
 
         while not parser.matches(TokenKind.RIGHT_PAREN):
