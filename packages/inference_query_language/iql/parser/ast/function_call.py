@@ -20,6 +20,9 @@ class FunctionCallAstNode(BaseAstNode):
     def function_name(self) -> str:
         return self._function_name
 
+    def name(self) -> str:
+        return self._function_name.lower()
+
     @property
     def arguments(self) -> list[FunctionArgument]:
         return self._arguments
