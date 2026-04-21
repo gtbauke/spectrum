@@ -12,11 +12,13 @@ from iql.executor.errors.invalid_top_n_expression_error import InvalidTopNExpres
 from iql.executor.errors.result_should_be_dataframe_error import ResultShouldBeDataFrameError
 from iql.executor.errors.column_is_not_selectable_error import ColumnIsNotSelectableError
 
+from iql.parser.ast.commands.select_command import SelectCommandAstNode
 from iql.parser.ast.function_call import FunctionCallAstNode
+from iql.parser.ast.identifier import IdentifierAstNode
+from iql.parser.ast.pattern_matching_expression import PatternMatchingExpression
 from iql.parser.ast.where import WhereAstNode
 from iql.parser.base import BaseAstNode
 from iql.parser.ast.base import AstNodeKind
-from iql.parser.ast.select import IdentifierAstNode, PatternMatchingExpression, SelectClauseAstNode
 from iql.executor.errors.root_expression_should_be_select_clause_error import (
     RootExpressionShouldBeSelectClauseError,
 )
@@ -141,17 +143,17 @@ class QueryExecutor:
         pattern = pattern_matching_clause.pattern
         return self._build_pattern_string(pattern)
 
-    def _execute_top_n_expression(self, select_clause: SelectClauseAstNode, modifier: TopNAstNode) -> DataFrame:
+    def _execute_top_n_expression(self, select_clause: SelectCommandAstNode, modifier: TopNAstNode) -> DataFrame:
         n = self._calculate_top_n(modifier)
 
-        where_clause = select_clause.where_clause()
+        where_clause = select_clause.where()
         where_conditions = self._build_where_conditions(
             where_clause) if where_clause else []
 
         pattern = select_clause.pattern_matching_expression()
         pattern_str = self._build_pattern_matching(pattern) if pattern else ""
 
-        order_by_clause = select_clause.order_by_clause()
+        order_by_clause = select_clause.order_by()
         criteria = order_by_clause.criteria().name() if order_by_clause else "fitness"
 
         if self._active_reggression is None:
@@ -180,22 +182,26 @@ class QueryExecutor:
 
         return result
 
-    def _execute_distribution_expression(self, select_clause: SelectClauseAstNode) -> DataFrame:
+    def _execute_distribution_expression(self, select_clause: SelectCommandAstNode) -> DataFrame:
         modifier = select_clause.modifier()
         from_top = self._calculate_top_n(
             modifier) if isinstance(modifier, TopNAstNode) else 5000
 
-        where_clause = select_clause.where_clause()
+        where_clause = select_clause.where()
         filters = self._build_where_conditions(
             where_clause) if where_clause else []
 
         at_least_node = select_clause.at_least()
+        if not isinstance(at_least_node, IntegerLiteralAstNode):
+            raise ValueError(
+                "AT LEAST modifier must be an integer literal")
+
         at_least = at_least_node.value() if at_least_node else 10
 
         limit_node = select_clause.limit()
         limited_at = limit_node.value() if limit_node else 1000
 
-        order_by_clause = select_clause.order_by_clause()
+        order_by_clause = select_clause.order_by()
         by_fitness = True
         dsc = True
 
@@ -225,7 +231,7 @@ class QueryExecutor:
 
     # TODO: Implement support for other SQL-like features.
     def execute(self) -> InferenceResultList:
-        if not isinstance(self._root_node, SelectClauseAstNode):
+        if not isinstance(self._root_node, SelectCommandAstNode):
             raise RootExpressionShouldBeSelectClauseError()
 
         for column in self._root_node.columns():
@@ -234,7 +240,7 @@ class QueryExecutor:
             if col_name not in self._QUERYABLE_LITERALS:
                 raise ColumnIsNotSelectableError(col_name)
 
-        model_identifier = self._root_node.from_clause().identifier()
+        model_identifier = self._root_node.from_model()
 
         logger.info(
             f"[QueryExecutor] Executing query for model: {model_identifier.name()}")
@@ -261,7 +267,7 @@ class QueryExecutor:
             result = self._execute_top_n_expression(
                 select_clause=self._root_node, modifier=default_top_n)
         else:
-            raise InvalidFromSourceError(type(modifier))
+            raise InvalidFromSourceError(modifier.kind)
 
         predict_clauses = [col for col in self._root_node.columns(
         ) if isinstance(col, FunctionCallAstNode)]

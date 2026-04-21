@@ -9,3 +9,6 @@ class AliasClauseAstNode(BaseAstNode):
 
     def alias(self) -> IdentifierAstNode:
         return self._alias
+
+    def name(self) -> str:
+        return self._alias.name()
