@@ -150,7 +150,16 @@ services:
             - spectrum_storage:/app/spectrum_data
         working_dir: /app/packages/workers
         command: ["uv", "run", "python", "main.py"]
-
+    frontend:
+        build:
+            context: ./packages/frontend
+            target: production
+            args:
+                - VITE_API_BASE_URL=https://spectrum.app.br/api/v1
+        container_name: spectrum-frontend
+        restart: always
+        env_file:
+            - .env
     nginx:
         image: nginx:stable-alpine
         container_name: spectrum-nginx
@@ -160,9 +169,9 @@ services:
             - "443:443"
         volumes:
             - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-            - ./packages/frontend/build:/usr/share/nginx/html:ro
         depends_on:
             - backend
+            - frontend
 
 volumes:
     spectrum_pg_data:
