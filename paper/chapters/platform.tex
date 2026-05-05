@@ -302,7 +302,7 @@ O back-end do projeto foi desenvolvido seguindo o padrão monólito modularizado
     \label{fig:entity_diagram}
 \end{figure}
 
-A figura \ref{fig:entity_diagram} apresenta a estrutura de entidades do sistema, bem como suas relações. As sub-seções seguintes apresentam detalhes de cada módulo, suas regras de negócios, as rotas HTTP disponibilizadas por eles manipulação do seu domínio, bem como os valores esperadas de entrada e saída para cada rota.
+A Figura \ref{fig:entity_diagram} apresenta a estrutura de entidades do sistema, bem como suas relações. As sub-seções seguintes apresentam detalhes de cada módulo, suas regras de negócios, as rotas HTTP disponibilizadas por eles manipulação do seu domínio, bem como os valores esperadas de entrada e saída para cada rota.
 
 \subsection{Usuários}
 Como forma de permitir a criação de modelos privados, a plataforma Spectrum oferece uma funcionalidade de criação de contas de usuário. Todas as demais entidades do sistema estão relacionadas, direta ou indiretamente, com um usuário. Usuários representam pessoas que utilizam a plataforma. Um usuário é definido a nível de banco de dados pelo código \ref{code:user_db}, e a nível de domínio pelo código \ref{code:user_domain}.
@@ -754,7 +754,7 @@ O front-end da plataforma Spectrum é uma aplicação web desenvolvida utilizand
     \label{fig:login_screen}
 \end{figure}
 
-A imagem \ref{fig:login_screen} apresenta a tela de login da plataforma Spectrum, onde os usuários podem inserir suas credenciais (email e senha) para acessar seus espaços de trabalho personalizados. A autenticação é realizada por meio de JSON Web Tokens (JWT) armazenados em cookies \textit{HttpOnly}, garantindo a segurança das informações dos usuários e mitigando ataques de Cross-Site Scripting (XSS). A tela de login é o ponto de entrada para a plataforma, permitindo que os usuários acessem suas contas e comecem a explorar as funcionalidades oferecidas pela ferramenta.
+A Figura \ref{fig:login_screen} apresenta a tela de login da plataforma Spectrum, onde os usuários podem inserir suas credenciais (email e senha) para acessar seus espaços de trabalho personalizados. A autenticação é realizada por meio de JSON Web Tokens (JWT) armazenados em cookies \textit{HttpOnly}, garantindo a segurança das informações dos usuários e mitigando ataques de Cross-Site Scripting (XSS). A tela de login é o ponto de entrada para a plataforma, permitindo que os usuários acessem suas contas e comecem a explorar as funcionalidades oferecidas pela ferramenta.
 
 \subsection{Tela de Cadastro}
 \begin{figure}
@@ -764,10 +764,10 @@ A imagem \ref{fig:login_screen} apresenta a tela de login da plataforma Spectrum
     \label{fig:signup_screen}
 \end{figure}
 
-A imagem \ref{fig:signup_screen} apresenta a tela de cadastro da plataforma Spectrum, onde os usuários podem criar uma nova conta e acessar seus espaços de trabalho. Para criar uma conta, os usuários devem fornecer informações como nome, sobrenome, email e senha. O processo de cadastro é fundamental para garantir a privacidade e segurança das informações dos usuários, permitindo que cada usuário tenha acesso apenas aos seus próprios dados e modelos de regressão simbólica. A tela de cadastro é o ponto de entrada para novos usuários na plataforma, permitindo que eles criem suas contas e comecem a explorar as funcionalidades oferecidas pela ferramenta.
+A Figura \ref{fig:signup_screen} apresenta a tela de cadastro da plataforma Spectrum, onde os usuários podem criar uma nova conta e acessar seus espaços de trabalho. Para criar uma conta, os usuários devem fornecer informações como nome, sobrenome, email e senha. O processo de cadastro é fundamental para garantir a privacidade e segurança das informações dos usuários, permitindo que cada usuário tenha acesso apenas aos seus próprios dados e modelos de regressão simbólica. A tela de cadastro é o ponto de entrada para novos usuários na plataforma, permitindo que eles criem suas contas e comecem a explorar as funcionalidades oferecidas pela ferramenta.
 
 \subsection{Editor}
-O fluxo principal de interação dos usuários com a plataforma ocorre por meio do Editor, onde os usuários podem navegar entre seus Profiles e Datasets, configurar Jobs para treinamento, observar resultados de treinamento e validação, e realizar consultas em linguagem IQL. O Editor é o espaço de trabalho central da plataforma, integrando todas as funcionalidades oferecidas pela ferramenta em uma interface intuitiva e personalizada. Por meio do Editor, os usuários podem organizar seus experimentos, analisar os resultados dos modelos de regressão simbólica e interagir com os modelos presentes no e-graph de forma eficiente, promovendo uma experiência de usuário fluida e integrada para a exploração de algoritmos de regressão simbólica. A imagem \ref{fig:editor_screen} apresenta a tela inicial do Editor.
+O fluxo principal de interação dos usuários com a plataforma ocorre por meio do Editor, onde os usuários podem navegar entre seus Profiles e Datasets, configurar Jobs para treinamento, observar resultados de treinamento e validação, e realizar consultas em linguagem IQL. O Editor é o espaço de trabalho central da plataforma, integrando todas as funcionalidades oferecidas pela ferramenta em uma interface intuitiva e personalizada. Por meio do Editor, os usuários podem organizar seus experimentos, analisar os resultados dos modelos de regressão simbólica e interagir com os modelos presentes no e-graph de forma eficiente, promovendo uma experiência de usuário fluida e integrada para a exploração de algoritmos de regressão simbólica. A Figura \ref{fig:editor_screen} apresenta a tela inicial do Editor.
 
 \begin{figure}
     \centering
@@ -777,7 +777,7 @@ O fluxo principal de interação dos usuários com a plataforma ocorre por meio 
 \end{figure}
 
 \subsubsection{Navegação}
-A tela do editor contém três principais elementos de navegação e uma área central de atividades. Os dois primeiros elementos de navegação são a barra de atividades, a qual apresenta, por meio de ícones, as principais funcionalidades da plataforma, e a barra lateral, que apresenta visões diferentes de acordo com a funcionalidade selecionada na barra de atividades. Por exemplo, ao selecionar a funcionalidade de Profiles, a barra lateral apresenta uma visão geral dos Profiles do usuário, permitindo que ele navegue entre seus espaços de trabalho personalizados. Já ao selecionar a funcionalidade de Datasets, a barra lateral apresenta uma visão geral dos Datasets do usuário, permitindo que ele gerencie seus conjuntos de dados experimentais. A área central do Editor é onde os usuários podem configurar Jobs para treinamento, observar resultados de treinamento e validação, e realizar consultas em linguagem IQL, integrando todas as funcionalidades oferecidas pela plataforma em um único espaço de trabalho intuitivo e eficiente para a exploração de algoritmos de regressão simbólica. Além disso, a tela do Editor também apresenta uma área de navegação na parte superior na qual Profiles abertas são apresentadas como abas para facilitar a navegação entre diferentes espaços de trabalho. A imagem \ref{fig:editor_sidebars} apresenta os elementos referentes à barra de atividades e à barra lateral.
+A tela do editor contém três principais elementos de navegação e uma área central de atividades. Os dois primeiros elementos de navegação são a barra de atividades, a qual apresenta, por meio de ícones, as principais funcionalidades da plataforma, e a barra lateral, que apresenta visões diferentes de acordo com a funcionalidade selecionada na barra de atividades. Por exemplo, ao selecionar a funcionalidade de Profiles, a barra lateral apresenta uma visão geral dos Profiles do usuário, permitindo que ele navegue entre seus espaços de trabalho personalizados. Já ao selecionar a funcionalidade de Datasets, a barra lateral apresenta uma visão geral dos Datasets do usuário, permitindo que ele gerencie seus conjuntos de dados experimentais. A área central do Editor é onde os usuários podem configurar Jobs para treinamento, observar resultados de treinamento e validação, e realizar consultas em linguagem IQL, integrando todas as funcionalidades oferecidas pela plataforma em um único espaço de trabalho intuitivo e eficiente para a exploração de algoritmos de regressão simbólica. Além disso, a tela do Editor também apresenta uma área de navegação na parte superior na qual Profiles abertas são apresentadas como abas para facilitar a navegação entre diferentes espaços de trabalho. A Figura \ref{fig:editor_sidebars} apresenta os elementos referentes à barra de atividades e à barra lateral.
 
 \begin{figure}
     \centering
@@ -786,7 +786,7 @@ A tela do editor contém três principais elementos de navegação e uma área c
     \label{fig:editor_sidebars}
 \end{figure}
 
-A barra de atividades apresenta duas principais visões: Profiles e Datasets. A visão de Profiles permite que os usuários naveguem entre seus espaços de trabalho, enquanto a visão de Datasets permite que os usuários gerenciem seus conjuntos de dados. Ambas as visões apresentam implementação semelhante, utilizando a biblioteca \textit{React Query} para realizar o gerenciamento do estado e cache das informações vindas do back-end. A imagem \ref{fig:editor_sidebars} apresenta a barra lateral com a visão de Profiles, enquanto a imagem \ref{fig:editor_datasets_sidebar} apresenta a barra lateral com a visão de Datasets.
+A barra de atividades apresenta duas principais visões: Profiles e Datasets. A visão de Profiles permite que os usuários naveguem entre seus espaços de trabalho, enquanto a visão de Datasets permite que os usuários gerenciem seus conjuntos de dados. Ambas as visões apresentam implementação semelhante, utilizando a biblioteca \textit{React Query} para realizar o gerenciamento do estado e cache das informações vindas do back-end. A Figura \ref{fig:editor_sidebars} apresenta a barra lateral com a visão de Profiles, enquanto a Figura \ref{fig:editor_datasets_sidebar} apresenta a barra lateral com a visão de Datasets.
 \begin{figure}
     \centering
     \includegraphics[width=0.2\textwidth]{images/screens/spectrum_datasets_sidebar.png}
@@ -796,7 +796,7 @@ A barra de atividades apresenta duas principais visões: Profiles e Datasets. A 
 
 Outra funcionalidade importante presente na visão de Datasets é o botão de importar um dataset em específico para uma Profile. Ao clicar nesse botão, caso o usuário tenha uma profile aberta, o dataset é associado à profile, permitindo que o usuário configure um Job para treinamento utilizando os dados do dataset importado. Caso nenhuma profile esteja ativa no editor, uma nova aba é aberta para uma nova profile com o dataset associado.
 
-Além disso, a visão de datasets apresenta um botão que permite a criação de um novo dataset, o qual, ao ser clicado, redireciona o usuário para a página de upload de datasets, a qual é implementada também como uma aba do editor. A imagem \ref{fig:editor_upload_dataset} apresenta a tela de upload de datasets, onde os usuários podem fazer upload de arquivos CSV para serem utilizados em seus experimentos de regressão simbólica.
+Além disso, a visão de datasets apresenta um botão que permite a criação de um novo dataset, o qual, ao ser clicado, redireciona o usuário para a página de upload de datasets, a qual é implementada também como uma aba do editor. A Figura \ref{fig:editor_upload_dataset} apresenta a tela de upload de datasets, onde os usuários podem fazer upload de arquivos CSV para serem utilizados em seus experimentos de regressão simbólica.
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{images/screens/spectrum_editor_upload_dataset.png}
@@ -804,7 +804,7 @@ Além disso, a visão de datasets apresenta um botão que permite a criação de
     \label{fig:editor_upload_dataset}
 \end{figure}
 
-Ambas as visões também apresentam a funcionalidade de filtrar os itens apresentados por meio de campos de busca localizados na parte superior. Inicialmente, apenas o filtro de nome é visível, mas a plataforma também implementa filtros adicionais que podem ser acessados por meio do menu de filtros avançados, localizado ao lado do campo de busca, os quais podem ser vistos na imagem \ref{fig:editor_advanced_filters}.
+Ambas as visões também apresentam a funcionalidade de filtrar os itens apresentados por meio de campos de busca localizados na parte superior. Inicialmente, apenas o filtro de nome é visível, mas a plataforma também implementa filtros adicionais que podem ser acessados por meio do menu de filtros avançados, localizado ao lado do campo de busca, os quais podem ser vistos na Figura \ref{fig:editor_advanced_filters}.
 \begin{figure}
     \centering
     \includegraphics[width=0.2\textwidth]{images/screens/advanced_filters.png}
@@ -815,7 +815,7 @@ Ambas as visões também apresentam a funcionalidade de filtrar os itens apresen
 As barras de navegação laterais tem como objetivo facilitar a navegação entre os principais elementos do sistema, permitindo que os usuários acessem espaços de trabalho e gerenciem datasets de forma eficiente. A área central implementa um sistema de abas para permitir que diferentes Profiles sejam abertas simultaneamente, promovendo a comparação e análise de resultados entre diferentes espaços de trabalho.
 
 \subsubsection{Upload de Datasets}
-O upload de datasets é feito por meio da aba de upload, acessada na visão de datasets da barra de atividades. A figura \ref{fig:editor_upload_dataset} apresenta o estado inicial da tela, o qual espera que o usuário faça o upload de pelo menos um arquivo CSV. Após a escolha dos arquivos, a tela permite que o usuário configure o nome, descrição e papéis dos arquivos, os quais podem ser do tipo \textit{Data} ou do tipo \textit{Validation}. O primeiro é utilizado para o treinamento dos modelos de regressão simbólica, enquanto o segundo é utilizado para a validação dos modelos gerados. O upload de datasets é uma etapa fundamental para a utilização da plataforma, permitindo que os usuários forneçam os dados necessários para o treinamento e validação de seus modelos de regressão simbólica. As imagens \ref{fig:upload_config} e \ref{fig:upload_preview} apresentam, respectivamente, a seção de configuração dos artefatos do dataset sendo criado, e a seção de pré-visualização dos dados presentes nos arquivos CSV enviados.
+O upload de datasets é feito por meio da aba de upload, acessada na visão de datasets da barra de atividades. A Figura \ref{fig:editor_upload_dataset} apresenta o estado inicial da tela, o qual espera que o usuário faça o upload de pelo menos um arquivo CSV. Após a escolha dos arquivos, a tela permite que o usuário configure o nome, descrição e papéis dos arquivos, os quais podem ser do tipo \textit{Data} ou do tipo \textit{Validation}. O primeiro é utilizado para o treinamento dos modelos de regressão simbólica, enquanto o segundo é utilizado para a validação dos modelos gerados. O upload de datasets é uma etapa fundamental para a utilização da plataforma, permitindo que os usuários forneçam os dados necessários para o treinamento e validação de seus modelos de regressão simbólica. As Figuras \ref{fig:upload_config} e \ref{fig:upload_preview} apresentam, respectivamente, a seção de configuração dos artefatos do dataset sendo criado, e a seção de pré-visualização dos dados presentes nos arquivos CSV enviados.
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{images/screens/upload_config.png}
@@ -833,7 +833,7 @@ O upload de datasets é feito por meio da aba de upload, acessada na visão de d
 Quando o botão de criar dataset é clicado, os arquivos e os metadados configurados são enviados para o back-end via requisição HTTP. Após a resposta do back-end, a plataforma redireciona o usuário para a visão de Datasets e invalida o cache do \textit{React Query}, forçando uma nova requisição para o back-end para obter a lista atualizada de datasets, incluindo o novo dataset criado.
 
 \subsubsection{Aba de Profiles}
-A aba de Profiles é o espaço de trabalho central da plataforma, onde os usuários podem interagir com seus modelos de regressão e demais entidades do sistema. A parte superior da aba de Profiles contém seções para metadados (como nome e descrição), uma seção de datasets, que mostram quais datasets foram importados para a Profile, uma seção de Jobs, que mostram os Jobs configurados para a Profile, uma seção de modelos, e uma seção de blocos, que mostram os blocos de visualização presentes na Profile. A parte inferior da aba de Profiles é dedicada à área de blocos, onde os usuários podem configurar e organizar os blocos de visualização de acordo com suas necessidades específicas. As imagens \ref{fig:profile_screen} e \ref{fig:profile_screen_workspace} apresentam a tela de uma Profile, onde é possível observar as seções mencionadas.
+A aba de Profiles é o espaço de trabalho central da plataforma, onde os usuários podem interagir com seus modelos de regressão e demais entidades do sistema. A parte superior da aba de Profiles contém seções para metadados (como nome e descrição), uma seção de datasets, que mostram quais datasets foram importados para a Profile, uma seção de Jobs, que mostram os Jobs configurados para a Profile, uma seção de modelos, e uma seção de blocos, que mostram os blocos de visualização presentes na Profile. A parte inferior da aba de Profiles é dedicada à área de blocos, onde os usuários podem configurar e organizar os blocos de visualização de acordo com suas necessidades específicas. As Figuras \ref{fig:profile_screen} e \ref{fig:profile_screen_workspace} apresentam a tela de uma Profile, onde é possível observar as seções mencionadas.
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{images/screens/profile_aberta.png}
@@ -848,7 +848,7 @@ A aba de Profiles é o espaço de trabalho central da plataforma, onde os usuár
     \label{fig:profile_screen_workspace}
 \end{figure}
 
-Quando um bloco de consulta IQL é executado, o estado atual da Profile é atualizado no back-end. O front-end então envia uma requisição HTTP solicitando a execução da consulta IQL, a qual é processada por um \textit{worker} de forma assíncrona. Durante a execução da consulta, os resultados parciais são enviados para o front-end por meio de Server Side Events (SSE), permitindo que os usuários visualizem em tempo real as etapas de execução de suas consultas. Ao final da execução, os resultados completos da consulta são armazenados no banco de dados como InferenceResults, permitindo que os usuários acessem e analisem os resultados de suas consultas IQL por meio da interface web da plataforma. A imagem \ref{fig:iql_results} apresenta um exemplo de resultados de uma consulta IQL sendo exibidos em tempo real por meio de SSE.
+Quando um bloco de consulta IQL é executado, o estado atual da Profile é atualizado no back-end. O front-end então envia uma requisição HTTP solicitando a execução da consulta IQL, a qual é processada por um \textit{worker} de forma assíncrona. Durante a execução da consulta, os resultados parciais são enviados para o front-end por meio de Server Side Events (SSE), permitindo que os usuários visualizem em tempo real as etapas de execução de suas consultas. Ao final da execução, os resultados completos da consulta são armazenados no banco de dados como InferenceResults, permitindo que os usuários acessem e analisem os resultados de suas consultas IQL por meio da interface web da plataforma. A Figura \ref{fig:iql_results} apresenta um exemplo de resultados de uma consulta IQL sendo exibidos em tempo real por meio de SSE.
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{images/screens/inference_block_results.png}
@@ -856,7 +856,7 @@ Quando um bloco de consulta IQL é executado, o estado atual da Profile é atual
     \label{fig:iql_results}
 \end{figure}
 
-Na seção de Jobs, os usuários podem configurar novos Jobs, visualizar Jobs configurados, executar Jobs, acompanhar o progresso de execução e analisar o histórico de execuções de cada Job. A figura \ref{fig:jobs_section} apresenta a seção de Jobs de uma Profile, onde é possível observar as funcionalidades mencionadas.
+Na seção de Jobs, os usuários podem configurar novos Jobs, visualizar Jobs configurados, executar Jobs, acompanhar o progresso de execução e analisar o histórico de execuções de cada Job. A Figura \ref{fig:jobs_section} apresenta a seção de Jobs de uma Profile, onde é possível observar as funcionalidades mencionadas.
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{images/screens/jobs_section.png}
@@ -864,7 +864,7 @@ Na seção de Jobs, os usuários podem configurar novos Jobs, visualizar Jobs co
     \label{fig:jobs_section}
 \end{figure}
 
-A figura \ref{fig:add_job} apresenta a tela de configuração de um novo Job, onde os usuários podem configurar os meta-parâmetros do algoritmo eggp, como o número de gerações, o tamanho da população e as funções a serem utilizadas, entre outros. Após a configuração, o Job é criado e sua execução começa imediatamente, gerando um novo Run associado ao Job. O progresso da execução do Job pode ser acompanhado em tempo real por meio da interface web, permitindo que os usuários monitorem o andamento do treinamento de seus modelos de regressão simbólica.
+A Figura \ref{fig:add_job} apresenta a tela de configuração de um novo Job, onde os usuários podem configurar os meta-parâmetros do algoritmo eggp, como o número de gerações, o tamanho da população e as funções a serem utilizadas, entre outros. Após a configuração, o Job é criado e sua execução começa imediatamente, gerando um novo Run associado ao Job. O progresso da execução do Job pode ser acompanhado em tempo real por meio da interface web, permitindo que os usuários monitorem o andamento do treinamento de seus modelos de regressão simbólica.
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{images/screens/add_job_section.png}
@@ -872,7 +872,7 @@ A figura \ref{fig:add_job} apresenta a tela de configuração de um novo Job, on
     \label{fig:add_job}
 \end{figure}
 
-Na seção de modelos, os usuários podem visualizar os modelos de regressão simbólica gerados a partir de suas execuções, bem como acessar as métricas de performance associadas a cada modelo. A figura \ref{fig:models_section} apresenta a seção de modelos de uma Profile, onde é possível observar as funcionalidades mencionadas.
+Na seção de modelos, os usuários podem visualizar os modelos de regressão simbólica gerados a partir de suas execuções, bem como acessar as métricas de performance associadas a cada modelo. A Figura \ref{fig:models_section} apresenta a seção de modelos de uma Profile, onde é possível observar as funcionalidades mencionadas.
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{images/screens/models_section.png}
@@ -880,7 +880,7 @@ Na seção de modelos, os usuários podem visualizar os modelos de regressão si
     \label{fig:models_section}
 \end{figure}
 
-Ao clicar no botão de métricas, um modal é aberto exibindo a comparação entre as expressões da fronteira de pareto encontradas durante o processo de validação e a comparação entre os valores reais do conjunto de validação e os valores preditos por cada expressão, permitindo que os usuários analisem a performance de cada modelo de regressão simbólica gerado. A figura \ref{fig:model_metrics_pareto} apresenta a comparação entre as expressões da fronteira de pareto, enquanto a figura \ref{fig:model_metrics_comparison} apresenta a comparação entre os valores reais do conjunto de validação e os valores preditos por cada expressão.
+Ao clicar no botão de métricas, um modal é aberto exibindo a comparação entre as expressões da fronteira de pareto encontradas durante o processo de validação e a comparação entre os valores reais do conjunto de validação e os valores preditos por cada expressão, permitindo que os usuários analisem a performance de cada modelo de regressão simbólica gerado. A Figura \ref{fig:model_metrics_pareto} apresenta a comparação entre as expressões da fronteira de pareto, enquanto a Figura \ref{fig:model_metrics_comparison} apresenta a comparação entre os valores reais do conjunto de validação e os valores preditos por cada expressão.
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{images/screens/model_metrics_pareto.png}
