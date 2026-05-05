@@ -1,0 +1,39 @@
+meta {
+  name: Bulk Update
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{BASE_URL}}/profiles/:profile_id/blocks
+  body: json
+  auth: inherit
+}
+
+params:path {
+  profile_id: 886e937a-a5d9-4b80-b569-4ee672b28bec
+}
+
+body:json {
+  [
+    {
+      "id": "83e4ede6-6254-4c66-904a-6ecf98fdc862",
+      "data": {
+        "kind": "markdown",
+        "data": "# This is a title\n## This is a subtitle"
+      }
+    },
+    {
+      "id": "c7f33215-c2ef-471c-a272-afbb4742c44b",
+      "data": {
+        "kind": "inference",
+        "data": "SELECT * FROM PARETO my_model"
+      }
+    }
+  ]
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

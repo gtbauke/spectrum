@@ -1,0 +1,25 @@
+meta {
+  name: Upload
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{BASE_URL}}/datasets/:dataset_id/artifacts
+  body: multipartForm
+  auth: inherit
+}
+
+params:path {
+  dataset_id: 41e5a229-f4a6-48d5-b52d-5525eadd6e8b
+}
+
+body:multipart-form {
+  file: @file(\\wsl.localhost\Ubuntu\home\gusta\dev\spectrum\examples\2026-03-08 213540.622612_random_dataset.csv)
+  role: data
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

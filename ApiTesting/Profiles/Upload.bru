@@ -1,0 +1,24 @@
+meta {
+  name: Upload
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{BASE_URL}}/profiles/from-dataset
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  file: @file(C:\Users\gusta\dev\spectrum\examples\random_dataset.csv)
+  dataset_name: My dataset
+  dataset_description: Random data
+  profile_name: My custom profile
+  profile_description: This is a random description
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

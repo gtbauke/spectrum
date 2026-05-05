@@ -1,0 +1,21 @@
+meta {
+  name: Delete
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{BASE_URL}}/profiles/:profile_id/blocks/:block_id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  profile_id: 886e937a-a5d9-4b80-b569-4ee672b28bec
+  block_id: 40ddb7ed-e6f7-4070-ab56-7706b89002bd
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,25 +1,22 @@
 meta {
   name: Get All
   type: http
-  seq: 4
+  seq: 3
 }
 
 get {
-  url: {{BASE_URL}}/datasets
+  url: {{BASE_URL}}/profiles
   body: none
   auth: inherit
 }
 
 params:query {
+  ~mode: draft
   ~limit: 
   ~offset: 
-  ~mine: 
   ~name: 
   ~description: 
-  ~checksum: 
-  ~min_size: 70040
-  ~max_size: 
-  ~role: 
+  ~mine: 
 }
 
 settings {

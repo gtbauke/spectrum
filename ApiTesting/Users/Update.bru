@@ -1,0 +1,26 @@
+meta {
+  name: Update
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{BASE_URL}}/users/:user_id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  user_id: edd8e8b7-4363-42bb-9386-fc9faab8bced
+}
+
+body:json {
+  {
+    "last_name": "Teodoro Bauke"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,26 @@
+meta {
+  name: Update
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{BASE_URL}}/profiles/:profile_id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  profile_id: 886e937a-a5d9-4b80-b569-4ee672b28bec
+}
+
+body:json {
+  {
+    "name": "released"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,21 @@
+meta {
+  name: View
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{BASE_URL}}/datasets/:dataset_id/artifacts/:artifact_id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  artifact_id: 637a279c-8612-4e74-aacf-57a7cb1a9be1
+  dataset_id: 41e5a229-f4a6-48d5-b52d-5525eadd6e8b
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,71 @@
+meta {
+  name: Create
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{BASE_URL}}/profiles/:profile_id/jobs
+  body: json
+  auth: inherit
+}
+
+params:path {
+  profile_id: 886e937a-a5d9-4b80-b569-4ee672b28bec
+}
+
+body:json {
+  [
+    {
+      "name": "Test Symbolic Regression Job AAAAAA",
+      "runs_against": "41e5a229-f4a6-48d5-b52d-5525eadd6e8b",
+      "generations": 150,
+      "population": 500,
+      "max_size": 35,
+      "number_of_tournaments": 5,
+      "crossover_probability": 0.85,
+      "mutation_probability": 0.15,
+      "non_terminals": [
+        "add",
+        "sub",
+        "mul",
+        "div",
+        "sin"
+      ],
+      "loss": "MSE",
+      "optimization_iterations": 100,
+      "optimization_repeats": 3,
+      "max_param_count": 10,
+      "split": 80,
+      "simplify": true
+    },
+    {
+      "name": "Test Symbolic Regression Job BBBBBBBBBBB",
+      "runs_against": "41e5a229-f4a6-48d5-b52d-5525eadd6e8b",
+      "generations": 150,
+      "population": 500,
+      "max_size": 35,
+      "number_of_tournaments": 5,
+      "crossover_probability": 0.85,
+      "mutation_probability": 0.15,
+      "non_terminals": [
+        "add",
+        "sub",
+        "mul",
+        "div",
+        "sin"
+      ],
+      "loss": "MSE",
+      "optimization_iterations": 100,
+      "optimization_repeats": 3,
+      "max_param_count": 10,
+      "split": 80,
+      "simplify": true
+    }
+  ]
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

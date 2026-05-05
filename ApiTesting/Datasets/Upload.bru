@@ -1,0 +1,24 @@
+meta {
+  name: Upload
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{BASE_URL}}/datasets/upload
+  body: multipartForm
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Weather data",
+    "description": "This dataset contains daily information about the weather in the city of São Paulo in the last 20 years"
+  }
+}
+
+body:multipart-form {
+  name: My custom title
+  description: This is a random description
+  file: @file(C:\Users\gusta\dev\spectrum\examples\random_dataset.csv)
+}

@@ -1,0 +1,20 @@
+meta {
+  name: Logout
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{BASE_URL}}/auth/logout
+  body: none
+  auth: inherit
+}
+
+headers {
+  Cookie: refresh_token=0516a508a6e519500d4e38322c8f81a3b6901fda5f7ff5c5895fd469a293262c; HttpOnly; Max-Age=604800; Path=/; SameSite=lax; Secure
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

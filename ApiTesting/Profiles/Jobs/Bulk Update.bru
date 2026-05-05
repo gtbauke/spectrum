@@ -1,0 +1,33 @@
+meta {
+  name: Bulk Update
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{BASE_URL}}/profiles/:profile_id/jobs
+  body: json
+  auth: inherit
+}
+
+params:path {
+  profile_id: 886e937a-a5d9-4b80-b569-4ee672b28bec
+}
+
+body:json {
+  [
+    {
+      "id": "489dbc4e-35a5-4d76-80fe-c8d36debfb4f",
+      "name": "My new name for a profile"
+    },
+    {
+      "id": "fe6104fa-153f-4dfe-8b2f-82737a093b8e",
+      "max_size": 60
+    }
+  ]
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

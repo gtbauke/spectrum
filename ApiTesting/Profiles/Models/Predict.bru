@@ -1,0 +1,31 @@
+meta {
+  name: Predict
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{BASE_URL}}/profiles/:profile_id/models/:model_id/predict
+  body: json
+  auth: inherit
+}
+
+params:path {
+  profile_id: 6989fac0-6d51-46e9-9fd6-5ab9cb5add5a
+  model_id: d5a0c73e-1c40-4542-83aa-edae8afbb938
+}
+
+body:json {
+  {
+    "expression_id": "63b0df73-7953-417a-aaab-fee280e7ee25",
+    "inputs": [
+      { "x3": 1.5, "x4": 2.0, "x5": 5.67 },
+      { "x3": 10, "x4": 2.0, "x5": 86 }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

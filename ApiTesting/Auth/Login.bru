@@ -1,0 +1,53 @@
+meta {
+  name: Login
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{BASE_URL}}/auth/login
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "email": "baukegustavo@gmail.com",
+    "password": "Gubauke211202@"
+  }
+}
+
+script:post-response {
+  // Grab the set-cookie header from the response
+  const cookies = res.getHeader("set-cookie");
+  
+  if (cookies) {
+    // Bruno might return a single string or an array of strings depending on how many cookies there are.
+    // This safely forces it into an array so we can search it.
+    const cookieList = Array.isArray(cookies) ? cookies : [cookies];
+  
+    // Find the cookie that starts with your token name (adjust "access_token=" if you named it differently!)
+    const tokenCookie = cookieList.find(c => c.startsWith("access_token="));
+  
+    if (tokenCookie) {
+      // 1. Extract the actual token value
+      // tokenCookie looks like: "access_token=eyJhbG...; HttpOnly; Max-Age=3600; Path=/"
+      const tokenValue = tokenCookie.split(";")[0].split("=")[1];
+      bru.setVar("at", tokenValue);
+  
+      // 2. Extract the expiry time (Max-Age) to maintain your current expiry logic
+      const maxAgeMatch = tokenCookie.match(/Max-Age=(\d+)/i);
+      
+      if (maxAgeMatch) {
+        const expiresInSeconds = parseInt(maxAgeMatch[1], 10);
+        const expiryTime = Date.now() + (expiresInSeconds * 1000);
+        bru.setVar("at_expiry", expiryTime);
+      }
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

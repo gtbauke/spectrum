@@ -1,0 +1,27 @@
+meta {
+  name: Bulk Delete
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{BASE_URL}}/profiles/:profile_id/jobs
+  body: json
+  auth: inherit
+}
+
+params:path {
+  profile_id: 886e937a-a5d9-4b80-b569-4ee672b28bec
+}
+
+body:json {
+  [
+    "1b1c5ed6-ab33-43eb-9fb0-ea31d844dfb9",
+    "0ba3125f-972f-49d3-a2cf-422f0b007591"
+  ]
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

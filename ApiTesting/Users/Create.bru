@@ -1,0 +1,25 @@
+meta {
+  name: Create
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{BASE_URL}}/users
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "first_name": "Gustavo",
+    "last_name": "Bauke",
+    "email": "baukegustavo2@gmail.com",
+    "password": "Gubauke211202@"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

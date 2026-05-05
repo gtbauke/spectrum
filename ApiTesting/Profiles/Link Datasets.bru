@@ -1,0 +1,28 @@
+meta {
+  name: Link Datasets
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{BASE_URL}}/profiles/:profile_id/datasets
+  body: json
+  auth: inherit
+}
+
+params:path {
+  profile_id: b7281445-7d29-4f57-8eff-c8a7859b1844
+}
+
+body:json {
+  {
+    "dataset_ids": [
+      "d12260a7-09df-4114-bcc0-379db8480523"
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

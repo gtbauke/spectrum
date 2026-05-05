@@ -1,0 +1,22 @@
+meta {
+  name: View
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{BASE_URL}}/profiles/:profile_id/jobs/:job_id/runs/:run_id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  run_id: 43b5ad50-3037-4bbc-a7f9-6556a801fb5f
+  profile_id: 886e937a-a5d9-4b80-b569-4ee672b28bec
+  job_id: 489dbc4e-35a5-4d76-80fe-c8d36debfb4f
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,20 @@
+meta {
+  name: View
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{BASE_URL}}/datasets/:dataset_id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  dataset_id: 41e5a229-f4a6-48d5-b52d-5525eadd6e8b
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

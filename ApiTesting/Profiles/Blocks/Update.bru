@@ -1,0 +1,30 @@
+meta {
+  name: Update
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{BASE_URL}}/profiles/:profile_id/blocks/:block_id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  profile_id: 886e937a-a5d9-4b80-b569-4ee672b28bec
+  block_id: 83e4ede6-6254-4c66-904a-6ecf98fdc862
+}
+
+body:json {
+  {
+    "data": {
+      "kind": "markdown",
+      "data": "### Now I have three hashtags"
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

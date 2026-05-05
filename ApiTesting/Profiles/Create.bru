@@ -1,0 +1,23 @@
+meta {
+  name: Create
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{BASE_URL}}/profiles
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "My profile",
+    "description": "Random profile"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

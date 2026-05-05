@@ -1,0 +1,21 @@
+meta {
+  name: Delete
+  type: http
+  seq: 8
+}
+
+delete {
+  url: {{BASE_URL}}/profiles/:profile_id/jobs/:job_id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  profile_id: 886e937a-a5d9-4b80-b569-4ee672b28bec
+  job_id: 646fa7a8-e17a-4029-ba5a-b6195860359c
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

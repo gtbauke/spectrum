@@ -1,0 +1,27 @@
+meta {
+  name: Bulk Delete
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{BASE_URL}}/profiles/:profile_id/blocks
+  body: json
+  auth: inherit
+}
+
+params:path {
+  profile_id: 886e937a-a5d9-4b80-b569-4ee672b28bec
+}
+
+body:json {
+  [
+    "bbcce864-f70e-4f3c-aaac-fd2016fed2f8",
+    "e9d6a716-94aa-4b5b-be04-0538989701f3"
+  ]
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

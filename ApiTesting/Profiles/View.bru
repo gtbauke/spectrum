@@ -1,0 +1,20 @@
+meta {
+  name: View
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{BASE_URL}}/profiles/:profile_id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  profile_id: 6989fac0-6d51-46e9-9fd6-5ab9cb5add5a
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,20 @@
+meta {
+  name: Names
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{BASE_URL}}/profiles/:profile_id/models/names
+  body: none
+  auth: inherit
+}
+
+params:path {
+  profile_id: 886e937a-a5d9-4b80-b569-4ee672b28bec
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
