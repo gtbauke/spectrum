@@ -1,0 +1,25 @@
+\chapter{Glossário}
+\label{chap:glossary}
+
+\begin{description}
+    \item[Árvore de Sintaxe Abstrata (AST):] Estrutura de dados em forma de árvore que representa a sintaxe de uma linguagem. Cada nó representa uma estrutura textual, como expressões, operadores ou declarações.
+    \item[eggp:] Implementação de um algoritmo genético para regressão simbólica que otimiza as buscas por meio de grafos de igualdade (e-graphs) e saturação de igualdade.
+    \item[Fronteira de Pareto:] Conjunto de expressões que representam as melhores soluções otimizadas em múltiplos critérios simultaneamente, onde nenhuma solução é dominada por outra em termos de aptidão e complexidade.
+    \item[Grafos de Igualdade (e-graphs):] Estruturas de dados que armazenam múltiplas expressões matemáticas equivalentes de forma compacta, permitindo a aplicação eficiente de transformações algébricas.
+    \item[rEGGression:] Ferramenta de software utilizada para consultar e extrair as informações contidas nos e-graphs gerados durante o treinamento.
+    \item[Regressão Simbólica:] Técnica de inteligência artificial que busca encontrar expressões matemáticas interpretáveis que melhor descrevem a relação entre variáveis de entrada e saída em um conjunto de dados.
+    \item[Saturação de Igualdade:] Processo de aplicar regras de reescrita a uma expressão para gerar e agrupar todas as expressões logicamente equivalentes dentro de um e-graph.
+    \item[Domain-Driven Design (DDD):] Princípios de desenvolvimento que garantem que a lógica de negócio do domínio permaneça isolada das complexidades de infraestrutura do sistema.
+    \item[JSON Web Tokens (JWT):] Formato utilizado para a autenticação de usuários, cujos tokens são armazenados em cookies HttpOnly para mitigar ataques de Cross-Site Scripting (XSS).
+    \item[RabbitMQ:] Sistema atuando como broker de mensagens para enfileirar e gerenciar a comunicação assíncrona entre o servidor principal e os workers.
+    \item[Server Side Events (SSE):] Mecanismo de comunicação que permite ao servidor enviar resultados parciais em tempo real (streaming) diretamente para a interface web do front-end.
+    \item[Unit of Work:] Padrão de projeto que mantém um registro das operações durante uma transação, garantindo que todas sejam concluídas com sucesso ou revertidas (rollback) em caso de falha, assegurando a integridade dos dados.
+    \item[Workers:] Programas especializados operando de forma assíncrona para executar tarefas intensivas em CPU, como o treinamento de modelos, sem bloquear o servidor principal.
+    \item[Dataset:] Abstração lógica que contém metadados e as referências aos arquivos físicos CSV contendo dados experimentais.
+    \item[Inference Query Language (IQL):] Linguagem de domínio declarativa, com sintaxe similar ao SQL, proposta para realizar buscas e filtragens condicionais sobre os modelos de regressão simbólica.
+    \item[Inference Run:] Entidade que representa o pedido de execução de uma consulta escrita em linguagem IQL associada a um bloco de visualização.
+    \item[Job:] Configuração que armazena os meta-parâmetros do algoritmo eggp estipulados para a execução do treinamento.
+    \item[Model:] Abstração do modelo de regressão simbólica gerado, que armazena a sua fronteira de Pareto e as referências para os arquivos e-graph resultantes.
+    \item[Profile:] Espaço de trabalho personalizado no editor que agrega e organiza os datasets importados, os Jobs, os modelos gerados e os blocos modulares de anotações ou consultas.
+    \item[Run:] Entidade armazenada de forma versionada que contém os metadados e os resultados gerados pela execução de um Job de treinamento.
+\end{description}

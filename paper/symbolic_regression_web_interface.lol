@@ -26,5 +26,5 @@
 \contentsline {lstlisting}{\numberline {4.12}{\ignorespaces Classe de domínio que define um bloco de consulta em linguagem IQL}}{62}{lstlisting.4.12}%
 \contentsline {lstlisting}{\numberline {4.13}{\ignorespaces Classe de domínio que define uma InferenceRun}}{62}{lstlisting.4.13}%
 \contentsline {lstlisting}{\numberline {4.14}{\ignorespaces Classe de domínio que define uma InferenceResult}}{63}{lstlisting.4.14}%
-\contentsline {lstlisting}{\numberline {A.1}{\ignorespaces Ferramentas utilizadas no back-end e suas versões}}{96}{lstlisting.A.1}%
-\contentsline {lstlisting}{\numberline {B.1}{\ignorespaces Ferramentas utilizadas no front-end e suas versões}}{98}{lstlisting.B.1}%
+\contentsline {lstlisting}{\numberline {A.1}{\ignorespaces Ferramentas utilizadas no back-end e suas versões}}{98}{lstlisting.A.1}%
+\contentsline {lstlisting}{\numberline {B.1}{\ignorespaces Ferramentas utilizadas no front-end e suas versões}}{100}{lstlisting.B.1}%
