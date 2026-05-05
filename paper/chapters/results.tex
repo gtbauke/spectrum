@@ -1,1 +1,52 @@
 \chapter{Resultados e Discussão}
+\label{ch:results}
+
+\section{Introdução}
+\label{sec:results_intro}
+Este capítulo tem como objetivo apresentar os resultados obtidos a partir do desenvolvimento e implementação da plataforma Spectrum. Conforme delineado nos capítulos anteriores, a crescente necessidade por modelos interpretáveis impulsionou o interesse na regressão simbólica. No entanto, as ferramentas existentes frequentemente apresentam barreiras de uso, como a necessidade de poder computacional local ou a ausência de integração para criação de \textit{pipelines} de dados.
+
+Dessa forma, este capítulo detalha a consolidação da plataforma desenvolvida, avaliando como sua arquitetura baseada na web, capacidade de execução distribuída e a linguagem de consulta IQL (\textit{Inference Query Language}) endereçam as limitações levantadas na revisão da literatura. Por fim, é realizada uma comparação direta entre a plataforma Spectrum e as principais soluções comerciais disponíveis, evidenciando as contribuições desta pesquisa.
+
+\section{A Plataforma Spectrum: Consolidação e Resultados}
+\label{sec:results_spectrum}
+O principal resultado deste trabalho é a entrega funcional da plataforma Spectrum, um ambiente integrado para a manipulação de algoritmos de regressão simbólica. A arquitetura distribuída, dividida em \textit{Frontend}, \textit{Backend} e \textit{Workers}, provou-se eficaz na delegação de tarefas de alto custo computacional, como a evolução das expressões matemáticas pelo algoritmo Eggp, para instâncias remotas. Isso permite que usuários explorem modelos matemáticos complexos sem a dependência de máquinas com elevado poder de processamento local.
+
+A integração direta de rotinas de manipulação de dados representa um avanço em relação a outros sistemas avaliados. Ao permitir que pesquisadores realizem o envio (\textit{upload}) de seus arquivos de dados e dividam-nos em partições de treinamento e validação dentro do próprio sistema, a plataforma reduz as trocas de contexto e o uso de ferramentas terceiras.
+
+Além do gerenciamento de treinamento, a consolidação da linguagem IQL no ambiente web, em forma de blocos interativos (\textit{Inference Blocks}), fornece aos usuários um nível semântico prático para inspecionar os grafos de igualdade (\textit{e-graphs}). A capacidade de filtrar expressões que respeitem características matemáticas ou estruturais pré-estabelecidas torna o processo de descoberta de modelos alinhado aos conhecimentos prévios do especialista de domínio.
+
+Ademais, o conceito de \textit{Profiles} integrados organiza os experimentos em um único fluxo de trabalho e incorpora blocos de anotações em formato \textit{Markdown}. Essa integração eleva a plataforma de um simples executor de algoritmos genéticos a uma ferramenta de registro de pesquisa, facilitando a reprodutibilidade.
+
+\section{Comparativo de Ferramentas: Spectrum vs. Soluções Comerciais}
+\label{sec:results_comparison}
+Para situar a contribuição da plataforma Spectrum, é útil contrastá-la com ferramentas consolidadas na área, especificamente o HeuristicLab e o TuringBot. Conforme discutido no Capítulo 2, tais sistemas oferecem interfaces gráficas úteis para exibição da fronteira de Pareto e métricas de erro. Entretanto, eles foram desenhados majoritariamente como aplicações baseadas em ambiente local, focadas estritamente na execução do algoritmo de otimização~\cite{heuristiclabDocumentationAboutHeuristicLabx2013, turingbot2020}.
+
+A Tabela \ref{tab:feature_comparison} sumariza a presença de funcionalidades essenciais nas três plataformas avaliadas. Observa-se que a plataforma Spectrum se distingue primariamente por sua acessibilidade. Enquanto TuringBot e HeuristicLab exigem instalação e execução na máquina do usuário, a Spectrum adota o modelo de aplicação \textit{Web} aliada à computação assíncrona baseada em \textit{Workers}.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Comparação de funcionalidades entre as ferramentas de regressão simbólica HeuristicLab, TuringBot e Spectrum, abrangendo execução remota, suporte a linguagens de consulta e integração de dados.}
+    \label{tab:feature_comparison}
+    \begin{tabular}{p{7.5cm}ccc}
+        \toprule
+        \textbf{Funcionalidade} & \textbf{HeuristicLab} & \textbf{TuringBot} & \textbf{Spectrum} \\
+        \midrule
+        Interface Gráfica & Sim & Sim & Sim \\
+        Exibição da Fronteira de Pareto e Métricas & Sim & Sim & Sim \\
+        Acessibilidade Web & Não & Não & Sim \\
+        Treinamento Remoto e Assíncrono & Parcial & Não & Sim \\
+        \textit{Pipelines} de Dados Integrados (Treino/Validação) & Não & Não & Sim \\
+        Suporte a Consultas Declarativas de Padrões (IQL) & Não & Não & Sim \\
+        Ambiente de Documentação Integrado (\textit{Markdown}) & Não & Não & Sim \\
+        Uso da estrutura de Grafos de Igualdade (\textit{e-graphs}) & Não & Não & Sim \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Além disso, a introdução do IQL para buscar padrões explícitos nos resultados é um recurso ainda não adotado comercialmente, em contraste direto com a simples listagem de equações da fronteira de Pareto. Nas soluções comerciais abordadas, o usuário tipicamente seleciona passivamente um dos modelos da fronteira e analisa suas características. Na Spectrum, o usuário desempenha um papel ativo, redigindo consultas declarativas que vasculham o espaço de busca para recuperar expressões baseadas em restrições personalizadas.
+
+\section{Discussão e Conclusões Parciais}
+\label{sec:results_discussion}
+Os resultados do desenvolvimento indicam que a plataforma Spectrum atingiu de forma sólida os objetivos propostos. A substituição do processamento local rigoroso por uma abordagem assíncrona baseada em filas democratiza o acesso a algoritmos avançados, como o uso do algoritmo Eggp com saturação de igualdade.
+
+Ao consolidar treinamento, validação, documentação e, crucialmente, uma linguagem de exploração simbólica em uma interface web coesa, a Spectrum se posiciona como uma solução acessível e expressiva para pesquisadores e analistas de dados. A ferramenta auxilia no processo de modelagem, unificando a extração de dados experimentais e a manipulação dos resultados sob uma perspectiva de IA interpretável.
