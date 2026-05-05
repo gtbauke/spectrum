@@ -31,7 +31,7 @@ A plataforma Spectrum utiliza uma interface baseada em "blocos" para visualizaç
     \item \textbf{Bloco de Markdown}: Permite a documentação textual diretamente na plataforma, integrando anotações do pesquisador aos experimentos realizados.
 \end{itemize}
 
-A interface em blocs se assemelha a outras plataformas amplamente utilizadas em ambientes de ciência de dados, como o Google Colab. Dessa forma, a plataforma proposta se aproxima de outras ferramentas já utilizadas atualmente, facilitando a utilização dela. Além disso, o objetivo dessa interface modular é integrar as etapas de exploração, escrita e utilização dos modelos de regressão. Ferramentas disponíveis hoje em dia, como HeuristicLab e TuringBot, não permitem a documentação do modelo de forma integrada~\cite{heuristiclabDocumentationAboutHeuristicLabx2013,turingbot2020}, implicando na necessidade de um pesquisador utilizar diversas ferramentas simultaneamente e acarretando em trocas de contexto constantes.
+A interface em blocos se assemelha a outras plataformas amplamente utilizadas em ambientes de ciência de dados, como o Google Colab. Dessa forma, a plataforma proposta se aproxima de outras ferramentas já utilizadas atualmente, facilitando a utilização dela. Além disso, o objetivo dessa interface modular é integrar as etapas de exploração, escrita e utilização dos modelos de regressão. Ferramentas disponíveis hoje em dia, como HeuristicLab e TuringBot, não permitem a documentação do modelo de forma integrada~\cite{heuristiclabDocumentationAboutHeuristicLabx2013,turingbot2020}, implicando na necessidade de um pesquisador utilizar diversas ferramentas simultaneamente e acarretando em trocas de contexto constantes.
 
 \section{Requisitos não-funcionais}
 Os requisitos não-funcionais definem as restrições e qualidades do sistema Spectrum. Para esta plataforma, os seguintes requisitos foram estabelecidos:
@@ -56,12 +56,6 @@ O back-end do projeto foi desenvolvido seguindo o padrão monólito modularizado
     \item \textbf{Inference Result}: Representa os resultados de uma consulta IQL.
 \end{itemize}
 
-% \begin{figure}
-%     \centering
-%     \includegraphics[width=0.8\textwidth]{images/entity_diagram.png}
-%     \caption{Diagrama de entidades do sistema}
-%     \label{fig:entity_diagram}
-% \end{figure}
 \begin{figure}[htbp]
     \centering
     \resizebox{\textwidth}{!}{%
@@ -308,7 +302,7 @@ O back-end do projeto foi desenvolvido seguindo o padrão monólito modularizado
     \label{fig:entity_diagram}
 \end{figure}
 
-O diagrama \ref{fig:entity_diagram} apresenta a estrutura de entidades do sistema, bem como suas relações. As sub-seções seguintes apresentam detalhes de cada módulo, suas regras de negócios, as rotas HTTP disponibilizadas por eles manipulação do seu domínio, bem como os valores esperadas de entrada e saída para cada rota.
+A figura \ref{fig:entity_diagram} apresenta a estrutura de entidades do sistema, bem como suas relações. As sub-seções seguintes apresentam detalhes de cada módulo, suas regras de negócios, as rotas HTTP disponibilizadas por eles manipulação do seu domínio, bem como os valores esperadas de entrada e saída para cada rota.
 
 \subsection{Usuários}
 Como forma de permitir a criação de modelos privados, a plataforma Spectrum oferece uma funcionalidade de criação de contas de usuário. Todas as demais entidades do sistema estão relacionadas, direta ou indiretamente, com um usuário. Usuários representam pessoas que utilizam a plataforma. Um usuário é definido a nível de banco de dados pelo código \ref{code:user_db}, e a nível de domínio pelo código \ref{code:user_domain}.
@@ -743,7 +737,7 @@ O processo de validação é iniciado automaticamente após a conclusão do trei
 
 \subsection{Consultas IQL}
 \label{sec:iql_query}
-Como forma de interagir com expressões presentes no e-graph de forma declarativa, a plataforma Spectrum implementa um sistema de execução remota para consultas em linguagem IQL. Esse sistema segue uma arquitetura similar àquela utilizada para o treinamento e validação, utilizando a fila de mensagens para processar as consultas de forma assíncrona. Quando um usuário realiza uma consulta em linguagem IQL por meio do Editor IQL na interface web,o servidor principal emite uma mensagem na fila de mensagens com a chave de roteamento associada à execução de consultas IQL, contendo as informações necessárias para a execução da consulta. O \textit{worker} responsável por processar as consultas IQL monitora a fila de mensagens para identificar quando uma nova tarefa de consulta é enfileirada. Ao receber a mensagem, o \textit{worker} consulta o banco de dados para obter as informações necessárias sobre a InferenceRun e o Profile associados. Após obter essas informações, o \textit{worker} cria uma nova instância de rEGGression para consultar as informações do e-graph gerado durante o treinamento. A consulta em linguagem IQL é então executada de forma assíncrona, permitindo que o \textit{worker} continue processando outras tarefas enquanto a consulta está em andamento.
+Como forma de interagir com expressões presentes no e-graph de forma declarativa, a plataforma Spectrum implementa um sistema de execução remota para consultas em linguagem IQL. Esse sistema segue uma arquitetura similar àquela utilizada para o treinamento e validação, utilizando a fila de mensagens para processar as consultas de forma assíncrona. Quando um usuário realiza uma consulta em linguagem IQL por meio do Editor IQL na interface web, o servidor principal emite uma mensagem na fila de mensagens com a chave de roteamento associada à execução de consultas IQL, contendo as informações necessárias para a execução da consulta. O \textit{worker} responsável por processar as consultas IQL monitora a fila de mensagens para identificar quando uma nova tarefa de consulta é enfileirada. Ao receber a mensagem, o \textit{worker} consulta o banco de dados para obter as informações necessárias sobre a InferenceRun e o Profile associados. Após obter essas informações, o \textit{worker} cria uma nova instância de rEGGression para consultar as informações do e-graph gerado durante o treinamento. A consulta em linguagem IQL é então executada de forma assíncrona, permitindo que o \textit{worker} continue processando outras tarefas enquanto a consulta está em andamento.
 
 O motor de execução de consultas IQL é responsável por converter o texto da consulta nas funções e parâmetros necessários para se utilizar a instância de rEEGression~\cite{rEGGression}. Ao receber a consulta, o motor de execução converte o texto em uma sequência de tokens, utilizando um processo de tokenização. Em seguida, a sequência de tokens é transformada em uma árvore de sintaxe abstrata (AST) por meio de um processo de parsing. A AST é então interpretada para extrair as informações necessárias para a execução da consulta, como os campos a serem retornados, as condições de filtragem e os padrões de busca. Com essas informações, o motor de execução constrói as chamadas apropriadas para a instância de rEGGression, executando a consulta sobre o e-graph e obtendo os resultados correspondentes. Os resultados da consulta são então armazenados no banco de dados como InferenceResults, permitindo que os usuários acessem e analisem os resultados de suas consultas IQL por meio da interface web da plataforma.
 
