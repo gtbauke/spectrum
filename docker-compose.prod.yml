@@ -73,7 +73,7 @@ services:
             - FILE_STORAGE_SPECTRUM_DATA_PATH=/app/spectrum_data
         volumes:
             - spectrum_storage:/app/spectrum_data
-        working_dir: /app/packages/backend
+        working_dir: /app
         # Note: O entrypoint do Dockerfile já usa 'fastapi run' no estágio de production
 
     worker-training:
