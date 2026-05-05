@@ -30,3 +30,4 @@ spectrum_data
 .ruff_cache/
 .coverage
 htmlcov/
+keys/

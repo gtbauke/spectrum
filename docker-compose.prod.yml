@@ -1,0 +1,171 @@
+# Docker Compose para Produção - Spectrum Platform (Gustavo)
+services:
+    postgres:
+        image: postgres:16
+        container_name: spectrum-postgres
+        restart: always
+        env_file:
+            - .env
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
+        ports:
+            - "5432:5432"
+        volumes:
+            - spectrum_pg_data:/var/lib/postgresql/data
+            - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    rabbitmq:
+        image: rabbitmq:3.13-management
+        container_name: spectrum-rabbitmq
+        restart: always
+        env_file:
+            - .env
+        environment:
+            RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+            RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+        healthcheck:
+            test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+            interval: 10s
+            timeout: 10s
+            retries: 10
+
+    migration:
+        build:
+            context: .
+            target: production
+        container_name: spectrum-migration
+        working_dir: /app/packages/db_core
+        command: ["uv", "run", "alembic", "upgrade", "head"]
+        depends_on:
+            postgres:
+                condition: service_healthy
+        env_file:
+            - .env
+        environment:
+            - POSTGRES_HOST=postgres
+            - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+
+    backend:
+        build:
+            context: .
+            target: production
+        container_name: spectrum-backend
+        restart: always
+        depends_on:
+            migration:
+                condition: service_completed_successfully
+            rabbitmq:
+                condition: service_healthy
+        env_file:
+            - .env
+        environment:
+            - POSTGRES_HOST=postgres
+            - RABBITMQ_HOST=rabbitmq
+            - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+            - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/
+            - FILE_STORAGE_SPECTRUM_DATA_PATH=/app/spectrum_data
+        volumes:
+            - spectrum_storage:/app/spectrum_data
+        working_dir: /app/packages/backend
+        # Note: O entrypoint do Dockerfile já usa 'fastapi run' no estágio de production
+
+    worker-training:
+        build:
+            context: .
+            target: production
+        container_name: spectrum-worker-training
+        restart: always
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+            migration:
+                condition: service_completed_successfully
+        env_file:
+            - .env
+        environment:
+            - WORKER_TYPE=training
+            - POSTGRES_HOST=postgres
+            - RABBITMQ_HOST=rabbitmq
+            - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+            - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/
+            - FILE_STORAGE_SPECTRUM_DATA_PATH=/app/spectrum_data
+        volumes:
+            - spectrum_storage:/app/spectrum_data
+        working_dir: /app/packages/workers
+        command: ["uv", "run", "python", "main.py"]
+
+    worker-verification:
+        build:
+            context: .
+            target: production
+        container_name: spectrum-worker-verification
+        restart: always
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+            migration:
+                condition: service_completed_successfully
+        env_file:
+            - .env
+        environment:
+            - WORKER_TYPE=verification
+            - POSTGRES_HOST=postgres
+            - RABBITMQ_HOST=rabbitmq
+            - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+            - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/
+            - FILE_STORAGE_SPECTRUM_DATA_PATH=/app/spectrum_data
+        volumes:
+            - spectrum_storage:/app/spectrum_data
+        working_dir: /app/packages/workers
+        command: ["uv", "run", "python", "main.py"]
+
+    worker-iql:
+        build:
+            context: .
+            target: production
+        container_name: spectrum-worker-iql
+        restart: always
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+            migration:
+                condition: service_completed_successfully
+        env_file:
+            - .env
+        environment:
+            - WORKER_TYPE=iql
+            - POSTGRES_HOST=postgres
+            - RABBITMQ_HOST=rabbitmq
+            - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+            - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/
+            - FILE_STORAGE_SPECTRUM_DATA_PATH=/app/spectrum_data
+        volumes:
+            - spectrum_storage:/app/spectrum_data
+        working_dir: /app/packages/workers
+        command: ["uv", "run", "python", "main.py"]
+
+    nginx:
+        image: nginx:stable-alpine
+        container_name: spectrum-nginx
+        restart: always
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+            # Se você construir o frontend separadamente, mapeie os estáticos aqui:
+            # - ./packages/frontend/dist:/usr/share/nginx/html:ro
+        depends_on:
+            - backend
+
+volumes:
+    spectrum_pg_data:
+    spectrum_rmq_data:
+    spectrum_storage:
