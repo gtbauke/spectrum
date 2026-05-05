@@ -18,7 +18,6 @@
 \usepackage{lmodern}
 \usepackage[T1]{fontenc}
 \usepackage{indentfirst}
-\usepackage{color}
 \usepackage{graphicx}
 \usepackage{spverbatim}
 \usepackage{hyperref}
@@ -32,6 +31,7 @@
 
 \usepackage[linguistics]{forest}
 \usepackage{nicefrac}
+\usepackage{xcolor}
 \usepackage{listings}
 \usepackage{tikz}
 \usetikzlibrary{positioning, shapes.multipart, arrows.meta, backgrounds}
@@ -42,6 +42,10 @@
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
 \definecolor{mauve}{rgb}{0.58,0,0.82}
+\definecolor{fundo}{rgb}{0.95,0.95,0.95}
+\definecolor{comentario}{rgb}{0.0,0.6,0.0}
+\definecolor{palavrachave}{rgb}{0.13,0.13,1}
+\definecolor{texto}{rgb}{0.3,0.3,0.3}
 
 \renewcommand{\lstlistlistingname}{Lista de Códigos}
 \renewcommand{\lstlistingname}{Código}
@@ -78,11 +82,53 @@
   stringstyle=\color{orange},
 }
 
+\lstdefinestyle{pseudocodigo}{
+    backgroundcolor=\color{fundo},   % Cor de fundo
+    basicstyle=\ttfamily\small,      % Fonte monoespaçada e um pouco menor que o texto
+    keywordstyle=\color{palavrachave}\bfseries, % Palavras-chave em azul e negrito
+    commentstyle=\color{comentario}\itshape, % Comentários em verde e itálico
+    numberstyle=\tiny\color{texto},  % Estilo da numeração das linhas
+    numbers=left,                    % Números à esquerda
+    numbersep=10pt,                  % Distância dos números para o código
+    frame=lines,                     % Linhas em cima e embaixo do bloco (fica muito elegante em TCCs)
+    rulecolor=\color{black!40},      % Cor da linha do frame
+    breaklines=true,                 % Quebra de linha automática se for muito longa
+    captionpos=t,                    % Título (caption) no topo do bloco
+    keepspaces=true,                 % Respeita a indentação
+    showspaces=false,
+    showstringspaces=false,
+    % 3. Aqui você define as palavras que o LaTeX vai pintar de azul (Keywords)
+    morekeywords={Interface, Métodos, função, Atributos, Comportamento, Esquema, Tabela, Retorna, Se, Senão, Então, Para, Cada, Fim, Classe, Contratos, Dependências, Herda, Adicionais, Restrições},
+    % 4. O mapeamento UTF-8 para os acentos que arrumamos antes
+    literate={ç}{{\c{c}}}1
+             {ã}{{\~a}}1
+             {é}{{\'e}}1
+             {ó}{{\'o}}1
+             {í}{{\'i}}1
+             {á}{{\'a}}1
+             {ú}{{\'u}}1
+             {õ}{{\~o}}1
+             {ê}{{\^e}}1
+             {->}{{$\rightarrow$}}2 % Transforma "->" em uma setinha real
+}
+
 \colorlet{punct}{red!60!black}
 \definecolor{background}{HTML}{EEEEEE}
 \definecolor{delim}{RGB}{20,105,176}
 \colorlet{numb}{magenta!60!black}
 
+\lstset{
+    extendedchars=true,
+    literate={ç}{{\c{c}}}1
+             {ã}{{\~a}}1
+             {é}{{\'e}}1
+             {ó}{{\'o}}1
+             {í}{{\'i}}1
+             {á}{{\'a}}1
+             {ú}{{\'u}}1
+             {õ}{{\~o}}1
+             {ê}{{\^e}}1
+}
 \lstdefinelanguage{json}{
     basicstyle=\normalfont\ttfamily,
     numbers=left,
@@ -111,6 +157,7 @@
       {[}{{{\color{delim}{[}}}}{1}
       {]}{{{\color{delim}{]}}}}{1},
 }
+\lstloadlanguages{Python}
 
 \usepackage[export]{adjustbox}
 \usepackage{lipsum}

@@ -2,7 +2,7 @@
 \pdfstringdefDisableCommands{\let\uppercase\relax}
 \partapendices
 
-\chapter{Back-end}
+\chapter{Dependências do Back-end}
 \label{sec:appendix-backend}
 \begin{lstlisting}[language=Toml, caption={Ferramentas utilizadas no back-end e suas versões}, label=lst:backend-dependencies]
 // Servidor
@@ -68,7 +68,194 @@ dependencies = [
 ]
 \end{lstlisting}
 
-\chapter{Front-end}
+\chapter{Protocolo FileStorage}
+\label{sec:appendix-filestorage}
+\begin{lstlisting}[language=Python, caption={Definição da interface de armazenamento}, label=lst:appendix-filestorage-protocol]
+class FileStorage(Protocol):
+    async def upload(
+        self,
+        *,
+        path: str,
+        file: BinaryIO,
+    ) -> UploadResult: ...
+
+    async def download(
+        self,
+        *,
+        path: str,
+        destination: str,
+    ) -> None: ...
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Implementação da interface de armazenamento no back-end}, label=lst:appendix-filestorage-implementation]
+import hashlib
+
+from typing import BinaryIO
+from pathlib import Path
+
+from app.core.config import settings
+
+from core.ports.storage.file_storage import FileStorage
+from core.ports.storage.path import SpectrumPath
+from core.ports.storage.upload_result import UploadResult
+
+
+class LocalStorage(FileStorage):
+    def __init__(self) -> None:
+        self._base_path = Path(
+            settings.FILE_STORAGE_SPECTRUM_DATA_PATH
+        )
+
+    async def upload(
+        self,
+        *,
+        path: str,
+        file: BinaryIO
+    ) -> UploadResult:
+        full_path = self._base_path / path
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+
+        hasher = hashlib.sha256()
+        size = 0
+
+        file.seek(0)
+
+        with open(full_path, 'wb') as f:
+            while chunk := file.read(8192):
+                f.write(chunk)
+                hasher.update(chunk)
+                size += len(chunk)
+
+        spectrum_path = SpectrumPath(
+            full_path=full_path, path=Path(path))
+        checksum = hasher.hexdigest()
+
+        return UploadResult(
+            path=spectrum_path,
+            size=size,
+            checksum=checksum
+        )
+
+    async def download(
+        self,
+        *,
+        path: str,
+        destination: str
+    ) -> None:
+        source_path = self._base_path / path
+        destination_path = Path(destination)
+
+        if not source_path.exists():
+            raise FileNotFoundError(
+                f"File not found at path: {source_path}")
+
+        destination_path.parent.mkdir(
+            parents=True, exist_ok=True)
+        destination_path.write_bytes(source_path.read_bytes())
+\end{lstlisting}
+
+\chapter{Entidades do Banco de Dados}
+\label{sec:appendix-database-entities}
+\begin{lstlisting}[language=Python, caption={Definição, de uma entidade mutável em nível de banco de dados}, label={code:mutable_db}]
+class MutableBase(RootBase):
+    __abstract__ = True
+
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+        server_default=text("gen_random_uuid()"),
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        server_onupdate=func.now(),
+    )
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Definição de uma entidade imutável em nível de banco de dados}, label={code:immutable_db}]
+from typing import Any
+from uuid import UUID
+from datetime import datetime
+
+from sqlalchemy.orm import Mapped, mapped_column, declared_attr
+from sqlalchemy import func, DateTime, UniqueConstraint, Index, Boolean, text
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+
+from .root import RootBase
+
+
+class ImmutableBase(RootBase):
+    __abstract__ = True
+
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+        server_default=text("gen_random_uuid()"),
+    )
+
+    timestamp: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+
+    @declared_attr.directive
+    def __table_args__(cls) -> Any:
+        return (
+            UniqueConstraint("id", name=f"uq_{cls.__tablename__}_id"),
+            Index(f"idx_{cls.__tablename__}_timestamp", "timestamp"),
+        )
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Definição de uma entidade versionada em nível de banco de dados}, label={code:versioned_db}]
+class ImmutableVersionedBase(ImmutableBase):
+    __abstract__ = True
+
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+        server_default=text("gen_random_uuid()"),
+    )
+
+    version: Mapped[int] = mapped_column(
+        nullable=False,
+        primary_key=True,
+        default=1,
+    )
+
+    is_latest: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        nullable=False,
+    )
+
+    timestamp: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+
+    @declared_attr.directive
+    def __table_args__(cls) -> Any:
+        return (
+            UniqueConstraint(
+                "id", "version", name=f"uq_{cls.__tablename__}_id_version"),
+            Index(f"idx_{cls.__tablename__}_id_version", "id", "version"),
+            Index(f"idx_{cls.__tablename__}_is_latest", "is_latest"),
+            Index(f"idx_{cls.__tablename__}_latest", "id",
+                  unique=True, postgresql_where=text("is_latest = true"))
+        )
+\end{lstlisting}
+
+\chapter{Dependências do Front-end}
 \label{sec:appendix-frontend}
 \begin{lstlisting}[language=json, caption={Ferramentas utilizadas no front-end e suas versões}, label=lst:frontend-dependencies]
 "dependencies": {
