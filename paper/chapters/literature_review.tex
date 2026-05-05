@@ -109,9 +109,9 @@ Saturação de igualdade é o processo de aplicar regras de reescrita a uma árv
 
 Após a aplicação repetida de todas as regras, o e-graph é considerado saturado. Nesse estado, todas as expressões equivalentes possíveis foram geradas e armazenadas no e-graph.
 
-\subsubsection{Algoritmo: Eggp}
+\subsubsection{Algoritmo: eggp}
 
-Eggp (E-graph Genetic Programming) é uma implementação de um algoritmo genético para regressão simbólica que utiliza e-graphs e saturação de igualdade~\cite{eggp}. O algoritmo segue os passos tradicionais de um algoritmo genético, mas com algumas diferenças importantes:
+O algoritmo eggp (e-graph Genetic Programming) é uma implementação de um algoritmo genético para regressão simbólica que utiliza e-graphs e saturação de igualdade~\cite{eggp}. O algoritmo segue os passos tradicionais de um algoritmo genético, mas com algumas diferenças importantes:
 \begin{enumerate}
   \item A cada nova expressão inserida no e-graph, é executada uma etapa de saturação, agrupando todas as expressões logicamente equivalentes;
   \item Os operadores de mutação e cruzamento são adaptados para geração de expressões não visitadas;
@@ -203,10 +203,10 @@ HeuristicLab é uma ferramenta gráfica que, dentre outros algoritmos, suporta a
 
 Assim como a ferramenta anterior, TuringBot é uma interface gráfica para exploração de algoritmos de regressão simbólica. Ele mostra ao usuário as melhores expressões encontradas (fronteira de Pareto) para o conjunto de dados fornecido com algumas métricas simples do modelo criado~\cite{turingbot2020}.
 
-Para além de ferramentas comerciais, existem diversas bibliotecas que permitem a exploração de algoritmos de regressão simbólica. No caso do algoritmo Eggp, apresentado anteriormente, é possível utilizar a ferramenta \textit{rEGGression}~\cite{rEGGression} para explorar os modelos gerados por esse algoritmo. Essa ferramenta permite que as expressões encontradas pelo modelo sejam consultadas por tamanho, complexidade e número de parâmetros numéricos; permite a inserção de novas expressões; permite a listagem de sub-expressões; e permite o uso de padrões para busca de expressões~\cite{rEGGression}.
+Para além de ferramentas comerciais, existem diversas bibliotecas que permitem a exploração de algoritmos de regressão simbólica. No caso do algoritmo eggp, apresentado anteriormente, é possível utilizar a ferramenta \textit{rEGGression}~\cite{rEGGression} para explorar os modelos gerados por esse algoritmo. Essa ferramenta permite que as expressões encontradas pelo modelo sejam consultadas por tamanho, complexidade e número de parâmetros numéricos; permite a inserção de novas expressões; permite a listagem de sub-expressões; e permite o uso de padrões para busca de expressões~\cite{rEGGression}.
 
 Apesar da existência de ferramentas que permitem exploração de modelos de regressão simbólica, poucas ferramentas permitem a criação de \textit{pipelines} de dados para criação de modelos preditivos. As ferramentas disponíveis também não permitem a exploração de padrões dentro das expressões geradas.
 
 \section{Conclusão}
 
-A revisão de literatura apresentada neste capítulo retoma os principais conceitos e técnicas relacionados à regressão simbólica, incluindo algoritmos genéticos, programação genética e o uso de grafos de igualdade, dentre outras técnicas. Além disso, foram apresentadas ferramentas e implementações que permitem a exploração desses conceitos na prática. Nos próximos capítulos, será apresentada uma proposta de ambiente de exploração de algoritmos de regressão simbólica, com foco na implementação do algoritmo Eggp e na utilização de grafos de igualdade para otimização do processo de evolução de expressões matemáticas.
+A revisão de literatura apresentada neste capítulo retoma os principais conceitos e técnicas relacionados à regressão simbólica, incluindo algoritmos genéticos, programação genética e o uso de grafos de igualdade, dentre outras técnicas. Além disso, foram apresentadas ferramentas e implementações que permitem a exploração desses conceitos na prática. Nos próximos capítulos, será apresentada uma proposta de ambiente de exploração de algoritmos de regressão simbólica, com foco na implementação do algoritmo eggp e na utilização de grafos de igualdade para otimização do processo de evolução de expressões matemáticas.

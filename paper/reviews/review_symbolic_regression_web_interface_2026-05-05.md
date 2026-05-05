@@ -1,77 +1,73 @@
 # Academic Review: Interface Web para Regressão Simbólica
 
-> **Document type**: Trabalho de Conclusão de Curso (Monograph/Thesis)
-> **Reviewed file(s)**: `symbolic_regression_web_interface.tex` e arquivos em `chapters/`
+> **Document type**: Thesis (Trabalho de Conclusão de Curso)
+> **Reviewed file(s)**: `symbolic_regression_web_interface.tex`, `chapters/results.tex`, `chapters/conclusion.tex`, `chapters/platform.tex`
 > **Review date**: 2026-05-05
 
 ## Executive Summary
 
-O projeto "Interface Web para Regressão Simbólica" (Spectrum) apresenta uma solução muito robusta e bem arquitetada para um problema real na área de aprendizado de máquina: a dificuldade de explorar modelos de regressão simbólica. O texto demonstra maturidade técnica excepcional, especialmente na adoção dos princípios de *Domain-Driven Design* (DDD) e no desenvolvimento inovador da *Inference Query Language* (IQL).
+O documento apresenta uma proposta sólida, inovadora e muito bem estruturada para uma plataforma web de regressão simbólica (Spectrum). A adição do capítulo de Resultados (`results.tex`) resolve a principal lacuna anterior do documento e fecha o arco narrativo do trabalho ao comparar diretamente a plataforma desenvolvida com soluções comerciais existentes (HeuristicLab e TuringBot), evidenciando as contribuições arquiteturais e funcionais (como o IQL). 
 
-O texto possui uma boa estrutura argumentativa e de organização. No entanto, há lacunas que precisam ser tratadas antes da submissão final, sendo a principal delas a ausência do capítulo de Resultados (que está comentado no código-fonte, mas é referenciado na introdução). Além disso, pequenos ajustes de formatação LaTeX e adequações às normas ABNT (como a nomenclatura de referências visuais) elevarão ainda mais o nível de profissionalismo do trabalho.
+A escrita mantém um excelente rigor acadêmico e as tabelas estão bem formatadas. No entanto, o atual capítulo de resultados encontra-se demasiadamente curto (pouco mais de uma página) e puramente qualitativo. Para uma tese de Ciência da Computação envolvendo o desenvolvimento de uma nova plataforma, a ausência de um estudo de caso empírico ou de métricas de desempenho constitui uma lacuna importante. O foco principal das melhorias deve ser enriquecer este capítulo com uma demonstração prática quantitativa que comprove o funcionamento end-to-end do sistema.
 
 ## Structure
 
 ### Strengths
-- A organização dos capítulos segue uma progressão lógica excelente: introduz o problema, aprofunda a teoria subjacente (e-graphs, programação genética), justifica as escolhas arquiteturais (DDD) e culmina com as propostas práticas da plataforma e da linguagem de domínio (IQL).
-- A separação em subseções para explicar o pipeline de execução da IQL (Tokenizer -> Parser -> Execução) torna o processo de compilação muito claro para o leitor.
+- A organização geral do documento é lógica e segue perfeitamente o padrão esperado para um TCC (Introdução -> Revisão da Literatura -> Metodologia -> Plataforma -> Linguagem de Consulta -> Resultados -> Conclusão).
+- A inserção do capítulo de "Resultados e Discussão" foi uma escolha acertada para consolidar as contribuições e contrastar a plataforma com o estado da arte, conectando a teoria à prática.
 
 ### Suggestions
-- **Capítulo de Resultados Ausente**: Na Introdução (linha 27), você afirma que "O capítulo 6 apresenta os resultados obtidos com a implementação da plataforma". Contudo, no arquivo principal (`symbolic_regression_web_interface.tex`, linha 220), o `\include{chapters/results}` está comentado, e a Conclusão acaba se tornando o Capítulo 6. A ausência de resultados impede que a eficácia da ferramenta seja comprovada na prática.
-- **Listas em texto bruto**: No capítulo de Introdução (linhas 10-17) e na Revisão Bibliográfica (linhas 129-131), foram utilizadas listas com hifens (ex: `- Gerenciamento de pipelines...`) sem um ambiente LaTeX apropriado. O LaTeX não processará isso como uma lista indentada. **Ação recomendada**: envolva esses itens em um ambiente `\begin{itemize} ... \end{itemize}`.
+- **Expandir o capítulo de Resultados**: Atualmente, `results.tex` foca apenas em comparar \textit{features} teoricamente. É altamente recomendado adicionar uma seção de "Estudo de Caso" ou "Avaliação Empírica". Nesta seção, você deve:
+  1. Utilizar um dataset de benchmark conhecido na literatura de regressão simbólica (ex: equações de Feynman ou Nguyen).
+  2. Explicar a configuração do \textit{Job} na plataforma Spectrum.
+  3. Apresentar os resultados obtidos (a Fronteira de Pareto e as expressões encontradas).
+  4. Executar uma consulta IQL demonstrando na prática como o usuário filtraria esses resultados em busca de um padrão específico.
+- **Métricas de Performance**: Considere adicionar uma subseção discutindo o \textit{overhead} e a eficiência da arquitetura web/distribuída. Quanto tempo leva para processar uma consulta IQL típica? Qual o impacto de se usar \textit{Workers} assíncronos no tempo de resposta percebido pelo usuário?
 
 ## Writing
 
 ### Strengths
-- O tom do texto é formal e perfeitamente adequado para uma monografia acadêmica.
-- As explicações teóricas sobre regressão simbólica e *equality graphs* estão acessíveis e bem fundamentadas com literatura pertinente.
+- A linguagem utilizada é formal, clara e adere estritamente às normas do jargão científico em língua portuguesa.
+- As transições entre os parágrafos no `results.tex` são fluidas. A argumentação construída em torno da "democratização do acesso" a algoritmos de regressão simbólica é muito bem fundamentada.
+- O resumo da tese (`abstract`) encapsula perfeitamente a motivação e a solução técnica.
 
 ### Suggestions
-- **Consistência de Termos em Inglês**: Os termos *front-end* e *back-end* são escritos de diversas formas ao longo do texto (ex: backend, back-end). É recomendável adotar uma única grafia (com hífen e em itálico, como `\textit{back-end}`).
-- **Gênero de Termos Estrangeiros**: O texto utiliza "Profile" como um substantivo feminino ("uma Profile", "das Profiles"). Em português do Brasil, é mais comum o uso no masculino (o Profile, o perfil). Avalie se não seria melhor traduzir para "Perfil" ou adotar o gênero masculino para soar mais natural.
-- **Erros gramaticais pontuais**:
-  - `introduction.tex` (linha 6): "outras técnicas de IA... **tem** ganhado" $\rightarrow$ "**têm** ganhado" (o sujeito "técnicas" está no plural).
-  - `platform.tex` (linha 34): "A interface em **blocs**" $\rightarrow$ "A interface em **blocos**".
-  - `platform.tex` (linha 746): "web,o servidor" $\rightarrow$ "web, o servidor" (espaço faltando).
-  - `methodology.tex` (linhas 204 e 206): Foi utilizado o comando `\text{back-end}` em modo de texto, que pertence ao pacote `amsmath` e é destinado a uso em equações matemáticas. Use `\textit{back-end}` ou formato de texto simples.
+- **Precisão nas afirmações qualitativas**: No `results.tex`, a frase *"A arquitetura distribuída... provou-se eficaz na delegação de tarefas..."* soa como uma conclusão não suportada por dados empíricos, já que o capítulo não apresenta métricas de testes. Ajuste o tom para refletir o design (*"A arquitetura desenvolvida permite a delegação..."*) ou, preferencialmente, adicione os dados que comprovam essa eficácia (*"Testes demonstraram que a delegação para instâncias em workers garantiu X% de estabilidade..."*).
+- **Conclusão do Resumo**: O resumo poderia conter uma frase final mencionando como a plataforma foi validada (ex: *"A plataforma foi validada através de estudos de caso que comprovaram sua capacidade de unificar os processos de exploração e treinamento."*).
 
 ## Figures & Visualization
 
 ### Strengths
-- Os diagramas gerados nativamente em TikZ (ex: o diagrama de entidades do banco de dados e o pipeline de execução IQL) demonstram enorme zelo pelo trabalho, tendo altíssima qualidade visual.
-- Os trechos de código (Listings) estão bem formatados, com paletas de sintaxe que facilitam a leitura.
+- A Tabela 6.1 (Comparação de funcionalidades) em `results.tex` é excelente. O uso de `booktabs` garante um visual limpo e profissional, e a legenda é autoexplicativa e perfeitamente redigida.
+- As imagens e diagramas nos capítulos de Plataforma e Linguagem de Consulta complementam imensamente a compreensão da arquitetura da ferramenta.
 
 ### Suggestions
-- **Nomenclatura ABNT para Referências Visuais**: De acordo com a norma ABNT, toda referência a uma ilustração (seja um esquema, imagem ou gráfico) no corpo do texto deve usar a palavra "Figura", "Quadro" ou "Tabela". Em `platform.tex`, existem trechos como "A imagem \ref{...} apresenta..." e "O diagrama \ref{...}". Substitua todas as ocorrências de "imagem" ou "diagrama" referenciadas no texto por "Figura".
-- **Legenda excessivamente prolixa**: Em `query_language.tex` (linha 241), a legenda da Figura da AST está com vocabulário muito artificial/inflado: *"Visualização gráfica representativa consolidada limitante da Árvore de Sintaxe Abstrata (AST) compilada sequencial e contígua pelas classes iterativas do modo de leitura descendente restrito..."*. **Ação recomendada**: simplifique para focar na clareza. Exemplo: *"Árvore de Sintaxe Abstrata (AST) correspondente à consulta IQL de exemplo, gerada pelo Pratt Parser."*
-- **Árvore de Diretórios (dirtree)**: Em `methodology.tex` (linha 67), o `\dirtree` foi inserido diretamente no texto. Pode ser mais elegante colocá-lo dentro de um ambiente `figure` ou `quadro` com `\caption` e um `\label` para referenciá-lo formalmente no texto.
+- **Falta de apoio visual nos Resultados**: O capítulo de resultados está carente de figuras. Para um trabalho sobre uma "Interface Web", é vital mostrar a interface em uso na resolução de um problema real. Inclua imagens do *plot* da Fronteira de Pareto gerado pela plataforma Spectrum, e/ou *screenshots* da tela do editor executando uma consulta IQL do estudo de caso sugerido.
+- Garanta que qualquer nova figura inserida no capítulo de Resultados seja devidamente referenciada (`\ref{fig:nome}`) no corpo do texto antes de sua aparição.
 
 ## Technical Presentation
 
 ### Strengths
-- A analogia entre IQL e SQL é brilhante. A Tabela de comparação (Tabela 1.1 ou semelhante no seu documento) ajuda consideravelmente um leitor da área de Computação a compreender a DSL.
-- A descrição de arquitetura, como a separação dos pacotes em `core`, `db_core`, etc. demonstra profundo conhecimento prático de engenharia de software e não apenas de IA.
+- A fundamentação técnica da comparação (arquitetura Web assíncrona vs Local síncrona, e a inovação do uso da IQL para filtrar e-graphs) é o ponto alto das contribuições do TCC. A tabela comparativa sumariza de forma clara e direta por que a Spectrum representa um avanço real.
+- O capítulo de conclusão cita muito bem as limitações atuais (como o padrão de *workers* e a ausência do *outbox pattern*, bem como listas fixas de *loss functions*), demonstrando uma ótima maturidade e autocrítica técnica.
 
 ### Suggestions
-- **Validação Prática da Ferramenta**: Toda a base teórica e de engenharia foi explicada, porém falta a comprovação prática de que a integração ocorreu com sucesso e gerou valor. Isso reforça a urgência de redigir o capítulo de **Resultados**. Sem ele, o leitor não consegue avaliar a experiência real da interface nem o custo computacional remoto versus local proposto na justificativa.
+- **Detalhar Condições do Experimento**: Se a plataforma for avaliada em um estudo de caso, não esqueça de documentar no capítulo de resultados as especificações do ambiente onde os testes foram executados (ex: configuração da máquina, memória, contêineres Docker), mantendo o rigor e a reprodutibilidade metodológica.
 
 ## Priority Actions
 
-Abaixo estão listadas as ações de maior impacto para refinar sua monografia, em ordem de importância:
+Abaixo estão as 4 ações de maior impacto que devem ser realizadas antes da entrega final:
 
-1. **Escrever e descomentar o capítulo de Resultados (`chapters/results.tex`)**: Mostrar a plataforma em ação (telas da plataforma em funcionamento, resultados de um treinamento Eggp utilizando um dataset de exemplo no Spectrum, demonstração de streaming de consultas IQL). Isso cumpre os objetivos descritos no capítulo de introdução.
-2. **Corrigir os ambientes de lista (`itemize`)**: Nas linhas 10 de `introduction.tex` e 129 de `literature_review.tex`, os hifens usados diretamente no texto não quebrarão a formatação LaTeX corretamente e poluem a diagramação.
-3. **Revisar referências cruzadas das Figuras**: Padronizar as chamadas textuais ("A imagem \ref...", "O diagrama \ref...") para a norma ABNT ("A Figura \ref...").
-4. **Padronizar e corrigir inconsistências léxicas**: Revisar os plurais com acento circunflexo (tem vs têm), unificar o padrão de escrita de *back-end*/*front-end*, e reescrever a legenda inflada na Figura do AST.
+1. **Adicionar um Estudo de Caso Prático no `results.tex`**: Escolha um dataset (ex: um conjunto de dados físico simples), rode um treinamento na Spectrum e execute uma consulta IQL real, documentando o passo a passo e o resultado obtido. Isso transformará um capítulo teórico em uma evidência inegável do funcionamento do sistema.
+2. **Incluir Figuras no capítulo de Resultados**: Insira gráficos da Fronteira de Pareto ou \textit{screenshots} da interface resolvendo o estudo de caso citado acima.
+3. **Refinar Afirmações de Eficácia**: Atenue alegações de performance ou "comprovação de eficácia" que não estejam respaldadas por números ou logs, ou (idealmente) inclua essas métricas básicas.
+4. **Adicionar Frase de Validação no Resumo**: Atualize o final do resumo para mencionar como a plataforma e seus resultados foram validados na prática.
 
 ## Detailed Notes
 
-| Arquivo | Localização | Problema | Sugestão |
-|---|---|---|---|
-| `introduction.tex` | L6 | "outras técnicas ... tem ganhado" | Alterar para "têm ganhado" |
-| `introduction.tex` | L10 | Uso de hífen no texto plano para listas | Envolver em ambiente `\begin{itemize} \item ... \end{itemize}` |
-| `platform.tex` | L34 | "... A interface em blocs ..." | Corrigir para "blocos" |
-| `platform.tex` | L155 | Diagrama de arquitetura referenciado sem "Figura" | O texto diz "O diagrama \ref{fig:high_level}". Mudar para "A Figura \ref{...}" |
-| `platform.tex` | L746 | "interface web,o servidor" | "interface web, o servidor" (Falta espaço) |
-| `query_language.tex` | L241 | Legenda extremamente verbosa e artificial | Substituir por texto mais conciso e direto |
-| `methodology.tex` | L204 | `\text{back-end}` fora de contexto matemático | Substituir por `\textit{back-end}` |
+| Location | Issue | Suggestion |
+|---|---|---|
+| `results.tex`, L12 | "A arquitetura... provou-se eficaz" | Requer dados empíricos para comprovação ou mudança no fraseamento. |
+| `results.tex`, L46 | "Nas soluções comerciais abordadas, o usuário tipicamente seleciona passivamente..." | Ótima colocação argumentativa. O contraste ativo/passivo evidencia brilhantemente o valor agregado do IQL. |
+| `conclusion.tex`, L3 | Seção de "Limitações" aborda bem as fraquezas arquiteturais. | Manter como está; reforça o caráter científico da pesquisa apresentar autocrítica técnica. |
+| `conclusion.tex`, L16 | "Apresenta solução moderna... oferecendo experiência aprimorada" | Conclusão sólida, que terá ainda mais substância após a inclusão de um estudo de caso empírico no capítulo anterior. |
