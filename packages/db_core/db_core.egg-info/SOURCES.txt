@@ -1,4 +1,3 @@
-README.md
 pyproject.toml
 db/__init__.py
 db/adapters/unit_of_work.py

@@ -1,4 +1,3 @@
-README.md
 pyproject.toml
 inference_query_language.egg-info/PKG-INFO
 inference_query_language.egg-info/SOURCES.txt
