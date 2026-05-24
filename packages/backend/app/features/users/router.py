@@ -6,8 +6,6 @@ from app.api.unit_of_work import get_uow
 from app.features.users.errors.user_not_found import UserNotFound
 from app.services.encryption import EncryptionService
 
-from db.adapters.unit_of_work import SqlAlchemyUnitOfWork
-
 from core.ports.unit_of_work import UnitOfWork
 from core.features.users.user import User
 from core.features.users.where import UserWhere, UserFilter

@@ -11,6 +11,9 @@ from core.features.profiles.jobs.job import Job
 from core.features.profiles.jobs.runs.run import Run
 from core.features.profiles.blocks.inference.inference_result import InferenceResult
 from core.features.profiles.blocks.inference.inference_run import InferenceRun
+from core.features.profiles.where import ProfileFilter
+from core.features.profiles.jobs.where import JobFilter
+from core.features.profiles.jobs.runs.where import RunFilter
 
 namespace = {  # type: ignore
     "User": User,
@@ -24,6 +27,9 @@ namespace = {  # type: ignore
     "Run": Run,
     "InferenceResult": InferenceResult,
     "InferenceRun": InferenceRun,
+    "ProfileFilter": ProfileFilter,
+    "JobFilter": JobFilter,
+    "RunFilter": RunFilter,
 }
 
 for item in [
@@ -38,5 +44,8 @@ for item in [
     Run,
     InferenceResult,
     InferenceRun,
+    ProfileFilter,
+    JobFilter,
+    RunFilter,
 ]:
     item.model_rebuild(_types_namespace=namespace)

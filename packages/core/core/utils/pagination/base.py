@@ -13,3 +13,9 @@ class Pagination(BaseModel):
 
     def apply[T: RootBase](self, statement: Select[Tuple[T, ...]]):
         return statement.limit(self.limit).offset(self.offset)
+
+    def page(self) -> int:
+        return (self.offset // self.limit) + 1
+
+    def page_size(self) -> int:
+        return self.limit

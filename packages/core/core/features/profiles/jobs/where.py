@@ -1,4 +1,5 @@
 from uuid import UUID
+from typing import TYPE_CHECKING
 
 from core.utils.filters.field_filter import (
     BooleanFilter, DateTimeFilter, EnumFilter, NumberFilter, StringFilter, UUIDFilter)
@@ -7,7 +8,10 @@ from core.utils.filters.base import BaseFilter
 
 from .available_function import AvailableFunction
 from .loss_function import LossFunction
-from .runs.where import RunFilter
+
+if TYPE_CHECKING:
+    from .runs.where import RunFilter
+    from core.features.profiles.where import ProfileFilter
 
 
 class JobWhere(BaseUniqueWhere):
@@ -34,4 +38,5 @@ class JobFilter(BaseFilter):
     max_param_count: NumberFilter[int] | None = None
     split: NumberFilter[int] | None = None
     simplify: BooleanFilter | None = None
-    runs: RunFilter | None = None
+    runs: "RunFilter | None" = None
+    profile: "ProfileFilter | None" = None
