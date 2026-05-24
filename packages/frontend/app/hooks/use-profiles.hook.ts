@@ -1,11 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
 import { getProfile } from "~/api/profiles/get-profile.api";
+import { listProfiles } from "~/api/profiles/list-profiles.api";
 import { listProfileSummaries } from "~/api/profiles/summary.api";
 
-export function useProfiles() {
+type UseProfilesOptions = {
+	mode?: "summary" | "full";
+};
+
+export function useProfiles(options: UseProfilesOptions = { mode: "summary" }) {
 	return useQuery({
-		queryKey: ["profiles"],
-		queryFn: () => listProfileSummaries(),
+		queryKey: ["profiles", options.mode],
+		queryFn: async () => {
+			if (options.mode === "summary") {
+				return await listProfileSummaries();
+			}
+
+			return await listProfiles();
+		},
 	});
 }
 
