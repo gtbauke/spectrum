@@ -1,12 +1,12 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { FilterX } from "lucide-react";
-import type { ProfileFilter } from "~/schemas/dtos/profile.dto";
 import { Field } from "~/components/ui/forms/field/field.component";
 import { SelectInput } from "~/components/ui/forms/input/select-input.component";
 import { TextInput } from "~/components/ui/forms/input/text-input.component";
 import { TextAreaInput } from "~/components/ui/forms/input/textarea-input.component";
 import { ToggleInput } from "~/components/ui/forms/input/toggle-input.component";
 import { profileModeSchema } from "~/schemas/domain/enums.schema";
+import type { ProfileFilter } from "~/schemas/dtos/profile.dto";
 import { capitalize } from "~/utils/capitalize.util";
 import { validateEnum } from "~/utils/validate-enum.util";
 
@@ -74,7 +74,9 @@ export function ProfilesAdvancedFilters({
 									<TextAreaInput
 										placeholder="Filter by description..."
 										value={filters.description || ""}
-										onChange={(e) => updateFilter("description", e.target.value)}
+										onChange={(e) =>
+											updateFilter("description", e.target.value)
+										}
 										className="py-1.5 px-2 text-xs bg-white/5 border-white/5 focus:border-primary-500/50"
 									/>
 								</Field.Control>
@@ -106,7 +108,9 @@ export function ProfilesAdvancedFilters({
 										checked={filters.onlyMe || false}
 										onChange={(e) => updateFilter("onlyMe", e.target.checked)}
 									/>
-									<Field.Label className="text-[10px] ml-3 mt-0.5">Authored by me</Field.Label>
+									<Field.Label className="text-[10px] ml-3 mt-0.5">
+										Authored by me
+									</Field.Label>
 								</Field.Control>
 							</Field>
 						</div>

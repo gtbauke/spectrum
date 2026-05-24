@@ -4,9 +4,8 @@ import type { ProfileFilter } from "~/schemas/dtos/profile.dto";
 import { Header } from "./header.component";
 import { Results } from "./results.component";
 
-export function ProfilesExplorer() {
+export function JobsExplorer() {
 	const [filters, setFilters] = useState<ProfileFilter>({});
-
 	const debouncedFilters = useDebounce(filters, 300);
 
 	return (

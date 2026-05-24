@@ -1,6 +1,5 @@
 import { useProfiles } from "~/hooks/use-profiles.hook";
 import type { ProfileFilter } from "~/schemas/dtos/profile.dto";
-import { ProfileItem } from "./profile-item.component";
 
 type ResultsProps = {
 	filters: ProfileFilter;
@@ -32,7 +31,11 @@ export function Results({ filters }: ResultsProps) {
 							(filters.visibility ? profile.mode === filters.visibility : true),
 					)
 					.map((profile) => {
-						return <ProfileItem key={profile.id} profile={profile} />;
+						return (
+							<div key={profile.id}>
+								{profile.name} - {profile.mode}
+							</div>
+						);
 					})}
 			</div>
 		</div>

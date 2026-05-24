@@ -7,6 +7,7 @@ type UseProfilesOptions = {
 	mode?: "summary" | "full";
 };
 
+// TODO: Implement pagination and filtering in the API and use it here
 export function useProfiles(options: UseProfilesOptions = { mode: "summary" }) {
 	return useQuery({
 		queryKey: ["profiles", options.mode],
@@ -15,7 +16,11 @@ export function useProfiles(options: UseProfilesOptions = { mode: "summary" }) {
 				return await listProfileSummaries();
 			}
 
-			return await listProfiles();
+			const profiles = await listProfiles(undefined, {
+				limit: 1000,
+			});
+
+			return profiles.items;
 		},
 	});
 }
