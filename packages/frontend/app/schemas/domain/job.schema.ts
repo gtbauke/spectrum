@@ -64,7 +64,7 @@ export const jobSchema = baseMutableObject
 		maxParamCount: data.max_param_count,
 		split: data.split,
 		simplify: data.simplify,
-		runs: data.runs.map((run: any) => run.jobId ? run : runSchema.parse(run)),
+		runs: data.runs.map((run) => (run.jobId ? run : runSchema.parse(run))),
 		createdAt: data.created_at,
 		updatedAt: data.updated_at,
 	}));

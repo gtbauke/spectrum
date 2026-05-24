@@ -1,27 +1,31 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { getProfile } from "~/api/profiles/get-profile.api";
 import { listProfiles } from "~/api/profiles/list-profiles.api";
 import { listProfileSummaries } from "~/api/profiles/summary.api";
+import type { ProfileFilter } from "~/schemas/dtos/profile.dto";
 
-type UseProfilesOptions = {
-	mode?: "summary" | "full";
-};
-
-// TODO: Implement pagination and filtering in the API and use it here
-export function useProfiles(options: UseProfilesOptions = { mode: "summary" }) {
+export function useProfiles() {
 	return useQuery({
-		queryKey: ["profiles", options.mode],
-		queryFn: async () => {
-			if (options.mode === "summary") {
-				return await listProfileSummaries();
-			}
+		queryKey: ["profiles", "summary"],
+		queryFn: async () => listProfileSummaries(),
+	});
+}
 
-			const profiles = await listProfiles(undefined, {
-				limit: 1000,
-			});
+export function useFullProfiles(filters: ProfileFilter) {
+	const limit = 20;
 
-			return profiles.items;
+	return useInfiniteQuery({
+		queryKey: ["profiles", "full"],
+		queryFn: async ({ pageParam = 0 }) =>
+			listProfiles(filters, {
+				offset: pageParam as number,
+				limit: 20,
+			}),
+		getNextPageParam: (lastPage, allPages) => {
+			const loadedCount = allPages.length * limit;
+			return loadedCount < lastPage.total ? loadedCount : undefined;
 		},
+		initialPageParam: 0,
 	});
 }
 
