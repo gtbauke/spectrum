@@ -1,6 +1,7 @@
 import { Folder } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import { useProfileQueryState } from "~/hooks/use-profile-query-state.hook";
 import { useEditorStore } from "~/stores/editor.store";
 import type { ProfileTabData } from "~/utils/types/editor.types";
 import { TabBase } from "./tab-base.component";
@@ -12,6 +13,8 @@ type ProfileTabItemProps = {
 };
 
 export function ProfileTabItem({ tab, onClick, onClose }: ProfileTabItemProps) {
+	const { closeTab } = useProfileQueryState();
+
 	const activeTabId = useEditorStore((state) => state.activeTabId);
 	const updateTab = useEditorStore((state) => state.updateTab);
 
@@ -56,13 +59,18 @@ export function ProfileTabItem({ tab, onClick, onClose }: ProfileTabItemProps) {
 		}
 	};
 
+	const handleClose = () => {
+		onClose();
+		closeTab();
+	};
+
 	return (
 		<TabBase
 			isActive={isActive}
 			isDirty={tab.isDirty}
 			icon={<Folder size={16} />}
 			onClick={onClick}
-			onClose={onClose}
+			onClose={handleClose}
 		>
 			{isEditing ? (
 				<input

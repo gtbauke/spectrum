@@ -1,9 +1,9 @@
 import { useCallback } from "react";
-import { useEditorStore } from "~/stores/editor.store";
 import { useCreateProfileMutation } from "./use-create-profile-mutation.hook";
+import { useProfileQueryState } from "./use-profile-query-state.hook";
 
 export function useNewProfile() {
-	const openProfileTab = useEditorStore((s) => s.openProfileTab);
+	const { openTab } = useProfileQueryState();
 	const { mutate: createProfile, isPending } = useCreateProfileMutation();
 
 	const handler = useCallback(() => {
@@ -14,11 +14,11 @@ export function useNewProfile() {
 			},
 			{
 				onSuccess: (response) => {
-					openProfileTab(response.id);
+					openTab(response.id);
 				},
 			},
 		);
-	}, [createProfile, openProfileTab]);
+	}, [createProfile, openTab]);
 
 	return { openNewProfile: handler, isPending };
 }

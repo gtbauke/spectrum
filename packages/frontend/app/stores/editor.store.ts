@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { create } from "zustand";
 import type { Profile } from "~/schemas/domain/profile.schema";
@@ -79,487 +78,489 @@ type EditorActions = {
 
 export type EditorStore = EditorState & EditorActions;
 
-export const useEditorStore = create<EditorStore>((set, get) => ({
-	tabs: {},
-	activeTabId: null,
-	pastTabs: [],
-	tabIds: [],
+export const useEditorStore = create<EditorStore>((set, get) => {
+	return {
+		tabs: {},
+		activeTabId: null,
+		pastTabs: [],
+		tabIds: [],
 
-	openTab: (tab) =>
-		set((state) => {
-			if (state.tabs[tab.id]) {
-				return { activeTabId: tab.id };
-			}
-
-			const newPastTabs = state.pastTabs.filter((t) => t.id !== tab.id);
-			return {
-				tabs: { ...state.tabs, [tab.id]: tab },
-				tabIds: [...state.tabIds, tab.id],
-				activeTabId: tab.id,
-				pastTabs: newPastTabs,
-			};
-		}),
-
-	openUploadTab: () => {
-		const datasetId = crypto.randomUUID();
-
-		get().openTab({
-			type: "upload",
-			id: datasetId,
-			data: {
-				file: null,
-				name: "New Dataset",
-				tabId: datasetId,
-			},
-		});
-	},
-
-	openProfileTab: (profileId) => {
-		get().openTab({
-			type: "profile",
-			id: profileId,
-			data: {
-				tabId: profileId,
-				profileId,
-				versionId: profileId,
-				blocks: [],
-				past: [],
-				future: [],
-				isDirty: true,
-				activeBlockId: null,
-				profile: {
-					id: profileId,
-					name: "Untitled Profile",
-					description: "",
-					ownerId: "",
-					mode: "draft",
-					datasets: [],
-					jobs: [],
-					models: [],
-					blocks: [],
-					createdAt: new Date(),
-					updatedAt: new Date(),
-				},
-			},
-		});
-	},
-
-	closeTab: (id) =>
-		set((state) => {
-			if (!state.tabs[id]) {
-				return state;
-			}
-
-			const tabToClose = state.tabs[id];
-			const currentTabIndex = state.tabIds.indexOf(id);
-
-			const newTabs = { ...state.tabs };
-			delete newTabs[id];
-
-			const newTabIds = state.tabIds.filter((tabId) => tabId !== id);
-			let newActiveId = state.activeTabId;
-
-			if (state.activeTabId === id) {
-				if (newTabIds.length === 0) {
-					newActiveId = null;
-				} else {
-					const fallbackIndex =
-						currentTabIndex >= newTabIds.length
-							? newTabIds.length - 1
-							: currentTabIndex;
-
-					newActiveId = newTabIds[fallbackIndex];
+		openTab: (tab) =>
+			set((state) => {
+				if (state.tabs[tab.id]) {
+					return { activeTabId: tab.id };
 				}
-			}
 
-			const newPastTabs = [...state.pastTabs, tabToClose].slice(
-				-MAX_TAB_HISTORY,
-			);
+				const newPastTabs = state.pastTabs.filter((t) => t.id !== tab.id);
+				return {
+					tabs: { ...state.tabs, [tab.id]: tab },
+					tabIds: [...state.tabIds, tab.id],
+					activeTabId: tab.id,
+					pastTabs: newPastTabs,
+				};
+			}),
 
-			return {
-				tabs: newTabs,
-				tabIds: newTabIds,
-				activeTabId: newActiveId,
-				pastTabs: newPastTabs,
-			};
-		}),
+		openUploadTab: () => {
+			const datasetId = crypto.randomUUID();
 
-	updateTab: (id, type, newData) =>
-		set((state) => {
-			const tab = state.tabs[id];
+			get().openTab({
+				type: "upload",
+				id: datasetId,
+				data: {
+					file: null,
+					name: "New Dataset",
+					tabId: datasetId,
+				},
+			});
+		},
 
-			if (!tab) {
-				return state;
-			}
+		openProfileTab: (profileId) => {
+			get().openTab({
+				type: "profile",
+				id: profileId,
+				data: {
+					tabId: profileId,
+					profileId,
+					versionId: profileId,
+					blocks: [],
+					past: [],
+					future: [],
+					isDirty: true,
+					activeBlockId: null,
+					profile: {
+						id: profileId,
+						name: "Untitled Profile",
+						description: "",
+						ownerId: "",
+						mode: "draft",
+						datasets: [],
+						jobs: [],
+						models: [],
+						blocks: [],
+						createdAt: new Date(),
+						updatedAt: new Date(),
+					},
+				},
+			});
+		},
 
-			if (tab.type !== type) {
-				console.warn(
-					`[EditorStore] Failed to update tab ${id}: Type mismatch. Expected '${type}', got '${tab.type}'.`,
+		closeTab: (id) =>
+			set((state) => {
+				if (!state.tabs[id]) {
+					return state;
+				}
+
+				const tabToClose = state.tabs[id];
+				const currentTabIndex = state.tabIds.indexOf(id);
+
+				const newTabs = { ...state.tabs };
+				delete newTabs[id];
+
+				const newTabIds = state.tabIds.filter((tabId) => tabId !== id);
+				let newActiveId = state.activeTabId;
+
+				if (state.activeTabId === id) {
+					if (newTabIds.length === 0) {
+						newActiveId = null;
+					} else {
+						const fallbackIndex =
+							currentTabIndex >= newTabIds.length
+								? newTabIds.length - 1
+								: currentTabIndex;
+
+						newActiveId = newTabIds[fallbackIndex];
+					}
+				}
+
+				const newPastTabs = [...state.pastTabs, tabToClose].slice(
+					-MAX_TAB_HISTORY,
 				);
-				return state;
-			}
 
-			return {
-				tabs: {
-					...state.tabs,
-					[id]: {
-						...tab,
-						data: {
-							...tab.data,
-							...newData,
-						},
-					} as EditorTab,
-				},
-			};
-		}),
+				return {
+					tabs: newTabs,
+					tabIds: newTabIds,
+					activeTabId: newActiveId,
+					pastTabs: newPastTabs,
+				};
+			}),
 
-	setActiveTab: (id) =>
-		set((state) => {
-			if (id === null) {
-				return { activeTabId: null };
-			}
+		updateTab: (id, type, newData) =>
+			set((state) => {
+				const tab = state.tabs[id];
 
-			if (!state.tabs[id]) {
-				return state;
-			}
+				if (!tab) {
+					return state;
+				}
 
-			return { activeTabId: id };
-		}),
+				if (tab.type !== type) {
+					console.warn(
+						`[EditorStore] Failed to update tab ${id}: Type mismatch. Expected '${type}', got '${tab.type}'.`,
+					);
+					return state;
+				}
 
-	reopenTab: (id) =>
-		set((state) => {
-			const tabToReopen = state.pastTabs.find((t) => t.id === id);
-			if (!tabToReopen) {
-				return state;
-			}
+				return {
+					tabs: {
+						...state.tabs,
+						[id]: {
+							...tab,
+							data: {
+								...tab.data,
+								...newData,
+							},
+						} as EditorTab,
+					},
+				};
+			}),
 
-			const newPastTabs = state.pastTabs.filter((t) => t.id !== id);
-			return {
-				pastTabs: newPastTabs,
-				tabs: { ...state.tabs, [id]: tabToReopen },
-				tabIds: [...state.tabIds, id],
-				activeTabId: id,
-			};
-		}),
+		setActiveTab: (id) =>
+			set((state) => {
+				if (id === null) {
+					return { activeTabId: null };
+				}
 
-	commit: () =>
-		set((state) => {
-			const tabId = state.activeTabId;
-			if (!tabId) {
-				return state;
-			}
+				if (!state.tabs[id]) {
+					return state;
+				}
 
-			const tab = state.tabs[tabId];
-			if (tab.type !== "profile") {
-				return state;
-			}
+				return { activeTabId: id };
+			}),
 
-			const newPast = [
-				...tab.data.past.slice(-(MAX_BLOCKS_HISTORY - 1)),
-				tab.data.blocks,
-			];
+		reopenTab: (id) =>
+			set((state) => {
+				const tabToReopen = state.pastTabs.find((t) => t.id === id);
+				if (!tabToReopen) {
+					return state;
+				}
 
-			return {
-				tabs: {
-					...state.tabs,
-					[tabId]: {
-						...tab,
-						data: {
-							...tab.data,
-							past: newPast,
-							future: [],
-							isDirty: true,
+				const newPastTabs = state.pastTabs.filter((t) => t.id !== id);
+				return {
+					pastTabs: newPastTabs,
+					tabs: { ...state.tabs, [id]: tabToReopen },
+					tabIds: [...state.tabIds, id],
+					activeTabId: id,
+				};
+			}),
+
+		commit: () =>
+			set((state) => {
+				const tabId = state.activeTabId;
+				if (!tabId) {
+					return state;
+				}
+
+				const tab = state.tabs[tabId];
+				if (tab.type !== "profile") {
+					return state;
+				}
+
+				const newPast = [
+					...tab.data.past.slice(-(MAX_BLOCKS_HISTORY - 1)),
+					tab.data.blocks,
+				];
+
+				return {
+					tabs: {
+						...state.tabs,
+						[tabId]: {
+							...tab,
+							data: {
+								...tab.data,
+								past: newPast,
+								future: [],
+								isDirty: true,
+							},
 						},
 					},
-				},
-			};
-		}),
+				};
+			}),
 
-	undo: () =>
-		set((state) => {
-			const tabId = state.activeTabId;
-			if (!tabId) {
-				return state;
-			}
+		undo: () =>
+			set((state) => {
+				const tabId = state.activeTabId;
+				if (!tabId) {
+					return state;
+				}
 
-			const tab = state.tabs[tabId];
-			if (tab.type !== "profile" || tab.data.past.length === 0) {
-				return state;
-			}
+				const tab = state.tabs[tabId];
+				if (tab.type !== "profile" || tab.data.past.length === 0) {
+					return state;
+				}
 
-			const previous = tab.data.past[tab.data.past.length - 1];
-			const newPast = tab.data.past.slice(0, -1);
+				const previous = tab.data.past[tab.data.past.length - 1];
+				const newPast = tab.data.past.slice(0, -1);
 
-			return {
-				tabs: {
-					...state.tabs,
-					[tabId]: {
-						...tab,
-						data: {
-							...tab.data,
-							blocks: previous,
-							past: newPast,
-							future: [tab.data.blocks, ...tab.data.future],
-							activeBlockId: null,
+				return {
+					tabs: {
+						...state.tabs,
+						[tabId]: {
+							...tab,
+							data: {
+								...tab.data,
+								blocks: previous,
+								past: newPast,
+								future: [tab.data.blocks, ...tab.data.future],
+								activeBlockId: null,
+							},
 						},
 					},
-				},
-			};
-		}),
+				};
+			}),
 
-	redo: () =>
-		set((state) => {
-			const tabId = state.activeTabId;
-			if (!tabId) {
-				return state;
-			}
+		redo: () =>
+			set((state) => {
+				const tabId = state.activeTabId;
+				if (!tabId) {
+					return state;
+				}
 
-			const tab = state.tabs[tabId];
-			if (tab.type !== "profile" || tab.data.future.length === 0) {
-				return state;
-			}
+				const tab = state.tabs[tabId];
+				if (tab.type !== "profile" || tab.data.future.length === 0) {
+					return state;
+				}
 
-			const next = tab.data.future[0];
-			const newFuture = tab.data.future.slice(1);
+				const next = tab.data.future[0];
+				const newFuture = tab.data.future.slice(1);
 
-			return {
-				tabs: {
-					...state.tabs,
-					[tabId]: {
-						...tab,
-						data: {
-							...tab.data,
-							blocks: next,
-							past: [...tab.data.past, tab.data.blocks],
-							future: newFuture,
+				return {
+					tabs: {
+						...state.tabs,
+						[tabId]: {
+							...tab,
+							data: {
+								...tab.data,
+								blocks: next,
+								past: [...tab.data.past, tab.data.blocks],
+								future: newFuture,
+							},
 						},
 					},
-				},
-			};
-		}),
+				};
+			}),
 
-	addBlock: (type, data, index) => {
-		const newBlock = { id: uuidv4(), type, data } as EditorBlock;
+		addBlock: (type, data, index) => {
+			const newBlock = { id: uuidv4(), type, data } as EditorBlock;
 
-		get().commit();
-		set((state) => {
-			const tabId = state.activeTabId;
-			if (!tabId) {
-				return state;
-			}
-
-			const tab = state.tabs[tabId];
-			if (tab.type !== "profile") {
-				return state;
-			}
-
-			const blocks = [...tab.data.blocks];
-			let targetIndex = index;
-
-			if (targetIndex === undefined) {
-				const activeIndex = blocks.findIndex(
-					(b) => b.id === tab.data.activeBlockId,
-				);
-				targetIndex = activeIndex >= 0 ? activeIndex + 1 : blocks.length;
-			}
-
-			blocks.splice(targetIndex, 0, newBlock);
-
-			return {
-				tabs: {
-					...state.tabs,
-					[tabId]: {
-						...tab,
-						data: {
-							...tab.data,
-							blocks,
-							isDirty: true,
-							activeBlockId: newBlock.id,
-						},
-					},
-				},
-			};
-		});
-	},
-
-	updateBlock: (id, newData, options = { recordHistory: true }) => {
-		if (options.recordHistory) {
 			get().commit();
-		}
+			set((state) => {
+				const tabId = state.activeTabId;
+				if (!tabId) {
+					return state;
+				}
 
-		set((state) => {
-			const tabId = state.activeTabId;
-			if (!tabId) {
-				return state;
-			}
+				const tab = state.tabs[tabId];
+				if (tab.type !== "profile") {
+					return state;
+				}
 
-			const tab = state.tabs[tabId];
-			if (tab.type !== "profile") {
-				return state;
-			}
+				const blocks = [...tab.data.blocks];
+				let targetIndex = index;
 
-			const newBlocks = tab.data.blocks.map((block) =>
-				block.id === id
-					? ({ ...block, data: { ...block.data, ...newData } } as EditorBlock)
-					: block,
-			);
+				if (targetIndex === undefined) {
+					const activeIndex = blocks.findIndex(
+						(b) => b.id === tab.data.activeBlockId,
+					);
+					targetIndex = activeIndex >= 0 ? activeIndex + 1 : blocks.length;
+				}
 
-			return {
-				tabs: {
-					...state.tabs,
-					[tabId]: {
-						...tab,
-						data: { ...tab.data, blocks: newBlocks, isDirty: true },
-					},
-				},
-			};
-		});
-	},
+				blocks.splice(targetIndex, 0, newBlock);
 
-	removeBlock: (id) => {
-		get().commit();
-
-		set((state) => {
-			const tabId = state.activeTabId;
-			if (!tabId) {
-				return state;
-			}
-
-			const tab = state.tabs[tabId];
-			if (tab.type !== "profile") {
-				return state;
-			}
-
-			const newBlocks = tab.data.blocks.filter((b) => b.id !== id);
-
-			return {
-				tabs: {
-					...state.tabs,
-					[tabId]: {
-						...tab,
-						data: {
-							...tab.data,
-							blocks: newBlocks,
-							isDirty: true,
-							activeBlockId:
-								tab.data.activeBlockId === id ? null : tab.data.activeBlockId,
+				return {
+					tabs: {
+						...state.tabs,
+						[tabId]: {
+							...tab,
+							data: {
+								...tab.data,
+								blocks,
+								isDirty: true,
+								activeBlockId: newBlock.id,
+							},
 						},
 					},
-				},
-			};
-		});
-	},
+				};
+			});
+		},
 
-	reorderBlocks: (newBlocksOrder) =>
-		set((state) => {
-			const tabId = state.activeTabId;
-			if (!tabId) {
-				return state;
+		updateBlock: (id, newData, options = { recordHistory: true }) => {
+			if (options.recordHistory) {
+				get().commit();
 			}
 
-			const tab = state.tabs[tabId];
-			if (tab.type !== "profile") {
-				return state;
-			}
+			set((state) => {
+				const tabId = state.activeTabId;
+				if (!tabId) {
+					return state;
+				}
 
-			return {
-				tabs: {
-					...state.tabs,
-					[tabId]: {
-						...tab,
-						data: { ...tab.data, blocks: newBlocksOrder, isDirty: true },
+				const tab = state.tabs[tabId];
+				if (tab.type !== "profile") {
+					return state;
+				}
+
+				const newBlocks = tab.data.blocks.map((block) =>
+					block.id === id
+						? ({ ...block, data: { ...block.data, ...newData } } as EditorBlock)
+						: block,
+				);
+
+				return {
+					tabs: {
+						...state.tabs,
+						[tabId]: {
+							...tab,
+							data: { ...tab.data, blocks: newBlocks, isDirty: true },
+						},
 					},
-				},
-			};
-		}),
+				};
+			});
+		},
 
-	setActiveBlock: (id) =>
-		set((state) => {
-			const tabId = state.activeTabId;
-			if (!tabId) {
-				return state;
-			}
+		removeBlock: (id) => {
+			get().commit();
 
-			const tab = state.tabs[tabId];
-			if (tab.type !== "profile") {
-				return state;
-			}
+			set((state) => {
+				const tabId = state.activeTabId;
+				if (!tabId) {
+					return state;
+				}
 
-			return {
-				tabs: {
-					...state.tabs,
-					[tabId]: {
-						...tab,
-						data: { ...tab.data, activeBlockId: id },
+				const tab = state.tabs[tabId];
+				if (tab.type !== "profile") {
+					return state;
+				}
+
+				const newBlocks = tab.data.blocks.filter((b) => b.id !== id);
+
+				return {
+					tabs: {
+						...state.tabs,
+						[tabId]: {
+							...tab,
+							data: {
+								...tab.data,
+								blocks: newBlocks,
+								isDirty: true,
+								activeBlockId:
+									tab.data.activeBlockId === id ? null : tab.data.activeBlockId,
+							},
+						},
 					},
-				},
-			};
-		}),
+				};
+			});
+		},
 
-	markClean: () =>
-		set((state) => {
-			const tabId = state.activeTabId;
-			if (!tabId) {
-				return state;
-			}
+		reorderBlocks: (newBlocksOrder) =>
+			set((state) => {
+				const tabId = state.activeTabId;
+				if (!tabId) {
+					return state;
+				}
 
-			const tab = state.tabs[tabId];
-			if (tab.type !== "profile") {
-				return state;
-			}
+				const tab = state.tabs[tabId];
+				if (tab.type !== "profile") {
+					return state;
+				}
 
-			return {
-				tabs: {
-					...state.tabs,
-					[tabId]: {
-						...tab,
-						data: { ...tab.data, isDirty: false },
+				return {
+					tabs: {
+						...state.tabs,
+						[tabId]: {
+							...tab,
+							data: { ...tab.data, blocks: newBlocksOrder, isDirty: true },
+						},
 					},
-				},
-			};
-		}),
+				};
+			}),
 
-	initializeProfileBlocks: (id: string, profile) =>
-		set((state) => {
-			const tab = state.tabs[id];
-			if (!tab || tab.type !== "profile") return state;
+		setActiveBlock: (id) =>
+			set((state) => {
+				const tabId = state.activeTabId;
+				if (!tabId) {
+					return state;
+				}
 
-			// Map dynamic blocks from the backend profile
-			const dynamicBlocks: EditorBlock[] = (profile.blocks || []).map((b) => {
-				if (b.kind === "markdown") {
+				const tab = state.tabs[tabId];
+				if (tab.type !== "profile") {
+					return state;
+				}
+
+				return {
+					tabs: {
+						...state.tabs,
+						[tabId]: {
+							...tab,
+							data: { ...tab.data, activeBlockId: id },
+						},
+					},
+				};
+			}),
+
+		markClean: () =>
+			set((state) => {
+				const tabId = state.activeTabId;
+				if (!tabId) {
+					return state;
+				}
+
+				const tab = state.tabs[tabId];
+				if (tab.type !== "profile") {
+					return state;
+				}
+
+				return {
+					tabs: {
+						...state.tabs,
+						[tabId]: {
+							...tab,
+							data: { ...tab.data, isDirty: false },
+						},
+					},
+				};
+			}),
+
+		initializeProfileBlocks: (id: string, profile) =>
+			set((state) => {
+				const tab = state.tabs[id];
+				if (!tab || tab.type !== "profile") return state;
+
+				// Map dynamic blocks from the backend profile
+				const dynamicBlocks: EditorBlock[] = (profile.blocks || []).map((b) => {
+					if (b.kind === "markdown") {
+						return {
+							id: b.id,
+							type: "markdown",
+							data: { value: b.data.data },
+						} as EditorBlock;
+					}
+					const inferenceData = b.data as any;
 					return {
 						id: b.id,
-						type: "markdown",
-						data: { value: b.data.data },
-					} as EditorBlock;
-				}
-				const inferenceData = b.data as any;
-				return {
-					id: b.id,
-					type: "inference",
-					data: {
-						code: inferenceData.data,
-						results: inferenceData.results || [],
-						status: inferenceData.status || "idle",
-						executionTimeMs: inferenceData.execution_time_ms,
-						error: inferenceData.error,
-					},
-				} as EditorBlock;
-			});
-
-			return {
-				tabs: {
-					...state.tabs,
-					[id]: {
-						...tab,
+						type: "inference",
 						data: {
-							...tab.data,
-							profile,
-							blocks: dynamicBlocks,
-							isDirty: false,
+							code: inferenceData.data,
+							results: inferenceData.results || [],
+							status: inferenceData.status || "idle",
+							executionTimeMs: inferenceData.execution_time_ms,
+							error: inferenceData.error,
+						},
+					} as EditorBlock;
+				});
+
+				return {
+					tabs: {
+						...state.tabs,
+						[id]: {
+							...tab,
+							data: {
+								...tab.data,
+								profile,
+								blocks: dynamicBlocks,
+								isDirty: false,
+							},
 						},
 					},
-				},
-			};
-		}),
-}));
+				};
+			}),
+	};
+});
