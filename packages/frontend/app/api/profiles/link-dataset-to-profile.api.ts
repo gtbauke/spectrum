@@ -6,6 +6,11 @@ export async function linkDatasetToProfile(
 	profileId: string,
 	data: LinkDatasetToProfileDto,
 ) {
+	console.log({
+		profileId,
+		data,
+	});
+
 	const response = await safeApiRequest(
 		`/profiles/${profileId}/datasets`,
 		profileSchema,

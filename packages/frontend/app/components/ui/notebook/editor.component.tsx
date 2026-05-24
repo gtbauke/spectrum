@@ -87,7 +87,10 @@ export function ProfileEditor({ tabId }: ProfileEditorProps) {
 		<div className="flex-1 h-full p-12 overflow-y-auto custom-scrollbar bg-background">
 			<div className="space-y-4">
 				<ProfileMetadataSection profile={profile} />
-				<ProfileDatasetsSection datasets={profile.datasets} />
+				<ProfileDatasetsSection
+					datasets={profile.datasets}
+					profileId={profile.id}
+				/>
 				<ProfileJobsSection
 					profileId={profile.id}
 					jobs={profile.jobs}
