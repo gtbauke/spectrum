@@ -40,15 +40,15 @@ export function ProfileDatasetsSection({
 				/>
 			</div>
 
-			{isAdding && (
-				<AddDataset existingDatasets={datasets} profileId={profileId} />
-			)}
-
 			<div className="space-y-2">
 				{datasets.map((dataset) => (
 					<DatasetItem key={dataset.id} dataset={dataset} />
 				))}
 			</div>
+
+			{isAdding && (
+				<AddDataset existingDatasets={datasets} profileId={profileId} />
+			)}
 		</div>
 	);
 }

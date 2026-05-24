@@ -33,6 +33,7 @@ export function useLinkDatasetToProfileMutation() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["profiles"] });
+			queryClient.invalidateQueries({ queryKey: ["profile"] });
 			queryClient.invalidateQueries({ queryKey: ["datasets"] });
 		},
 		onError: (error) => {
