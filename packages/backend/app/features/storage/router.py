@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response
 from fastapi.responses import FileResponse
 from pathlib import Path
 
@@ -8,8 +8,12 @@ router = APIRouter()
 
 
 @router.get("/download/{path:path}")
-async def get_download_url(path: str):
+async def get_download_url(path: str, response: Response):
     """Returns a download URL for the requested file."""
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+
     if settings.STORAGE_TYPE == "s3":
         from core.adapters.storage.s3_storage import S3FileStorage
 
@@ -55,4 +59,3 @@ async def serve_local_file(path: str):
         raise HTTPException(status_code=404, detail="File not found")
 
     return FileResponse(file_path)
-
