@@ -33,6 +33,6 @@ docker network prune -f
 
 echo "🚀 Bringing the project back up..."
 # --build ensures any code changes are pulled into the fresh images
-docker compose up -d --build
+docker compose -f docker-compose.prod.yml up -d --build
 
 echo "🎉 Deployment complete!"
