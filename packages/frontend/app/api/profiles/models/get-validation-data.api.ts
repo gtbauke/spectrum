@@ -1,5 +1,7 @@
 import Papa from "papaparse";
 
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+
 /**
  * Fetches and parses validation results from the storage API.
  * First resolves the download URL, then fetches the file content.
@@ -7,9 +9,7 @@ import Papa from "papaparse";
 export async function getValidationData<T extends unknown[]>(
 	validationPath: string,
 ): Promise<T> {
-	const baseUrl =
-		import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
-	const downloadEndpoint = `${baseUrl}/storage/download/${validationPath}`;
+	const downloadEndpoint = `${BASE_URL}/storage/download/${validationPath}`;
 
 	const urlResponse = await fetch(downloadEndpoint);
 	if (!urlResponse.ok) {
@@ -39,4 +39,3 @@ export async function getValidationData<T extends unknown[]>(
 		});
 	});
 }
-
