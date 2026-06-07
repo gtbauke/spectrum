@@ -40,7 +40,7 @@ export function ProfileItem({
 	const { mutate: deleteProfile } = useProfileDeleteMutation();
 
 	const handleOnDoubleClick = () => {
-		openTab(profile.id);
+		openTab(profile.id, profile.name);
 	};
 
 	const isPublic = profile.mode === "released";

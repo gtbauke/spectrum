@@ -12,18 +12,19 @@ export function useProfileQueryState(
 	const openProfileTab = useEditorStore((s) => s.openProfileTab);
 	const closeProfileTab = useEditorStore((s) => s.closeTab);
 	const activeTabId = useEditorStore((s) => s.activeTabId);
+	const setActiveTab = useEditorStore((s) => s.setActiveTab);
 
 	const [searchParams, setSearchParams] = useSearchParams();
 	const queryTab = searchParams.get("tab") || "";
 
 	const openTab = useCallback(
-		(profileId: string) => {
+		(profileId: string, tabName: string = "Untitled Profile") => {
 			setSearchParams((prev) => {
 				prev.set("tab", profileId);
 				return prev;
 			});
 
-			openProfileTab(profileId);
+			openProfileTab(profileId, tabName);
 		},
 		[openProfileTab, setSearchParams],
 	);
@@ -44,5 +45,13 @@ export function useProfileQueryState(
 		closeProfileTab(tabId);
 	};
 
-	return { openTab, activeTab: queryTab, closeTab };
+	const setActiveQueryTab = (newTabId: string) => {
+		setActiveTab(newTabId);
+		setSearchParams((prev) => {
+			prev.set("tab", newTabId);
+			return prev;
+		});
+	};
+
+	return { openTab, activeTab: queryTab, closeTab, setActiveQueryTab };
 }

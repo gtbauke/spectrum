@@ -1,3 +1,4 @@
+import { useProfileQueryState } from "~/hooks/use-profile-query-state.hook";
 import { useEditorStore } from "~/stores/editor.store";
 import type { EditorTab } from "~/utils/types/editor.types";
 import { NewTabButton } from "./new-tab-button.component";
@@ -6,6 +7,8 @@ import { ProfileTabItem } from "./tabs/profile-tab.component";
 import { SystemTabItem } from "./tabs/system-tab.component";
 
 export function TabBar() {
+	const { setActiveQueryTab } = useProfileQueryState();
+
 	const tabs = useEditorStore((state) => state.tabs);
 	const tabIds = useEditorStore((state) => state.tabIds);
 	const setActiveTab = useEditorStore((state) => state.setActiveTab);
@@ -15,7 +18,7 @@ export function TabBar() {
 		setActiveTab(tab.id);
 
 		if (tab.type === "profile" || tab.type === "dataset") {
-			setActiveTab(tab.id);
+			setActiveQueryTab(tab.id);
 			return;
 		}
 

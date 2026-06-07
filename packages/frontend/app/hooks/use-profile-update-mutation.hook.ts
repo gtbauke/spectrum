@@ -19,6 +19,8 @@ export function useProfileUpdateMutation() {
 		},
 		onSuccess: (updatedProfile) => {
 			queryClient.invalidateQueries({ queryKey: ["profiles"] });
+			queryClient.invalidateQueries({ queryKey: ["profiles", "summary"] });
+			queryClient.invalidateQueries({ queryKey: ["recent-profiles"] });
 			queryClient.invalidateQueries({
 				queryKey: ["profile", updatedProfile.id],
 			});

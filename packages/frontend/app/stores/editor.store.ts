@@ -40,7 +40,7 @@ type EditorActions = {
 	openTab: (tab: EditorTab) => void;
 
 	openUploadTab: () => void;
-	openProfileTab: (profileId: string) => void;
+	openProfileTab: (profileId: string, tabName: string) => void;
 
 	closeTab: (id: string) => void;
 	updateTab: <T extends EditorTabType>(
@@ -114,7 +114,7 @@ export const useEditorStore = create<EditorStore>((set, get) => {
 			});
 		},
 
-		openProfileTab: (profileId) => {
+		openProfileTab: (profileId, tabName) => {
 			get().openTab({
 				type: "profile",
 				id: profileId,
@@ -125,11 +125,11 @@ export const useEditorStore = create<EditorStore>((set, get) => {
 					blocks: [],
 					past: [],
 					future: [],
-					isDirty: true,
+					isDirty: false,
 					activeBlockId: null,
 					profile: {
 						id: profileId,
-						name: "Untitled Profile",
+						name: tabName || "Untitled Profile",
 						description: "",
 						ownerId: "",
 						mode: "draft",

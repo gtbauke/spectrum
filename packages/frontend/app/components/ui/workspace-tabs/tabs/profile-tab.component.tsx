@@ -2,6 +2,7 @@ import { Folder } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { useProfileQueryState } from "~/hooks/use-profile-query-state.hook";
+import { useProfileUpdateMutation } from "~/hooks/use-profile-update-mutation.hook";
 import { useEditorStore } from "~/stores/editor.store";
 import type { ProfileTabData } from "~/utils/types/editor.types";
 import { TabBase } from "./tab-base.component";
@@ -16,6 +17,7 @@ export function ProfileTabItem({ tab, onClick }: ProfileTabItemProps) {
 
 	const activeTabId = useEditorStore((state) => state.activeTabId);
 	const updateTab = useEditorStore((state) => state.updateTab);
+	const { mutate: updateProfile } = useProfileUpdateMutation();
 
 	const [isEditing, setIsEditing] = useState(false);
 	const [tempName, setTempName] = useState(tab.profile?.name || "Untitled");
@@ -40,7 +42,13 @@ export function ProfileTabItem({ tab, onClick }: ProfileTabItemProps) {
 				updateTab(tab.tabId, "profile", {
 					profile: { ...tab.profile, name: tempName.trim() },
 				});
+
+				updateProfile({
+					data: { name: tempName.trim() },
+					profileId: tab.profile.id,
+				});
 			}
+
 			return;
 		}
 
