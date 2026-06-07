@@ -42,12 +42,25 @@ class S3FileStorage(FileStorage):
             region_name=self._region,
         )
 
-    async def upload(self, *, path: str, file: BinaryIO) -> UploadResult:
+    def _get_client(self):
+        from botocore.config import Config
         from types_aiobotocore_s3.client import S3Client
 
-        session = self._get_session()
-        client: S3Client = cast(S3Client, session.client(
-            "s3", endpoint_url=self._endpoint_url))
+        config = Config(
+            signature_version="s3v4",
+            s3={"addressing_style": "virtual"},
+        )
+
+        client = cast(S3Client, self._get_session().client(
+            "s3",
+            endpoint_url=self._endpoint_url,
+            config=config,
+        ))
+
+        return client
+
+    async def upload(self, *, path: str, file: BinaryIO) -> UploadResult:
+        client = self._get_client()
 
         async with client as s3:
             # Ensure we are at the beginning of the file
@@ -66,14 +79,10 @@ class S3FileStorage(FileStorage):
             return UploadResult(path=spectrum_path, size=size, checksum=checksum)
 
     async def download(self, *, path: str, destination: str) -> None:
-        from types_aiobotocore_s3.client import S3Client
-
         destination_path = Path(destination).resolve()
         destination_path.parent.mkdir(parents=True, exist_ok=True)
 
-        session = self._get_session()
-        client: S3Client = cast(S3Client, session.client(
-            "s3", endpoint_url=self._endpoint_url))
+        client = self._get_client()
 
         async with client as s3:
             response = await s3.get_object(Bucket=self._bucket, Key=path)
@@ -87,11 +96,7 @@ class S3FileStorage(FileStorage):
         path: str,
         expiration: int = 3600,
     ) -> str:
-        from types_aiobotocore_s3.client import S3Client
-
-        session = self._get_session()
-        client = cast(S3Client, session.client(
-            "s3", endpoint_url=self._endpoint_url))
+        client = self._get_client()
 
         async with client as s3:
             url = await s3.generate_presigned_url(
@@ -110,11 +115,7 @@ class S3FileStorage(FileStorage):
         path: str,
         expiration: int = 3600,
     ) -> str:
-        from types_aiobotocore_s3.client import S3Client
-
-        session = self._get_session()
-        client = cast(S3Client, session.client(
-            "s3", endpoint_url=self._endpoint_url))
+        client = self._get_client()
 
         async with client as s3:
             url = await s3.generate_presigned_url(
