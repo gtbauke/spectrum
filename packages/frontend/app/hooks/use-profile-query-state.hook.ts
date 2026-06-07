@@ -1,34 +1,48 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useSearchParams } from "react-router";
 import { useEditorStore } from "~/stores/editor.store";
 
-export function useProfileQueryState() {
+type UseProfileQueryStateOptions = {
+	onClose?: () => void;
+};
+
+export function useProfileQueryState(
+	options: UseProfileQueryStateOptions = {},
+) {
 	const openProfileTab = useEditorStore((s) => s.openProfileTab);
+	const closeProfileTab = useEditorStore((s) => s.closeTab);
+	const activeTabId = useEditorStore((s) => s.activeTabId);
 
 	const [searchParams, setSearchParams] = useSearchParams();
-	const activeTab = searchParams.get("tab") || "";
+	const queryTab = searchParams.get("tab") || "";
+
+	const openTab = useCallback(
+		(profileId: string) => {
+			setSearchParams((prev) => {
+				prev.set("tab", profileId);
+				return prev;
+			});
+
+			openProfileTab(profileId);
+		},
+		[openProfileTab, setSearchParams],
+	);
 
 	useEffect(() => {
-		if (activeTab) {
-			openProfileTab(activeTab);
+		if (!queryTab && activeTabId) {
+			openTab(activeTabId);
 		}
-	}, [activeTab, openProfileTab]);
+	}, [queryTab, activeTabId, openTab]);
 
-	const openTab = (profileId: string) => {
-		setSearchParams((prev) => {
-			prev.set("tab", profileId);
-			return prev;
-		});
-
-		openProfileTab(profileId);
-	};
-
-	const closeTab = () => {
+	const closeTab = (tabId: string) => {
 		setSearchParams((prev) => {
 			prev.delete("tab");
 			return prev;
 		});
+
+		options.onClose?.();
+		closeProfileTab(tabId);
 	};
 
-	return { openTab, activeTab, closeTab };
+	return { openTab, activeTab: queryTab, closeTab };
 }

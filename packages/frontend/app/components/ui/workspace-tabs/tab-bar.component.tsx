@@ -58,7 +58,6 @@ export function TabBar() {
 						key={tab.id}
 						tab={tab.data}
 						onClick={() => handleTabClick(tab)}
-						onClose={() => handleTabClose(tab)}
 					/>
 				);
 			})}

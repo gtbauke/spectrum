@@ -9,10 +9,9 @@ import { TabBase } from "./tab-base.component";
 type ProfileTabItemProps = {
 	tab: ProfileTabData;
 	onClick: () => void;
-	onClose: () => void;
 };
 
-export function ProfileTabItem({ tab, onClick, onClose }: ProfileTabItemProps) {
+export function ProfileTabItem({ tab, onClick }: ProfileTabItemProps) {
 	const { closeTab } = useProfileQueryState();
 
 	const activeTabId = useEditorStore((state) => state.activeTabId);
@@ -60,8 +59,7 @@ export function ProfileTabItem({ tab, onClick, onClose }: ProfileTabItemProps) {
 	};
 
 	const handleClose = () => {
-		onClose();
-		closeTab();
+		closeTab(tab.tabId);
 	};
 
 	return (
