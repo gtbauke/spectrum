@@ -28,7 +28,8 @@ COPY packages/inference_query_language/pyproject.toml ./packages/inference_query
 COPY packages/workers/pyproject.toml ./packages/workers/
 
 # Install dependencies without the root project to cache high-cost layers
-RUN uv sync --frozen --no-install-project --no-dev
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project --no-dev
 
 # --- Build Stage ---
 FROM deps AS build
@@ -37,7 +38,8 @@ FROM deps AS build
 COPY . /app
 
 # Install the project and its dependencies (no-dev for production)
-RUN uv sync --frozen --no-dev
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev
 
 # --- Production Stage ---
 FROM build AS production
