@@ -255,6 +255,525 @@ class ImmutableVersionedBase(ImmutableBase):
         )
 \end{lstlisting}
 
+\chapter{Entidades de Domínio}
+\label{sec:appendix-domain-entities}
+\begin{lstlisting}[language=Python, caption={Definição de uma entidade mutável em nível de domínio}, label={code:mutable_domain}]
+class BaseMutableDomainModel(RootDomainModel):
+    id: UUID = Field(default_factory=uuid4)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Definição de uma entidade imutável em nível de domínio}, label={code:immutable_domain}]
+class BaseImmutableDomainModel(RootDomainModel):
+    id: UUID = Field(default_factory=uuid4)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Definição de uma entidade versionada em nível de domínio}, label={code:versioned_domain}]
+class BaseImmutableVersionedDomainModel(RootDomainModel):
+    id: UUID = Field(default_factory=uuid4)
+    version: int = Field(default=1, description="Version number for optimistic concurrency control")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    is_latest: bool = Field(default=True)
+\end{lstlisting}
+
+\chapter{Repositórios para as entidades de domínio}
+\label{sec:appendix-repositories-domain-entities}
+\begin{lstlisting}[language=Python, caption={Definição de um protocolo de repositório para entidades mutáveis}, label={code:mutable_repository}]
+from typing import Protocol
+
+from core.features.base import (
+    BaseMutableDomainModel,
+)
+
+from core.utils.where import BaseUniqueWhere
+from core.utils.filters.base import BaseFilter
+
+from .immutable import IImmutableRepository
+
+
+class IMutableRepository[
+    T_Mutable: BaseMutableDomainModel,
+    T_Where: BaseUniqueWhere,
+    T_Filter: BaseFilter,
+](IImmutableRepository[T_Mutable, T_Where, T_Filter], Protocol):
+    async def update(self, entity: T_Mutable) -> None: ...
+    async def delete(self, entity: T_Mutable) -> None: ...
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Definição de um protocolo de repositório para entidades imutáveis}, label={code:immutable_repository}]
+from typing import Optional, Protocol, Sequence
+
+from core.features.base import (
+    RootDomainModel,
+)
+
+from core.utils.where import BaseUniqueWhere
+from core.utils.filters.base import BaseFilter
+from core.utils.pagination.response import PaginatedResponse
+from core.utils.pagination.base import Pagination
+
+
+class IImmutableRepository[
+    T_Immutable: RootDomainModel,
+    T_Where: BaseUniqueWhere,
+    T_Filter: BaseFilter,
+](Protocol):
+    async def add(self, entity: T_Immutable) -> None: ...
+    async def get_unique(self, where: T_Where) -> Optional[T_Immutable]: ...
+
+    async def list(self, filter: Optional[T_Filter] = None,
+                   pagination: Optional[Pagination] = None) -> PaginatedResponse[T_Immutable]: ...
+
+    async def list_all(
+        self, filter: Optional[T_Filter] = None) -> Sequence[T_Immutable]: ...
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Definição de um protocolo de repositório para entidades versionadas}, label={code:versioned_repository}]
+from typing import Optional, Protocol
+from uuid import UUID
+
+from core.features.base import BaseImmutableVersionedDomainModel
+from core.utils.where import BaseUniqueWhere
+from core.utils.filters.base import BaseFilter
+
+from .immutable import IImmutableRepository
+
+
+class IVersionedRepository[
+    T_Versioned: BaseImmutableVersionedDomainModel,
+    T_Where: BaseUniqueWhere,
+    T_Filter: BaseFilter,
+](IImmutableRepository[T_Versioned, T_Where, T_Filter], Protocol):
+    async def get_latest_version(
+        self, parent_id: UUID) -> Optional[T_Versioned]: ...
+
+    async def get_version_by_number(
+        self, parent_id: UUID, version: int) -> Optional[T_Versioned]: ...
+
+    async def unset_latest_and_add(
+        self, parent_id: UUID, new_entity: T_Versioned) -> None: ...
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Definição de um protocolo de repositório para operações em lote}, label={code:bulk_repository}]
+from typing import Protocol, Iterable
+
+from core.features.base import (
+    BaseMutableDomainModel,
+)
+
+from core.utils.where import BaseUniqueWhere
+from core.utils.filters.base import BaseFilter
+
+from .mutable import IMutableRepository
+
+
+class IMutableBulkRepository[
+    T_Mutable: BaseMutableDomainModel,
+    T_Where: BaseUniqueWhere,
+    T_Filter: BaseFilter,
+](IMutableRepository[T_Mutable, T_Where, T_Filter], Protocol):
+    async def add_many(self, entities: Iterable[T_Mutable]) -> None: ...
+    async def update_many(self, entities: Iterable[T_Mutable]) -> None: ...
+    async def delete_many(self, entities: Iterable[T_Mutable]) -> None: ...
+\end{lstlisting}
+
+\chapter{Padrão Unit-of-Work e recursos transacionais}
+\label{sec:appendix-unit-of-work}
+\begin{lstlisting}[language=Python, caption={Definição de um protocolo para o padrão de código Unit of Work}, label={code:unit_of_work}]
+class UnitOfWork(ABC):
+    users: IUsersRepository
+    auth: IAuthRepository
+    datasets: IDatasetsRepository
+    artifacts: IArtifactsRepository
+    profiles: IProfilesRepository
+    blocks: IBlocksRepository
+    jobs: IJobsRepository
+    models: IModelsRepository
+    runs: IRunsRepository
+    inference_runs: IInferenceRunRepository
+    inference_results: IInferenceResultRepository
+
+    file_storage: FileStorage
+    events_publisher: EventPublisher
+
+    def __init__(self) -> None:
+        self._resources: list[TransactionalResource] = []
+        self._on_commit_hooks: list[Callable[[], Awaitable[None]]] = []
+
+    def register(self, resource: TransactionalResource) -> None:
+        self._resources.append(resource)
+
+    async def commit_resources(self) -> None:
+        for resource in self._resources:
+            await resource.commit()
+
+        self._resources.clear()
+
+    async def rollback_resources(self) -> None:
+        for resource in self._resources:
+            await resource.rollback()
+
+        self._resources.clear()
+
+    @abstractmethod
+    async def __aenter__(self) -> UnitOfWork: ...
+
+    @abstractmethod
+    async def __aexit__(self, exc_type: Optional[Type[BaseException]],
+                        exc: Optional[BaseException],
+                        tb: Optional[TracebackType],): ...
+
+    @abstractmethod
+    async def commit(self) -> None: ...
+
+    def on_commit(self, hook: Callable[[], Awaitable[None]]) -> None:
+        self._on_commit_hooks.append(hook)
+
+    @abstractmethod
+    async def rollback(self) -> None: ...
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Definição de um protocolo para recursos transacionais}, label={code:transactional_resource}]
+class TransactionalResource(Protocol):
+    async def commit(self) -> None:
+        ...
+
+    async def rollback(self) -> None:
+        ...
+\end{lstlisting}
+
+\chapter{Entidade Usuário}
+\label{sec:appendix-entity-user}
+\begin{lstlisting}[language=Python, caption={Código SQLAlchemy para criação da tabela de usuários}, label={code:user_db}]
+class UserORM(MutableBase):
+    __tablename__ = "users"
+
+    first_name: Mapped[str] = mapped_column(String, nullable=False)
+    last_name: Mapped[str] = mapped_column(String, nullable=False)
+
+    email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    password_hash: Mapped[str] = mapped_column(String, nullable=False)
+
+    deleted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True)
+
+    datasets: Mapped[list["DatasetORM"]] = relationship(
+        "DatasetORM",
+        back_populates="owner",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    profiles: Mapped[list["ProfileORM"]] = relationship(
+        "ProfileORM",
+        back_populates="owner",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define um usuário}, label={code:user_domain}]
+class User(BaseMutableDomainModel):
+    first_name: str = Field(..., description="The user's first name")
+
+    last_name: str = Field(..., description="The user's last name")
+
+    email: EmailStr = Field(..., description="The user's email address")
+
+    password_hash: SecretStr = Field(...,
+                                     description="The hashed password of the user")
+
+    deleted_at: Optional[datetime] = Field(
+        None, description="The timestamp when the user was deleted, if applicable")
+
+    @classmethod
+    def new(
+        cls,
+        *,
+        first_name: str,
+        last_name: str,
+        email: EmailStr,
+        password_hash: SecretStr,
+    ):
+        return cls(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password_hash=password_hash,
+            deleted_at=None,
+        )
+\end{lstlisting}
+
+\chapter{Entidade Dataset}
+\label{sec:appendix-entity-dataset}
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define um Dataset}, label={code:dataset_domain}]
+class Dataset(BaseMutableDomainModel):
+    name: str = Field()
+    description: str = Field()
+    owner_id: UUID = Field()
+    artifacts: list[Artifact] = Field()
+    deleted_at: datetime | None = Field()
+
+    visibility: DatasetVisibility = Field(
+        DatasetVisibility.PRIVATE,
+    )
+
+    @classmethod
+    def new(
+        cls,
+        name: str,
+        description: str,
+        owner_id: UUID,
+        visibility: DatasetVisibility = DatasetVisibility.PRIVATE
+    ) -> "Dataset":
+        return cls(
+            name=name,
+            description=description,
+            owner_id=owner_id,
+            artifacts=[],
+            deleted_at=None,
+            visibility=visibility
+        )
+\end{lstlisting}
+
+\chapter{Entidade Profile}
+\label{sec:appendix-entity-profile}
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define um Profile}, label={code:profile_domain}]
+class Profile(BaseMutableDomainModel):
+    name: str = Field()
+    description: str = Field()
+    owner_id: UUID = Field()
+    mode: ProfileMode = Field(default=ProfileMode.DRAFT)
+    deleted_at: datetime | None = Field(default=None)
+    datasets: list[Dataset] = Field(default=[])
+    jobs: list[Job] = Field(default=[])
+    models: list[Model] = Field(default=[])
+    blocks: list[Block] = Field(default=[])
+
+    @classmethod
+    def new(
+        cls,
+        name: str,
+        description: str,
+        owner_id: UUID,
+        mode: ProfileMode = ProfileMode.DRAFT
+    ) -> "Profile":
+        return cls(
+            name=name,
+            description=description,
+            owner_id=owner_id,
+            mode=mode,
+            deleted_at=None,
+            datasets=[],
+            jobs=[],
+            models=[],
+            blocks=[],
+        )
+\end{lstlisting}
+
+\chapter{Entidade Job}
+\label{sec:appendix-entity-job}
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define um Job}, label={code:job_domain}]
+class Job(BaseMutableDomainModel):
+    name: str = Field()
+    profile_id: UUID = Field()
+    runs_against: UUID = Field()
+    generations: int = Field()
+    population: int = Field()
+    max_size: int = Field()
+    number_of_tournaments: int = Field()
+    crossover_probability: float = Field()
+    mutation_probability: float = Field()
+    non_terminals: list[AvailableFunction] = Field()
+    loss: LossFunction = Field()
+    optimization_iterations: int = Field()
+    optimization_repeats: int = Field()
+    max_param_count: int = Field()
+    split: int = Field()
+    simplify: bool = Field()
+    runs: list[Run] = Field([])
+
+    @classmethod
+    def new(
+        cls,
+        name: str,
+        profile_id: UUID,
+        runs_against: UUID,
+        generations: int,
+        population: int,
+        max_size: int,
+        number_of_tournaments: int,
+        crossover_probability: float,
+        mutation_probability: float,
+        non_terminals: list[AvailableFunction],
+        loss: LossFunction,
+        optimization_iterations: int,
+        optimization_repeats: int,
+        max_param_count: int,
+        split: int,
+        simplify: bool,
+    ) -> "Job":
+        return cls(
+            name=name,
+            profile_id=profile_id,
+            runs_against=runs_against,
+            generations=generations,
+            population=population,
+            max_size=max_size,
+            number_of_tournaments=number_of_tournaments,
+            crossover_probability=crossover_probability,
+            mutation_probability=mutation_probability,
+            non_terminals=non_terminals,
+            loss=loss,
+            optimization_iterations=optimization_iterations,
+            optimization_repeats=optimization_repeats,
+            max_param_count=max_param_count,
+            split=split,
+            simplify=simplify,
+            runs=[],
+        )
+\end{lstlisting}
+
+\chapter{Entidade Run}
+\label{sec:appendix-entity-run}
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define um Run}, label={code:run_domain}]
+class Run(BaseImmutableVersionedDomainModel):
+    job_id: UUID = Field()
+    status: JobRunStatus = Field(JobRunStatus.WAITING)
+    started_at: datetime | None = Field(default_factory=lambda: None)
+    finished_at: datetime | None = Field(default_factory=lambda: None)
+
+    @classmethod
+    def new(
+        cls,
+        id: UUID | None,
+        job_id: UUID,
+        version: int,
+    ) -> "Run":
+        if id is None:
+            id = uuid4()
+
+        return cls(
+            id=id,
+            job_id=job_id,
+            version=version,
+            status=JobRunStatus.WAITING,
+            is_latest=True,
+        )
+\end{lstlisting}
+
+\chapter{Entidade Model}
+\label{sec:appendix-entity-model}
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define um Model}, label={code:model_domain}]
+class Model(BaseMutableDomainModel):
+    name: str = Field()
+    profile_id: UUID = Field()
+    generated_by: UUID = Field()
+    path: str = Field()
+    validation_path: str | None = Field()
+    metrics: dict[str, Any] | None = Field()
+\end{lstlisting}
+
+\chapter{Entidade Block}
+\label{sec:appendix-entity-block}
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define um Block}, label={code:block_domain}]
+class Block(BaseMutableDomainModel):
+    profile_id: UUID = Field()
+    kind: BlockKind = Field()
+    order_index: int = Field()
+    data: BaseBlock = Field()
+
+    @classmethod
+    def new(cls, profile_id: UUID, kind: BlockKind, order_index: int, data: BaseBlock):
+        return cls(
+            profile_id=profile_id,
+            kind=kind,
+            order_index=order_index,
+            data=data
+        )
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define um bloco de consulta em linguagem IQL}, label={code:inference_block_domain}]
+class BaseBlock[T](BaseModel):
+    data: T
+    kind: Any
+
+class InferenceBlock(BaseBlock[str]):
+    kind: Literal[BlockKind.INFERENCE] = BlockKind.INFERENCE
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define um bloco de consulta em linguagem IQL}, label={code:markdown_block_domain}]
+class MarkdownBlock(BaseBlock[str]):
+    kind: Literal[BlockKind.MARKDOWN] = BlockKind.MARKDOWN
+\end{lstlisting}
+
+\chapter{Entidade Inference Run}
+\label{sec:appendix-entity-inference-run}
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define uma InferenceRun}, label={code:inference_run_domain}]
+class InferenceRun(BaseImmutableVersionedDomainModel):
+    block_id: UUID = Field()
+    profile_id: UUID = Field()
+    query: str = Field()
+    status: InferenceRunStatus = Field(InferenceRunStatus.PENDING)
+    execution_time_ms: Optional[int] = Field(None)
+    error: Optional[str] = Field(None)
+
+    @classmethod
+    def new(cls, block_id: UUID, profile_id: UUID, query: str, version: int = 1):
+        return cls(
+            block_id=block_id,
+            profile_id=profile_id,
+            query=query,
+            version=version,
+            is_latest=True,
+            status=InferenceRunStatus.PENDING,
+            execution_time_ms=None,
+            error=None
+        )
+\end{lstlisting}
+
+\chapter{Inference Run Result}
+\label{sec:appendix-entity-inference-run-result}
+\begin{lstlisting}[language=Python, caption={Classe de domínio que define uma InferenceResult}, label={code:inference_result_domain}]
+class InferenceResult(BaseImmutableDomainModel):
+    run_id: UUID = Field()
+    run_version: int = Field()
+    expression: str = Field()
+    dl: Optional[float] = Field(None)
+    fitness: Optional[float] = Field(None)
+    latex: Optional[str] = Field(None)
+    numpy: Optional[str] = Field(None)
+    parameters: Optional[dict[str, float]] = Field(None)
+    size: Optional[int] = Field(None)
+
+    @classmethod
+    def new(
+        cls,
+        run_id: UUID,
+        run_version: int,
+        expression: str,
+        dl: Optional[float] = None,
+        fitness: Optional[float] = None,
+        latex: Optional[str] = None,
+        numpy: Optional[str] = None,
+        parameters: Optional[dict[str, float]] = None,
+        size: Optional[int] = None
+    ):
+        return cls(
+            run_id=run_id,
+            run_version=run_version,
+            expression=expression,
+            dl=dl,
+            fitness=fitness,
+            latex=latex,
+            numpy=numpy,
+            parameters=parameters,
+            size=size
+        )
+\end{lstlisting}
+
 \chapter{Dependências do Front-end}
 \label{sec:appendix-frontend}
 \begin{lstlisting}[language=json, caption={Ferramentas utilizadas no front-end e suas versões}, label=lst:frontend-dependencies]

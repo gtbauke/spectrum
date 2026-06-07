@@ -17,11 +17,10 @@ Além disso, como um dos objetivos do projeto é a criação de uma plataforma d
 
 \begin{itemize}
     \item \textbf{US1 - Upload de Dados}: Como usuários, quero fazer \textit{upload} de arquivos CSV para que eu possa utilizar meus próprios dados experimentais no treinamento de modelos.
-    \item \textbf{US2 - Datasets Aleatórios}: Como usuários, quero gerar conjuntos de dados aleatórios para testar o comportamento dos algoritmos em diferentes cenários matemáticos.
-    \item \textbf{US3 - Treinamento de Modelos}: Como usuário, quero configurar os meta-parâmetros do algoritmo eggp para que eu possa otimizar a busca por expressões que respeitem restrições específicas de domínio.
-    \item \textbf{US4 - Consulta IQL}: Como analista de dados, quero consultar expressões encontradas através da linguagem IQL para identificar padrões matemáticos de interesse.
-    \item \textbf{US5 - Visualização de Métricas}: Como usuários, quero observar métricas de performance (MSE, R²) e complexidade estrutural para facilitar a seleção do modelo mais adequado.
-    \item \textbf{US6 - Predição e Validação}: Como usuário, quero utilizar os modelos treinados para realizar previsões em novos dados, validando a generalização da solução encontrada.
+    \item \textbf{US2 - Treinamento de Modelos}: Como usuário, quero configurar os meta-parâmetros do algoritmo eggp para que eu possa otimizar a busca por expressões que respeitem restrições específicas de domínio.
+    \item \textbf{US3 - Consulta IQL}: Como analista de dados, quero consultar expressões encontradas através da linguagem IQL para identificar padrões matemáticos de interesse.
+    \item \textbf{US4 - Visualização de Métricas}: Como usuários, quero observar métricas de performance (MSE, R²) e complexidade estrutural para facilitar a seleção do modelo mais adequado.
+    \item \textbf{US5 - Predição e Validação}: Como usuário, quero utilizar os modelos treinados para realizar previsões em novos dados, validando a generalização da solução encontrada.
 \end{itemize}
 
 \section{Interface Web e Blocos de Visualização}
@@ -307,99 +306,10 @@ A Figura \ref{fig:entity_diagram} apresenta a estrutura de entidades do sistema,
 \subsection{Usuários}
 Como forma de permitir a criação de modelos privados, a plataforma Spectrum oferece uma funcionalidade de criação de contas de usuário. Todas as demais entidades do sistema estão relacionadas, direta ou indiretamente, com um usuário. Usuários representam pessoas que utilizam a plataforma. Um usuário é definido a nível de banco de dados pelo código \ref{code:user_db}, e a nível de domínio pelo código \ref{code:user_domain}.
 
-\begin{lstlisting}[language=Python, caption={Código SQLAlchemy para criação da tabela de usuários}, label={code:user_db}]
-class UserORM(MutableBase):
-    __tablename__ = "users"
-
-    first_name: Mapped[str] = mapped_column(String, nullable=False)
-    last_name: Mapped[str] = mapped_column(String, nullable=False)
-
-    email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    password_hash: Mapped[str] = mapped_column(String, nullable=False)
-
-    deleted_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True)
-
-    datasets: Mapped[list["DatasetORM"]] = relationship(
-        "DatasetORM",
-        back_populates="owner",
-        cascade="all, delete-orphan",
-        lazy="selectin",
-    )
-
-    profiles: Mapped[list["ProfileORM"]] = relationship(
-        "ProfileORM",
-        back_populates="owner",
-        cascade="all, delete-orphan",
-        lazy="selectin",
-    )
-\end{lstlisting}
-
-\begin{lstlisting}[language=Python, caption={Classe de domínio que define um usuário}, label={code:user_domain}]
-class User(BaseMutableDomainModel):
-    first_name: str = Field(..., description="The user's first name")
-
-    last_name: str = Field(..., description="The user's last name")
-
-    email: EmailStr = Field(..., description="The user's email address")
-
-    password_hash: SecretStr = Field(...,
-                                     description="The hashed password of the user")
-
-    deleted_at: Optional[datetime] = Field(
-        None, description="The timestamp when the user was deleted, if applicable")
-
-    @classmethod
-    def new(
-        cls,
-        *,
-        first_name: str,
-        last_name: str,
-        email: EmailStr,
-        password_hash: SecretStr,
-    ):
-        return cls(
-            first_name=first_name,
-            last_name=last_name,
-            email=email,
-            password_hash=password_hash,
-            deleted_at=None,
-        )
-\end{lstlisting}
-
 Usuários podem manipular outras duas principais entidades do sistema: \textbf{Datasets} e \textbf{Profiles}. Datasets são abstrações sobre os arquivos CSV de dados que os usuários fazem upload para a plataforma, enquanto Profiles são espaços de trabalho contendo blocos de visualização e modelos de regressão simbólica. Dessa forma, a plataforma garante que cada usuário tenha acesso apenas aos seus próprios dados e modelos, promovendo a privacidade e segurança das informações.
 
 \subsection{Datasets}
 Datasets são uma abstração sobre os arquivos CSV de dados que os usuários fazem upload para a plataforma. Além de referências para os arquivos, por meio das entidades de Artefatos, os Datasets também armazenam metadados como nome, descrição, data de criação e usuário proprietário. Um Dataset representa um conjunto de arquivos de dados com funções diferentes, como por exemplo um conjunto de dados de treinamento e outro de validação. A plataforma permite que os usuários façam upload de múltiplos arquivos para um mesmo Dataset, facilitando a organização dos dados experimentais. O código \ref{code:dataset_domain} apresenta a classe de domínio que define um Dataset e suas propriedades e métodos.
-\begin{lstlisting}[language=Python, caption={Classe de domínio que define um Dataset}, label={code:dataset_domain}]
-class Dataset(BaseMutableDomainModel):
-    name: str = Field()
-    description: str = Field()
-    owner_id: UUID = Field()
-    artifacts: list[Artifact] = Field()
-    deleted_at: datetime | None = Field()
-
-    visibility: DatasetVisibility = Field(
-        DatasetVisibility.PRIVATE,
-    )
-
-    @classmethod
-    def new(
-        cls,
-        name: str,
-        description: str,
-        owner_id: UUID,
-        visibility: DatasetVisibility = DatasetVisibility.PRIVATE
-    ) -> "Dataset":
-        return cls(
-            name=name,
-            description=description,
-            owner_id=owner_id,
-            artifacts=[],
-            deleted_at=None,
-            visibility=visibility
-        )
-\end{lstlisting}
 
 Datasets possuem uma propriedade que controla sua visibilidade na plataforma. Normalmente, datasets são privados, permitindo que apenas o usuário que criou o dataset tenha acesso a ele. Caso a visibilidade seja definida como pública, qualquer usuário da plataforma pode importar esse dataset em sua profile. No entanto, as funcionalidades de editar e deletar o dataset continua sendo restringida apenas para o usuário proprietário, garantindo a integridade dos dados mesmo em casos de compartilhamento. Essa funcionalidade de compartilhamento de datasets é fundamental para promover a colaboração entre os usuários da plataforma, permitindo que eles compartilhem conjuntos de dados experimentais e promovam a comparação e análise de resultados entre diferentes experimentos de regressão simbólica.
 
@@ -407,38 +317,6 @@ Outra regra de negócio importante presente no modelo de domínio do Dataset é 
 
 \subsection{Profiles}
 Profiles são espaços de trabalho personalizados para cada usuário, contendo blocos de visualização e modelos de regressão simbólica. Cada Profile pode ser configurado com diferentes blocos, como o Editor IQL para consultas e um bloco de Markdown para documentação. Essa personalização permite que os usuários adaptem a interface às suas necessidades específicas, integrando a exploração, escrita e utilização dos modelos de regressão em um único ambiente. Além disso, os Profiles estão diretamente relacionados aos modelos de regressão simbólica, permitindo que os usuários organizem seus experimentos de forma estruturada e eficiente. O código \ref{code:profile_domain} apresenta a classe de domínio que define um Profile e suas propriedades e métodos.
-\begin{lstlisting}[language=Python, caption={Classe de domínio que define um Profile}, label={code:profile_domain}]
-class Profile(BaseMutableDomainModel):
-    name: str = Field()
-    description: str = Field()
-    owner_id: UUID = Field()
-    mode: ProfileMode = Field(default=ProfileMode.DRAFT)
-    deleted_at: datetime | None = Field(default=None)
-    datasets: list[Dataset] = Field(default=[])
-    jobs: list[Job] = Field(default=[])
-    models: list[Model] = Field(default=[])
-    blocks: list[Block] = Field(default=[])
-
-    @classmethod
-    def new(
-        cls,
-        name: str,
-        description: str,
-        owner_id: UUID,
-        mode: ProfileMode = ProfileMode.DRAFT
-    ) -> "Profile":
-        return cls(
-            name=name,
-            description=description,
-            owner_id=owner_id,
-            mode=mode,
-            deleted_at=None,
-            datasets=[],
-            jobs=[],
-            models=[],
-            blocks=[],
-        )
-\end{lstlisting}
 
 Dentro da plataforma proposta, Profiles são o ponto de agregação de diversas outras entidades, como Jobs, Runs e Models. Dessa forma, cada Profile pode conter múltiplos Jobs (configurações de treinamento), cada Job pode gerar múltiplos Runs (resultados de treinamento) e cada Run pode estar associado a um Model (modelo de regressão simbólica gerado). Essa estrutura hierárquica facilita a organização dos experimentos e a navegação entre diferentes etapas do processo de modelagem.
 
@@ -448,172 +326,61 @@ As profiles contém uma propriedade que controla o modo de apresentação delas,
 
 \subsubsection{Jobs}
 Jobs representam configurações para o algoritmo \textit{EGGP}, contendo os parâmetros do algoritmo. Cada Job possui uma associação com um Dataset específico, permitindo que os usuários configurem o treinamento de modelos de regressão simbólica com diferentes conjuntos de dados. Os Jobs são o ponto de partida para a execução do treinamento, e cada execução gera um Run, que contém os resultados do treinamento, como tempo de execução e métricas de performance. A plataforma estabelece um requisito para os datasets associados a um Job, exigindo que eles contenham pelo menos um artefato do tipo \textit{Data} e um artefato do tipo \textit{Validation}, garantindo que os \textit{workers} que atuam sobre o conjunto de dados consigam criar um modelo de regressão simbólica e validá-lo de forma adequada. A imagem \ref{code:job_domain} apresenta a classe de domínio que define um Job e suas propriedades e métodos.
-\begin{lstlisting}[language=Python, caption={Classe de domínio que define um Job}, label={code:job_domain}]
-class Job(BaseMutableDomainModel):
-    name: str = Field()
-    profile_id: UUID = Field()
-    runs_against: UUID = Field()
-    generations: int = Field()
-    population: int = Field()
-    max_size: int = Field()
-    number_of_tournaments: int = Field()
-    crossover_probability: float = Field()
-    mutation_probability: float = Field()
-    non_terminals: list[AvailableFunction] = Field()
-    loss: LossFunction = Field()
-    optimization_iterations: int = Field()
-    optimization_repeats: int = Field()
-    max_param_count: int = Field()
-    split: int = Field()
-    simplify: bool = Field()
-    runs: list[Run] = Field([])
-
-    @classmethod
-    def new(
-        cls,
-        name: str,
-        profile_id: UUID,
-        runs_against: UUID,
-        generations: int,
-        population: int,
-        max_size: int,
-        number_of_tournaments: int,
-        crossover_probability: float,
-        mutation_probability: float,
-        non_terminals: list[AvailableFunction],
-        loss: LossFunction,
-        optimization_iterations: int,
-        optimization_repeats: int,
-        max_param_count: int,
-        split: int,
-        simplify: bool,
-    ) -> "Job":
-        return cls(
-            name=name,
-            profile_id=profile_id,
-            runs_against=runs_against,
-            generations=generations,
-            population=population,
-            max_size=max_size,
-            number_of_tournaments=number_of_tournaments,
-            crossover_probability=crossover_probability,
-            mutation_probability=mutation_probability,
-            non_terminals=non_terminals,
-            loss=loss,
-            optimization_iterations=optimization_iterations,
-            optimization_repeats=optimization_repeats,
-            max_param_count=max_param_count,
-            split=split,
-            simplify=simplify,
-            runs=[],
-        )
-\end{lstlisting}
 
 Atualmente, a plataforma contém uma lista estática de funções disponíveis para serem utilizadas como funções de perda e como não terminais. Dessa forma, os usuários podem escolher entre as funções disponíveis para configurar seus Jobs, mas não podem criar suas próprias funções personalizadas. As listas de funções de perda e de não terminais podem ser observadas nos códigos \ref{code:loss_functions} e \ref{code:non_terminals}, respectivamente.
 \begin{lstlisting}[language=Python, caption={Lista de funções de perda disponíveis}, label={code:loss_functions}]
-class LossFunction(StrEnum):
-    MSE = "MSE"
-    GAUSSIAN = "Gaussian"
-    BERNOULLI = "Bernoulli"
-    POISSON = "Poisson"
+Função de Perda:
+    MSE
+    GAUSSIAN
+    BERNOULLI
+    POISSON
 \end{lstlisting}
 
 \begin{lstlisting}[language=Python, caption={Lista de não terminais disponíveis}, label={code:non_terminals}]
-class AvailableFunction(StrEnum):
-    ADD = "add"
-    SUB = "sub"
-    MUL = "mul"
-    DIV = "div"
+Funções Disponíveis:
+    ADD
+    SUB
+    MUL
+    DIV
 
-    POWER = "power"
-    POWERABS = "powerabs"
-    SQUARE = "square"
-    CUBE = "cube"
+    POWER
+    POWERABS
+    SQUARE
+    CUBE
 
-    SQRT = "sqrt"
-    SQRTABS = "sqrtabs"
-    CBRT = "cbrt"
+    SQRT
+    SQRTABS
+    CBRT
 
-    SIN = "sin"
-    COS = "cos"
-    TAN = "tan"
-    ASIN = "asin"
-    ACOS = "acos"
-    ATAN = "atan"
+    SIN
+    COS
+    TAN
+    ASIN
+    ACOS
+    ATAN
 
-    SINH = "sinh"
-    COSH = "cosh"
-    TANH = "tanh"
-    ASINH = "asinh"
-    ACOSH = "acosh"
-    ATANH = "atanh"
+    SINH
+    COSH
+    TANH
+    ASINH
+    ACOSH
+    ATANH
 
-    ABS = "abs"
-    LOG = "log"
-    LOGABS = "logabs"
-    EXP = "exp"
-    RECIP = "recip"
-    AQ = "aq"
-
-    @staticmethod
-    def from_list(*functions: AvailableFunction) -> str:
-        return ",".join(functions)
-
-    @staticmethod
-    def to_list(functions_str: str) -> list[AvailableFunction]:
-        return [AvailableFunction(func.strip()) for func in functions_str.split(",")]
-
-    @staticmethod
-    def default() -> list[AvailableFunction]:
-        return [
-            AvailableFunction.ADD,
-            AvailableFunction.SUB,
-            AvailableFunction.MUL,
-            AvailableFunction.DIV,
-        ]
+    ABS
+    LOG
+    LOGABS
+    EXP
+    RECIP
+    AQ
 \end{lstlisting}
 
 \subsubsection{Runs}
 Runs representam os resultados de um treinamento, contendo metadados como tempo de execução e métricas de performance. Cada Run está associado a um Job específico, permitindo que os usuários acompanhem o progresso e os resultados de diferentes configurações de treinamento. Os Runs são essenciais para a análise dos modelos gerados, pois fornecem informações sobre a eficácia do treinamento e a qualidade dos modelos de regressão simbólica encontrados. Além disso, os Runs estão diretamente relacionados aos Models, que representam os modelos de regressão simbólica gerados a partir de cada execução, permitindo que os usuários naveguem entre os resultados e os modelos de forma integrada. O código \ref{code:run_domain} apresenta a classe de domínio que define um Run e suas propriedades e métodos.
-\begin{lstlisting}[language=Python, caption={Classe de domínio que define um Run}, label={code:run_domain}]
-class Run(BaseImmutableVersionedDomainModel):
-    job_id: UUID = Field()
-    status: JobRunStatus = Field(JobRunStatus.WAITING)
-    started_at: datetime | None = Field(default_factory=lambda: None)
-    finished_at: datetime | None = Field(default_factory=lambda: None)
-
-    @classmethod
-    def new(
-        cls,
-        id: UUID | None,
-        job_id: UUID,
-        version: int,
-    ) -> "Run":
-        if id is None:
-            id = uuid4()
-
-        return cls(
-            id=id,
-            job_id=job_id,
-            version=version,
-            status=JobRunStatus.WAITING,
-            is_latest=True,
-        )
-\end{lstlisting}
 
 Dentro da plataforma, Runs são armazenadas de forma versionada, ou seja, executar um mesmo Job múltiplas vezes gera múltiplas Runs com o mesmo identificador, mas com versões diferentes, permitindo que os usuários acompanhem a evolução dos resultados ao longo do tempo. Essa abordagem facilita a comparação entre diferentes execuções do mesmo Job, promovendo a análise de como mudanças nos meta-parâmetros ou nos conjuntos de dados impactam os resultados do treinamento. Além disso, essa forma de armazenamento permite que os usuários mantenham um histórico completo de suas experimentações, facilitando a rastreabilidade e a reprodutibilidade dos resultados obtidos.
 
 \subsubsection{Models}
 Models são uma abstração sobre modelos de regressão simbólica criados pelo algoritmo eggp. Cada Model está associado a um Run específico, representando o modelo gerado a partir de uma execução de treinamento (Job). Os Models contêm referências para os arquivos e-graph gerados durante o processo de treinamento, permitindo que os usuários acessem e manipulem os modelos de regressão simbólica de forma eficiente. Além disso, os Models estão diretamente relacionados aos Profiles, permitindo que os usuários organizem seus experimentos e modelos dentro de seus espaços de trabalho personalizados. O código \ref{code:model_domain} apresenta a classe de domínio que define um Model e suas propriedades e métodos.
-\begin{lstlisting}[language=Python, caption={Classe de domínio que define um Model}, label={code:model_domain}]
-class Model(BaseMutableDomainModel):
-    name: str = Field()
-    profile_id: UUID = Field()
-    generated_by: UUID = Field()
-    path: str = Field()
-    validation_path: str | None = Field()
-    metrics: dict[str, Any] | None = Field()
-\end{lstlisting}
 
 Na plataforma Spectrum, Models são tratados apenas como entidades de negócio, não representando o artefato em si, mas sim uma abstração sobre ele. Dessa forma, um Model contém metadados como nome, descrição, data de criação e referências para os arquivos e-graph gerados, mas não armazena diretamente o conteúdo do modelo de regressão simbólica. Essa abordagem permite que os usuários manipulem os Models de forma eficiente, sem a necessidade de lidar diretamente com os arquivos e-graph, promovendo uma experiência de usuário mais fluida e integrada. Além disso, essa abstração facilita a integração de diferentes backends de regressão simbólica no futuro, como o PySR, sem a necessidade de mudanças significativas na estrutura de dados dos Models, promovendo a flexibilidade e escalabilidade da plataforma.
 
@@ -621,100 +388,12 @@ A entidade Model, além de armazenar as informações referentes ao modelo, arma
 
 \subsubsection{Blocks, InferenceRuns, InferenceResults}
 Além de armazenarem jobs, resultados e modelos, os Profiles também armazenam os blocos de visualização e as consultas em linguagem IQL. Dessa forma, cada Profile pode conter múltiplos Blocks. Cada Block representa um bloco de visualização na interface, como o Editor IQL ou um bloco de Markdown para documentação. Os Blocks estão diretamente relacionados às InferenceRuns, que representam as consultas em linguagem IQL realizadas pelos usuários. Cada InferenceRun está associada a um Block específico, permitindo que os usuários organizem suas consultas e resultados de forma estruturada dentro de seus Profiles. Além disso, cada InferenceRun gera múltiplos InferenceResults, que representam os resultados das consultas em linguagem IQL, permitindo que os usuários acessem e analisem os resultados de suas consultas de forma eficiente e integrada à interface da plataforma. O código \ref{code:block_domain} apresenta a classe de domínio que define um Block e suas propriedades e métodos.
-\begin{lstlisting}[language=Python, caption={Classe de domínio que define um Block}, label={code:block_domain}]
-class Block(BaseMutableDomainModel):
-    profile_id: UUID = Field()
-    kind: BlockKind = Field()
-    order_index: int = Field()
-    data: BaseBlock = Field()
-
-    @classmethod
-    def new(cls, profile_id: UUID, kind: BlockKind, order_index: int, data: BaseBlock):
-        return cls(
-            profile_id=profile_id,
-            kind=kind,
-            order_index=order_index,
-            data=data
-        )
-\end{lstlisting}
 
 Um bloco de visualização pode ser tanto do tipo \textit{Inference}, representando um bloco de consulta em linguagem IQL (como mostrado no código \ref{code:inference_block_domain} e na imagem \ref{fig:iql_results}), quanto do tipo \textit{Markdown}, representando um bloco de documentação em linguagem Markdown (como mostrado no código \ref{code:markdown_block_domain}).
-\begin{lstlisting}[language=Python, caption={Classe de domínio que define um bloco de consulta em linguagem IQL}, label={code:inference_block_domain}]
-class BaseBlock[T](BaseModel):
-    data: T
-    kind: Any
-
-class InferenceBlock(BaseBlock[str]):
-    kind: Literal[BlockKind.INFERENCE] = BlockKind.INFERENCE
-\end{lstlisting}
-
-\begin{lstlisting}[language=Python, caption={Classe de domínio que define um bloco de consulta em linguagem IQL}, label={code:markdown_block_domain}]
-class MarkdownBlock(BaseBlock[str]):
-    kind: Literal[BlockKind.MARKDOWN] = BlockKind.MARKDOWN
-\end{lstlisting}
 
 Blocos do tipo \textit{Inference} podem estar associados a diversas \textit{InferenceRuns}, entidades que representam os pedidos de execução de consultadas definidas naquele bloco. O código \ref{code:inference_run_domain} apresenta a classe de domínio que define uma InferenceRun e suas propriedades e métodos.
-\begin{lstlisting}[language=Python, caption={Classe de domínio que define uma InferenceRun}, label={code:inference_run_domain}]
-class InferenceRun(BaseImmutableVersionedDomainModel):
-    block_id: UUID = Field()
-    profile_id: UUID = Field()
-    query: str = Field()
-    status: InferenceRunStatus = Field(InferenceRunStatus.PENDING)
-    execution_time_ms: Optional[int] = Field(None)
-    error: Optional[str] = Field(None)
-
-    @classmethod
-    def new(cls, block_id: UUID, profile_id: UUID, query: str, version: int = 1):
-        return cls(
-            block_id=block_id,
-            profile_id=profile_id,
-            query=query,
-            version=version,
-            is_latest=True,
-            status=InferenceRunStatus.PENDING,
-            execution_time_ms=None,
-            error=None
-        )
-\end{lstlisting}
 
 As propriedade de uma \textit{InferenceRun} são atualizadas conforme a execução da consulta IQL é realizada. A seção \ref{sec:iql_query} e o capítulo sobre a linguagem de consulta apresentam em mais detalhes o processo de execução. Quando a execução de uma consulta é finalizada, os resultados gerados são armazenados em uma entidade do tipo \textit{InferenceResult}, que contém as expressões encontradas e as métricas de performance associadas a cada expressão. O código \ref{code:inference_result_domain} apresenta a classe de domínio que define uma InferenceResult e suas propriedades e métodos.
-\begin{lstlisting}[language=Python, caption={Classe de domínio que define uma InferenceResult}, label={code:inference_result_domain}]
-class InferenceResult(BaseImmutableDomainModel):
-    run_id: UUID = Field()
-    run_version: int = Field()
-    expression: str = Field()
-    dl: Optional[float] = Field(None)
-    fitness: Optional[float] = Field(None)
-    latex: Optional[str] = Field(None)
-    numpy: Optional[str] = Field(None)
-    parameters: Optional[dict[str, float]] = Field(None)
-    size: Optional[int] = Field(None)
-
-    @classmethod
-    def new(
-        cls,
-        run_id: UUID,
-        run_version: int,
-        expression: str,
-        dl: Optional[float] = None,
-        fitness: Optional[float] = None,
-        latex: Optional[str] = None,
-        numpy: Optional[str] = None,
-        parameters: Optional[dict[str, float]] = None,
-        size: Optional[int] = None
-    ):
-        return cls(
-            run_id=run_id,
-            run_version=run_version,
-            expression=expression,
-            dl=dl,
-            fitness=fitness,
-            latex=latex,
-            numpy=numpy,
-            parameters=parameters,
-            size=size
-        )
-\end{lstlisting}
 
 \section{Workers}
 Na plataforma proposta neste projeto, \textit{workers} são programas especializados para executar tarefas intensivas em termos de CPU, como treinamento e validação de modelos de regressão simbólica, bem como a execução de consultas em linguagem IQL. Esses programas especializados operam de forma assíncrona, permitindo que o servidor principal do sistema seja responsável apenas por gerenciar as requisições Web, o banco de dados e a lógica de negócios, enquanto os \textit{workers} lidam com as tarefas computacionalmente intensivas. Essa arquitetura de execução remota é fundamental para garantir o desempenho e a escalabilidade da plataforma, permitindo que usuários com diferentes níveis de poder computacional possam utilizar a ferramenta de forma eficiente.
