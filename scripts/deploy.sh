@@ -1,21 +1,38 @@
 #!/bin/bash
 
-# Exit immediately if a command exits with a non-zero status
-set -e
+NETWORK_NAME="spectrum_default"
 
-echo "🚀 Starting deployment for Spectrum Platform..."
+echo "🛑 Bringing down the project..."
+# --remove-orphans catches containers not defined in your current compose file
+docker compose down --remove-orphans
 
+echo "🔍 Checking for stubbornly in-use networks..."
+# 2. Check if the network still exists despite the 'down' command
+if docker network inspect "$NETWORK_NAME" >/dev/null 2>&1; then
+    echo "⚠️  Network '$NETWORK_NAME' is still hanging around."
 
-echo "📥 Pulling latest code from repository..."
-git pull origin main # Change 'main' to your actual branch name if different
+    # 3. Find any rogue containers still attached to it
+    CONTAINERS=$(docker network inspect -f '{{range $k, $v := .Containers}}{{$v.Name}} {{end}}' "$NETWORK_NAME")
 
-echo "🏗️ Building and recreating Docker containers..."
-# The --build flag ensures the FastAPI and SSR Node images get the fresh code
-# The -d flag keeps them running in the background
-docker compose -f docker-compose.prod.yml up -d --build
+    if [ ! -z "$CONTAINERS" ]; then
+        echo "✂️  Forcefully disconnecting rogue containers: $CONTAINERS"
+        for CONTAINER in $CONTAINERS; do
+            docker network disconnect -f "$NETWORK_NAME" "$CONTAINER"
+        done
+    fi
 
-echo "🧹 Cleaning up old Docker images..."
-# This is crucial for OCI Free Tier to prevent disk space exhaustion
-docker image prune -f
+    # 4. Remove the network now that it's isolated
+    echo "🗑️  Removing the network..."
+    docker network rm "$NETWORK_NAME"
+else
+    echo "✅ Network already cleaned up."
+fi
 
-echo "✅ Deployment completed successfully! Spectrum is up to date."
+# (Optional) Prune all other unused dangling networks just to be safe
+docker network prune -f
+
+echo "🚀 Bringing the project back up..."
+# --build ensures any code changes are pulled into the fresh images
+docker compose up -d --build
+
+echo "🎉 Deployment complete!"
