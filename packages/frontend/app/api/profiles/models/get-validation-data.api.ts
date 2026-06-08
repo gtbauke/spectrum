@@ -20,8 +20,9 @@ export async function getValidationData<T extends unknown[]>(
 	}
 
 	const { url } = (await urlResponse.json()) as { url: string };
+	const cacheBustedUrl = `${url}&cb=${Date.now()}`;
 
-	const fileResponse = await fetch(url);
+	const fileResponse = await fetch(cacheBustedUrl);
 	if (!fileResponse.ok) {
 		throw new Error(
 			`Failed to fetch validation data: ${fileResponse.statusText}`,
