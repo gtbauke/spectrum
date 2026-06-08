@@ -11,8 +11,9 @@ export async function getValidationData<T extends unknown[]>(
 	validationPath: string,
 ): Promise<T> {
 	const downloadEndpoint = `${BASE_URL}/storage/download/${validationPath}`;
+	const cacheBustedUrl = `${downloadEndpoint}&cb=${Date.now()}`;
 
-	const urlResponse = await fetch(downloadEndpoint);
+	const urlResponse = await fetch(cacheBustedUrl);
 	if (!urlResponse.ok) {
 		throw new Error(
 			`Failed to resolve download URL: ${urlResponse.statusText}`,
@@ -20,9 +21,8 @@ export async function getValidationData<T extends unknown[]>(
 	}
 
 	const { url } = (await urlResponse.json()) as { url: string };
-	const cacheBustedUrl = `${url}&cb=${Date.now()}`;
 
-	const fileResponse = await fetch(cacheBustedUrl);
+	const fileResponse = await fetch(url);
 	if (!fileResponse.ok) {
 		throw new Error(
 			`Failed to fetch validation data: ${fileResponse.statusText}`,
