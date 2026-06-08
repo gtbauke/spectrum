@@ -11,7 +11,7 @@ export async function getValidationData<T extends unknown[]>(
 	validationPath: string,
 ): Promise<T> {
 	const downloadEndpoint = `${BASE_URL}/storage/download/${validationPath}`;
-	const cacheBustedUrl = `${downloadEndpoint}&cb=${Date.now()}`;
+	const cacheBustedUrl = `${downloadEndpoint}?cb=${Date.now()}`;
 
 	const urlResponse = await fetch(cacheBustedUrl);
 	if (!urlResponse.ok) {
