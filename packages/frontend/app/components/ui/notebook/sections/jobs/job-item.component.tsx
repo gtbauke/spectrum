@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import {
 	CheckCircle,
 	ChevronDown,
@@ -8,10 +9,11 @@ import {
 	Trash,
 	XCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IconButton } from "~/components/ui/buttons/icon-button.component";
 import { useJobDeleteMutation } from "~/hooks/use-job-delete-mutation.hook";
 import { useRunJobMutation } from "~/hooks/use-run-job-mutation.hook";
+import { useStreamRun } from "~/hooks/use-stream-run.hook";
 import type { Dataset } from "~/schemas/domain/dataset.schema";
 import type { Job, Run } from "~/schemas/domain/job.schema";
 
@@ -75,20 +77,50 @@ function formatDate(date: Date | null) {
 
 export function JobItem({ job, datasets }: JobItemProps) {
 	const [showAdvanced, setShowAdvanced] = useState(false);
+	const [activeRunId, setActiveRunId] = useState<string | null>(
+		job.runs.find((run) => run.isLatest)?.id ?? null,
+	);
+
+	useEffect(() => {
+		const latestRun = job.runs.find((run) => run.isLatest);
+		if (latestRun) {
+			setActiveRunId(latestRun.id);
+		}
+	}, [job.runs]);
 
 	const datasetName =
 		datasets.find((d) => d.id === job.runsAgainst)?.name ?? "Unknown Dataset";
 
-	const latestRun = job.runs.find((run) => run.isLatest);
+	const { run: streamedRun } = useStreamRun({
+		profileId: job.profileId,
+		jobId: job.id,
+		runId: activeRunId ?? undefined,
+	});
+
+	const latestRun = streamedRun ?? job.runs.find((run) => run.isLatest) ?? null;
 
 	const { mutate: deleteJob } = useJobDeleteMutation();
 	const { mutate: runJob } = useRunJobMutation();
+	const queryClient = useQueryClient();
 
 	const handleRun = () => {
-		runJob({
-			profileId: job.profileId,
-			jobId: job.id,
-		});
+		runJob(
+			{
+				profileId: job.profileId,
+				jobId: job.id,
+			},
+			{
+				onSuccess: (newRun) => {
+					if (newRun) {
+						setActiveRunId(newRun.id);
+					}
+
+					queryClient.invalidateQueries({
+						queryKey: ["profile"],
+					});
+				},
+			},
+		);
 	};
 
 	const handleDelete = () => {

@@ -1,9 +1,7 @@
 import { useEffect, useRef } from "react";
+import { BASE_URL } from "~/api/fetch.api";
 import { inferenceResultSchema } from "~/schemas/domain/inference-result.schema";
 import { useEditorStore } from "~/stores/editor.store";
-
-const BASE_URL =
-	import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
 
 export function useInferenceStream(
 	profileId: string,
