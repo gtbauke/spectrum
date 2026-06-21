@@ -1,4 +1,7 @@
+import io
 import json
+import pandas as pd
+
 from uuid import UUID
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, status, UploadFile, File, Form, Query
@@ -54,20 +57,67 @@ async def upload_dataset(
         raise ValueError("Invalid JSON for roles")
 
     for file in files:
-        path = f"datasets/{dataset.id}/artifacts/{file.filename}"
-        upload_result = await uow.file_storage.upload(path=path, file=file.file)
+        role_string = roles_map.get(file.filename, ArtifactRole.DATA.value)
 
-        role = ArtifactRole(roles_map.get(file.filename, ArtifactRole.DATA))
+        # --- AUTO-SPLIT LOGIC ---
+        if role_string == "auto-split":
+            data_split_ratio = float(next((item.get(
+                "dataSplitRatio") for item in parsed_roles if item["fileName"] == file.filename), 0.8))
 
-        artifact = Artifact(
-            dataset_id=dataset.id,
-            checksum=upload_result.checksum,
-            size_in_bytes=upload_result.size,
-            path=upload_result.path,
-            role=role,
-        )
+            file.file.seek(0)
+            raw_df = pd.read_csv(file.file)
 
-        dataset.artifacts.append(artifact)
+            data_df = raw_df.sample(frac=data_split_ratio, random_state=None)
+            validation_df = raw_df.drop(data_df.index)
+
+            data_df = data_df.reset_index(drop=True)
+            validation_df = validation_df.reset_index(drop=True)
+
+            data_buffer = io.BytesIO()
+            validation_buffer = io.BytesIO()
+
+            data_df.to_csv(data_buffer, index=False)
+            validation_df.to_csv(validation_buffer, index=False)
+
+            data_buffer.seek(0)
+            validation_buffer.seek(0)
+
+            data_path = f"datasets/{dataset.id}/artifacts/data_{file.filename}"
+            data_upload = await uow.file_storage.upload(path=data_path, file=data_buffer)
+
+            dataset.artifacts.append(Artifact(
+                dataset_id=dataset.id,
+                checksum=data_upload.checksum,
+                size_in_bytes=data_upload.size,
+                path=data_upload.path,
+                role=ArtifactRole.DATA,
+            ))
+
+            val_path = f"datasets/{dataset.id}/artifacts/val_{file.filename}"
+            val_upload = await uow.file_storage.upload(path=val_path, file=validation_buffer)
+
+            dataset.artifacts.append(Artifact(
+                dataset_id=dataset.id,
+                checksum=val_upload.checksum,
+                size_in_bytes=val_upload.size,
+                path=val_upload.path,
+                role=ArtifactRole.VALIDATION,
+            ))
+
+        # --- STANDARD FILE LOGIC ---
+        else:
+            path = f"datasets/{dataset.id}/artifacts/{file.filename}"
+            file.file.seek(0)
+            upload_result = await uow.file_storage.upload(path=path, file=file.file)
+
+            role = ArtifactRole(value=role_string)
+            dataset.artifacts.append(Artifact(
+                dataset_id=dataset.id,
+                checksum=upload_result.checksum,
+                size_in_bytes=upload_result.size,
+                path=upload_result.path,
+                role=role,
+            ))
 
     await uow.datasets.add(dataset)
 
@@ -199,7 +249,7 @@ async def update_dataset(
 
     if payload.name is not None:
         dataset.name = payload.name
-    
+
     if payload.description is not None:
         dataset.description = payload.description
 
