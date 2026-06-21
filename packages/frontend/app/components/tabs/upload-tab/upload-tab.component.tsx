@@ -15,7 +15,7 @@ export default function UploadDatasetTabContent() {
 
 	const hasFiles = Object.keys(files).length > 0;
 
-	const { formState, register, handleSubmit, reset } = useForm({
+	const { formState, register, handleSubmit, reset, control } = useForm({
 		resolver: zodResolver(createDatasetWithMultipleArtifactsSchema),
 		defaultValues: {
 			datasetName: "",
@@ -23,6 +23,7 @@ export default function UploadDatasetTabContent() {
 			roles: Object.entries(files).map(([fileName]) => ({
 				fileName,
 				role: undefined,
+				dataSplitRatio: 1,
 			})),
 		},
 	});
@@ -99,6 +100,7 @@ export default function UploadDatasetTabContent() {
 						handleUpload={handleUpload}
 						handleCancel={handleCancel}
 						isValid={formState.isValid}
+						control={control}
 					/>
 				)}
 

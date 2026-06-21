@@ -1,5 +1,10 @@
 import { Eye, File, Trash2 } from "lucide-react";
-import type { UseFormRegister } from "react-hook-form";
+import {
+	type Control,
+	type UseFormGetValues,
+	type UseFormRegister,
+	useWatch,
+} from "react-hook-form";
 import { Button } from "~/components/ui/buttons/button.component";
 import { IconButton } from "~/components/ui/buttons/icon-button.component";
 import { Field } from "~/components/ui/forms/field/field.component";
@@ -7,9 +12,9 @@ import { SelectInput } from "~/components/ui/forms/input/select-input.component"
 import { TextInput } from "~/components/ui/forms/input/text-input.component";
 import { TextAreaInput } from "~/components/ui/forms/input/textarea-input.component";
 import {
-	type ArtifactRole,
-	artifactRoleSchema,
-} from "~/schemas/domain/enums.schema";
+	type ExtendedArtifactRole,
+	extendedArtifactRoleSchema,
+} from "~/schemas/dtos/dataset.dto";
 import { capitalize } from "~/utils/capitalize.util";
 import { useFileUpload } from "./file-upload.context";
 
@@ -21,11 +26,33 @@ type EditDatasetFormProps = {
 		datasetDescription?: string;
 		roles: {
 			fileName: string;
-			role?: ArtifactRole;
+			role?: ExtendedArtifactRole;
+			dataSplitRatio?: number;
 		}[];
 	}>;
 	isValid: boolean;
 	isPending: boolean;
+	control: Control<
+		{
+			datasetName: string;
+			roles: {
+				fileName: string;
+				role?: "data" | "validation" | "auto-split" | undefined;
+				dataSplitRatio?: number | undefined;
+			}[];
+			datasetDescription?: string | undefined;
+		},
+		unknown,
+		{
+			datasetName: string;
+			roles: {
+				fileName: string;
+				role: "data" | "validation" | "auto-split";
+				dataSplitRatio?: number | undefined;
+			}[];
+			datasetDescription?: string | undefined;
+		}
+	>;
 };
 
 export function EditDatasetForm({
@@ -34,8 +61,13 @@ export function EditDatasetForm({
 	register,
 	isValid,
 	isPending,
+	control,
 }: EditDatasetFormProps) {
 	const { files, removeFile, selectFile } = useFileUpload();
+	const rolesWatch = useWatch({
+		control,
+		name: "roles",
+	});
 
 	const fileEntries = Object.entries(files);
 	const filesCount = fileEntries.length;
@@ -142,18 +174,46 @@ export function EditDatasetForm({
 								<div className="w-48 shrink-0">
 									<Field>
 										<Field.Label required>Role</Field.Label>
+
 										<Field.Control>
 											<SelectInput
 												aria-label={`Role for ${fileName}`}
 												{...register(`roles.${index}.role`, { required: true })}
 												disabled={isPending}
-												options={artifactRoleSchema.options.map((value) => ({
-													label: capitalize(value),
-													value,
-												}))}
+												options={extendedArtifactRoleSchema.options.map(
+													(value) => ({
+														label: capitalize(value),
+														value,
+													}),
+												)}
 											/>
 										</Field.Control>
 									</Field>
+
+									{rolesWatch?.[index]?.role === "auto-split" && (
+										<Field>
+											<Field.Label>Data Split Ratio</Field.Label>
+
+											<Field.Control>
+												<TextInput
+													type="number"
+													step="0.01"
+													min="0"
+													max="1"
+													placeholder="e.g., 0.8 for 80% training data"
+													{...register(`roles.${index}.dataSplitRatio`, {
+														valueAsNumber: true,
+														required:
+															rolesWatch?.[index]?.role === "auto-split",
+														validate: (value) =>
+															((value ?? 0) >= 0 && (value ?? 0) <= 1) ||
+															"Must be between 0 and 1",
+													})}
+													disabled={isPending}
+												/>
+											</Field.Control>
+										</Field>
+									)}
 								</div>
 
 								<IconButton
