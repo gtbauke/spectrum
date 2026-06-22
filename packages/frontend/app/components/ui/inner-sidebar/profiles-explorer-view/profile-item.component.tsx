@@ -1,9 +1,12 @@
-import { Globe, Layout, Lock, Trash } from "lucide-react";
+import { Globe, Layout, Lock, Trash, X } from "lucide-react";
+import { useState } from "react";
 import { IconButton } from "~/components/ui/buttons/icon-button.component";
 import { useProfileDeleteMutation } from "~/hooks/use-profile-delete-mutation.hook";
 import { useProfileQueryState } from "~/hooks/use-profile-query-state.hook";
 import type { ProfileSummary } from "~/schemas/domain/profile.schema";
 import { cn } from "~/utils/classname.util";
+import { Button } from "../../buttons/button.component";
+import { Modal } from "../../modal/modal.component";
 
 type ProfileItemProps = {
 	profile: ProfileSummary;
@@ -39,6 +42,8 @@ export function ProfileItem({
 	const { openTab } = useProfileQueryState();
 	const { mutate: deleteProfile } = useProfileDeleteMutation();
 
+	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
 	const handleOnDoubleClick = () => {
 		openTab(profile.id, profile.name);
 	};
@@ -47,11 +52,59 @@ export function ProfileItem({
 
 	const handleDeleteClick = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.stopPropagation();
+		setIsDeleteModalOpen(true);
+	};
+
+	const handleDeleteModalClose = () => {
+		setIsDeleteModalOpen(false);
+	};
+
+	const handleDeleteModalConfirm = () => {
 		deleteProfile(profile.id);
+		setIsDeleteModalOpen(false);
 	};
 
 	return (
 		<div className="flex flex-col">
+			<Modal isActive={isDeleteModalOpen} onClose={handleDeleteModalClose}>
+				<div className="space-y-6">
+					<div className="flex flex-col gap-2">
+						<div className="flex items-start justify-between gap-4">
+							<h1 className="text-lg font-bold text-gray-200">
+								You are sure you want to delete this profile?
+							</h1>
+
+							<button
+								type="button"
+								className="cursor-pointer p-1 rounded hover:bg-red-500/10 hover:text-red-500 transition-colors active:bg-red-600/10"
+								onClick={handleDeleteModalClose}
+							>
+								<X size={16} />
+							</button>
+						</div>
+						<p className="text-gray-400">This action cannot be undone.</p>
+					</div>
+
+					<Button.Group mode="spaced">
+						<Button
+							variant="outline"
+							className="p-2"
+							onClick={handleDeleteModalClose}
+						>
+							Cancel
+						</Button>
+
+						<Button
+							variant="primary"
+							className="p-2"
+							onClick={handleDeleteModalConfirm}
+						>
+							Confirm
+						</Button>
+					</Button.Group>
+				</div>
+			</Modal>
+
 			{/** biome-ignore lint/a11y/useSemanticElements: Must use div for custom button behavior */}
 			<div
 				role="button"
