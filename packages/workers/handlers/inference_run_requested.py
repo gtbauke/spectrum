@@ -142,8 +142,18 @@ class InferenceRunRequestedHandler(EventHandler[InferenceRunRequestedEvent]):
 
                         reggression = Reggression(
                             dataset=dataset_path, loadFrom=model_path)
-                        executor = QueryExecutor(reggressions={
-                            model_identifier: reggression}, plan=compilation_result.plan)
+
+                        # Extract feature names from the dataset columns.
+                        # varnames is a comma-separated string of all columns;
+                        # the last column is the target, so we exclude it.
+                        all_columns = reggression.varnames.split(",")
+                        feature_names = all_columns[:-1] if len(all_columns) > 1 else []
+
+                        executor = QueryExecutor(
+                            reggressions={model_identifier: reggression},
+                            plan=compilation_result.plan,
+                            feature_names=feature_names,
+                        )
 
                         query_result = executor.execute()
                         return query_result

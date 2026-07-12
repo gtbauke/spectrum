@@ -1,4 +1,5 @@
 import logging
+import re
 from pandas import DataFrame
 from reggression import Reggression  # type: ignore
 
@@ -23,20 +24,21 @@ logger = logging.getLogger(__name__)
 
 
 class ExecutorContext:
-    def __init__(self, reggressions: dict[str, Reggression]):
+    def __init__(self, reggressions: dict[str, Reggression], feature_names: list[str] | None = None):
         self.reggressions = reggressions
         self.active_reggression: Reggression | None = None
         self.filters: list[str] = []
         self.dataframe: DataFrame | None = None
         self.project_columns: list[str] = []
+        self.feature_names: list[str] | None = feature_names
 
 
 class QueryExecutor:
     """Interprets a LogicalPlan and executes it against Reggression objects."""
 
-    def __init__(self, plan: LogicalPlan, reggressions: dict[str, Reggression]):
+    def __init__(self, plan: LogicalPlan, reggressions: dict[str, Reggression], feature_names: list[str] | None = None):
         self._plan = plan
-        self._context = ExecutorContext(reggressions)
+        self._context = ExecutorContext(reggressions, feature_names=feature_names)
 
     def execute(self) -> InferenceResultList:
         self._process_node(self._plan.root)
@@ -164,6 +166,24 @@ class QueryExecutor:
             result = result.rename(columns={"Numpy": "numpy"})
             subset = ["numpy" if c == "numpy" else c for c in subset]
 
+        # Substitute generic variable names (x0, x1, ...) with actual feature names.
+        # Column names may still be capitalized at this point (e.g. Expression, Latex),
+        # so we check both the lowercased and original-cased variants.
+        feature_names = self._context.feature_names
+        if feature_names:
+            text_columns = {
+                "expression": "code", "Expression": "code",
+                "numpy": "code", "Numpy": "code",
+                "latex": "latex", "Latex": "latex",
+            }
+            for col, ftype in text_columns.items():
+                if col in result.columns:
+                    result[col] = result[col].apply(
+                        lambda val, ft=ftype: self._substitute_feature_names(
+                            val, feature_names, field_type=ft
+                        ) if isinstance(val, str) else val
+                    )
+
         mask = result.columns.str.contains("|".join(subset), case=False)
         final_result = result.loc[:, mask]
         final_result.columns = final_result.columns.str.lower()
@@ -176,3 +196,34 @@ class QueryExecutor:
         ]
 
         return InferenceResultList(results=results)
+
+    @staticmethod
+    def _substitute_feature_names(
+        text: str,
+        feature_names: list[str],
+        field_type: str = "code",
+    ) -> str:
+        """Replace generic variable placeholders with actual feature names.
+
+        For code fields (expression, numpy): replaces ``x0`` → ``feature_name``
+        using word-boundary-aware regex to avoid partial matches (e.g. ``x10``,
+        ``exp``).
+
+        For LaTeX fields: replaces ``x_{0}`` and bare ``x0`` occurrences with
+        ``\\mathrm{feature_name}`` for proper typesetting.
+        """
+        # Process in reverse index order so that x10 is replaced before x1
+        for i in sorted(range(len(feature_names)), reverse=True):
+            name = feature_names[i]
+
+            if field_type == "latex":
+                latex_name = f"\\mathrm{{{name}}}"
+                # LaTeX subscript form: x_{0}, x_{10}, etc.
+                text = text.replace(f"x_{{{i}}}", latex_name)
+                # Bare form that may also appear in LaTeX: x0, x1, ...
+                text = re.sub(rf"\bx{i}\b", lambda _: latex_name, text)
+            else:
+                # Code fields: word-boundary match for x0, x1, ...
+                text = re.sub(rf"\bx{i}\b", name, text)
+
+        return text
