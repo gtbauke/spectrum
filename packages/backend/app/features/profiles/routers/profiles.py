@@ -106,6 +106,7 @@ async def create_profile_from_dataset(
     profile_description: str = Form(""),
     dataset_name: str = Form(...),
     dataset_description: str = Form(""),
+    group_by_columns: str = Form(""),
     file: UploadFile = File(...),
     current_user_id: UUID = Depends(get_current_user),
     uow: UnitOfWork = Depends(get_uow)
@@ -133,7 +134,9 @@ async def create_profile_from_dataset(
         checksum=upload_result.checksum,
         size_in_bytes=upload_result.size,
         path=upload_result.path,
-        role=ArtifactRole.DATA
+        role=ArtifactRole.DATA,
+        group_by_columns=group_by_columns.split(
+            ",") if group_by_columns else [],
     )
 
     dataset.artifacts.append(artifact)

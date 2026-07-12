@@ -48,6 +48,8 @@ class ArtifactMapper(IMapper[ArtifactORM, Artifact]):
             size_in_bytes=orm.size_in_bytes,
             path=orm.path,
             role=orm.role,
+            group_by_columns=orm.group_by_columns.split(
+                ",") if orm.group_by_columns else [],
         )
 
     @staticmethod
@@ -60,4 +62,6 @@ class ArtifactMapper(IMapper[ArtifactORM, Artifact]):
             size_in_bytes=domain.size_in_bytes,
             path=domain.path,
             role=domain.role,
+            group_by_columns=",".join(
+                domain.group_by_columns) if domain.group_by_columns else "",
         )

@@ -33,6 +33,7 @@ async def upload_artifact(
     dataset_id: UUID,
     file: UploadFile = File(...),
     role: ArtifactRole = Form(...),
+    group_by_columns: str = Form(""),
     uow: UnitOfWork = Depends(get_uow)
 ):
     path = f"datasets/{dataset_id}/artifacts/{file.filename}"
@@ -44,6 +45,8 @@ async def upload_artifact(
         size_in_bytes=upload_result.size,
         path=upload_result.path,
         role=role,
+        group_by_columns=group_by_columns.split(
+            ",") if group_by_columns else [],
     )
 
     await uow.artifacts.add(artifact)
@@ -113,7 +116,7 @@ async def preview_artifact(
             skiprows=range(1, offset + 1) if offset > 0 else None,
             nrows=limit
         )
-        
+
         # Replace NaNs with None to avoid JSON serialization issues
         df = df.replace({float("nan"): None})
 

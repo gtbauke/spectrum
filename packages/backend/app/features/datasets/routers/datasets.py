@@ -40,6 +40,7 @@ async def upload_dataset(
     visibility: DatasetVisibility = Form(DatasetVisibility.PRIVATE),
     files: list[UploadFile] = File(...),
     roles: str = Form(...),
+    group_by_columns: str = Form(""),
     current_user_id: UUID = Depends(get_current_user),
     uow: UnitOfWork = Depends(get_uow)
 ):
@@ -91,6 +92,8 @@ async def upload_dataset(
                 size_in_bytes=data_upload.size,
                 path=data_upload.path,
                 role=ArtifactRole.DATA,
+                group_by_columns=group_by_columns.split(
+                    ",") if group_by_columns else [],
             ))
 
             val_path = f"datasets/{dataset.id}/artifacts/val_{file.filename}"
@@ -102,6 +105,8 @@ async def upload_dataset(
                 size_in_bytes=val_upload.size,
                 path=val_upload.path,
                 role=ArtifactRole.VALIDATION,
+                group_by_columns=group_by_columns.split(
+                    ",") if group_by_columns else [],
             ))
 
         # --- STANDARD FILE LOGIC ---
@@ -117,6 +122,8 @@ async def upload_dataset(
                 size_in_bytes=upload_result.size,
                 path=upload_result.path,
                 role=role,
+                group_by_columns=group_by_columns.split(
+                    ",") if group_by_columns else [],
             ))
 
     await uow.datasets.add(dataset)
