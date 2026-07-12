@@ -22,26 +22,27 @@ export const createJobFormSchema = z.object({
 	maxParamCount: z.number().int().min(-1).default(-1),
 	split: z.number().int().min(1).default(1),
 	simplify: z.boolean().default(false),
+	activeGroupByColumns: z.array(z.string()).default([]),
 });
 
-export const createJobDtoSchema = createJobFormSchema
-	.transform((data) => ({
-		name: data.name,
-		runs_against: data.runsAgainst,
-		generations: data.generations,
-		population: data.population,
-		max_size: data.maxSize,
-		number_of_tournaments: data.numberOfTournaments,
-		crossover_probability: data.crossoverProbability,
-		mutation_probability: data.mutationProbability,
-		non_terminals: data.nonTerminals,
-		loss: data.loss,
-		optimization_iterations: data.optimizationIterations,
-		optimization_repeats: data.optimizationRepeats,
-		max_param_count: data.maxParamCount,
-		split: data.split,
-		simplify: data.simplify,
-	}));
+export const createJobDtoSchema = createJobFormSchema.transform((data) => ({
+	name: data.name,
+	runs_against: data.runsAgainst,
+	generations: data.generations,
+	population: data.population,
+	max_size: data.maxSize,
+	number_of_tournaments: data.numberOfTournaments,
+	crossover_probability: data.crossoverProbability,
+	mutation_probability: data.mutationProbability,
+	non_terminals: data.nonTerminals,
+	loss: data.loss,
+	optimization_iterations: data.optimizationIterations,
+	optimization_repeats: data.optimizationRepeats,
+	max_param_count: data.maxParamCount,
+	split: data.split,
+	simplify: data.simplify,
+	active_group_by_columns: data.activeGroupByColumns,
+}));
 
 export type CreateJobDto = z.infer<typeof createJobDtoSchema>;
 

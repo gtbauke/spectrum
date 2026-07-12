@@ -35,6 +35,8 @@ class JobsMapper(IMapper[JobORM, Job]):
                 RunsMapper.to_domain(run)
                 for run in orm.runs
             ],
+            active_group_by_columns=orm.active_group_by_columns.split(
+                ",") if orm.active_group_by_columns else None,
         )
 
     @staticmethod
@@ -63,4 +65,6 @@ class JobsMapper(IMapper[JobORM, Job]):
                 RunsMapper.to_orm(run)
                 for run in domain.runs
             ],
+            active_group_by_columns=",".join(
+                domain.active_group_by_columns) if domain.active_group_by_columns else None,
         )

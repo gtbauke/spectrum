@@ -44,6 +44,8 @@ class JobORM(MutableBase):
     split: Mapped[int] = mapped_column(Integer, nullable=False)
     simplify: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
+    active_group_by_columns: Mapped[str] = mapped_column(String, nullable=True)
+
     runs: Mapped[list["RunORM"]] = relationship(
         "RunORM",
         back_populates="job",

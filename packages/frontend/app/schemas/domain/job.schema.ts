@@ -45,6 +45,7 @@ export const jobSchema = baseMutableObject
 		split: z.number().int(),
 		simplify: z.boolean(),
 		runs: z.array(runSchema),
+		active_group_by_columns: z.array(z.string()).nullable().optional(),
 	})
 	.transform((data) => ({
 		id: data.id,
@@ -67,6 +68,7 @@ export const jobSchema = baseMutableObject
 		runs: data.runs.map((run) => (run.jobId ? run : runSchema.parse(run))),
 		createdAt: data.created_at,
 		updatedAt: data.updated_at,
+		activeGroupByColumns: data.active_group_by_columns,
 	}));
 
 export type Job = z.infer<typeof jobSchema>;

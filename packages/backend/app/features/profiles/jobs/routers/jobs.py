@@ -25,6 +25,7 @@ jobs_router.include_router(
 )
 
 
+# TODO: add validation for active_group_by_columns to ensure they exist in the dataset and are valid for grouping
 @jobs_router.post(
     path="",
     response_model=list[Job],
@@ -54,6 +55,7 @@ async def create_jobs(
             max_param_count=dto.max_param_count,
             split=dto.split,
             simplify=dto.simplify,
+            active_group_by_columns=dto.active_group_by_columns,
         ) for dto in dtos
     ]
 

@@ -57,6 +57,9 @@ class Job(BaseMutableDomainModel):
 
     runs: list[Run] = Field([], description="The runs of the job")
 
+    active_group_by_columns: list[str] | None = Field(
+        None, description="The active group by columns for the job")
+
     @classmethod
     def new(
         cls,
@@ -76,6 +79,7 @@ class Job(BaseMutableDomainModel):
         max_param_count: int,
         split: int,
         simplify: bool,
+        active_group_by_columns: list[str] | None = None,
     ) -> "Job":
         return cls(
             name=name,
@@ -95,4 +99,5 @@ class Job(BaseMutableDomainModel):
             split=split,
             simplify=simplify,
             runs=[],
+            active_group_by_columns=active_group_by_columns,
         )

@@ -62,6 +62,7 @@ export function AddJob({
 			optimizationRepeats: 3,
 			maxParamCount: -1,
 			split: 1,
+			activeGroupByColumns: [],
 		},
 	});
 
@@ -104,6 +105,12 @@ export function AddJob({
 		value: opt,
 	}));
 
+	const selectedDatasetId = watch("runsAgainst");
+	const selectedDataset = datasets.find((d) => d.id === selectedDatasetId);
+	const selectedDatasetDataArtifact = selectedDataset?.artifacts.find(
+		(a) => a.role === "data",
+	);
+
 	return (
 		<form
 			onSubmit={onSubmit}
@@ -116,111 +123,148 @@ export function AddJob({
 					Basic Settings
 				</span>
 
-				<div className="space-y-4">
-					<div className="grid grid-cols-2 gap-4">
-						<Field error={errors.name}>
-							<Field.Label required>Name</Field.Label>
-							<Field.Control>
-								<TextInput
-									placeholder="e.g. my-experiment-v1"
-									{...register("name")}
-								/>
-							</Field.Control>
-							<Field.Error />
-						</Field>
-
-						<Field error={errors.runsAgainst}>
-							<Field.Label required>Dataset</Field.Label>
-							<Field.Control>
-								<SelectInput
-									options={
-										datasetOptions.length > 0
-											? datasetOptions
-											: [
-													{
-														label: "No datasets linked to this profile",
-														value: "",
-													},
-												]
-									}
-									disabled={datasetOptions.length === 0}
-									{...register("runsAgainst")}
-								/>
-							</Field.Control>
-							<Field.Error />
-						</Field>
-					</div>
-
-					<div className="grid grid-cols-3 gap-4">
-						<Field error={errors.loss}>
-							<Field.Label>Loss Function</Field.Label>
-							<Field.Control>
-								<SelectInput options={lossOptions} {...register("loss")} />
-							</Field.Control>
-							<Field.Error />
-						</Field>
-
-						<Field error={errors.generations}>
-							<Field.Label>Generations</Field.Label>
-							<Field.Control>
-								<TextInput
-									type="number"
-									{...register("generations", { valueAsNumber: true })}
-								/>
-							</Field.Control>
-							<Field.Error />
-						</Field>
-
-						<Field error={errors.population}>
-							<Field.Label>Population</Field.Label>
-							<Field.Control>
-								<TextInput
-									type="number"
-									{...register("population", { valueAsNumber: true })}
-								/>
-							</Field.Control>
-							<Field.Error />
-						</Field>
-					</div>
-
-					<Controller
-						name="nonTerminals"
-						control={control}
-						render={({ field }) => (
-							<Field
-								error={
-									errors.nonTerminals as
-										| import("react-hook-form").FieldError
-										| undefined
-								}
-							>
-								<Field.Label>Available Functions</Field.Label>
+				<div className="space-y-6">
+					<div className="space-y-4">
+						<div className="grid grid-cols-2 gap-4">
+							<Field error={errors.name}>
+								<Field.Label required>Name</Field.Label>
 								<Field.Control>
-									<MultiSelectInput
-										options={functionOptions}
-										value={field.value ?? []}
-										onChange={field.onChange}
+									<TextInput
+										placeholder="e.g. my-experiment-v1"
+										{...register("name")}
 									/>
 								</Field.Control>
 								<Field.Error />
 							</Field>
-						)}
-					/>
 
-					<Field>
-						<Field.Label>
-							<Field.Control className="p-2 space-x-2">
-								<div className="flex flex-col">
-									<span>Simplify</span>
-									<Field.Description>
-										Apply algebraic simplification after evolution
-									</Field.Description>
-								</div>
+							<Field error={errors.runsAgainst}>
+								<Field.Label required>Dataset</Field.Label>
+								<Field.Control>
+									<SelectInput
+										options={
+											datasetOptions.length > 0
+												? datasetOptions
+												: [
+														{
+															label: "No datasets linked to this profile",
+															value: "",
+														},
+													]
+										}
+										disabled={datasetOptions.length === 0}
+										{...register("runsAgainst")}
+									/>
+								</Field.Control>
+								<Field.Error />
+							</Field>
+						</div>
 
-								<ToggleInput {...register("simplify")} />
-							</Field.Control>
-						</Field.Label>
-					</Field>
+						<div className="grid grid-cols-3 gap-4">
+							<Field error={errors.loss}>
+								<Field.Label>Loss Function</Field.Label>
+								<Field.Control>
+									<SelectInput options={lossOptions} {...register("loss")} />
+								</Field.Control>
+								<Field.Error />
+							</Field>
+
+							<Field error={errors.generations}>
+								<Field.Label>Generations</Field.Label>
+								<Field.Control>
+									<TextInput
+										type="number"
+										{...register("generations", { valueAsNumber: true })}
+									/>
+								</Field.Control>
+								<Field.Error />
+							</Field>
+
+							<Field error={errors.population}>
+								<Field.Label>Population</Field.Label>
+								<Field.Control>
+									<TextInput
+										type="number"
+										{...register("population", { valueAsNumber: true })}
+									/>
+								</Field.Control>
+								<Field.Error />
+							</Field>
+						</div>
+
+						<Controller
+							name="nonTerminals"
+							control={control}
+							render={({ field }) => (
+								<Field
+									error={
+										errors.nonTerminals as
+											| import("react-hook-form").FieldError
+											| undefined
+									}
+								>
+									<Field.Label>Available Functions</Field.Label>
+									<Field.Control>
+										<MultiSelectInput
+											options={functionOptions}
+											value={field.value ?? []}
+											onChange={field.onChange}
+										/>
+									</Field.Control>
+									<Field.Error />
+								</Field>
+							)}
+						/>
+
+						<Field>
+							<Field.Label>
+								<Field.Control className="p-2 space-x-2">
+									<div className="flex flex-col">
+										<span>Simplify</span>
+										<Field.Description>
+											Apply algebraic simplification after evolution
+										</Field.Description>
+									</div>
+
+									<ToggleInput {...register("simplify")} />
+								</Field.Control>
+							</Field.Label>
+						</Field>
+					</div>
+
+					{selectedDatasetDataArtifact?.groupByColumns && (
+						<div>
+							<Controller
+								name="activeGroupByColumns"
+								control={control}
+								render={({ field }) => (
+									<Field
+										error={
+											errors.activeGroupByColumns as
+												| import("react-hook-form").FieldError
+												| undefined
+										}
+									>
+										<Field.Label>Active Group By Columns</Field.Label>
+										<Field.Control>
+											<MultiSelectInput
+												options={
+													selectedDatasetDataArtifact?.groupByColumns?.map(
+														(col) => ({
+															label: col,
+															value: col,
+														}),
+													) ?? []
+												}
+												value={field.value ?? []}
+												onChange={field.onChange}
+											/>
+										</Field.Control>
+										<Field.Error />
+									</Field>
+								)}
+							/>
+						</div>
+					)}
 				</div>
 			</div>
 
