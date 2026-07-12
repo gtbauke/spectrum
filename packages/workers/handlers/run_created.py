@@ -92,6 +92,7 @@ class RunCreatedHandler(EventHandler[RunCreatedEvent]):
             return
 
         artifact_path = data_artifacts[0].path
+        group_by_columns = data_artifacts[0].group_by_columns
 
         try:
             output_dir = f"profiles/{job.profile_id}/models/{event.run_id}"
@@ -104,7 +105,8 @@ class RunCreatedHandler(EventHandler[RunCreatedEvent]):
                     session_factory=AsyncSessionLocal,
                     broker=self._broker,
                 ) as uow:
-                    logger.info("Downloading dataset for training from %s", artifact_path)
+                    logger.info(
+                        "Downloading dataset for training from %s", artifact_path)
                     await uow.file_storage.download(
                         path=artifact_path,
                         destination=dataset_tmp_path,
@@ -114,6 +116,7 @@ class RunCreatedHandler(EventHandler[RunCreatedEvent]):
                     job=job,
                     artifact_path=dataset_tmp_path,
                     dump_path=dump_path,
+                    group_by_columns=group_by_columns,
                 )
 
             logger.info("Training complete for run %s", event.run_id)

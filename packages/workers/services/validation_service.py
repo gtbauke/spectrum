@@ -17,14 +17,27 @@ class ValidationService:
     def __init__(self) -> None:
         pass
 
-    def _load_dataset(self, artifact_path: str) -> pd.DataFrame:
+    def _load_dataset(self, artifact_path: str, group_by_columns: list[str] | None = None) -> pd.DataFrame:
         """Loads a CSV dataset from local storage."""
-        return pd.read_csv(artifact_path)
+        df = pd.read_csv(artifact_path)
+        df = df.dropna()  # Drop rows with NaN values
+
+        # Group by columns means I need to strip the group by columns from the dataset before validation. The group by columns are not features for the model.
+        if group_by_columns:
+            for col in group_by_columns:
+                if col in df.columns:
+                    df = df.drop(columns=[col])
+                else:
+                    logger.warning(
+                        "Group by column %s not found in dataset", col)
+
+        return df
 
     def _run_validation(
         self,
         model_path: str,
         dataset_path: str,
+        group_by_columns: list[str] | None = None,
     ) -> pd.DataFrame:
         """Evaluates Pareto front against validation dataset.
 
@@ -52,6 +65,7 @@ class ValidationService:
         ids: list[int | str],
         expressions: list[str],
         parameters: list[str],
+        group_by_columns: list[str] | None = None,
     ) -> pd.DataFrame:
         """Calculates predicted values for each expression on the dataset.
 
@@ -59,9 +73,9 @@ class ValidationService:
         identified by its stable Pareto Front ID.
         """
         from core.features.profiles.blocks.inference.prediction_service import PredictionEvaluationService
-        
+
         # Load dataset using helper to ensure correct absolute path
-        df = self._load_dataset(dataset_path)
+        df = self._load_dataset(dataset_path, group_by_columns)
 
         # Identify Target and Features
         # "Target" is the only name the ground truth can have
@@ -77,7 +91,7 @@ class ValidationService:
         feature_cols = [c for c in df.columns if c != target_col]
         actual_y = df[target_col].values
         results = {"actual": actual_y}
-        
+
         variables = {}
         for i, col in enumerate(feature_cols):
             val = df[col].values
@@ -85,9 +99,10 @@ class ValidationService:
             variables[col] = val
 
         prediction_service = PredictionEvaluationService()
-        
+
         for model_id, expr, p_list in zip(ids, expressions, parameters):
-            predicted_y = prediction_service.evaluate_expression(expr, variables, p_list)
+            predicted_y = prediction_service.evaluate_expression(
+                expr, variables, p_list)
             results[f"model_{model_id}"] = predicted_y
 
         return pd.DataFrame(results)
@@ -98,6 +113,7 @@ class ValidationService:
         model: Model,
         model_egraph_path: str,
         validation_artifact_path: str,
+        group_by_columns: list[str] | None = None,
     ) -> tuple[pd.DataFrame, dict]:
         """Runs the validation pipeline.
 
@@ -111,6 +127,7 @@ class ValidationService:
             self._run_validation,
             model_egraph_path,
             validation_artifact_path,
+            group_by_columns
         )
 
         logger.info(
@@ -135,6 +152,7 @@ class ValidationService:
             ids,
             expressions,
             parameters,
+            group_by_columns,
         )
 
         # 3. Aggregate metrics

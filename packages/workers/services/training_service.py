@@ -53,13 +53,23 @@ class TrainingService:
             dumpTo=dump_path,
         )
 
-    def _load_dataset(self, full_path: str) -> tuple[np.ndarray, np.ndarray]:
+    def _load_dataset(self, full_path: str, group_by_columns: list[str] | None = None) -> tuple[np.ndarray, np.ndarray]:
         """Reads a CSV file from disk and splits into X (features) and y (target).
 
         Convention: all columns except the last are features, the last is the target.
         """
         logger.info("Loading dataset from %s", full_path)
         df = pd.read_csv(full_path)
+        df = df.dropna()  # Drop rows with NaN values
+
+        # Group by columns means I need to strip the group by columns from the dataset before training. The group by columns are not features for the model.
+        if group_by_columns:
+            for col in group_by_columns:
+                if col in df.columns:
+                    df = df.drop(columns=[col])
+                else:
+                    logger.warning(
+                        "Group by column %s not found in dataset", col)
 
         X = df.iloc[:, :-1].to_numpy()
         y = df.iloc[:, -1].to_numpy()
@@ -88,6 +98,7 @@ class TrainingService:
         job: Job,
         artifact_path: str,
         dump_path: str,
+        group_by_columns: list[str] | None = None,
     ) -> TrainingResult:
         """Executes the full training pipeline.
 
@@ -106,7 +117,8 @@ class TrainingService:
             The results CSV bytes and optional e-graph dump bytes.
         """
         estimator = self._build_estimator(job, dump_path=dump_path)
-        X, y = self._load_dataset(artifact_path)
+        X, y = self._load_dataset(
+            artifact_path, group_by_columns=group_by_columns)
 
         logger.info(
             "Starting eggp training: gen=%d, pop=%d, max_size=%d",
