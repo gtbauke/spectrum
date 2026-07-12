@@ -67,7 +67,7 @@ class ArtifactORM(ImmutableBase):
         nullable=False
     )
 
-    group_by_columns: Mapped[str] = mapped_column(String, nullable=False)
+    group_by_columns: Mapped[str] = mapped_column(String, nullable=True)
 
     checksum: Mapped[str] = mapped_column(String, nullable=False)
 

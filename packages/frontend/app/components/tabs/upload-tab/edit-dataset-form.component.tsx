@@ -1,6 +1,7 @@
 import { Eye, File, Trash2 } from "lucide-react";
 import {
 	type Control,
+	Controller,
 	type UseFormGetValues,
 	type UseFormRegister,
 	useWatch,
@@ -8,10 +9,12 @@ import {
 import { Button } from "~/components/ui/buttons/button.component";
 import { IconButton } from "~/components/ui/buttons/icon-button.component";
 import { Field } from "~/components/ui/forms/field/field.component";
+import { MultiSelectInput } from "~/components/ui/forms/input/multi-select-input.component";
 import { SelectInput } from "~/components/ui/forms/input/select-input.component";
 import { TextInput } from "~/components/ui/forms/input/text-input.component";
 import { TextAreaInput } from "~/components/ui/forms/input/textarea-input.component";
 import {
+	type CreateDatasetWithMultipleArtifactsDto,
 	type ExtendedArtifactRole,
 	extendedArtifactRoleSchema,
 } from "~/schemas/dtos/dataset.dto";
@@ -21,37 +24,13 @@ import { useFileUpload } from "./file-upload.context";
 type EditDatasetFormProps = {
 	handleUpload: (e: React.BaseSyntheticEvent | undefined) => void;
 	handleCancel: () => void;
-	register: UseFormRegister<{
-		datasetName: string;
-		datasetDescription?: string;
-		roles: {
-			fileName: string;
-			role?: ExtendedArtifactRole;
-			dataSplitRatio?: number;
-		}[];
-	}>;
+	register: UseFormRegister<CreateDatasetWithMultipleArtifactsDto>;
 	isValid: boolean;
 	isPending: boolean;
 	control: Control<
-		{
-			datasetName: string;
-			roles: {
-				fileName: string;
-				role?: "data" | "validation" | "auto-split" | undefined;
-				dataSplitRatio?: number | undefined;
-			}[];
-			datasetDescription?: string | undefined;
-		},
+		CreateDatasetWithMultipleArtifactsDto,
 		unknown,
-		{
-			datasetName: string;
-			roles: {
-				fileName: string;
-				role: "data" | "validation" | "auto-split";
-				dataSplitRatio?: number | undefined;
-			}[];
-			datasetDescription?: string | undefined;
-		}
+		CreateDatasetWithMultipleArtifactsDto
 	>;
 };
 
@@ -134,7 +113,7 @@ export function EditDatasetForm({
 					</h3>
 				</div>
 
-				<div className="flex flex-col gap-3 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
+				<div className="flex flex-col gap-3 pr-2 custom-scrollbar">
 					{filesCount === 0 ? (
 						<p className="text-sm text-gray-500 italic">No files selected.</p>
 					) : (
@@ -143,26 +122,51 @@ export function EditDatasetForm({
 								key={fileName}
 								className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-lg gap-4"
 							>
-								<div className="flex items-center gap-3 overflow-hidden flex-1">
-									<div className="p-2 bg-green-500/10 rounded-md shrink-0">
-										<File size={20} className="text-green-500" />
-									</div>
-									<div className="flex flex-col min-w-0">
-										<span
-											className="text-sm font-medium text-white truncate"
-											title={fileName}
-										>
-											{fileName}
-										</span>
-										<span className="text-xs text-gray-500">
-											{(fileData.file.size / 1024 / 1024).toFixed(2)} MB
-										</span>
-										{fileErrors[fileName] && (
-											<span className="text-xs text-red-500 mt-0.5">
-												{fileErrors[fileName]}
+								<div className="flex flex-col gap-4 flex-1 justify-end">
+									<div className="flex items-center gap-3 flex-1">
+										<div className="p-2 bg-green-500/10 rounded-md shrink-0">
+											<File size={20} className="text-green-500" />
+										</div>
+										<div className="flex flex-col min-w-0">
+											<span
+												className="text-sm font-medium text-white truncate"
+												title={fileName}
+											>
+												{fileName}
 											</span>
-										)}
+											<span className="text-xs text-gray-500">
+												{(fileData.file.size / 1024 / 1024).toFixed(2)} MB
+											</span>
+											{fileErrors[fileName] && (
+												<span className="text-xs text-red-500 mt-0.5">
+													{fileErrors[fileName]}
+												</span>
+											)}
+										</div>
 									</div>
+
+									<Field>
+										<Field.Label>Group By</Field.Label>
+
+										<Controller
+											name="groupByColumns"
+											control={control}
+											render={({ field }) => (
+												<Field.Control>
+													<MultiSelectInput
+														value={field.value}
+														onChange={field.onChange}
+														options={
+															fileData.columns?.map((col) => ({
+																label: col,
+																value: col,
+															})) ?? []
+														}
+													/>
+												</Field.Control>
+											)}
+										/>
+									</Field>
 								</div>
 
 								<input

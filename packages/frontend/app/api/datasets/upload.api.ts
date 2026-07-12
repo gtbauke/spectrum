@@ -17,6 +17,7 @@ export async function createDataset(
 	}
 
 	formData.append("roles", JSON.stringify(data.roles));
+	formData.append("group_by_columns", JSON.stringify(data.groupByColumns));
 
 	const response = await safeApiRequest("/datasets/upload", datasetSchema, {
 		method: "POST",

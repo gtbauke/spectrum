@@ -43,10 +43,11 @@ export const createDatasetWithMultipleArtifactsSchema = z.object({
 	roles: z.array(
 		z.object({
 			fileName: z.string(),
-			role: extendedArtifactRoleSchema.default("data"),
+			role: extendedArtifactRoleSchema,
 			dataSplitRatio: z.number().optional(),
 		}),
 	),
+	groupByColumns: z.array(z.string()),
 });
 
 export type CreateDatasetWithMultipleArtifactsDto = z.infer<

@@ -5,7 +5,7 @@ import {
 	FileDigit,
 	FileText,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useArtifactPreview } from "~/hooks/use-artifact-preview.hook";
 import { useDataset } from "~/hooks/use-dataset.hook";
 import { useDatasetUpdateMutation } from "~/hooks/use-dataset-update-mutation.hook";
@@ -36,6 +36,12 @@ export function DatasetTabContainer({ datasetId }: DatasetTabContainerProps) {
 		limit,
 		offset,
 	);
+
+	const activeArtifact = useMemo(() => {
+		return dataset?.artifacts.find(
+			(artifact) => artifact.id === activeArtifactId,
+		);
+	}, [dataset, activeArtifactId]);
 
 	useEffect(() => {
 		if (dataset) {
@@ -134,6 +140,14 @@ export function DatasetTabContainer({ datasetId }: DatasetTabContainerProps) {
 							}}
 						>
 							{description || "Add a description..."}
+						</p>
+					)}
+				</div>
+
+				<div>
+					{activeArtifact && (
+						<p className="text-xs text-gray-500 mt-2">
+							Grouped by: {activeArtifact.groupByColumns?.join(", ")}
 						</p>
 					)}
 				</div>

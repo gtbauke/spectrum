@@ -3,7 +3,10 @@ import { AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useCreateDatasetMutation } from "~/hooks/use-create-dataset-mutation.hook";
-import { createDatasetWithMultipleArtifactsSchema } from "~/schemas/dtos/dataset.dto";
+import {
+	type CreateDatasetWithMultipleArtifactsDto,
+	createDatasetWithMultipleArtifactsSchema,
+} from "~/schemas/dtos/dataset.dto";
 import { DatasetPreviewTable } from "./dataset-preview-table.component";
 import { EditDatasetForm } from "./edit-dataset-form.component";
 import { useFileUpload } from "./file-upload.context";
@@ -15,18 +18,20 @@ export default function UploadDatasetTabContent() {
 
 	const hasFiles = Object.keys(files).length > 0;
 
-	const { formState, register, handleSubmit, reset, control } = useForm({
-		resolver: zodResolver(createDatasetWithMultipleArtifactsSchema),
-		defaultValues: {
-			datasetName: "",
-			datasetDescription: "",
-			roles: Object.entries(files).map(([fileName]) => ({
-				fileName,
-				role: undefined,
-				dataSplitRatio: 1,
-			})),
-		},
-	});
+	const { formState, register, handleSubmit, reset, control } =
+		useForm<CreateDatasetWithMultipleArtifactsDto>({
+			resolver: zodResolver(createDatasetWithMultipleArtifactsSchema),
+			defaultValues: {
+				datasetName: "",
+				datasetDescription: "",
+				roles: Object.entries(files).map(([fileName]) => ({
+					fileName,
+					role: undefined,
+					dataSplitRatio: 1,
+				})),
+				groupByColumns: [],
+			},
+		});
 
 	const {
 		mutate,
