@@ -45,7 +45,7 @@ async def upload_artifact(
         size_in_bytes=upload_result.size,
         path=upload_result.path,
         role=role,
-        group_by_columns=group_by_columns.split(
+        group_by_columns=group_by_columns.replace("[", "").replace("]", "").replace("\"", "").split(
             ",") if group_by_columns else [],
     )
 

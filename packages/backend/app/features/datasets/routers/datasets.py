@@ -92,7 +92,7 @@ async def upload_dataset(
                 size_in_bytes=data_upload.size,
                 path=data_upload.path,
                 role=ArtifactRole.DATA,
-                group_by_columns=group_by_columns.split(
+                group_by_columns=group_by_columns.replace("[", "").replace("]", "").replace("\"", "").split(
                     ",") if group_by_columns else [],
             ))
 
@@ -105,7 +105,7 @@ async def upload_dataset(
                 size_in_bytes=val_upload.size,
                 path=val_upload.path,
                 role=ArtifactRole.VALIDATION,
-                group_by_columns=group_by_columns.split(
+                group_by_columns=group_by_columns.replace("[", "").replace("]", "").replace("\"", "").split(
                     ",") if group_by_columns else [],
             ))
 
@@ -122,7 +122,7 @@ async def upload_dataset(
                 size_in_bytes=upload_result.size,
                 path=upload_result.path,
                 role=role,
-                group_by_columns=group_by_columns.split(
+                group_by_columns=group_by_columns.replace("[", "").replace("]", "").replace("\"", "").split(
                     ",") if group_by_columns else [],
             ))
 
