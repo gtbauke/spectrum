@@ -37,6 +37,7 @@ class JobsMapper(IMapper[JobORM, Job]):
             ],
             active_group_by_columns=orm.active_group_by_columns.split(
                 ",") if orm.active_group_by_columns else None,
+            post_processing_type=orm.post_processing_type,
         )
 
     @staticmethod
@@ -67,4 +68,5 @@ class JobsMapper(IMapper[JobORM, Job]):
             ],
             active_group_by_columns=",".join(
                 domain.active_group_by_columns) if domain.active_group_by_columns else None,
+            post_processing_type=domain.post_processing_type,
         )

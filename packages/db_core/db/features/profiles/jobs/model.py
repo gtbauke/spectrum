@@ -45,6 +45,7 @@ class JobORM(MutableBase):
     simplify: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
     active_group_by_columns: Mapped[str] = mapped_column(String, nullable=True)
+    post_processing_type: Mapped[str] = mapped_column(String, nullable=True)
 
     runs: Mapped[list["RunORM"]] = relationship(
         "RunORM",

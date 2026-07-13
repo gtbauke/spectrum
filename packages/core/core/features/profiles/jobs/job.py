@@ -60,6 +60,9 @@ class Job(BaseMutableDomainModel):
     active_group_by_columns: list[str] | None = Field(
         None, description="The active group by columns for the job")
 
+    post_processing_type: str | None = Field(
+        None, description="The post processing type for the job")
+
     @classmethod
     def new(
         cls,
@@ -80,6 +83,7 @@ class Job(BaseMutableDomainModel):
         split: int,
         simplify: bool,
         active_group_by_columns: list[str] | None = None,
+        post_processing_type: str | None = None,
     ) -> "Job":
         return cls(
             name=name,
@@ -100,4 +104,5 @@ class Job(BaseMutableDomainModel):
             simplify=simplify,
             runs=[],
             active_group_by_columns=active_group_by_columns,
+            post_processing_type=post_processing_type,
         )
