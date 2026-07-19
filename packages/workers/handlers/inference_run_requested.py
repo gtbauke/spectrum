@@ -165,7 +165,7 @@ class InferenceRunRequestedHandler(EventHandler[InferenceRunRequestedEvent]):
 
                     query_result = await asyncio.to_thread(run_heavy_execution)
 
-                    if job.post_processing_type:
+                    if job.post_processing_type and job.post_processing_type != "NONE":
                         logger.info("Applying post-processing for job %s with type %s",
                                     job.id, job.post_processing_type)
                         strategy = PostProcessorRegistry.get(

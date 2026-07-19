@@ -157,7 +157,7 @@ class ValidationService:
         )
 
         # TODO: post processing should be configurable
-        if job.post_processing_type:
+        if job.post_processing_type and job.post_processing_type != "NONE":
             if not job.active_group_by_columns:
                 logger.error(
                     "Post-processing strategy '%s' requires active group by columns, but none are set for job %s.",

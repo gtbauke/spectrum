@@ -23,6 +23,7 @@ export const createJobFormSchema = z.object({
 	split: z.number().int().min(1).default(1),
 	simplify: z.boolean().default(false),
 	activeGroupByColumns: z.array(z.string()).default([]),
+	postProcessingType: z.string().nullable().optional(),
 });
 
 export const createJobDtoSchema = createJobFormSchema.transform((data) => ({
@@ -42,6 +43,7 @@ export const createJobDtoSchema = createJobFormSchema.transform((data) => ({
 	split: data.split,
 	simplify: data.simplify,
 	active_group_by_columns: data.activeGroupByColumns,
+	post_processing_type: data.postProcessingType,
 }));
 
 export type CreateJobDto = z.infer<typeof createJobDtoSchema>;
@@ -62,6 +64,8 @@ export const updateJobDtoSchema = z
 		maxParamCount: z.number().int().optional(),
 		split: z.number().int().optional(),
 		simplify: z.boolean().optional(),
+		activeGroupByColumns: z.array(z.string()).nullable().optional(),
+		postProcessingType: z.string().nullable().optional(),
 	})
 	.transform((data) => ({
 		name: data.name,
@@ -78,6 +82,8 @@ export const updateJobDtoSchema = z
 		max_param_count: data.maxParamCount,
 		split: data.split,
 		simplify: data.simplify,
+		active_group_by_columns: data.activeGroupByColumns,
+		post_processing_type: data.postProcessingType,
 	}));
 
 export type UpdateJobDto = z.infer<typeof updateJobDtoSchema>;

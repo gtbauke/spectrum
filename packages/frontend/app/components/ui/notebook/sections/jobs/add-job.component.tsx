@@ -63,6 +63,7 @@ export function AddJob({
 			maxParamCount: -1,
 			split: 1,
 			activeGroupByColumns: [],
+			postProcessingType: null,
 		},
 	});
 
@@ -256,6 +257,39 @@ export function AddJob({
 													) ?? []
 												}
 												value={field.value ?? []}
+												onChange={field.onChange}
+											/>
+										</Field.Control>
+										<Field.Error />
+									</Field>
+								)}
+							/>
+
+							<Controller
+								name="postProcessingType"
+								control={control}
+								render={({ field }) => (
+									<Field
+										error={
+											errors.postProcessingType as
+												| import("react-hook-form").FieldError
+												| undefined
+										}
+									>
+										<Field.Label>Post Processing Type</Field.Label>
+										<Field.Control>
+											<SelectInput
+												options={[
+													{
+														label: "None",
+														value: "NONE",
+													},
+													{
+														label: "Grouped Softmax",
+														value: "GROUPED_SOFTMAX",
+													},
+												]}
+												value={field.value ?? "NONE"}
 												onChange={field.onChange}
 											/>
 										</Field.Control>

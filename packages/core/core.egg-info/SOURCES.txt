@@ -63,6 +63,8 @@ core/ports/events/publisher.py
 core/ports/storage/file_storage.py
 core/ports/storage/path.py
 core/ports/storage/upload_result.py
+core/postprocessing/registry.py
+core/postprocessing/strategies.py
 core/services/__init__.py
 core/services/base.py
 core/utils/__init__.py
