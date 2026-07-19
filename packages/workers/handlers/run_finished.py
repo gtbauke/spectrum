@@ -71,6 +71,15 @@ class RunFinishedHandler(EventHandler[RunFinishedEvent]):
                 ]
 
                 group_by_columns = validation_artifacts[0].group_by_columns if validation_artifacts else None
+                active_group_by_columns = job.active_group_by_columns if job.active_group_by_columns else None
+
+                if active_group_by_columns and group_by_columns:
+                    for col in active_group_by_columns:
+                        if col not in group_by_columns:
+                            logger.error(
+                                "Active group by column '%s' is not present in validation artifact for dataset %s.",
+                                col, dataset.id)
+                            return
 
                 if not validation_artifacts:
                     logger.info(
@@ -96,7 +105,8 @@ class RunFinishedHandler(EventHandler[RunFinishedEvent]):
                         model=model,
                         model_egraph_path=model_path,  # Pass local path
                         validation_artifact_path=dataset_path,
-                        group_by_columns=group_by_columns
+                        job=job,
+                        group_by_columns=active_group_by_columns
                     )
 
                     # 6. Save CSV results (easier for frontend)

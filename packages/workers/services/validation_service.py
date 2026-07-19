@@ -6,6 +6,8 @@ import numpy as np
 from pathlib import Path
 from reggression import Reggression  # type: ignore
 
+from core.features.profiles.jobs.job import Job
+from core.postprocessing.registry import PostProcessorRegistry
 from core.features.profiles.models.model import Model
 
 logger = logging.getLogger(__name__)
@@ -37,7 +39,6 @@ class ValidationService:
         self,
         model_path: str,
         dataset_path: str,
-        group_by_columns: list[str] | None = None,
     ) -> pd.DataFrame:
         """Evaluates Pareto front against validation dataset.
 
@@ -113,6 +114,7 @@ class ValidationService:
         model: Model,
         model_egraph_path: str,
         validation_artifact_path: str,
+        job: Job,
         group_by_columns: list[str] | None = None,
     ) -> tuple[pd.DataFrame, dict]:
         """Runs the validation pipeline.
@@ -127,7 +129,6 @@ class ValidationService:
             self._run_validation,
             model_egraph_path,
             validation_artifact_path,
-            group_by_columns
         )
 
         logger.info(
@@ -154,6 +155,49 @@ class ValidationService:
             parameters,
             group_by_columns,
         )
+
+        # TODO: post processing should be configurable
+        if job.post_processing_type:
+            if not job.active_group_by_columns:
+                logger.error(
+                    "Post-processing strategy '%s' requires active group by columns, but none are set for job %s.",
+                    job.post_processing_type, job.id)
+
+                raise ValueError(
+                    f"Post-processing strategy '{job.post_processing_type}' requires active group by columns.")
+
+            strategy = PostProcessorRegistry.get(job.post_processing_type)
+            model_cols = [
+                c for c in predictions_df.columns if c.startswith("model_")]
+
+            for col in model_cols:
+                processed = strategy.transform(predictions_df, prediction_col=col, config={
+                    "temperature": 1.0,
+                    "group_by_column": job.active_group_by_columns[0]
+                })
+
+                predictions_df[col] = processed["final_prediction"]
+                model_id = col.split("_")[1]
+
+                if str(job.post_processing_type) == "GROUPED_SOFTMAX":
+                    eps = 1e-15
+                    preds = np.clip(
+                        processed["final_prediction"], eps, 1 - eps)
+                    targets = predictions_df["actual"]
+
+                    log_loss = - \
+                        np.mean(targets * np.log(preds) +
+                                (1 - targets) * np.log(1 - preds))
+                    pareto_df.loc[pareto_df["Id"] == str(
+                        model_id), "Fitness"] = log_loss
+                else:
+                    mse = np.mean(
+                        (processed["actual"] - predictions_df["final_prediction"]) ** 2)
+                    pareto_df.loc[pareto_df["Id"] ==
+                                  str(model_id), "Fitness"] = mse
+
+        pareto_df = pareto_df.sort_values(
+            by="Fitness", ascending=True).reset_index(drop=True)
 
         # 3. Aggregate metrics
         # We store the pareto front summary in the metrics JSON

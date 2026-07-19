@@ -3,12 +3,15 @@ import logging
 import os
 import tempfile
 import time
+import pandas as pd
+import numpy as np
 
 from typing import Any
 from uuid import UUID
 
 from reggression import Reggression  # type: ignore
 
+from core.features.profiles.blocks.inference.prediction_service import PredictionEvaluationService
 from iql.compiler import IqlCompiler
 from iql.executor.query_executor import QueryExecutor
 
@@ -28,6 +31,7 @@ from core.ports.events.message_broker import MessageBroker
 
 from db.common.session import AsyncSessionLocal
 from adapters.worker_unit_of_work import WorkerUnitOfWork
+from services.validation_service import PostProcessorRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -147,7 +151,8 @@ class InferenceRunRequestedHandler(EventHandler[InferenceRunRequestedEvent]):
                         # varnames is a comma-separated string of all columns;
                         # the last column is the target, so we exclude it.
                         all_columns = reggression.varnames.split(",")
-                        feature_names = all_columns[:-1] if len(all_columns) > 1 else []
+                        feature_names = all_columns[:-
+                                                    1] if len(all_columns) > 1 else []
 
                         executor = QueryExecutor(
                             reggressions={model_identifier: reggression},
@@ -159,6 +164,69 @@ class InferenceRunRequestedHandler(EventHandler[InferenceRunRequestedEvent]):
                         return query_result
 
                     query_result = await asyncio.to_thread(run_heavy_execution)
+
+                    if job.post_processing_type:
+                        logger.info("Applying post-processing for job %s with type %s",
+                                    job.id, job.post_processing_type)
+                        strategy = PostProcessorRegistry.get(
+                            job.post_processing_type)
+                        group_col = job.active_group_by_columns[0] if job.active_group_by_columns else None
+
+                        config = {
+                            "temperature": 1.0,
+                            "group_by_column": job.active_group_by_columns[0] if job.active_group_by_columns else None
+                        }
+
+                        df_intact = pd.read_csv(dataset_path).dropna()
+
+                        # "Target" is the only name the ground truth can have, fallback to last column
+                        if "target" not in df_intact.columns:
+                            target_col = df_intact.columns[-1]
+                        else:
+                            target_col = "target"
+                        targets = df_intact[target_col]
+
+                        prediction_service = PredictionEvaluationService()
+
+                        # Prepare variable mapping for live evaluation
+                        feature_cols = [
+                            c for c in df_intact.columns if c != target_col]
+                        variables = {}
+                        for i, col in enumerate(feature_cols):
+                            val = df_intact[col].values
+                            variables[f"x{i}"] = val
+                            variables[col] = val
+
+                        for r in query_result.results:
+                            if r.expression:
+                                # Always calculate raw predictions for fitness correction
+                                raw_preds = prediction_service.evaluate_expression(
+                                    r.expression, variables, r.parameters)
+
+                                # Create DataFrame for strategy
+                                eval_df = df_intact[[group_col]].copy(
+                                ) if group_col else pd.DataFrame()
+                                eval_df["raw_prediction"] = raw_preds
+
+                                # Apply Strategy
+                                processed = strategy.transform(
+                                    eval_df, prediction_col="raw_prediction", config=config)
+                                final_preds = processed["final_prediction"]
+
+                                # Recalculate Fitness
+                                if str(job.post_processing_type) == "GROUPED_SOFTMAX":
+                                    eps = 1e-15
+                                    clipped_preds = np.clip(
+                                        final_preds, eps, 1 - eps)
+                                    log_loss = - \
+                                        np.mean(
+                                            targets * np.log(clipped_preds) + (1 - targets) * np.log(1 - clipped_preds))
+                                    # Overwrite raw MSE with Log-Loss
+                                    r.fitness = float(log_loss)
+
+                                # Update PREDICT() result only if the user explicitly requested it in IQL
+                                if r.prediction:
+                                    r.prediction = final_preds.tolist()
 
                     logger.info("Inference execution completed for run %s. Got %d results.",
                                 event.run_id, len(query_result.results))
