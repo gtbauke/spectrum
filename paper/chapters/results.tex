@@ -7,6 +7,63 @@ Este capítulo tem como objetivo apresentar os resultados obtidos a partir do de
 
 Dessa forma, este capítulo detalha a consolidação da plataforma desenvolvida, avaliando como sua arquitetura baseada na web, capacidade de execução distribuída e a linguagem de consulta IQL (\textit{Inference Query Language}) endereçam as limitações levantadas na revisão da literatura. Por fim, é realizada uma comparação direta entre a plataforma Spectrum e as principais soluções comerciais disponíveis, evidenciando as contribuições desta pesquisa.
 
+\section{Estudo de Caso: Redescobrindo a Lei da Gravitação Universal}
+\label{sec:results_case_study}
+Modelos de regressão simbólica, por serem inerentemente interpretáveis, são particularmente úteis para descobrir relações matemáticas que governam fenômenos naturais. Para demonstrar tal capacidade, foi conduzido um estudo de caso utilizando dados sintéticos gerados a partir da Lei da Gravitação Universal, que descreve a força de atração entre dois corpos em função de suas massas e da distância que os separa:
+\begin{equation}
+    F = G \frac{m_1 m_2}{r^2}
+\end{equation}
+
+Os dados foram gerados com variações nas massas e distâncias em três cenários distintos:
+\begin{enumerate}
+    \item \textbf{Cenário 1}: Valores de massa entre 1 kg e 10 kg, distâncias entre 1 m e 5 m, sem ruído adicionado. Este cenário serve como referência para avaliar a capacidade do algoritmo em redescobrir a lei sem interferência externa.
+    \item \textbf{Cenário 2}: Valores de massa entre 1 kg e 10 kg, distâncias entre 1 m e 5 m, com ruído gaussiano adicionado em 2\% dos dados. Este cenário testa a robustez do algoritmo frente a pequenas perturbações nos dados.
+    \item \textbf{Cenário 3}: Valores de massa entre 1 kg e 10 kg, distâncias entre 1 m e 5 m, com ruído gaussiano adicionado em 20\% dos dados. Este cenário avalia a capacidade do algoritmo em lidar com dados significativamente corrompidos, simulando condições de coleta de dados menos ideal.
+\end{enumerate}
+
+Todos os cenários foram processados utilizando a plataforma Spectrum, com o algoritmo \textit{eggp} configurado com os seguintes parâmetros alterados de seu padrão:
+\begin{table}
+    \centering
+    \caption{Parâmetros alterados do algoritmo eggp}
+    \label{tab:eggp_parameters}
+    \begin{tabular}{lc}
+        \toprule
+        \textbf{Parâmetro} & \textbf{Valor} \\
+        \midrule
+        \textit{População} & 150 \\
+        \textit{Gerações} & 500 \\
+        \textit{Operações} & \textit{add, sub, mul, div, pow} \\
+        \textit{Tamanho da Expressão} & 10 \\
+    \end{tabular}
+\end{table}
+
+Todos os experimentos foram conduzidos com a métrica de erro MSE (\textit{Mean Squared Error}) como critério de avaliação. A consulta IQL executada foi a mesma para todos os modelos:
+\begin{lstlisting}[language=SQL]
+    -- Para encontrar os modelos da fronteira de Pareto
+    SELECT PARETO expression, fitness, parameters, size FROM modelo_1
+    SELECT PARETO expression, fitness, parameters, size FROM modelo_2
+    SELECT PARETO expression, fitness, parameters, size FROM modelo_3
+
+    -- Para encontrar as 10 melhores expressões gerais
+    SELECT TOP 10 expression, fitness, parameters, size FROM modelo_1
+    SELECT TOP 10 expression, fitness, parameters, size FROM modelo_2
+    SELECT TOP 10 expression, fitness, parameters, size FROM modelo_3
+\end{lstlisting}
+
+A Tabela \ref{tab:case_study_results} apresenta os resultados obtidos para cada cenário, incluindo as expressões encontradas na fronteira de Pareto, as 10 melhores expressões gerais e os respectivos valores de MSE.
+\begin{table}[htbp]
+    \centering
+    \caption{Resultados do estudo de caso da Lei da Gravitação Universal, incluindo expressões encontradas e seus respectivos valores de MSE para cada cenário.}
+    \label{tab:case_study_results}
+    \begin{tabular}{p{3cm} p{5cm} p{4cm} p{2cm}}
+        \toprule
+        \textbf{Cenário} & \textbf{Tipo da Expressão} & \textbf{Expressão Encontrada} & \textbf{MSE} \\
+        \midrule
+        % Seus dados viriam aqui
+        \bottomrule
+    \end{tabular}
+\end{table}
+
 \section{A Plataforma Spectrum: Consolidação e Resultados}
 \label{sec:results_spectrum}
 O principal resultado deste trabalho é a entrega funcional da plataforma Spectrum, um ambiente integrado para a manipulação de algoritmos de regressão simbólica. A arquitetura distribuída, dividida em \textit{Frontend}, \textit{Backend} e \textit{Workers}, provou-se eficaz na delegação de tarefas de alto custo computacional, como a evolução das expressões matemáticas pelo algoritmo eggp, para instâncias remotas. Isso permite que usuários explorem modelos matemáticos complexos sem a dependência de máquinas com elevado poder de processamento local.
@@ -45,7 +102,7 @@ A Tabela \ref{tab:feature_comparison} sumariza a presença de funcionalidades es
 
 Além disso, a introdução do IQL para buscar padrões explícitos nos resultados é um recurso ainda não adotado comercialmente, em contraste direto com a simples listagem de equações da fronteira de Pareto. Nas soluções comerciais abordadas, o usuário tipicamente seleciona passivamente um dos modelos da fronteira e analisa suas características. Na Spectrum, o usuário desempenha um papel ativo, redigindo consultas declarativas que vasculham o espaço de busca para recuperar expressões baseadas em restrições personalizadas.
 
-\section{Discussão e Conclusões Parciais}
+\section{Discussão e Conclusões}
 \label{sec:results_discussion}
 Os resultados do desenvolvimento indicam que a plataforma Spectrum atingiu de forma sólida os objetivos propostos. A substituição do processamento local rigoroso por uma abordagem assíncrona baseada em filas democratiza o acesso a algoritmos avançados, como o uso do algoritmo eggp com saturação de igualdade.
 

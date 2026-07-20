@@ -79,7 +79,6 @@ services:
         build:
             context: .
             target: production
-        container_name: spectrum-worker-training
         restart: always
         depends_on:
             rabbitmq:
@@ -104,7 +103,6 @@ services:
         build:
             context: .
             target: production
-        container_name: spectrum-worker-verification
         restart: always
         depends_on:
             rabbitmq:
@@ -129,7 +127,6 @@ services:
         build:
             context: .
             target: production
-        container_name: spectrum-worker-iql
         restart: always
         depends_on:
             rabbitmq:
