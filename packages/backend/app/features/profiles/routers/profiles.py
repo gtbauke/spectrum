@@ -253,7 +253,9 @@ async def update_profile(
                     profile_id=profile_id,
                     kind=block_dto.kind,
                     order_index=block_dto.order_index,
-                    data=block_dto.data
+                    data=block_dto.data,
+                    created_at=block_dto.created_at,
+                    updated_at=block_dto.updated_at
                 )
             )
 
@@ -264,6 +266,7 @@ async def update_profile(
     )
 
     await uow.profiles.update(updated_profile)
+    
     return updated_profile
 
 
