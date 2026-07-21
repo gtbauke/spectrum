@@ -8,6 +8,7 @@ from core.common.logging import setup_logging
 from core.utils.broker_constants import MAIN_EXCHANGE_NAME
 
 from .api.v1 import api_router
+from .features.admin.router import admin_router
 from .adapters.events.aio_pika_broker import AioPikaBroker
 from .utils.rebuild import *
 from .core.config import settings
@@ -54,3 +55,4 @@ app.add_middleware(
 )
 
 app.include_router(prefix="/api", router=api_router)
+app.include_router(prefix="/admin", router=admin_router)

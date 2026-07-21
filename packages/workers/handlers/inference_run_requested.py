@@ -1,4 +1,5 @@
 import asyncio
+import concurrent.futures
 import logging
 import os
 import tempfile
@@ -26,6 +27,8 @@ from core.utils.filters.field_filter import UUIDFilter
 from core.ports.events.event_handler import EventHandler
 from core.ports.events.message_broker import MessageBroker
 
+from services.heartbeat import HeartbeatService
+
 from db.common.session import AsyncSessionLocal
 from adapters.worker_unit_of_work import WorkerUnitOfWork
 
@@ -35,8 +38,27 @@ logger = logging.getLogger(__name__)
 class InferenceRunRequestedHandler(EventHandler[InferenceRunRequestedEvent]):
     routing_key: str = "inference.run_requested"
 
-    def __init__(self, *, broker: MessageBroker) -> None:
+    @staticmethod
+    def _run_heavy_execution(
+        plan: Any,
+        dataset_path: str,
+        model_path: str,
+        model_identifier: str,
+    ) -> Any:
+        reggression = Reggression(dataset=dataset_path, loadFrom=model_path)
+        all_columns = reggression.varnames.split(",")
+        feature_names = all_columns[:-1] if len(all_columns) > 1 else []
+
+        executor = QueryExecutor(
+            reggressions={model_identifier: reggression},
+            plan=plan,
+            feature_names=feature_names,
+        )
+        return executor.execute()
+
+    def __init__(self, *, broker: MessageBroker, heartbeat: HeartbeatService) -> None:
         self._broker = broker
+        self._heartbeat = heartbeat
 
     def parse(self, payload: dict[str, Any]) -> InferenceRunRequestedEvent:
         return InferenceRunRequestedEvent.model_validate(payload)
@@ -48,6 +70,15 @@ class InferenceRunRequestedHandler(EventHandler[InferenceRunRequestedEvent]):
             event.block_id,
             event.query
         )
+
+        await self._heartbeat.set_busy(f"inference run {event.run_id}")
+
+        try:
+            await self._handle_inner(event)
+        finally:
+            await self._heartbeat.set_idle()
+
+    async def _handle_inner(self, event: InferenceRunRequestedEvent) -> None:
 
         start_time = time.perf_counter()
 
@@ -135,30 +166,21 @@ class InferenceRunRequestedHandler(EventHandler[InferenceRunRequestedEvent]):
                     await uow.inference_runs.update(run)
                     await uow.commit()
 
-                    def run_heavy_execution():
-                        if compilation_result.plan is None:
-                            raise ValueError(
-                                "No execution plan generated during compilation")
-
-                        reggression = Reggression(
-                            dataset=dataset_path, loadFrom=model_path)
-
-                        # Extract feature names from the dataset columns.
-                        # varnames is a comma-separated string of all columns;
-                        # the last column is the target, so we exclude it.
-                        all_columns = reggression.varnames.split(",")
-                        feature_names = all_columns[:-1] if len(all_columns) > 1 else []
-
-                        executor = QueryExecutor(
-                            reggressions={model_identifier: reggression},
-                            plan=compilation_result.plan,
-                            feature_names=feature_names,
+                    if compilation_result.plan is None:
+                        raise ValueError(
+                            "No execution plan generated during compilation"
                         )
 
-                        query_result = executor.execute()
-                        return query_result
-
-                    query_result = await asyncio.to_thread(run_heavy_execution)
+                    loop = asyncio.get_running_loop()
+                    with concurrent.futures.ProcessPoolExecutor(max_workers=1) as proc_executor:
+                        query_result = await loop.run_in_executor(
+                            proc_executor,
+                            self._run_heavy_execution,
+                            compilation_result.plan,
+                            dataset_path,
+                            model_path,
+                            model_identifier,
+                        )
 
                     logger.info("Inference execution completed for run %s. Got %d results.",
                                 event.run_id, len(query_result.results))

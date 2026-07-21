@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spectrum — Worker Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-card: #111827;
+            --bg-card-hover: #1a2332;
+            --bg-input: #1e293b;
+            --border: #1e293b;
+            --border-focus: #6366f1;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent: #6366f1;
+            --accent-hover: #818cf8;
+            --green: #10b981;
+            --green-bg: rgba(16, 185, 129, 0.12);
+            --yellow: #f59e0b;
+            --yellow-bg: rgba(245, 158, 11, 0.12);
+            --red: #ef4444;
+            --red-bg: rgba(239, 68, 68, 0.12);
+            --blue: #3b82f6;
+            --blue-bg: rgba(59, 130, 246, 0.12);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        /* --- Auth Gate --- */
+        #auth-gate {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .auth-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: var(--shadow);
+        }
+
+        .auth-card h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .auth-card p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .auth-card input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+            margin-bottom: 1rem;
+        }
+
+        .auth-card input:focus {
+            border-color: var(--border-focus);
+        }
+
+        .auth-card input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .auth-error {
+            color: var(--red);
+            font-size: 0.8rem;
+            margin-bottom: 0.75rem;
+            display: none;
+        }
+
+        /* --- Buttons --- */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.65rem 1.25rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover { background: var(--accent-hover); }
+
+        .btn-danger {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-ghost:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* --- Dashboard --- */
+        #dashboard {
+            display: none;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .auto-refresh-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .auto-refresh-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* --- Summary cards --- */
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .summary-card .label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-card .value {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .summary-card.healthy .value { color: var(--green); }
+        .summary-card.warning .value { color: var(--yellow); }
+        .summary-card.danger .value { color: var(--red); }
+        .summary-card.info .value { color: var(--blue); }
+
+        /* --- Worker table --- */
+        .table-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table-header h2 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .table-header .last-updated {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            text-align: left;
+            padding: 0.75rem 1.25rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        tbody td {
+            padding: 0.85rem 1.25rem;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        tbody tr {
+            transition: background 0.15s;
+        }
+
+        tbody tr:hover {
+            background: var(--bg-card-hover);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .worker-id {
+            font-family: 'SFMono-Regular', 'Consolas', monospace;
+            font-size: 0.8rem;
+            color: var(--accent);
+        }
+
+        /* --- Health badge --- */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-healthy {
+            background: var(--green-bg);
+            color: var(--green);
+        }
+
+        .badge-stale {
+            background: var(--red-bg);
+            color: var(--red);
+        }
+
+        .badge-task_timeout {
+            background: var(--yellow-bg);
+            color: var(--yellow);
+        }
+
+        .badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .status-idle { color: var(--text-secondary); }
+        .status-busy { color: var(--blue); font-weight: 500; }
+
+        .task-desc {
+            font-family: 'SFMono-Regular', 'Consolas', monospace;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+        }
+
+        .duration {
+            font-variant-numeric: tabular-nums;
+            color: var(--text-secondary);
+        }
+
+        .heartbeat-age {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .heartbeat-age.fresh { color: var(--green); }
+        .heartbeat-age.warn { color: var(--yellow); }
+        .heartbeat-age.stale { color: var(--red); }
+
+        /* --- Empty state --- */
+        .empty-state {
+            padding: 3rem 1.25rem;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 1rem;
+            opacity: 0.4;
+        }
+
+        .empty-state p {
+            font-size: 0.9rem;
+        }
+
+        /* --- Toast --- */
+        .toast-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.75rem 1.25rem;
+            font-size: 0.85rem;
+            box-shadow: var(--shadow);
+            animation: slideIn 0.3s ease-out;
+            max-width: 360px;
+        }
+
+        .toast.success { border-left: 3px solid var(--green); }
+        .toast.error { border-left: 3px solid var(--red); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            .summary-row { grid-template-columns: repeat(2, 1fr); }
+            table { display: block; overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Auth Gate -->
+<div id="auth-gate">
+    <div class="auth-card">
+        <h1>Spectrum Admin</h1>
+        <p>Enter your admin API key to access the worker dashboard.</p>
+        <input type="password" id="api-key-input" placeholder="Admin API key" autocomplete="off" />
+        <div class="auth-error" id="auth-error">Invalid API key. Please try again.</div>
+        <button class="btn btn-primary" id="auth-submit">Sign In</button>
+    </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard">
+    <div class="header">
+        <h1>Worker Dashboard</h1>
+        <div class="header-actions">
+            <div class="auto-refresh-indicator">
+                <span class="auto-refresh-dot"></span>
+                Auto-refresh <span id="countdown">10</span>s
+            </div>
+            <button class="btn btn-ghost" id="refresh-btn" onclick="fetchWorkers()">
+                ↻ Refresh
+            </button>
+            <button class="btn btn-ghost" id="logout-btn" onclick="logout()">
+                Sign Out
+            </button>
+        </div>
+    </div>
+
+    <div class="summary-row" id="summary-row">
+        <div class="summary-card info">
+            <div class="label">Total Workers</div>
+            <div class="value" id="total-count">—</div>
+        </div>
+        <div class="summary-card healthy">
+            <div class="label">Healthy</div>
+            <div class="value" id="healthy-count">—</div>
+        </div>
+        <div class="summary-card warning">
+            <div class="label">Task Timeout</div>
+            <div class="value" id="timeout-count">—</div>
+        </div>
+        <div class="summary-card danger">
+            <div class="label">Stale / Dead</div>
+            <div class="value" id="stale-count">—</div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <div class="table-header">
+            <h2>Workers</h2>
+            <span class="last-updated" id="last-updated"></span>
+        </div>
+        <div id="table-body-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Worker ID</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Health</th>
+                        <th>Current Task</th>
+                        <th>Task Duration</th>
+                        <th>Last Heartbeat</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="workers-tbody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+    const REFRESH_INTERVAL = 10;
+    let apiKey = sessionStorage.getItem('spectrum_admin_key') || '';
+    let countdownValue = REFRESH_INTERVAL;
+    let countdownInterval = null;
+    let refreshInterval = null;
+
+    // --- Auth ---
+    const authGate = document.getElementById('auth-gate');
+    const dashboard = document.getElementById('dashboard');
+    const apiKeyInput = document.getElementById('api-key-input');
+    const authError = document.getElementById('auth-error');
+    const authSubmit = document.getElementById('auth-submit');
+
+    apiKeyInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptLogin(); });
+    authSubmit.addEventListener('click', attemptLogin);
+
+    async function attemptLogin() {
+        const key = apiKeyInput.value.trim();
+        if (!key) return;
+
+        authSubmit.disabled = true;
+        authSubmit.textContent = 'Verifying...';
+
+        try {
+            const res = await fetch('/admin/api/workers', {
+                headers: { 'Authorization': `Bearer ${key}` }
+            });
+
+            if (res.ok) {
+                apiKey = key;
+                sessionStorage.setItem('spectrum_admin_key', key);
+                authError.style.display = 'none';
+                showDashboard();
+            } else {
+                authError.style.display = 'block';
+                authError.textContent = res.status === 403
+                    ? 'Invalid API key. Please try again.'
+                    : `Error: ${res.status} ${res.statusText}`;
+            }
+        } catch (err) {
+            authError.style.display = 'block';
+            authError.textContent = 'Network error. Is the backend running?';
+        }
+
+        authSubmit.disabled = false;
+        authSubmit.textContent = 'Sign In';
+    }
+
+    function showDashboard() {
+        authGate.style.display = 'none';
+        dashboard.style.display = 'block';
+        fetchWorkers();
+        startAutoRefresh();
+    }
+
+    function logout() {
+        sessionStorage.removeItem('spectrum_admin_key');
+        apiKey = '';
+        stopAutoRefresh();
+        dashboard.style.display = 'none';
+        authGate.style.display = 'flex';
+        apiKeyInput.value = '';
+    }
+
+    // --- Auto-login if key in session ---
+    if (apiKey) showDashboard();
+
+    // --- Data fetching ---
+    async function fetchWorkers() {
+        try {
+            const res = await fetch('/admin/api/workers', {
+                headers: { 'Authorization': `Bearer ${apiKey}` }
+            });
+
+            if (res.status === 403) {
+                logout();
+                toast('Session expired. Please sign in again.', 'error');
+                return;
+            }
+
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+            const data = await res.json();
+            renderWorkers(data.workers);
+            resetCountdown();
+        } catch (err) {
+            console.error('Failed to fetch workers:', err);
+            toast('Failed to fetch worker status.', 'error');
+        }
+    }
+
+    function renderWorkers(workers) {
+        // Summary
+        const total = workers.length;
+        const healthy = workers.filter(w => w.health === 'healthy').length;
+        const timeout = workers.filter(w => w.health === 'task_timeout').length;
+        const stale = workers.filter(w => w.health === 'stale').length;
+
+        document.getElementById('total-count').textContent = total;
+        document.getElementById('healthy-count').textContent = healthy;
+        document.getElementById('timeout-count').textContent = timeout;
+        document.getElementById('stale-count').textContent = stale;
+
+        // Last updated
+        document.getElementById('last-updated').textContent =
+            `Updated ${new Date().toLocaleTimeString()}`;
+
+        // Table
+        const tbody = document.getElementById('workers-tbody');
+
+        if (workers.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <p>No workers registered. Start a worker to see it here.</p>
+                        </div>
+                    </td>
+                </tr>`;
+            return;
+        }
+
+        tbody.innerHTML = workers.map(w => `
+            <tr>
+                <td><span class="worker-id">${escHtml(w.worker_id)}</span></td>
+                <td>${escHtml(w.worker_type)}</td>
+                <td><span class="status-${w.status}">${w.status}</span></td>
+                <td>${healthBadge(w.health)}</td>
+                <td><span class="task-desc">${w.current_task ? escHtml(w.current_task) : '—'}</span></td>
+                <td><span class="duration">${formatDuration(w.task_duration_seconds)}</span></td>
+                <td><span class="heartbeat-age ${heartbeatClass(w.last_heartbeat_age_seconds)}">${formatAge(w.last_heartbeat_age_seconds)}</span></td>
+                <td>
+                    <button class="btn btn-danger" onclick="restartWorker('${escAttr(w.worker_id)}', this)">
+                        Restart
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // --- Restart ---
+    async function restartWorker(workerId, btn) {
+        if (!confirm(`Send restart command to worker "${workerId}"?`)) return;
+
+        btn.disabled = true;
+        btn.textContent = 'Sending...';
+
+        try {
+            const res = await fetch(`/admin/api/workers/${encodeURIComponent(workerId)}/restart`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${apiKey}` }
+            });
+
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+            toast(`Restart command sent to ${workerId}`, 'success');
+            setTimeout(fetchWorkers, 2000);
+        } catch (err) {
+            toast(`Failed to restart ${workerId}: ${err.message}`, 'error');
+        }
+
+        btn.disabled = false;
+        btn.textContent = 'Restart';
+    }
+
+    // --- Auto-refresh ---
+    function startAutoRefresh() {
+        stopAutoRefresh();
+        countdownValue = REFRESH_INTERVAL;
+        updateCountdownDisplay();
+
+        countdownInterval = setInterval(() => {
+            countdownValue--;
+            updateCountdownDisplay();
+        }, 1000);
+
+        refreshInterval = setInterval(fetchWorkers, REFRESH_INTERVAL * 1000);
+    }
+
+    function stopAutoRefresh() {
+        if (countdownInterval) clearInterval(countdownInterval);
+        if (refreshInterval) clearInterval(refreshInterval);
+    }
+
+    function resetCountdown() {
+        countdownValue = REFRESH_INTERVAL;
+        updateCountdownDisplay();
+    }
+
+    function updateCountdownDisplay() {
+        const el = document.getElementById('countdown');
+        if (el) el.textContent = Math.max(0, countdownValue);
+    }
+
+    // --- Helpers ---
+    function healthBadge(health) {
+        const labels = { healthy: 'Healthy', stale: 'Stale', task_timeout: 'Timeout' };
+        return `<span class="badge badge-${health}"><span class="badge-dot"></span>${labels[health] || health}</span>`;
+    }
+
+    function formatDuration(seconds) {
+        if (seconds == null) return '—';
+        if (seconds < 60) return `${seconds.toFixed(0)}s`;
+        const m = Math.floor(seconds / 60);
+        const s = Math.floor(seconds % 60);
+        return `${m}m ${s}s`;
+    }
+
+    function formatAge(seconds) {
+        if (seconds == null) return '—';
+        if (seconds < 60) return `${seconds.toFixed(0)}s ago`;
+        const m = Math.floor(seconds / 60);
+        return `${m}m ago`;
+    }
+
+    function heartbeatClass(age) {
+        if (age == null) return '';
+        if (age <= 15) return 'fresh';
+        if (age <= 30) return 'warn';
+        return 'stale';
+    }
+
+    function escHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    function escAttr(str) {
+        return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+    }
+
+    function toast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const el = document.createElement('div');
+        el.className = `toast ${type}`;
+        el.textContent = message;
+        container.appendChild(el);
+        setTimeout(() => { el.remove(); }, 4000);
+    }
+</script>
+</body>
+</html>

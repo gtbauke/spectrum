@@ -16,6 +16,8 @@ from core.features.profiles.models.model import Model
 from core.ports.events.event_handler import EventHandler
 from core.ports.events.message_broker import MessageBroker
 
+from services.heartbeat import HeartbeatService
+
 from db.common.session import AsyncSessionLocal
 
 from adapters.worker_unit_of_work import WorkerUnitOfWork
@@ -31,8 +33,10 @@ class RunCreatedHandler(EventHandler[RunCreatedEvent]):
         self,
         *,
         broker: MessageBroker,
+        heartbeat: HeartbeatService,
     ) -> None:
         self._broker = broker
+        self._heartbeat = heartbeat
         self._training_service = TrainingService()
 
     def parse(self, payload: dict[str, Any]) -> RunCreatedEvent:
@@ -45,6 +49,15 @@ class RunCreatedHandler(EventHandler[RunCreatedEvent]):
             event.version,
             event.job_id,
         )
+
+        await self._heartbeat.set_busy(f"training run {event.run_id}")
+
+        try:
+            await self._handle_inner(event)
+        finally:
+            await self._heartbeat.set_idle()
+
+    async def _handle_inner(self, event: RunCreatedEvent) -> None:
 
         where = RunWhere(id=event.run_id, version=event.version)
 

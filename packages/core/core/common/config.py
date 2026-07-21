@@ -34,6 +34,12 @@ class Settings(BaseSettings):
 
     SECRET_KEY: str = ""
 
+    ADMIN_API_KEY: str = ""
+
+    WORKER_HEARTBEAT_INTERVAL_SECONDS: int = 10
+    WORKER_STALENESS_SECONDS: int = 30
+    WORKER_TASK_TIMEOUT_SECONDS: int = 1200  # 20 minutes
+
     model_config = {
         "env_file": str(ROOT_PATH / ".env"),
         "env_file_encoding": "utf-8",

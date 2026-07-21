@@ -70,6 +70,7 @@ services:
             - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
             - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/
             - FILE_STORAGE_SPECTRUM_DATA_PATH=/app/spectrum_data
+            - ADMIN_API_KEY=${ADMIN_API_KEY}
         volumes:
             - spectrum_storage:/app/spectrum_data
         working_dir: /app

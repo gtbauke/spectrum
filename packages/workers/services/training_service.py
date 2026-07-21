@@ -1,4 +1,5 @@
 import asyncio
+import concurrent.futures
 import io
 import logging
 
@@ -72,8 +73,8 @@ class TrainingService:
 
         return X, y
 
+    @staticmethod
     def _run_training(
-        self,
         estimator: EGGP,
         X: np.ndarray,
         y: np.ndarray,
@@ -115,7 +116,11 @@ class TrainingService:
             job.max_size,
         )
 
-        results_df = await asyncio.to_thread(self._run_training, estimator, X, y)
+        loop = asyncio.get_running_loop()
+        with concurrent.futures.ProcessPoolExecutor(max_workers=1) as executor:
+            results_df = await loop.run_in_executor(
+                executor, self._run_training, estimator, X, y
+            )
 
         logger.info(
             "Training complete: %d models found",

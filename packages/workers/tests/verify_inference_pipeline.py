@@ -12,10 +12,12 @@ from core.features.datasets.dataset import Dataset
 from core.features.datasets.artifact import Artifact
 from core.features.datasets.artifact_role import ArtifactRole
 
+
 class TestInferencePipeline(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.broker = MagicMock()
-        self.handler = InferenceRunRequestedHandler(broker=self.broker)
+        self.handler = InferenceRunRequestedHandler(
+            broker=self.broker, heartbeat=MagicMock())
 
     @patch("handlers.inference_run_requested.WorkerUnitOfWork")
     @patch("handlers.inference_run_requested.Reggression")
@@ -37,7 +39,7 @@ class TestInferencePipeline(unittest.IsolatedAsyncioTestCase):
         # Setup Mocks
         mock_uow = AsyncMock()
         mock_uow_cls.return_value.__aenter__.return_value = mock_uow
-        
+
         # Mock Run resolution
         mock_run = MagicMock()
         mock_run.profile_id = uuid4()
@@ -51,15 +53,15 @@ class TestInferencePipeline(unittest.IsolatedAsyncioTestCase):
         mock_model.name = "my_model"
         mock_model.generated_by = uuid4()
         mock_model.path = "models/model.egraph"
-        
+
         mock_uow.models.get_unique.return_value = mock_model
         mock_uow.models.list_all.return_value = [mock_model]
-        
+
         # Mock Job resolution
         mock_job = MagicMock(spec=Job)
         mock_job.runs_against = uuid4()
         mock_uow.jobs.get_unique.return_value = mock_job
-        
+
         # Mock Dataset resolution
         mock_dataset = MagicMock(spec=Dataset)
         mock_artifact = MagicMock(spec=Artifact)
@@ -67,17 +69,18 @@ class TestInferencePipeline(unittest.IsolatedAsyncioTestCase):
         mock_artifact.path = "datasets/data.csv"
         mock_dataset.artifacts = [mock_artifact]
         mock_uow.datasets.get_unique.return_value = mock_dataset
-        
+
         # Mock temp dir
         mock_tmp_dir.return_value.__enter__.return_value = "/tmp/fake"
         mock_path_join.side_effect = lambda a, b: f"{a}/{b}"
-        
+
         # Mock Executor
         mock_executor = MagicMock()
         mock_executor_cls.return_value = mock_executor
         mock_result = MagicMock()
         mock_result.results = [
-            MagicMock(expression="x + 1", fitness=0.9, latex="x+1", numpy="x+1", parameters={})
+            MagicMock(expression="x + 1", fitness=0.9,
+                      latex="x+1", numpy="x+1", parameters={})
         ]
         mock_executor.execute.return_value = mock_result
 
@@ -86,9 +89,12 @@ class TestInferencePipeline(unittest.IsolatedAsyncioTestCase):
 
         # Verifications
         mock_uow.models.list_all.assert_called()
-        mock_uow.file_storage.download.assert_any_call(path="datasets/data.csv", destination="/tmp/fake/dataset.csv")
-        mock_uow.file_storage.download.assert_any_call(path="models/model.egraph", destination="/tmp/fake/model.egraph")
-        mock_reggression_cls.assert_called_with(dataset="/tmp/fake/dataset.csv", loadFrom="/tmp/fake/model.egraph")
+        mock_uow.file_storage.download.assert_any_call(
+            path="datasets/data.csv", destination="/tmp/fake/dataset.csv")
+        mock_uow.file_storage.download.assert_any_call(
+            path="models/model.egraph", destination="/tmp/fake/model.egraph")
+        mock_reggression_cls.assert_called_with(
+            dataset="/tmp/fake/dataset.csv", loadFrom="/tmp/fake/model.egraph")
         mock_uow.inference_results.add_many.assert_called_once()
         print("\nVerification successful: Handler correctly orchestrated the execution pipeline.")
 
@@ -109,7 +115,7 @@ class TestInferencePipeline(unittest.IsolatedAsyncioTestCase):
         # Setup Mocks (similar to test_handle_success)
         mock_uow = AsyncMock()
         mock_uow_cls.return_value.__aenter__.return_value = mock_uow
-        
+
         mock_run = MagicMock()
         mock_run.profile_id = uuid4()
         mock_run.version = 1
@@ -123,8 +129,10 @@ class TestInferencePipeline(unittest.IsolatedAsyncioTestCase):
         mock_uow.models.list_all.return_value = [mock_model]
         mock_uow.models.get_unique.return_value = mock_model
 
-        mock_uow.jobs.get_unique.return_value = MagicMock(spec=Job, runs_against=uuid4())
-        mock_uow.datasets.get_unique.return_value = MagicMock(spec=Dataset, id=uuid4(), artifacts=[MagicMock(role=ArtifactRole.DATA, path="d.csv")])
+        mock_uow.jobs.get_unique.return_value = MagicMock(
+            spec=Job, runs_against=uuid4())
+        mock_uow.datasets.get_unique.return_value = MagicMock(spec=Dataset, id=uuid4(
+        ), artifacts=[MagicMock(role=ArtifactRole.DATA, path="d.csv")])
         mock_tmp_dir.return_value.__enter__.return_value = "/tmp/fake"
         mock_path_join.side_effect = lambda a, b: f"{a}/{b}"
 
@@ -132,7 +140,7 @@ class TestInferencePipeline(unittest.IsolatedAsyncioTestCase):
         mock_executor = MagicMock()
         mock_executor_cls.return_value = mock_executor
         mock_result = MagicMock()
-        
+
         # Ensure all fields expected by InferenceResult.new are provided as valid types
         mock_dist_result = MagicMock()
         mock_dist_result.expression = "x + 1"
@@ -141,7 +149,7 @@ class TestInferencePipeline(unittest.IsolatedAsyncioTestCase):
         mock_dist_result.latex = "x + 1"
         mock_dist_result.numpy = "x + 1"
         mock_dist_result.parameters = None
-        
+
         mock_result.results = [mock_dist_result]
         mock_executor.execute.return_value = mock_result
 
@@ -155,8 +163,9 @@ class TestInferencePipeline(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0].frequency, 15)
         self.assertEqual(results[0].expression, "x + 1")
-        
+
         print("\nVerification successful: Distribution query frequency correctly passed to repository.")
+
 
 if __name__ == "__main__":
     unittest.main()

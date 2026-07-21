@@ -1,4 +1,5 @@
 import asyncio
+import concurrent.futures
 import json
 import logging
 import pandas as pd
@@ -21,8 +22,8 @@ class ValidationService:
         """Loads a CSV dataset from local storage."""
         return pd.read_csv(artifact_path)
 
+    @staticmethod
     def _run_validation(
-        self,
         model_path: str,
         dataset_path: str,
     ) -> pd.DataFrame:
@@ -45,9 +46,8 @@ class ValidationService:
 
         return pareto_df
 
+    @staticmethod
     def _calculate_predictions(
-        self,
-        model_path: str,
         dataset_path: str,
         ids: list[int | str],
         expressions: list[str],
@@ -60,8 +60,8 @@ class ValidationService:
         """
         from core.features.profiles.blocks.inference.prediction_service import PredictionEvaluationService
         
-        # Load dataset using helper to ensure correct absolute path
-        df = self._load_dataset(dataset_path)
+        # Load dataset
+        df = pd.read_csv(dataset_path)
 
         # Identify Target and Features
         # "Target" is the only name the ground truth can have
@@ -107,11 +107,14 @@ class ValidationService:
             (Predictions DataFrame, Summary metrics)
         """
         # 1. Recalculate Pareto meta-data on validation set
-        pareto_df = await asyncio.to_thread(
-            self._run_validation,
-            model_egraph_path,
-            validation_artifact_path,
-        )
+        loop = asyncio.get_running_loop()
+        with concurrent.futures.ProcessPoolExecutor(max_workers=1) as executor:
+            pareto_df = await loop.run_in_executor(
+                executor,
+                self._run_validation,
+                model_egraph_path,
+                validation_artifact_path,
+            )
 
         logger.info(
             "Validation complete. Pareto front recalculated for model %s on dataset %s",
@@ -128,14 +131,15 @@ class ValidationService:
             '[]' for _ in expressions
         ]
 
-        predictions_df = await asyncio.to_thread(
-            self._calculate_predictions,
-            model_egraph_path,
-            validation_artifact_path,
-            ids,
-            expressions,
-            parameters,
-        )
+        with concurrent.futures.ProcessPoolExecutor(max_workers=1) as executor:
+            predictions_df = await loop.run_in_executor(
+                executor,
+                self._calculate_predictions,
+                validation_artifact_path,
+                ids,
+                expressions,
+                parameters,
+            )
 
         # 3. Aggregate metrics
         # We store the pareto front summary in the metrics JSON

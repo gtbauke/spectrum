@@ -13,6 +13,8 @@ from core.features.datasets.artifact_role import ArtifactRole
 from core.ports.events.event_handler import EventHandler
 from core.ports.events.message_broker import MessageBroker
 
+from services.heartbeat import HeartbeatService
+
 from db.common.session import AsyncSessionLocal
 from adapters.worker_unit_of_work import WorkerUnitOfWork
 from services.validation_service import ValidationService
@@ -27,8 +29,10 @@ class RunFinishedHandler(EventHandler[RunFinishedEvent]):
         self,
         *,
         broker: MessageBroker,
+        heartbeat: HeartbeatService,
     ) -> None:
         self._broker = broker
+        self._heartbeat = heartbeat
         self._validation_service = ValidationService()
 
     def parse(self, payload: dict[str, Any]) -> RunFinishedEvent:
@@ -40,6 +44,15 @@ class RunFinishedHandler(EventHandler[RunFinishedEvent]):
             event.run_id,
             event.model_id,
         )
+
+        await self._heartbeat.set_busy(f"validating model {event.model_id}")
+
+        try:
+            await self._handle_inner(event)
+        finally:
+            await self._heartbeat.set_idle()
+
+    async def _handle_inner(self, event: RunFinishedEvent) -> None:
 
         try:
             async with WorkerUnitOfWork(
