@@ -9,6 +9,7 @@ import {
 import {
 	AlertCircle,
 	CheckCircle2,
+	Download,
 	LayoutList,
 	Loader2,
 	Play,
@@ -148,6 +149,51 @@ function ResultsPane({ data }: { data: InferenceData }) {
 	const { status, results, executionTimeMs, error } = data;
 	const [viewMode, setViewMode] = useState<"list" | "table">("list");
 
+	const handleDownloadCSV = () => {
+		if (!results || results.length === 0) return;
+
+		const headers = [
+			"id",
+			"run_id",
+			"expression",
+			"latex",
+			"fitness",
+			"dl",
+			"size",
+			"frequency",
+			"parameters",
+			"prediction",
+		];
+
+		const escapeCsv = (val: any) => {
+			if (val === null || val === undefined) return "";
+			const str = typeof val === "object" ? JSON.stringify(val) : String(val);
+			if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+				return `"${str.replace(/"/g, '""')}"`;
+			}
+			return str;
+		};
+
+		const rows = results.map((r) =>
+			headers.map((h) => escapeCsv((r as any)[h])).join(","),
+		);
+
+		const csvContent = [headers.join(","), ...rows].join("\n");
+		const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement("a");
+		link.href = url;
+		
+		const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+		const runId = data.activeRunId || "unknown";
+		link.download = `inference_results_${runId}_${timestamp}.csv`;
+		
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+		URL.revokeObjectURL(url);
+	};
+
 	if (status === "idle" && !results) return null;
 
 	return (
@@ -208,6 +254,17 @@ function ResultsPane({ data }: { data: InferenceData }) {
 						title="Table View"
 					>
 						<Table2 className="w-3.5 h-3.5" />
+					</button>
+
+					<div className="w-px h-4 bg-white/10 mx-1" />
+
+					<button
+						type="button"
+						onClick={handleDownloadCSV}
+						className="p-1.5 rounded-md transition-all text-white/40 hover:text-white/60 hover:bg-white/5"
+						title="Export to CSV"
+					>
+						<Download className="w-3.5 h-3.5" />
 					</button>
 				</div>
 			</div>
