@@ -21,6 +21,7 @@ import { evaluate } from "mathjs";
 import { useEffect, useMemo, useState } from "react";
 import * as katex from "react-katex";
 import { useInferenceStream } from "~/hooks/use-inference-stream.hook";
+import { useLatestInferenceRun } from "~/hooks/use-latest-inference-run.hook";
 import { useRunInferenceMutation } from "~/hooks/use-run-inference-mutation.hook";
 import type { InferenceResult } from "~/schemas/domain/inference-result.schema";
 import type { Model } from "~/schemas/domain/model.schema";
@@ -55,6 +56,23 @@ export function InferenceBlock({
 	const monaco = useMonaco();
 
 	useInferenceStream(profileId || "", id, data.activeRunId);
+
+	const { data: latestRun } = useLatestInferenceRun(profileId || "", id, {
+		enabled: !!profileId && !data.activeRunId,
+	});
+
+	useEffect(() => {
+		if (latestRun && !data.activeRunId) {
+			updateBlock(
+				id,
+				{
+					activeRunId: latestRun.id,
+					status: latestRun.status,
+				},
+				{ recordHistory: false },
+			);
+		}
+	}, [latestRun, data.activeRunId, id, updateBlock]);
 
 	const { mutate: runInference, isPending: isStarting } =
 		useRunInferenceMutation(profileId || "", id);

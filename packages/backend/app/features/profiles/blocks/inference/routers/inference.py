@@ -47,6 +47,23 @@ async def get_inference_runs(
 
 
 @inference_router.get(
+    path="/{block_id}/runs/latest",
+    response_model=InferenceRun,
+    dependencies=[Depends(can_edit_profile)]
+)
+async def get_latest_inference_run(
+    block_id: UUID,
+    uow: UnitOfWork = Depends(get_uow)
+):
+    run = await uow.inference_runs.get_latest_version(parent_id=block_id)
+
+    if not run:
+        raise InferenceRunNotFound()
+
+    return run
+
+
+@inference_router.get(
     path="/{block_id}/runs/{run_id}",
     response_model=InferenceRun,
     dependencies=[Depends(can_edit_profile)]
