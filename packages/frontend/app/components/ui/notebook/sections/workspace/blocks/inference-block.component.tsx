@@ -8,13 +8,22 @@ import {
 } from "@tanstack/react-table";
 import {
 	AlertCircle,
+	AlertTriangle,
+	Check,
 	CheckCircle2,
+	ChevronDown,
+	ChevronUp,
+	Code2,
+	Copy,
+	Cpu,
 	Download,
 	LayoutList,
 	Loader2,
 	Play,
+	RefreshCw,
 	Table2,
 	Timer,
+	WifiOff,
 	Zap,
 } from "lucide-react";
 import { evaluate } from "mathjs";
@@ -31,7 +40,7 @@ import {
 	setupMonacoAutocomplete,
 	updateAutocompleteModels,
 } from "~/utils/monaco-autocomplete";
-import type { InferenceData } from "~/utils/types/editor.types";
+import type { InferenceData, InferenceErrorType } from "~/utils/types/editor.types";
 
 type InferenceBlockProps = {
 	id: string;
@@ -158,13 +167,32 @@ export function InferenceBlock({
 				</div>
 			</div>
 
-			<ResultsPane data={data} />
+			<ResultsPane
+				data={data}
+				onRetry={() =>
+					runInference({
+						order_index: orderIndex,
+						data: {
+							kind: "inference",
+							data: data.code,
+						},
+					})
+				}
+			/>
 		</div>
 	);
 }
 
-function ResultsPane({ data }: { data: InferenceData }) {
-	const { status, results, executionTimeMs, error } = data;
+function ResultsPane({
+	data,
+	onRetry,
+}: {
+	data: InferenceData;
+	onRetry?: () => void;
+}) {
+	const { results, executionTimeMs, error, errorType, errorDetails } =
+		data;
+	const status = data.status || "idle";
 	const [viewMode, setViewMode] = useState<"list" | "table">("list");
 
 	const handleDownloadCSV = () => {
@@ -288,10 +316,12 @@ function ResultsPane({ data }: { data: InferenceData }) {
 			</div>
 
 			{error && (
-				<div className="p-4 rounded-xl border border-red-500/20 bg-red-500/5 flex items-center gap-3">
-					<AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
-					<p className="text-xs text-red-400 font-medium">{error}</p>
-				</div>
+				<ErrorCard
+					error={error}
+					errorType={errorType}
+					errorDetails={errorDetails}
+					onRetry={onRetry}
+				/>
 			)}
 
 			{results && results.length > 0 && (
@@ -311,6 +341,140 @@ function ResultsPane({ data }: { data: InferenceData }) {
 					)}
 				</div>
 			)}
+		</div>
+	);
+}
+
+function ErrorCard({
+	error,
+	errorType = "unknown",
+	errorDetails,
+	onRetry,
+}: {
+	error: string;
+	errorType?: InferenceErrorType;
+	errorDetails?: string;
+	onRetry?: () => void;
+}) {
+	const [copied, setCopied] = useState(false);
+	const [showDetails, setShowDetails] = useState(false);
+
+	const handleCopy = () => {
+		const fullText = errorDetails
+			? `${error}\n\nDetails:\n${errorDetails}`
+			: error;
+		navigator.clipboard.writeText(fullText);
+		setCopied(true);
+		setTimeout(() => setCopied(false), 2000);
+	};
+
+	const getCategoryBadge = () => {
+		switch (errorType) {
+			case "syntax":
+				return {
+					icon: Code2,
+					label: "Query Syntax Error",
+					badgeBg: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+				};
+			case "network":
+				return {
+					icon: WifiOff,
+					label: "Connection / Stream Error",
+					badgeBg: "bg-rose-500/10 text-rose-400 border-rose-500/20",
+				};
+			case "execution":
+				return {
+					icon: Cpu,
+					label: "Execution Error",
+					badgeBg: "bg-red-500/10 text-red-400 border-red-500/20",
+				};
+			default:
+				return {
+					icon: AlertTriangle,
+					label: "System Error",
+					badgeBg: "bg-red-500/10 text-red-400 border-red-500/20",
+				};
+		}
+	};
+
+	const category = getCategoryBadge();
+	const CategoryIcon = category.icon;
+
+	return (
+		<div className="rounded-xl border border-red-500/20 bg-red-950/20 backdrop-blur-xl p-4 flex flex-col gap-3 shadow-lg transition-all animate-in fade-in slide-in-from-top-2">
+			<div className="flex items-center justify-between gap-2 border-b border-red-500/10 pb-2">
+				<div className="flex items-center gap-2">
+					<div
+						className={cn(
+							"px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5",
+							category.badgeBg,
+						)}
+					>
+						<CategoryIcon className="w-3 h-3" />
+						<span>{category.label}</span>
+					</div>
+				</div>
+
+				<div className="flex items-center gap-1.5">
+					<button
+						type="button"
+						onClick={handleCopy}
+						className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white text-xs border border-white/10 transition-all cursor-pointer"
+						title="Copy error details"
+					>
+						{copied ? (
+							<Check className="w-3.5 h-3.5 text-emerald-400" />
+						) : (
+							<Copy className="w-3.5 h-3.5 text-gray-400" />
+						)}
+						<span className="text-[11px] font-medium">
+							{copied ? "Copied" : "Copy"}
+						</span>
+					</button>
+
+					{onRetry && (
+						<button
+							type="button"
+							onClick={onRetry}
+							className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-primary/20 hover:bg-primary/30 text-primary text-xs border border-primary/30 transition-all font-medium cursor-pointer"
+						>
+							<RefreshCw className="w-3.5 h-3.5" />
+							<span className="text-[11px]">Retry Run</span>
+						</button>
+					)}
+				</div>
+			</div>
+
+			<div className="flex flex-col gap-2">
+				<p className="text-xs text-red-200 font-mono leading-relaxed bg-black/30 p-3 rounded-lg border border-red-500/10 whitespace-pre-wrap break-words">
+					{error}
+				</p>
+
+				{errorDetails && (
+					<div className="flex flex-col gap-1 mt-1">
+						<button
+							type="button"
+							onClick={() => setShowDetails(!showDetails)}
+							className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-200 transition-colors w-fit font-medium cursor-pointer"
+						>
+							{showDetails ? (
+								<ChevronUp className="w-3.5 h-3.5" />
+							) : (
+								<ChevronDown className="w-3.5 h-3.5" />
+							)}
+							<span>
+								{showDetails ? "Hide Error Trace" : "Show Error Trace"}
+							</span>
+						</button>
+
+						{showDetails && (
+							<pre className="text-[11px] font-mono text-gray-300 bg-black/50 p-3 rounded-lg border border-white/5 overflow-x-auto max-h-48 whitespace-pre-wrap">
+								{errorDetails}
+							</pre>
+						)}
+					</div>
+				)}
+			</div>
 		</div>
 	);
 }

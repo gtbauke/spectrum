@@ -2,13 +2,17 @@ import type { InferenceRunStatus } from "~/schemas/domain/enums.schema";
 import type { InferenceResult } from "~/schemas/domain/inference-result.schema";
 import type { Profile } from "~/schemas/domain/profile.schema";
 
+export type InferenceErrorType = "syntax" | "execution" | "network" | "unknown";
+
 export type InferenceData = {
 	code: string;
-	status: InferenceRunStatus | "idle";
+	status?: InferenceRunStatus | "idle" | "reconnecting";
 	activeRunId?: string;
 	results?: InferenceResult[];
 	executionTimeMs?: number;
 	error?: string;
+	errorType?: InferenceErrorType;
+	errorDetails?: string;
 };
 
 export type MarkdownData = {
