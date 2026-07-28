@@ -92,6 +92,7 @@ async def stream_inference_run(
 ):
     async def event_generator():
         last_status = None
+        seconds_since_last_emit = 0
 
         while True:
             run = await uow.inference_runs.get_unique(InferenceRunWhere(id=run_id))
@@ -102,6 +103,7 @@ async def stream_inference_run(
 
             if run.status != last_status:
                 last_status = run.status
+                seconds_since_last_emit = 0
                 data = {
                     "status": run.status,
                     "execution_time_ms": run.execution_time_ms,
@@ -118,13 +120,26 @@ async def stream_inference_run(
                         mode="json") for r in results]
 
                 yield f"data: {json.dumps(data)}\n\n"
+            else:
+                seconds_since_last_emit += 1
+                if seconds_since_last_emit >= 15:
+                    yield ": ping\n\n"
+                    seconds_since_last_emit = 0
 
             if run.status in [InferenceRunStatus.COMPLETED, InferenceRunStatus.FAILED]:
                 break
 
             await asyncio.sleep(1)
 
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+            "Connection": "keep-alive",
+        },
+    )
 
 
 @inference_router.post(

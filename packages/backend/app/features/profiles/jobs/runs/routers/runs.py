@@ -107,6 +107,7 @@ async def get_run_stream(
 
     async def event_generator():
         last_status = None
+        seconds_since_last_emit = 0
 
         while True:
             run = await uow.runs.get_unique(where=where)
@@ -117,10 +118,24 @@ async def get_run_stream(
             if run.status != last_status:
                 yield f"data: {run.model_dump_json()}\n\n"
                 last_status = run.status
+                seconds_since_last_emit = 0
+            else:
+                seconds_since_last_emit += 1
+                if seconds_since_last_emit >= 15:
+                    yield ": ping\n\n"
+                    seconds_since_last_emit = 0
 
             if run.status == JobRunStatus.FINISHED or run.status == JobRunStatus.FAILED:
                 break
 
             await asyncio.sleep(1)
 
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+            "Connection": "keep-alive",
+        },
+    )
