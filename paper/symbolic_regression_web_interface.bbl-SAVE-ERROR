@@ -19,6 +19,46 @@
 
 \refsection{0}
   \datalist[entry]{nty/global//global/global}
+    \entry{lsritr}{inproceedings}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=4dfc06776b122ef5831043ac91b010cb}{%
+           family={Aldeia},
+           familyi={A\bibinitperiod},
+           given={Guilherme\bibnamedelimb Seidyo\bibnamedelima Imai},
+           giveni={G\bibinitperiod\bibinitdelim S\bibinitperiod\bibinitdelim I\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=743720a5c0e92bf88549276263c8f591}{%
+           family={França},
+           familyi={F\bibinitperiod},
+           given={Fabrício\bibnamedelima Olivetti},
+           giveni={F\bibinitperiod\bibinitdelim O\bibinitperiod},
+           givenun=0,
+           prefix={de},
+           prefixi={d\bibinitperiod},
+           prefixun=0}}%
+      }
+      \strng{namehash}{530176a28c3cf60a32cb2c56cd0ff2c4}
+      \strng{fullhash}{530176a28c3cf60a32cb2c56cd0ff2c4}
+      \strng{bibnamehash}{530176a28c3cf60a32cb2c56cd0ff2c4}
+      \strng{authorbibnamehash}{530176a28c3cf60a32cb2c56cd0ff2c4}
+      \strng{authornamehash}{530176a28c3cf60a32cb2c56cd0ff2c4}
+      \strng{authorfullhash}{530176a28c3cf60a32cb2c56cd0ff2c4}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{2018 IEEE Congress on Evolutionary Computation (CEC)}
+      \field{title}{Lightweight Symbolic Regression with the Interaction - Transformation Representation}
+      \field{year}{2018}
+      \field{pages}{1\bibrangedash 8}
+      \range{pages}{8}
+      \verb{doi}
+      \verb 10.1109/CEC.2018.8477951
+      \endverb
+      \keyw{Tools;Linear regression;Evolutionary computation;Approximation algorithms;Internet;Browsers;Physics;symbolic regression;interaction-transformation}
+    \endentry
     \entry{Angelis2023}{article}{}
       \name{author}{3}{}{%
         {{un=0,uniquepart=base,hash=da1e44f5242079c8df17f4d276a03a1e}{%
@@ -347,6 +387,51 @@
       \endverb
       \keyw{Genetic programming,Symbolic regression,Equality saturation,e-graphs}
     \endentry
+    \entry{Olivetti_de_Fran_a_2018}{article}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=743720a5c0e92bf88549276263c8f591}{%
+           family={França},
+           familyi={F\bibinitperiod},
+           given={Fabrício\bibnamedelima Olivetti},
+           giveni={F\bibinitperiod\bibinitdelim O\bibinitperiod},
+           givenun=0,
+           prefix={de},
+           prefixi={d\bibinitperiod},
+           prefixun=0}}%
+      }
+      \list{publisher}{1}{%
+        {Elsevier BV}%
+      }
+      \strng{namehash}{743720a5c0e92bf88549276263c8f591}
+      \strng{fullhash}{743720a5c0e92bf88549276263c8f591}
+      \strng{bibnamehash}{743720a5c0e92bf88549276263c8f591}
+      \strng{authorbibnamehash}{743720a5c0e92bf88549276263c8f591}
+      \strng{authornamehash}{743720a5c0e92bf88549276263c8f591}
+      \strng{authorfullhash}{743720a5c0e92bf88549276263c8f591}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{0020-0255}
+      \field{journaltitle}{Information Sciences}
+      \field{month}{5}
+      \field{title}{A greedy search tree heuristic for symbolic regression}
+      \field{volume}{442–443}
+      \field{year}{2018}
+      \field{pages}{18\bibrangedash 32}
+      \range{pages}{15}
+      \verb{doi}
+      \verb 10.1016/j.ins.2018.02.040
+      \endverb
+      \verb{urlraw}
+      \verb http://dx.doi.org/10.1016/j.ins.2018.02.040
+      \endverb
+      \verb{url}
+      \verb http://dx.doi.org/10.1016/j.ins.2018.02.040
+      \endverb
+    \endentry
     \entry{heuristiclabDocumentationAboutHeuristicLabx2013}{misc}{}
       \name{author}{1}{}{%
         {{un=0,uniquepart=base,hash=c58b1e7e750351b2a04041de9cc78544}{%
@@ -369,46 +454,6 @@
       \field{note}{[Accessed 19-08-2025]}
       \field{title}{Documentation/About HeuristicLab; HeuristicLab --- dev.heuristiclab.com}
       \field{year}{2013}
-    \endentry
-    \entry{lsritr}{inproceedings}{}
-      \name{author}{2}{}{%
-        {{un=0,uniquepart=base,hash=b3c1792a4197d9e3ddbf7a91d3305698}{%
-           family={Imai\bibnamedelima Aldeia},
-           familyi={I\bibinitperiod\bibinitdelim A\bibinitperiod},
-           given={Guilherme\bibnamedelima Seidyo},
-           giveni={G\bibinitperiod\bibinitdelim S\bibinitperiod},
-           givenun=0}}%
-        {{un=0,uniquepart=base,hash=743720a5c0e92bf88549276263c8f591}{%
-           family={França},
-           familyi={F\bibinitperiod},
-           given={Fabrício\bibnamedelima Olivetti},
-           giveni={F\bibinitperiod\bibinitdelim O\bibinitperiod},
-           givenun=0,
-           prefix={de},
-           prefixi={d\bibinitperiod},
-           prefixun=0}}%
-      }
-      \strng{namehash}{7d019ecf5c39cefae3dd1ff06f35bee9}
-      \strng{fullhash}{7d019ecf5c39cefae3dd1ff06f35bee9}
-      \strng{bibnamehash}{7d019ecf5c39cefae3dd1ff06f35bee9}
-      \strng{authorbibnamehash}{7d019ecf5c39cefae3dd1ff06f35bee9}
-      \strng{authornamehash}{7d019ecf5c39cefae3dd1ff06f35bee9}
-      \strng{authorfullhash}{7d019ecf5c39cefae3dd1ff06f35bee9}
-      \field{sortinit}{I}
-      \field{sortinithash}{8d291c51ee89b6cd86bf5379f0b151d8}
-      \field{extradatescope}{labelyear}
-      \field{labeldatesource}{}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{booktitle}{2018 IEEE Congress on Evolutionary Computation (CEC)}
-      \field{title}{Lightweight Symbolic Regression with the Interaction - Transformation Representation}
-      \field{year}{2018}
-      \field{pages}{1\bibrangedash 8}
-      \range{pages}{8}
-      \verb{doi}
-      \verb 10.1109/CEC.2018.8477951
-      \endverb
-      \keyw{Tools;Linear regression;Evolutionary computation;Approximation algorithms;Internet;Browsers;Physics;symbolic regression;interaction-transformation}
     \endentry
     \entry{Katoch2021}{article}{}
       \name{author}{3}{}{%
@@ -524,12 +569,15 @@
            given={Gabriel},
            giveni={G\bibinitperiod},
            givenun=0}}%
-        {{un=0,uniquepart=base,hash=b965f90d252763c6e8281174b80274d8}{%
-           family={Olivetti\bibnamedelimb de\bibnamedelima França},
-           familyi={O\bibinitperiod\bibinitdelim d\bibinitperiod\bibinitdelim F\bibinitperiod},
-           given={Fabricio},
-           giveni={F\bibinitperiod},
-           givenun=0}}%
+        {{un=0,uniquepart=base,hash=6614a39ed1831b7c98c54878944fd97c}{%
+           family={França},
+           familyi={F\bibinitperiod},
+           given={Fabricio\bibnamedelima Olivetti},
+           giveni={F\bibinitperiod\bibinitdelim O\bibinitperiod},
+           givenun=0,
+           prefix={de},
+           prefixi={d\bibinitperiod},
+           prefixun=0}}%
         {{un=0,uniquepart=base,hash=5f99219339a2be1803a0895fc066afc5}{%
            family={Desmond},
            familyi={D\bibinitperiod},
@@ -592,12 +640,12 @@
       \list{publisher}{1}{%
         {Springer Nature Switzerland}%
       }
-      \strng{namehash}{4b416bc531ee6b55918fb8fa7bdac27a}
-      \strng{fullhash}{f7831a594561ddc76947285ecd35714c}
-      \strng{bibnamehash}{4b416bc531ee6b55918fb8fa7bdac27a}
-      \strng{authorbibnamehash}{4b416bc531ee6b55918fb8fa7bdac27a}
-      \strng{authornamehash}{4b416bc531ee6b55918fb8fa7bdac27a}
-      \strng{authorfullhash}{f7831a594561ddc76947285ecd35714c}
+      \strng{namehash}{4e43587d97ffda1bc02b6fad91893c77}
+      \strng{fullhash}{a69419cc8df8a977f2b7254a64a8d659}
+      \strng{bibnamehash}{4e43587d97ffda1bc02b6fad91893c77}
+      \strng{authorbibnamehash}{4e43587d97ffda1bc02b6fad91893c77}
+      \strng{authornamehash}{4e43587d97ffda1bc02b6fad91893c77}
+      \strng{authorfullhash}{a69419cc8df8a977f2b7254a64a8d659}
       \strng{editorbibnamehash}{2342b3cf9c52f6354ff52bb3a78c1989}
       \strng{editornamehash}{2342b3cf9c52f6354ff52bb3a78c1989}
       \strng{editorfullhash}{ef205237566a2ee27234e49b71dcd5d6}
@@ -735,48 +783,6 @@
       \field{isbn}{978-0132350884}
       \field{title}{Clean Code: A Handbook of Agile Software Craftsmanship}
       \field{year}{2008}
-    \endentry
-    \entry{Olivetti_de_Fran_a_2018}{article}{}
-      \name{author}{1}{}{%
-        {{un=0,uniquepart=base,hash=3ded71906947d4e2969c449400f721b3}{%
-           family={Olivetti\bibnamedelimb de\bibnamedelima França},
-           familyi={O\bibinitperiod\bibinitdelim d\bibinitperiod\bibinitdelim F\bibinitperiod},
-           given={Fabrício},
-           giveni={F\bibinitperiod},
-           givenun=0}}%
-      }
-      \list{publisher}{1}{%
-        {Elsevier BV}%
-      }
-      \strng{namehash}{3ded71906947d4e2969c449400f721b3}
-      \strng{fullhash}{3ded71906947d4e2969c449400f721b3}
-      \strng{bibnamehash}{3ded71906947d4e2969c449400f721b3}
-      \strng{authorbibnamehash}{3ded71906947d4e2969c449400f721b3}
-      \strng{authornamehash}{3ded71906947d4e2969c449400f721b3}
-      \strng{authorfullhash}{3ded71906947d4e2969c449400f721b3}
-      \field{sortinit}{O}
-      \field{sortinithash}{2cd7140a07aea5341f9e2771efe90aae}
-      \field{extradatescope}{labelyear}
-      \field{labeldatesource}{}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{issn}{0020-0255}
-      \field{journaltitle}{Information Sciences}
-      \field{month}{5}
-      \field{title}{A greedy search tree heuristic for symbolic regression}
-      \field{volume}{442–443}
-      \field{year}{2018}
-      \field{pages}{18\bibrangedash 32}
-      \range{pages}{15}
-      \verb{doi}
-      \verb 10.1016/j.ins.2018.02.040
-      \endverb
-      \verb{urlraw}
-      \verb http://dx.doi.org/10.1016/j.ins.2018.02.040
-      \endverb
-      \verb{url}
-      \verb http://dx.doi.org/10.1016/j.ins.2018.02.040
-      \endverb
     \endentry
     \entry{pratt1973top}{inproceedings}{}
       \name{author}{1}{}{%

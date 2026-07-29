@@ -830,15 +830,99 @@ class InferenceResult(BaseImmutableDomainModel):
 
 \chapter{Resultados do estudo de caso}
 \label{sec:appendix-case-study-results}
+
+\section{Expressões da Fronteira de Pareto}
+\label{sec:appendix-pareto-front}
+A Tabela~\ref{tab:case_study_pareto_results} apresenta a fronteira de Pareto completa obtida para cada cenário do estudo de caso da Lei da Gravitação Universal, relacionando o tamanho da expressão (complexidade) e o erro quadrático médio (MSE).
+
 \begin{table}[htbp]
     \centering
-    \caption{Resultados do estudo de caso da Lei da Gravitação Universal, incluindo expressões encontradas e seus respectivos valores de MSE para cada cenário.}
-    \label{tab:case_study_results}
-    \begin{tabular}{p{3cm} p{5cm} p{4cm} p{2cm}}
+    \caption{Expressões da fronteira de Pareto encontradas para os três cenários do estudo de caso da Lei da Gravitação Universal.}
+    \label{tab:case_study_pareto_results}
+    \begin{tabular}{p{2.8cm} c p{6.8cm} r}
         \toprule
-        \textbf{Cenário} & \textbf{Tipo da Expressão} & \textbf{Expressão Encontrada} & \textbf{MSE} \\
+        \textbf{Cenário} & \textbf{Tamanho} & \textbf{Expressão Encontrada} & \textbf{MSE} \\
         \midrule
-        % Seus dados viriam aqui
+        \multirow{8}{*}{\begin{tabular}{c}Cenário 1\\(Sem ruído)\end{tabular}} 
+          & 1  & $m_2$ & $67{,}386$ \\
+          & 3  & $\frac{18{,}320}{r}$ & $45{,}555$ \\
+          & 5  & $\frac{3{,}327 m_1}{r}$ & $31{,}674$ \\
+          & 7  & $\frac{m_1 m_2}{r^2}$ & $\approx 0{,}000$ \\
+          & 9  & $\frac{1{,}000 m_1 m_2}{r^2}$ & $\approx 0{,}000$ \\
+          & 11 & $\frac{(1 - 0{,}000) m_1 m_2}{r^2}$ & $\approx 0{,}000$ \\
+          & 13 & $\frac{m_1 m_2}{r^2}$ & $\approx 0{,}000$ \\
+          & 15 & $\frac{m_1 m_2}{r^2}$ & $\approx 0{,}000$ \\
+        \midrule
+        \multirow{8}{*}{\begin{tabular}{c}Cenário 2\\(Baixo ruído -- 2\%)\end{tabular}} 
+          & 1  & $m_2$ & $65{,}081$ \\
+          & 3  & $\frac{18{,}047}{r}$ & $44{,}419$ \\
+          & 5  & $\frac{3{,}210 m_2}{r}$ & $30{,}941$ \\
+          & 7  & $\frac{m_1 m_2}{r^2}$ & $0{,}0432$ \\
+          & 9  & $\frac{1{,}001 m_1 m_2}{r^2}$ & $0{,}0430$ \\
+          & 11 & $\frac{(-0{,}006 + 1{,}002 \frac{m_1}{r}) m_2}{r}$ & $0{,}0430$ \\
+          & 13 & $\left(\frac{1{,}002 m_1}{r} - 0{,}001 m_2\right)\frac{m_2}{r}$ & $0{,}0430$ \\
+          & 15 & $\left(-0{,}001(m_1+m_2) + \frac{1{,}003 m_1}{r}\right)\frac{m_2}{r}$ & $0{,}0430$ \\
+        \midrule
+        \multirow{8}{*}{\begin{tabular}{c}Cenário 3\\(Alto ruído -- 20\%)\end{tabular}} 
+          & 1  & $m_1$ & $70{,}946$ \\
+          & 3  & $\frac{18{,}075}{r}$ & $50{,}145$ \\
+          & 5  & $\left(\frac{m_1}{r}\right)^{1{,}787}$ & $28{,}133$ \\
+          & 7  & $\frac{m_1 + m_2}{r - 0{,}692}$ & $17{,}185$ \\
+          & 9  & $\frac{1{,}008 m_1 m_2}{r^2}$ & $4{,}228$ \\
+          & 11 & $\frac{\frac{-0{,}730 + m_1 m_2}{r}}{r - 0{,}032}$ & $4{,}221$ \\
+          & 13 & $\frac{1{,}028 m_1 m_2 - 0{,}136 m_2}{r^2}$ & $4{,}217$ \\
+          & 15 & $\frac{\frac{m_1 m_2 - 0{,}217(m_2 - 0{,}635)}{r}}{r - 0{,}048}$ & $4{,}215$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\section{Expressões Gerais}
+\label{sec:appendix-general-expressions}
+A Tabela~\ref{tab:case_study_general_results} apresenta as 10 melhores expressões gerais recuperadas pela consulta declarativa IQL para cada cenário avaliado no estudo de caso da Lei da Gravitação Universal, ordenadas pelo seu desempenho (MSE).
+
+\begin{table}[htbp]
+    \centering
+    \caption{Melhores expressões gerais recuperadas por consulta IQL para cada cenário do estudo de caso.}
+    \label{tab:case_study_general_results}
+    \begin{tabular}{p{2.8cm} c p{6.8cm} r}
+        \toprule
+        \textbf{Cenário} & \textbf{Rank} & \textbf{Expressão Encontrada} & \textbf{MSE} \\
+        \midrule
+        \multirow{10}{*}{\begin{tabular}{c}Cenário 1\\(Sem ruído)\end{tabular}} 
+          & 1  & $\frac{m_1^{-2{,}09 \times 10^{10} m_2} + m_1 m_2}{r^2}$ & $\approx 0{,}000$ \\
+          & 2  & $\frac{(r m_1)^{-1{,}00 \times 10^{16} m_2} + m_1 m_2}{r^2}$ & $\approx 0{,}000$ \\
+          & 3  & $\frac{\frac{0{,}000}{m_1/m_2} + m_1 m_2}{r^2}$ & $\approx 0{,}000$ \\
+          & 4  & $\frac{0{,}000(m_1 - r) + m_1 m_2}{r^2}$ & $\approx 0{,}000$ \\
+          & 5  & $\frac{\frac{0{,}000}{(m_1 m_2)^{m_1}} + m_1 m_2}{r^2}$ & $\approx 0{,}000$ \\
+          & 6  & $\frac{\frac{0{,}000}{(m_1 m_2)^r} + m_1 m_2}{r^2}$ & $\approx 0{,}000$ \\
+          & 7  & $\frac{0{,}000(m_2 - \frac{r}{m_1}) + m_1 m_2}{r^2}$ & $\approx 0{,}000$ \\
+          & 8  & $\frac{0{,}000(m_2 - 2r) + m_1 m_2}{r^2}$ & $\approx 0{,}000$ \\
+          & 9  & $\frac{\frac{0{,}000}{(r m_1)^{m_2}} + m_1 m_2}{r^2}$ & $\approx 0{,}000$ \\
+          & 10 & $\frac{-0{,}000 r + m_1 m_2}{r^2}$ & $\approx 0{,}000$ \\
+        \midrule
+        \multirow{10}{*}{\begin{tabular}{c}Cenário 2\\(Baixo ruído -- 2\%)\end{tabular}} 
+          & 1  & $\left(\frac{1{,}002 m_1}{r} - 0{,}001 m_2\right)\frac{m_2}{r}$ & $0{,}0430$ \\
+          & 2  & $\left((1 - 1{,}001)m_2 + \frac{1{,}002 m_1}{r}\right)\frac{m_2}{r}$ & $0{,}0430$ \\
+          & 3  & $\left(-0{,}001 m_2 + \frac{(1 + 0{,}002)m_1}{r}\right)\frac{m_2}{r}$ & $0{,}0430$ \\
+          & 4  & $\left(-0{,}001 m_2 + \frac{1{,}002 m_1}{r}\right)\frac{m_2}{r}$ & $0{,}0430$ \\
+          & 5  & $\left((-1{,}001 + 1)m_2 + \frac{1{,}002 m_1}{r}\right)\frac{m_2}{r}$ & $0{,}0430$ \\
+          & 6  & $\left(-0{,}001 m_2 + \frac{1{,}002 m_1}{r}\right)\frac{m_2}{r}$ & $0{,}0430$ \\
+          & 7  & $\left(-0{,}001(m_1 + m_2) + \frac{1{,}003 m_1}{r}\right)\frac{m_2}{r}$ & $0{,}0430$ \\
+          & 8  & $\left(-0{,}001(m_1 + m_2) + \frac{1{,}003 m_1}{r}\right)\frac{m_2}{r}$ & $0{,}0430$ \\
+          & 9  & $\left(\frac{1{,}002 m_1}{r} - 0{,}001 m_2\right)\frac{m_2}{r}$ & $0{,}0430$ \\
+          & 10 & $\left(0{,}001(-0{,}767 - m_2) + \frac{1{,}002 m_1}{r}\right)\frac{m_2}{r}$ & $0{,}0430$ \\
+        \midrule
+        \multirow{10}{*}{\begin{tabular}{c}Cenário 3\\(Alto ruído -- 20\%)\end{tabular}} 
+          & 1  & $\frac{1{,}032 m_1 m_2 - 0{,}082(m_1+m_2)}{r^2}$ & $4{,}220$ \\
+          & 2  & $\frac{1{,}024 m_1 m_2 - 0{,}142(m_2-r)}{r^2}$ & $4{,}219$ \\
+          & 3  & $\frac{1{,}028 m_1 m_2 - 0{,}136 m_2}{r^2}$ & $4{,}217$ \\
+          & 4  & $\frac{1{,}028 m_1 m_2 - 0{,}136 m_2}{r^2}$ & $4{,}217$ \\
+          & 5  & $\frac{1{,}024 m_1 m_2 - 0{,}015 m_2^2}{r^2}$ & $4{,}218$ \\
+          & 6  & $\frac{1{,}028 m_1 m_2 - 0{,}136 m_2}{r^2}$ & $4{,}217$ \\
+          & 7  & $\frac{1{,}028 m_1 m_2 - 0{,}109(m_2+r)}{r^2}$ & $4{,}217$ \\
+          & 8  & $\frac{1{,}028 m_1 m_2 - 0{,}139(m_2-0{,}149)}{r^2}$ & $4{,}217$ \\
+          & 9  & $\frac{\frac{m_1 m_2 - 0{,}217(m_2 - 0{,}635)}{r}}{r - 0{,}048}$ & $4{,}215$ \\
+          & 10 & $\frac{\frac{-0{,}611 + m_1 m_2}{r}}{r - \frac{0{,}183}{m_2+0{,}485}}$ & $4{,}220$ \\
         \bottomrule
     \end{tabular}
 \end{table}

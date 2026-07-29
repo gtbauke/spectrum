@@ -50,13 +50,23 @@ Todos os experimentos foram conduzidos com a métrica de erro MSE (\textit{Mean 
     SELECT TOP 10 expression, fitness, parameters, size FROM modelo_3
 \end{lstlisting}
 
-A Tabela \ref{tab:case_study_results} apresenta os resultados obtidos para cada cenário, incluindo as expressões encontradas na fronteira de Pareto, as 10 melhores expressões gerais e os respectivos valores de MSE.
+A Tabela~\ref{tab:case_study_pareto_results} e a Tabela~\ref{tab:case_study_general_results}, no Apêndice~\ref{sec:appendix-case-study-results}, apresentam os resultados detalhados obtidos para cada cenário do estudo de caso, contemplando respectivamente as expressões que constituem a fronteira de Pareto e as melhores expressões gerais recuperadas pela consulta declarativa IQL, juntamente com seus valores de MSE.
 
-Podemos ver que, apesar de não estar na forma simplificada, a expressão encontrada para o Cenário 1 é equivalente à Lei da Gravitação Universal. Nos Cenários 2 e 3, mesmo com a adição de ruído, o algoritmo conseguiu identificar expressões que se aproximam da lei original, demonstrando a robustez do método implementado na plataforma Spectrum.
+A análise quantitativa da fronteira de Pareto (Tabela~\ref{tab:case_study_pareto_results}) revela o comportamento progressivo e a precisão do algoritmo implementado na plataforma Spectrum:
+
+\begin{itemize}
+    \item \textbf{Cenário 1 (Sem ruído)}: O algoritmo redescobre exatamente a Lei da Gravitação Universal no tamanho de expressão 7, encontrando a relação $\frac{m_1 m_2}{r^2}$ com erro quadrático médio teoricamente nulo ($\text{MSE} \approx 0{,}000$). Modelos de maior complexidade na fronteira (tamanhos 9, 11 e 13) introduzem termos multiplicativos ou aditivos neutros (com parâmetros numéricos nulos ou unitários, como $\frac{1{,}000 m_1 m_2}{r^2}$), preservando a equivalência analítica com a lei original.
+    \item \textbf{Cenário 2 (2\% de ruído)}: A robustez perante pequenas perturbações é evidenciada pela obtenção da estrutura exata $\frac{m_1 m_2}{r^2}$ no tamanho 7 com $\text{MSE} = 0{,}0432$. Ao atingir o tamanho 9, o algoritmo identifica a expressão $\frac{1{,}001 m_1 m_2}{r^2}$ ($\text{MSE} = 0{,}0430$), em que o coeficiente de $1{,}001$ atua compensando a média do ruído gaussiano inserido sem alterar a relação física de dependência entre as variáveis.
+    \item \textbf{Cenário 3 (20\% de ruído)}: Mesmo sob forte corrupção dos dados experimentais, a plataforma demonstra elevada capacidade de generalização e interpretabilidade. No tamanho 9, o modelo evoluído alcança a expressão $\frac{1{,}008 m_1 m_2}{r^2}$ com $\text{MSE} = 4{,}228$, mantendo intacta a estrutura proporcional ao produto das massas e inversamente proporcional ao quadrado da distância ($r^2$).
+\end{itemize}
+
+Complementarmente, a análise das melhores expressões gerais (Tabela~\ref{tab:case_study_general_results}) evidencia a versatilidade da consulta declarativa IQL sobre a estrutura de grafos de igualdade (\textit{e-graphs}). A cláusula \texttt{SELECT TOP 10} possibilita inspecionar variações analíticas de alto desempenho no espaço de busca que não necessariamente pertencem à fronteira de Pareto, mas que compartilham o mesmo patamar mínimo de erro (como $\text{MSE} \approx 0{,}000$ no Cenário 1 e $\text{MSE} = 0{,}0430$ no Cenário 2). Essa funcionalidade oferece ao pesquisador um leque diversificado de formulações matemáticas funcionalmente equivalentes ou adaptadas a diferentes restrições de domínio.
+
+Esses resultados demonstram concretamente que a abordagem de regressão simbólica baseada na plataforma Spectrum e inspecionada via consultas IQL permite extrair modelos interpretáveis que correspondem a leis físicas fundamentais, mesmo em condições estocásticas adversas.
 
 \section{A Plataforma Spectrum: Consolidação e Resultados}
 \label{sec:results_spectrum}
-O principal resultado deste trabalho é a entrega funcional da plataforma Spectrum, um ambiente integrado para a manipulação de algoritmos de regressão simbólica. A arquitetura distribuída, dividida em \textit{Frontend}, \textit{Backend} e \textit{Workers}, provou-se eficaz na delegação de tarefas de alto custo computacional, como a evolução das expressões matemáticas pelo algoritmo eggp, para instâncias remotas. Isso permite que usuários explorem modelos matemáticos complexos sem a dependência de máquinas com elevado poder de processamento local.
+O principal resultado deste trabalho é a entrega funcional da plataforma Spectrum, um ambiente integrado para a manipulação de algoritmos de regressão simbólica. A arquitetura distribuída, dividida em \textit{Frontend}, \textit{Backend} e \textit{Workers}, provou-se eficaz na delegação de tarefas de alto custo computacional, como a evolução das expressões matemáticas pelo algoritmo \textit{eggp}, para instâncias remotas. Isso permite que usuários explorem modelos matemáticos complexos sem a dependência de máquinas com elevado poder de processamento local.
 
 A integração direta de rotinas de manipulação de dados representa um avanço em relação a outros sistemas avaliados. Ao permitir que pesquisadores realizem o envio (\textit{upload}) de seus arquivos de dados e dividam-nos em partições de treinamento e validação dentro do próprio sistema, a plataforma reduz as trocas de contexto e o uso de ferramentas terceiras.
 
