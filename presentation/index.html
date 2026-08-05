@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interface Web para Regressão Simbólica</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Logo global da UFABC -->
+  <img src="Ufabc_logo.png" alt="UFABC" class="global-logo">
+
+  <!-- Slide Counter Bottom Right -->
+  <div id="slideCounter" class="slide-counter">1 / 28</div>
+
+  <main class="deck-container" id="deckContainer">
+
+    <!-- SLIDE 1: CAPA -->
+    <section class="slide active" data-slide="1">
+      <div class="slide-content center-content">
+        <h1 class="title title-huge">Interface Web para<br>Regressão Simbólica</h1>
+        <div class="meta-info mt" style="margin-top: 4rem;">
+          <p><strong>Autor:</strong> Gustavo Teodoro Bauke</p>
+          <p><strong>Orientador:</strong> Prof. Dr. Fabrício Olivetti de França</p>
+          <p><strong>Ano:</strong> 2026</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: APLICAÇÕES DE AMPLO ESCOPO -->
+    <section class="slide" data-slide="2">
+      <div class="slide-content">
+        <h2>Aplicações de Amplo Escopo na Era da IA</h2>
+        <p class="mb">Atualmente, observa-se uma dependência estrutural de modelos de Inteligência Artificial para diversas tarefas fundamentais da sociedade.</p>
+        <div class="box box-highlight">
+          <ul class="spaced-list">
+            <li><strong>Modelos de Linguagem de Larga Escala (LLMs):</strong> Ferramentas conversacionais de vasta adoção, como ChatGPT e GitHub Copilot.</li>
+            <li><strong>Predição Financeira:</strong> Modelos preditivos de alta frequência projetados para a dinâmica do mercado de ações.</li>
+            <li><strong>Saúde Pública:</strong> Simulação e predição autônoma das métricas de disseminação de doenças infecciosas.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: ALGORITMOS BASE -->
+    <section class="slide" data-slide="3">
+      <div class="slide-content">
+        <h2>Algoritmos Base</h2>
+        <p class="mb">O núcleo computacional que sustenta essas aplicações provém de metodologias altamente consolidadas na literatura.</p>
+        <div class="split">
+          <div class="box">
+            <h3 style="margin-bottom: 1.5rem;">Estruturas Dominantes</h3>
+            <ul class="spaced-list">
+              <li><strong>Redes Neurais Artificiais Profundas</strong></li>
+              <li><strong>Arquiteturas Transformers</strong> (Mecanismos de Atenção)</li>
+            </ul>
+          </div>
+          <div class="box box-highlight">
+            <h3 style="margin-bottom: 1.5rem;">Foco Operacional</h3>
+            <p>O desenvolvimento contemporâneo desses algoritmos otimiza de maneira estrita a <strong>capacidade preditiva</strong>, lidando empiricamente com gigabytes de dados para extrair resultados numéricos precisos.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: CAIXA PRETA -->
+    <section class="slide" data-slide="4">
+      <div class="slide-content">
+        <h2>O Paradigma da Caixa-Preta</h2>
+        <div class="box box-highlight">
+          <p class="mb">Tais modelos preveem os dados de forma acurada, porém sem prover explicabilidade estrutural do mecanismo gerador.</p>
+          <ul class="spaced-list">
+            <li>Dificuldade intrínseca em <strong>justificar a causalidade</strong> nas decisões do modelo.</li>
+            <li>Risco acentuado de assimilação de <strong>correlações espúrias</strong> presentes nos dados de treinamento.</li>
+            <li>Inviabilidade sistêmica para aplicações científicas e de engenharia que requerem modelos rigorosamente interpretáveis e condizentes com leis físicas.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: SOLUÇÃO DA CAIXA PRETA (SR) -->
+    <section class="slide" data-slide="5">
+      <div class="slide-content">
+        <h2>A Regressão Simbólica (SR)</h2>
+        <p class="mb">Apresenta-se como a principal solução metodológica na Inteligência Artificial evolutiva para a formulação estrita de <strong>Modelos Brancos</strong> (<em>White-box Models</em>).</p>
+        <div class="box box-highlight">
+          <ul class="spaced-list">
+            <li>O objetivo do algoritmo genético não se restringe a prever o resultado, mas sim a <strong>deduzir uma expressão matemática explícita</strong> \((f(x))\) sobre o fenômeno.</li>
+            <li>Possibilita a validação direta de hipóteses e a inspeção minuciosa das equações geradas por parte de especialistas do domínio.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: REGRESSÃO TRADICIONAL -->
+    <section class="slide" data-slide="6">
+      <div class="slide-content">
+        <h2>O Contraste com Regressões Tradicionais</h2>
+        <p class="mb">Técnicas clássicas (Regressão Linear, Polinomial e Múltipla) produzem modelos interpretáveis, contudo operam sob limitantes teóricos severos.</p>
+        <div class="box">
+          <ul class="spaced-list">
+            <li><strong>Imposição Estrutural:</strong> O pesquisador tem o ônus de definir e assumir a estrutura matemática da equação <strong>a priori</strong> (ex: assumir \(\hat{y} = \beta_0 + \beta_1 x\)).</li>
+            <li><strong>Otimização Restrita:</strong> O algoritmo minimiza o erro ajustando os <strong>coeficientes</strong> (\(\beta\)) exclusivamente para a estrutura algébrica fixada na etapa anterior.</li>
+            <li><strong>Gargalo Perante Fenômenos Complexos:</strong> Apresentam falhas críticas de modelagem ao lidar com dinâmicas físicas cuja distribuição estrutural seja não-linear ou previamente desconhecida.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: REGRESSÃO SIMBÓLICA EM DETALHES -->
+    <section class="slide" data-slide="7">
+      <div class="slide-content">
+        <h2>A Regressão Simbólica em Detalhes</h2>
+        <p class="mb">Em contraste às regressões clássicas, a SR otimiza a representação do modelo como um todo sem restrições a priori.</p>
+        <div class="box box-highlight">
+          <ul class="spaced-list">
+            <li>Executa uma heurística de busca simultânea pela <strong>estrutura da equação matemática</strong> e por seus <strong>parâmetros numéricos</strong> correspondentes.</li>
+            <li>O espaço de busca representacional fundamenta-se em <strong>Árvores de Sintaxe Abstrata (ASTs)</strong>.</li>
+            <li>A otimização subjacente atua como um problema multiobjetivo, recompensando o balanço entre <strong>alta aptidão</strong> (redução do erro preditivo \(\mathcal{L}\)) e <strong>alta parcimônia</strong> (simplicidade sintática da fórmula gerada).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: ALGORITMO GENÉTICO NA SR -->
+    <section class="slide" data-slide="8">
+      <div class="slide-content">
+        <h2>O Fluxo do Algoritmo Genético</h2>
+        <p class="subtitle" style="text-align: center;">Transição iterativa de gerações. <strong>(Utilize as setas do teclado)</strong>.</p>
+        <div class="ga-interactive-container">
+          <div class="ga-controls">
+            <button id="gaBtn1" class="ga-btn active">1. População</button>
+            <button id="gaBtn2" class="ga-btn">2. Seleção</button>
+            <button id="gaBtn3" class="ga-btn">3. Reprodução (Cruzamento/Mutação)</button>
+            <button id="gaBtn4" class="ga-btn">4. Nova Geração</button>
+          </div>
+          <div class="ga-canvas mt">
+            <div id="gaDesc" class="ga-desc">
+              <strong>1. População Inicial:</strong> Um conjunto de árvores sintáticas aleatórias é instanciado. O algoritmo avalia a aptidão (ex: erro MSE) de cada indivíduo da geração.
+            </div>
+            <div id="gaVisual" class="ga-visual step-1 mt">
+              <!-- Gen 1 -->
+              <div class="ga-ind gen1 selected" id="ind1"><div>\(x + 1\)</div><div class="ga-fitness">MSE: \(0,2\)</div></div>
+              <div class="ga-ind gen1" id="ind2"><div>\(\sin(x)\)</div><div class="ga-fitness">MSE: \(3,5\)</div></div>
+              <div class="ga-ind gen1 selected" id="ind3"><div>\(x^2\)</div><div class="ga-fitness">MSE: \(0,5\)</div></div>
+              <div class="ga-ind gen1" id="ind4"><div>\(2 \times x\)</div><div class="ga-fitness">MSE: \(5,1\)</div></div>
+              
+              <!-- Crossover visual -->
+              <div class="crossover-box">
+                <div class="cross-node">\(x + 1\)</div>
+                <div class="arrow-right">\(\longrightarrow\)</div>
+                <div class="cross-node">\(x^2\)</div>
+                <div class="arrow-right">\(\longrightarrow\)</div>
+                <div class="cross-node" style="border-color: #16a34a; background: #dcfce7;">\(x^2 + 1\)</div>
+              </div>
+              
+              <!-- Gen 2 -->
+              <div class="ga-ind gen2 old" id="ind1-new"><div>\(x + 1\)</div><div class="ga-fitness">Elitismo</div></div>
+              <div class="ga-ind gen2 old" id="ind3-new"><div>\(x^2\)</div><div class="ga-fitness">Elitismo</div></div>
+              <div class="ga-ind gen2 new" id="ind5"><div>\(x^2 + 1\)</div><div class="ga-fitness">Cruzamento</div></div>
+              <div class="ga-ind gen2 new" id="ind6"><div>\(\cos(x)\)</div><div class="ga-fitness">Mutação</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: LIMITANTES DA SR -->
+    <section class="slide" data-slide="9">
+      <div class="slide-content">
+        <h2>Limitantes Computacionais da SR</h2>
+        <p class="mb">A Regressão Simbólica não superou algoritmos <em>black-box</em> no mercado devido a exigências estruturais massivas:</p>
+        <div class="three-cols">
+          <div class="box">
+            <h3>Explosão Combinatória</h3>
+            <p>O volume de expressões sintáticas geradas aleatoriamente por meio das mutações cresce de modo invariavelmente exponencial.</p>
+          </div>
+          <div class="box">
+            <h3>Redundância Estrutural</h3>
+            <p>O algoritmo otimiza continuamente árvores morfologicamente diferentes que são, logicamente, matematicamente equivalentes (ex: \(x + x\) e \(2 \cdot x\)).</p>
+          </div>
+          <div class="box">
+            <h3>Gargalo de Avaliação</h3>
+            <p>O cômputo repetitivo do custo de aptidão em indivíduos redundantes esgota a viabilidade de execução em recursos locais.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: E-GRAPHS E EGGP -->
+    <section class="slide" data-slide="10">
+      <div class="slide-content">
+        <h2>Grafos de Igualdade (E-graphs)</h2>
+        <p class="mb">Estruturas de dados complexas projetadas para compactar exponencialmente a redundância computacional de sintaxes genéticas.</p>
+        <div class="split">
+          <div class="box">
+            <h3 style="margin-bottom: 1.5rem;">Fundamentos Matemáticos</h3>
+            <ul class="spaced-list">
+              <li><strong>Classes de Equivalência:</strong> Subárvores que detêm o mesmo valor matemático são estritamente agrupadas na mesma <em>e-class</em>.</li>
+              <li><strong>Saturação:</strong> Regras lógicas de reescrita fundem continuamente os nós equivalentes no grafo, comprimindo-o em tempo real.</li>
+            </ul>
+          </div>
+          <div class="box box-highlight">
+            <h3 style="margin-bottom: 1.5rem;">Integração Evolutiva</h3>
+            <p>O algoritmo evolutivo subjacente (neste caso, o <strong>eggp</strong>) aplica os operadores genéticos diretamente dentro do E-graph, sem descartar ramificações lógicas exploradas nas iterações prévias.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 11: E-GRAPHS COMPLEXOS -->
+    <section class="slide" data-slide="11">
+      <div class="slide-content">
+        <h2>Múltiplas Classes de Igualdade</h2>
+        <p class="mb">Em cenários práticos, a saturação interliga milhares de <strong>e-classes</strong>, originando um grafo densamente interconectado capaz de comprimir infinitas representações.</p>
+        <div class="center-text">
+          <img src="images/egraph.png" class="platform-img" alt="Diagrama de um E-graph saturado complexo" style="max-height: 450px;">
+          <p style="font-size: 1.2rem; color: var(--text-muted); margin-top: 10px;">Visualização topológica de um E-graph saturado.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 12: INTERACTIVE E-GRAPH -->
+    <section class="slide" data-slide="12">
+      <div class="slide-content">
+        <h2>A Dinâmica Interativa dos E-graphs</h2>
+        <p class="mb" style="text-align: center;">Transição iterativa do núcleo estrutural. <strong>(Utilize as setas do teclado)</strong>.</p>
+        <div class="egraph-interactive-container">
+          <div class="egraph-controls">
+            <button id="egBtn1" class="eg-btn active">1. Inclusão</button>
+            <button id="egBtn2" class="eg-btn">2. Reescrita</button>
+            <button id="egBtn3" class="eg-btn">3. Saturação</button>
+            <button id="egBtn4" class="eg-btn">4. Extração</button>
+          </div>
+          <div class="egraph-canvas mt">
+            <div id="egraphDesc" class="egraph-desc">
+              <!-- Renderizado via JS -->
+            </div>
+            <div id="egraphVisual" class="egraph-visual step-1 mt">
+              <div class="eclass c1">
+                <div class="enode">\(\times\)</div>
+                <div class="earrows"><span>&swarrow;</span><span>&searrow;</span></div>
+                <div class="echildren"><div class="eclass-leaf">\(x\)</div><div class="eclass-leaf">\(2\)</div></div>
+              </div>
+              <div class="eclass c2">
+                <div class="enode">\(+\)</div>
+                <div class="earrows"><span>&swarrow;</span><span>&searrow;</span></div>
+                <div class="echildren"><div class="eclass-leaf">\(x\)</div><div class="eclass-leaf">\(x\)</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 13: ALTERNATIVAS -->
+    <section class="slide" data-slide="13">
+      <div class="slide-content">
+        <h2>Alternativas Existentes de SR</h2>
+        <div class="box box-highlight">
+          <p class="mb">Soluções atuais no estado da arte, notadamente o <strong>TuringBot</strong> e o <strong>HeuristicLab</strong>, ainda manifestam restrições operacionais latentes:</p>
+          <ul class="spaced-list">
+            <li>Exigem recursos computacionais e processamento estritamente atrelados a <strong>máquinas locais</strong> de alta performance do pesquisador.</li>
+            <li>Falta de pipelines analíticos unificados, demandando importação manual de dados e dificultando a documentação científica na mesma ferramenta.</li>
+            <li><strong>Paradigma Passivo:</strong> O pesquisador recebe uma única resposta consolidada, inviabilizando varreduras e navegações ativas nas demais ramificações do E-graph subjacente.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 14: SPECTRUM -->
+    <section class="slide" data-slide="14">
+      <div class="slide-content">
+        <h2>A Proposta: Plataforma Spectrum</h2>
+        <div class="split">
+          <div>
+            <ul class="spaced-list">
+              <li>Plataforma de arquitetura em <strong>nuvem e baseada na Web</strong> dedicada estritamente à pesquisa empírica de Regressão Simbólica.</li>
+              <li>Descentraliza o custo computacional delegando a carga genética a *workers* assíncronos isolados.</li>
+              <li>Provê um ciclo contínuo, orquestrando desde a inserção de banco de dados tabulares até o relatório de extração analítica num único painel.</li>
+            </ul>
+          </div>
+          <div>
+            <img src="images/screens/profile_aberta.png" class="platform-img" alt="Screenshot da Plataforma Spectrum">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 15: DDD DOMÍNIOS -->
+    <section class="slide" data-slide="15">
+      <div class="slide-content">
+        <h2>Domain-Driven Design (DDD) - Domínios</h2>
+        <p class="mb">A arquitetura orientada ao domínio garante o encapsulamento estrito de complexidades de infraestrutura, focando no núcleo lógico da pesquisa.</p>
+        <div class="box box-highlight">
+          <ul class="spaced-list">
+            <li><strong>Authentication:</strong> Abstração das regras de acesso, segurança e credenciais unificadas de pesquisadores na plataforma.</li>
+            <li><strong>Workspace:</strong> Domínio isolado que gerencia a posse, controle de acesso e metadados dos conjuntos de dados manipulados pelo usuário.</li>
+            <li><strong>Training:</strong> O núcleo genético e evolutivo altamente desacoplado, focado na orquestração assíncrona das tarefas distribuídas nas filas.</li>
+            <li><strong>Inference:</strong> Domínio encarregado da interpretação léxica, sintática e execução das consultas rigorosas (queries) direcionadas ao E-graph retornado.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 16: DDD ENTIDADES 1/2 -->
+    <section class="slide" data-slide="16">
+      <div class="slide-content">
+        <h2>Domain-Driven Design - Entidades (1/2)</h2>
+        <p class="mb">O ciclo de vida computacional da plataforma é materializado por entidades lógicas modeladas estruturalmente no banco de dados.</p>
+        <div class="box">
+          <ul class="spaced-list">
+            <li><strong>User:</strong> A identidade central, auditável, responsável pelo provisionamento de tarefas e cadernos.</li>
+            <li><strong>Dataset:</strong> O encapsulamento abstrato dos arquivos em formato tabular persistidos e tipados em memória para consumo do algoritmo genético.</li>
+            <li><strong>Profile:</strong> Uma instância redacional e interativa contendo o encadeamento dedutivo dos cadernos de pesquisa (notebooks).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 17: DDD ENTIDADES 2/2 -->
+    <section class="slide" data-slide="17">
+      <div class="slide-content">
+        <h2>Domain-Driven Design - Entidades (2/2)</h2>
+        <p class="mb">Continuação das entidades encarregadas pelo processamento lógico distribuído.</p>
+        <div class="box">
+          <ul class="spaced-list">
+            <li><strong>Job:</strong> Processo discreto e atômico de evolução genética despachado sob mensageria a um ou mais <em>workers</em> remotos operando de forma paralela.</li>
+            <li><strong>E-graph Dump:</strong> A camada estática e serializada que arquiva a integralidade topológica do histórico da evolução (os nós saturados) preservado de forma estrita para posterior investigação analítica.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 18: IQL TITLE -->
+    <section class="slide" data-slide="18">
+      <div class="slide-content">
+        <h2>Inference Query Language (IQL)</h2>
+        <p class="mb">Uma linguagem concebida para transmutar o fluxo de extração de conhecimento: da absorção passiva para a prospecção investigativa ativa.</p>
+        <div class="box box-highlight">
+          <p>
+            A sintaxe <strong>IQL</strong> atua como a interface matricial e analítica do ecossistema que viabiliza a exploração e mineração do grafo de igualdade. Tal conjunto topológico é gerado originalmente sob as regras do algoritmo <strong>eggp</strong> no decurso da exploração e, por fim, consultado perfeitamente via bibliotecas dedicadas de inferência (como a <strong>rEGGression</strong>).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 19: IQL SINTAXE -->
+    <section class="slide" data-slide="19">
+      <div class="slide-content">
+        <h2>A Sintaxe da Exploração Ativa</h2>
+        <p class="mb">A IQL fornece uma camada abstrata e declarativa de consulta orientada ao histórico evolutivo contido nos nós condensados.</p>
+        <pre><code class="language-sql">SELECT TOP 5 expression, fitness, size 
+FROM egraph_gravitacional 
+WHERE size <= 15 AND fitness < 0.05
+PATTERN IS LIKE sin(v0) * v1;</code></pre>
+        <ul class="mt">
+          <li><strong>Filtragem Morfológica:</strong> A diretiva `PATTERN` aciona algoritmos de casamento estrito de padrões na representação arbórea da AST subjacente (ex: \(\sin(x) \times y\)).</li>
+          <li><strong>Avaliação em Tempo Real:</strong> A métrica computada iterativamente pelo *Worker* é despachada à interface Web via fluxos intermitentes de <strong>Server-Side Events (SSE)</strong>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- SLIDE 20: CADERNOS COMPUTACIONAIS -->
+    <section class="slide" data-slide="20">
+      <div class="slide-content">
+        <h2>Interface em Perfis de Pesquisa</h2>
+        <div class="split">
+          <div>
+            <ul class="spaced-list">
+              <li>A consolidação do fluxo operacional se dá através de <strong>cadernos em blocos</strong> inspirados no conceito tradicional de <em>Notebooks</em> (como Google Colab e Jupyter).</li>
+              <li><strong>Blocos IQL:</strong> Interpretam as consultas léxicas e renderizam as tabelas métricas extraídas via fluxos SSE na própria interface.</li>
+              <li><strong>Blocos Markdown:</strong> Área dedicada à redação acadêmica e formulação descritiva das justificativas científicas embasando a equação inferida.</li>
+            </ul>
+          </div>
+          <div>
+            <img src="images/screens/inference_block_results.png" class="platform-img" alt="Resultados de Inferência no Caderno">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 21: ESTUDO DE CASO TITLE -->
+    <section class="slide" data-slide="21">
+      <div class="slide-content">
+        <h2>A Lei da Gravitação Universal</h2>
+        <p class="mb">Para a validação empírica e analítica estrita da infraestrutura do Spectrum, consolidou-se um ensaio controlado com a lei clássica newtoniana.</p>
+        <div class="box box-highlight center-text">
+          <p style="font-size: 2.8rem; margin: 3rem 0; font-weight: bold;">$$F = G \frac{m_1 m_2}{r^2}$$</p>
+          <p>O experimento atesta a capacidade de convergência do algoritmo em deduzir explicitamente as interações algébricas entre grandezas escalares.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 22: O EXPERIMENTO -->
+    <section class="slide" data-slide="22">
+      <div class="slide-content">
+        <h2>Estrutura do Experimento Físico</h2>
+        <p class="mb">A robustez heurística e a capacidade de generalização do Spectrum foram submetidas a três distorções probabilísticas da distribuição espacial:</p>
+        <div class="box box-highlight">
+          <ul class="spaced-list">
+            <li><strong>Cenário 1 (\(0\%\) de ruído):</strong> Vetores sem distorção. Afere a aptidão teórica irrestrita em reestabelecer o balanço exato dos coeficientes.</li>
+            <li><strong>Cenário 2 (\(2\%\) de ruído gaussiano):</strong> Inserção probabilística moderada emulando o limite sistêmico da imprecisão intrínseca observada em sensores estáticos laboratoriais.</li>
+            <li><strong>Cenário 3 (\(20\%\) de ruído gaussiano):</strong> Escalação limítrofe de ruído, validando o nível extremo de tolerância estrutural perante acentuada corrupção de variáveis de entrada.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 23: RESULTADOS 1 -->
+    <section class="slide" data-slide="23">
+      <div class="slide-content">
+        <h2>Resultados Iniciais (0% e 2% de Ruído)</h2>
+        <div class="split mt">
+          <div class="box">
+            <h3 style="margin-bottom: 1.5rem;">Cenário Basal (0%)</h3>
+            <table class="table-simple">
+              <tr><th>Tamanho</th><th>Expressão Obtida (IQL)</th><th>MSE</th></tr>
+              <tr class="highlight-row">
+                <td>7</td><td>$$ \frac{m_1 m_2}{r^2} $$</td><td>\(0,0000\)</td>
+              </tr>
+            </table>
+            <p style="font-size: 1.2rem; margin-top: 15px;">Consistência validada: O núcleo deduz de modo peremptório a lei teórica, abolindo a propagação de derivadas espúrias.</p>
+          </div>
+          <div class="box">
+            <h3 style="margin-bottom: 1.5rem;">Perturbação Leve (2%)</h3>
+            <table class="table-simple">
+              <tr><th>Tamanho</th><th>Expressão Obtida (IQL)</th><th>MSE</th></tr>
+              <tr class="highlight-row">
+                <td>9</td><td>$$ 1,001 \cdot \frac{m_1 m_2}{r^2} $$</td><td>\(0,0430\)</td>
+              </tr>
+            </table>
+            <p style="font-size: 1.2rem; margin-top: 15px;">Resiliência estrutural: A fórmula retificada blinda o erro global absorvendo as flutuações através da criação providencial de um escalar (\(1,001\)).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 24: RESULTADOS 2 -->
+    <section class="slide" data-slide="24">
+      <div class="slide-content">
+        <h2>O Desafio Extremo (20% de Ruído)</h2>
+        <p class="mb">Análise crítica das fronteiras do modelo diante da severa desintegração da coerência correlacional da matriz analítica:</p>
+        <table class="table-simple mt">
+          <tr>
+            <th>Tamanho AST</th>
+            <th>Equação Final Extraída do Grafo (IQL)</th>
+            <th>Aptidão (MSE)</th>
+          </tr>
+          <tr class="highlight-row">
+            <td>9</td>
+            <td>$$ 1,008 \cdot \frac{m_1 m_2}{r^2} $$</td>
+            <td>\(4,2280\)</td>
+          </tr>
+        </table>
+        <div class="box box-highlight mt">
+          <p>A formulação matemática atestou alta flexibilidade de generalização ao <strong>abster-se de ceder à memorização não-linear caótica</strong>. A dependência inversamente recíproca ao quadrado gravitacional sustentou-se irredutível ao final do experimento.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 25: COMPARATIVO -->
+    <section class="slide" data-slide="25">
+      <div class="slide-content">
+        <h2>Comparativo Consolidado de Ferramentas</h2>
+        <table class="table-simple">
+          <tr>
+            <th>Fator Restritivo Computacional</th>
+            <th>HeuristicLab</th>
+            <th>TuringBot</th>
+            <th><strong>Spectrum</strong></th>
+          </tr>
+          <tr>
+            <td>Exigência de Computação Local Intensa</td>
+            <td>Sim</td>
+            <td>Sim</td>
+            <td><strong>Não (Distribuído)</strong></td>
+          </tr>
+          <tr>
+            <td>Gestão Unificada via Perfis Analíticos</td>
+            <td>Não</td>
+            <td>Não</td>
+            <td><strong>Sim</strong></td>
+          </tr>
+          <tr class="highlight-row">
+            <td>Exploração Semântica Ativa (IQL) do Histórico</td>
+            <td>Não</td>
+            <td>Não</td>
+            <td><strong>Sim</strong></td>
+          </tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- SLIDE 26: CONCLUSÃO -->
+    <section class="slide" data-slide="26">
+      <div class="slide-content">
+        <h2>Conclusão</h2>
+        <div class="box box-highlight">
+          <ul class="spaced-list">
+            <li>A plataforma <strong>Spectrum</strong> implementa um modelo de computação paralela por meio de filas, mitigando a principal barreira operacional de processamento exigida pelas estratégias de otimização de Regressão Simbólica.</li>
+            <li>A linguagem <strong>IQL</strong> soluciona o paradigma de observação estática, municiando o analista de um arcabouço declarativo capaz de instanciar varreduras complexas diretamente no E-graph consolidado pela evolução.</li>
+            <li>A aderência ao modelo de camadas baseadas em <strong>Domain-Driven Design (DDD)</strong> propiciou um ambiente robusto, corroborando a rastreabilidade e reprodutibilidade acadêmica intrínsecas a esta pesquisa.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 27: TRABALHOS FUTUROS -->
+    <section class="slide" data-slide="27">
+      <div class="slide-content">
+        <h2>Trabalhos Futuros</h2>
+        <div class="box">
+          <ul class="spaced-list">
+            <li><strong>Resiliência Distribuída:</strong> Formulação do padrão arquitetural transacional <em>Outbox</em> inerente aos eventos relacionais, visando à mitigação completa de perdas atreladas ao <em>broker</em> de mensageria.</li>
+            <li><strong>Interoperabilidade de Motores:</strong> Expansão modular da camada genômica para acomodar instâncias especializadas externas baseadas na linguagem C/C++, a exemplo das bibliotecas Operon e PySR.</li>
+            <li><strong>Categorização Multimodal:</strong> Extensão da gramática IQL suportando tensores representacionais gerados por técnicas de <em>Embeddings</em>, habilitando a modelagem preditiva de variáveis qualitativas não-numéricas.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 28: ENCERRAMENTO -->
+    <section class="slide" data-slide="28">
+      <div class="slide-content center-content">
+        <h1 class="title" style="font-size: 6rem; margin-bottom: 2rem;">Perguntas?</h1>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
