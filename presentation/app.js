@@ -62,10 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentEgraphStep = 0;
 
   const egDescriptions = [
-    "<strong>1. Inclusão:</strong> Expressões como \\(x \\times 2\\) e \\(x + x\\) formam <em>e-classes</em> isoladas na primeira iteração.",
-    "<strong>2. Reescrita:</strong> Pela regra matemática (\\(a \\times 2 = a + a\\)), identifica-se que ambas as classes são equivalentes.",
-    "<strong>3. Saturação (União):</strong> As duas <em>e-classes</em> são unidas. Agora, uma única classe engloba os dois <em>e-nodes</em> representando a equivalência.",
-    "<strong>4. Extração:</strong> Ao avaliar a melhor expressão, a operação de multiplicação (\\(\\times\\)) é extraída como a solução ótima e parcimoniosa."
+    "<strong>1. Inclusão:</strong> Expressões matemáticas base como \\(x \\times 2\\) e \\(x + x\\) são instanciadas, formando e-classes independentes.",
+    "<strong>2. Reescrita:</strong> As regras de reescrita são aplicadas, conectando e-classes distintas com base em equivalências matemáticas (ex. \\(a \\times 2 = a + a\\)).",
+    "<strong>3. Saturação de Igualdade:</strong> As equivalências sofrem fusão, englobando os e-nodes em uma única estrutura representacional.",
+    "<strong>4. Extração:</strong> Durante a inferência, a árvore sintática é inspecionada para retornar a rota representacional mais parcimoniosa do grafo."
   ];
 
   function setEgraphStep(idx) {
@@ -104,10 +104,10 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentGaStep = 0;
 
   const gaDescriptions = [
-    "<strong>1. População Inicial:</strong> Um conjunto de árvores sintáticas aleatórias é instanciado. O algoritmo avalia a aptidão (ex: erro MSE) de cada indivíduo da geração.",
-    "<strong>2. Seleção:</strong> Indivíduos com menor erro ou maior parcimônia (como \\(x + 1\\) e \\(x^2\\)) são selecionados pelo método de torneio para reprodução.",
-    "<strong>3. Reprodução (Cruzamento/Mutação):</strong> Subárvores selecionadas sofrem cruzamento (troca de ramos) ou mutação probabilística de nós isolados para gerar descendentes.",
-    "<strong>4. Nova Geração:</strong> Os melhores indivíduos são mantidos (elitismo) e os novos descendentes substituem os inaptos, elevando a aptidão geral da população."
+    "<strong>1. População Inicial:</strong> Um conjunto de indivíduos contendo árvores sintáticas (AST) é inicializado e sua aptidão de validação avaliada (ex. MSE).",
+    "<strong>2. Seleção:</strong> Os indivíduos que apresentam os melhores resultados de aptidão e menor número de nós (parcimônia) são selecionados para cruzamento.",
+    "<strong>3. Reprodução:</strong> As ramificações selecionadas sofrem operações genéticas (Cruzamento de nós estruturais ou Mutação probabilística).",
+    "<strong>4. Nova Geração:</strong> Pela estratégia de Elitismo, parcelas altamente viáveis são preservadas, enquanto as novas descendências substituem o restante populacional."
   ];
 
   function setGaStep(idx) {
