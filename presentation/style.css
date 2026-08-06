@@ -292,22 +292,26 @@ pre {
 
 .egraph-desc { font-size: 1.4rem; color: var(--text-main); text-align: center; min-height: 60px; }
 .egraph-visual { position: relative; display: flex; justify-content: center; gap: 4rem; width: 100%; transition: all 0.5s ease; }
-.eclass { border: 3px dashed #9ca3af; border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; align-items: center; position: relative; transition: all 0.5s ease; min-width: 180px; background: white; }
-.enode { background: #f3f4f6; border: 2px solid #6b7280; padding: 8px 30px; border-radius: 6px; font-family: var(--font-code); font-size: 1.5rem; font-weight: bold; color: var(--text-main); z-index: 2; transition: all 0.5s ease; }
+.eclass { padding: 0.5rem; display: flex; flex-direction: column; align-items: center; position: relative; transition: all 0.5s ease; min-width: 180px; }
+.eclass-border { border: 3px dashed #9ca3af; border-radius: 12px; padding: 10px; width: 100%; transition: all 0.5s ease; display: flex; justify-content: center; background: white; }
+.enode { background: #f3f4f6; padding: 8px 30px; border-radius: 6px; font-family: var(--font-code); font-size: 1.5rem; font-weight: bold; color: var(--text-main); z-index: 2; transition: all 0.5s ease; }
 .earrows { display: flex; justify-content: space-between; width: 70%; color: #6b7280; font-size: 1.8rem; margin-top: 5px; }
 .echildren { display: flex; gap: 1.5rem; margin-top: 5px; }
 .eclass-leaf { border: 2px dashed #9ca3af; padding: 8px 16px; border-radius: 8px; font-family: var(--font-code); color: var(--primary-color); font-size: 1.2rem; font-weight: bold; background: white; }
 
 /* States */
-.egraph-visual.step-2 .eclass { border-color: var(--secondary-color); box-shadow: 0 0 15px rgba(253, 185, 19, 0.3); }
+.egraph-visual.step-2 .eclass-border { border-color: var(--secondary-color); box-shadow: 0 0 15px rgba(253, 185, 19, 0.3); }
 .egraph-visual.step-3 { gap: 0; }
-.egraph-visual.step-3 .c1 { border-right: none; border-top-right-radius: 0; border-bottom-right-radius: 0; padding-right: 2.5rem; }
-.egraph-visual.step-3 .c2 { border-left: none; border-top-left-radius: 0; border-bottom-left-radius: 0; padding-left: 2.5rem; }
-.egraph-visual.step-3::before { content: 'E-Class Equivalente'; position: absolute; top: -20px; background: white; padding: 0 10px; color: #ca8a04; font-weight: 700; font-size: 1.1rem; z-index: 10; border: 1px solid var(--border-color); border-radius: 4px; }
+.egraph-visual.step-3 .c1 .eclass-border { border-right: none; border-top-right-radius: 0; border-bottom-right-radius: 0; padding-right: 2.5rem; }
+.egraph-visual.step-3 .c2 .eclass-border { border-left: none; border-top-left-radius: 0; border-bottom-left-radius: 0; padding-left: 2.5rem; }
+.egraph-visual.step-3::before { content: 'E-Class Equivalente'; position: absolute; top: 0px; background: white; padding: 0 10px; color: #ca8a04; font-weight: 700; font-size: 1.1rem; z-index: 10; border: 1px solid var(--border-color); border-radius: 4px; }
 .egraph-visual.step-4 { gap: 0; }
-.egraph-visual.step-4 .c1 { border-right: none; border-top-right-radius: 0; border-bottom-right-radius: 0; padding-right: 2.5rem; border-color: #16a34a; }
-.egraph-visual.step-4 .c2 { border-left: none; border-top-left-radius: 0; border-bottom-left-radius: 0; padding-left: 2.5rem; opacity: 0.2; }
-.egraph-visual.step-4 .c1 .enode { background: #dcfce7; border-color: #16a34a; color: #166534; }
+.egraph-visual.step-4 .c1 .eclass-border { border-right: none; border-top-right-radius: 0; border-bottom-right-radius: 0; padding-right: 2.5rem; border-color: #16a34a; }
+.egraph-visual.step-4 .c2 .eclass-border { border-left: none; border-top-left-radius: 0; border-bottom-left-radius: 0; padding-left: 2.5rem; border-color: #16a34a; }
+.egraph-visual.step-4 .c1 .enode { background: #dcfce7; color: #166534; }
+.egraph-visual.step-4 .c2 .enode { opacity: 0.2; }
+.egraph-visual.step-4 .c2 .earrows { opacity: 0.2; }
+.egraph-visual.step-4 .c2 .echildren { opacity: 0.2; }
 
 /* GA INTERACTIVE VISUAL */
 .ga-interactive-container { display: flex; flex-direction: column; gap: 1.5rem; width: 100%; }
@@ -355,4 +359,5 @@ pre {
   border-radius: 8px;
   border: 1px solid var(--border-color);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  filter: invert(0.9) hue-rotate(180deg) brightness(1.1);
 }
