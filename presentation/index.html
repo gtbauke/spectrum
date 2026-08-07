@@ -1,527 +1,520 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interface Web para Regressão Simbólica</title>
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
-
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Interface Web para Regressão Simbólica</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" rel="stylesheet"/>
+<script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+<link href="style.css" rel="stylesheet"/>
 </head>
 <body>
-
-  <!-- Logo global da UFABC -->
-  <img src="Ufabc_logo.png" alt="UFABC" class="global-logo">
-
-  <!-- Slide Counter Bottom Right -->
-  <div id="slideCounter" class="slide-counter">1 / 25</div>
-
-  <main class="deck-container" id="deckContainer">
-
-    <!-- SLIDE 1: CAPA -->
-    <section class="slide active" data-slide="1">
-      <div class="slide-content center-content">
-        <h1 class="title title-huge">Interface Web para<br>Regressão Simbólica</h1>
-        <div class="meta-info mt" style="margin-top: 4rem;">
-          <p><strong>Autor:</strong> Gustavo Teodoro Bauke</p>
-          <p><strong>Orientador:</strong> Prof. Dr. Fabrício Olivetti de França</p>
-          <p><strong>Ano:</strong> 2026</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 2: MOTIVAÇÃO CONDENSADA -->
-    <section class="slide" data-slide="2">
-      <div class="slide-content">
-        <h2>O Paradigma da Caixa-Preta na IA</h2>
-        <div class="box box-highlight">
-          <p class="mb">Modelos modernos (como Redes Neurais e LLMs) atingem alta precisão preditiva, mas carecem de interpretabilidade para validar leis da física ou explicar decisões críticas.</p>
-          <ul class="spaced-list">
-            <li><strong>Falta de Interpretabilidade:</strong> É extremamente difícil auditar o raciocínio interno ou justificar o porquê de uma previsão (Ex: diagnóstico médico).</li>
-            <li><strong>Barreira Científica:</strong> Nas ciências exatas, um modelo precisa ser transparente, e não apenas entregar "bons palpites" cegos.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 3: SOLUÇÃO SR CONDENSADA -->
-    <section class="slide" data-slide="3">
-      <div class="slide-content">
-        <h2>A Regressão Simbólica (SR)</h2>
-        <p class="mb">A Regressão Simbólica surge na área de IA evolutiva como a solução ideal para criar <strong>Modelos transparentes</strong>.</p>
-        <div class="box box-highlight">
-          <ul class="spaced-list">
-            <li>Ao invés de apenas se ocupar em fazer predições, a SR busca evoluir e <strong>deduzir a equação matemática explícita</strong> \(f(x)\) por trás dos dados.</li>
-            <li>Realiza uma busca livre e simultânea pela <strong>estrutura da equação matemática</strong> e pelos seus respectivos parâmetros numéricos, superando as limitações para a ciência das regressões polinomiais engessadas.</li>
-            <li>Com a fórmula exposta em árvores (ASTs), os especialistas humanos podem analisar o resultado e corrigir falhas no modelo.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 4: GA INTERACTIVE -->
-    <section class="slide" data-slide="4">
-      <div class="slide-content">
-        <h2>O Fluxo do Algoritmo Genético</h2>
-        <div class="ga-interactive-container">
-          <div class="ga-controls">
-            <button id="gaBtn1" class="ga-btn active">1. População</button>
-            <button id="gaBtn2" class="ga-btn">2. Seleção</button>
-            <button id="gaBtn3" class="ga-btn">3. Reprodução</button>
-            <button id="gaBtn4" class="ga-btn">4. Nova Geração</button>
-          </div>
-          <div class="ga-canvas">
-            <div id="gaDesc" class="ga-desc">
-              <strong>1. População Inicial:</strong> Um conjunto de indivíduos contendo árvores sintáticas (AST) é inicializado e sua aptidão de validação avaliada (ex. MSE).
+<!-- Logo global da UFABC -->
+<img alt="UFABC" class="global-logo" src="Ufabc_logo.png"/>
+<!-- Slide Counter Bottom Right -->
+<div class="slide-counter" id="slideCounter">1 / 27</div>
+<main class="deck-container" id="deckContainer">
+<!-- SLIDE 1: CAPA -->
+<section class="slide active" data-slide="1">
+<div class="slide-content center-content">
+<h1 class="title title-huge">Interface Web para<br/>Regressão Simbólica</h1>
+<div class="meta-info mt" style="margin-top: 4rem;">
+<p><strong>Autor:</strong> Gustavo Teodoro Bauke</p>
+<p><strong>Orientador:</strong> Prof. Dr. Fabrício Olivetti de França</p>
+<p><strong>Ano:</strong> 2026</p>
+</div>
+</div>
+</section>
+<!-- SLIDE 2: MOTIVAÇÃO CONDENSADA -->
+<section class="slide" data-slide="2">
+<div class="slide-content">
+<h2>O Paradigma da Caixa-Preta na IA</h2>
+<div class="box box-highlight">
+<p class="mb">Modelos modernos (como Redes Neurais e LLMs) atingem alta precisão preditiva, mas carecem de interpretabilidade para validar leis da física ou explicar decisões críticas.</p>
+<ul class="spaced-list">
+<li><strong>Falta de Interpretabilidade:</strong> É extremamente difícil auditar o raciocínio interno ou justificar o porquê de uma previsão (Ex: diagnóstico médico).</li>
+<li><strong>Barreira Científica:</strong> Nas ciências exatas, um modelo precisa ser transparente, e não apenas entregar "bons palpites" cegos.</li>
+</ul>
+</div>
+</div>
+</section>
+<!-- SLIDE 3: SOLUÇÃO SR CONDENSADA -->
+<section class="slide" data-slide="3">
+<div class="slide-content">
+<h2>A Regressão Simbólica (SR)</h2>
+<p class="mb">A Regressão Simbólica surge na área de IA evolutiva como a solução ideal para criar <strong>Modelos transparentes</strong>.</p>
+<div class="box box-highlight">
+<ul class="spaced-list">
+<li>Ao invés de apenas se ocupar em fazer predições, a SR busca evoluir e <strong>deduzir a equação matemática explícita</strong> \(f(x)\) por trás dos dados.</li>
+<li>Realiza uma busca livre e simultânea pela <strong>estrutura da equação matemática</strong> e pelos seus respectivos parâmetros numéricos, superando as limitações para a ciência das regressões polinomiais engessadas.</li>
+<li>Com a fórmula exposta em árvores (ASTs), os especialistas humanos podem analisar o resultado e corrigir falhas no modelo.</li>
+</ul>
+</div>
+</div>
+</section>
+<!-- SLIDE 4: GA INTERACTIVE -->
+<section class="slide" data-slide="4">
+<div class="slide-content">
+<h2>O Fluxo do Algoritmo Genético</h2>
+<div class="ga-interactive-container">
+<div class="ga-controls">
+<button class="ga-btn active" id="gaBtn1">1. População</button>
+<button class="ga-btn" id="gaBtn2">2. Seleção</button>
+<button class="ga-btn" id="gaBtn3">3. Reprodução</button>
+<button class="ga-btn" id="gaBtn4">4. Nova Geração</button>
+</div>
+<div class="ga-canvas">
+<div class="ga-desc" id="gaDesc">
+<strong>1. População Inicial:</strong> Um conjunto de indivíduos contendo árvores sintáticas (AST) é inicializado e sua aptidão de validação avaliada (ex. MSE).
             </div>
-            <div id="gaVisual" class="ga-visual step-1 mt">
-              <!-- Gen 1 -->
-              <div class="ga-ind gen1 selected" id="ind1"><div>\(x + 1\)</div><div class="ga-fitness">MSE: \(0,2\)</div></div>
-              <div class="ga-ind gen1" id="ind2"><div>\(\sin(x)\)</div><div class="ga-fitness">MSE: \(3,5\)</div></div>
-              <div class="ga-ind gen1 selected" id="ind3"><div>\(x^2\)</div><div class="ga-fitness">MSE: \(0,5\)</div></div>
-              <div class="ga-ind gen1" id="ind4"><div>\(2 \times x\)</div><div class="ga-fitness">MSE: \(5,1\)</div></div>
-              
-              <!-- Crossover visual -->
-              <div class="crossover-box">
-                <div class="cross-node">\(x + 1\)</div>
-                <div class="arrow-right">\(\longrightarrow\)</div>
-                <div class="cross-node">\(x^2\)</div>
-                <div class="arrow-right">\(\longrightarrow\)</div>
-                <div class="cross-node" style="border-color: #16a34a; background: #dcfce7;">\(x^2 + 1\)</div>
-              </div>
-              
-              <!-- Gen 2 -->
-              <div class="ga-ind gen2 old" id="ind1-new"><div>\(x + 1\)</div><div class="ga-fitness">Elitismo</div></div>
-              <div class="ga-ind gen2 old" id="ind3-new"><div>\(x^2\)</div><div class="ga-fitness">Elitismo</div></div>
-              <div class="ga-ind gen2 new" id="ind5"><div>\(x^2 + 1\)</div><div class="ga-fitness">Cruzamento</div></div>
-              <div class="ga-ind gen2 new" id="ind6"><div>\(\cos(x)\)</div><div class="ga-fitness">Mutação</div></div>
+<div class="ga-visual step-1 mt" id="gaVisual">
+<!-- Gen 1 -->
+<div class="ga-ind gen1 selected" id="ind1"><div>\(x + 1\)</div><div class="ga-fitness">MSE: \(0,2\)</div></div>
+<div class="ga-ind gen1" id="ind2"><div>\(\sin(x)\)</div><div class="ga-fitness">MSE: \(3,5\)</div></div>
+<div class="ga-ind gen1 selected" id="ind3"><div>\(x^2\)</div><div class="ga-fitness">MSE: \(0,5\)</div></div>
+<div class="ga-ind gen1" id="ind4"><div>\(2 \times x\)</div><div class="ga-fitness">MSE: \(5,1\)</div></div>
+<!-- Crossover visual -->
+<div class="crossover-box">
+<div class="cross-node">\(x + 1\)</div>
+<div class="arrow-right">\(\longrightarrow\)</div>
+<div class="cross-node">\(x^2\)</div>
+<div class="arrow-right">\(\longrightarrow\)</div>
+<div class="cross-node" style="border-color: #16a34a; background: #dcfce7;">\(x^2 + 1\)</div>
+</div>
+<!-- Gen 2 -->
+<div class="ga-ind gen2 old" id="ind1-new"><div>\(x + 1\)</div><div class="ga-fitness">Elitismo</div></div>
+<div class="ga-ind gen2 old" id="ind3-new"><div>\(x^2\)</div><div class="ga-fitness">Elitismo</div></div>
+<div class="ga-ind gen2 new" id="ind5"><div>\(x^2 + 1\)</div><div class="ga-fitness">Cruzamento</div></div>
+<div class="ga-ind gen2 new" id="ind6"><div>\(\cos(x)\)</div><div class="ga-fitness">Mutação</div></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SLIDE 5: LIMITANTES DA SR -->
+<section class="slide" data-slide="5">
+<div class="slide-content">
+<h2>O Preço da Interpretabilidade</h2>
+<p class="mb">Apesar de seus imensos benefícios, a Regressão Simbólica ainda não domina o mercado devido ao seu altíssimo custo computacional de treinamento:</p>
+<div class="three-cols">
+<div class="box">
+<h3>Explosão Combinatória</h3>
+<p>O elevado número de expressões sintáticas geradas pelos operadores de mutação cresce de forma exponencial a cada geração evolutiva.</p>
+</div>
+<div class="box">
+<h3>Redundância Computacional</h3>
+<p>O modelo acaba processando infinitas fórmulas com aparências diferentes, mas que matematicamente dizem a mesma coisa (ex: \(x + x\) e \(2 \cdot x\)).</p>
+</div>
+<div class="box">
+<h3>Gargalo de Hardware</h3>
+<p>O custo repetitivo de calcular a aptidão esgota rapidamente a viabilidade de execução em recursos computacionais limitados.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- SLIDE 6: E-GRAPHS E EGGP -->
+<section class="slide" data-slide="6">
+<div class="slide-content">
+<h2 style="margin-bottom: 1rem;">Grafos de Igualdade (E-graphs)</h2>
+<p style="margin-bottom: 1rem;">Estruturas de dados matemáticas capazes de armazenar e compactar múltiplas expressões equivalentes de forma altamente eficiente.</p>
+<div class="split" style="align-items: stretch;">
+<div class="box" style="height: 100%; padding: 1.5rem;">
+<h3>Fundamentos da Saturação</h3>
+<ul class="spaced-list" style="margin-top: 1rem;">
+<li style="margin-bottom: 1rem;"><strong>Classes de Equivalência (e-classes):</strong> Conjuntos de expressões logicamente equivalentes são agrupados em nós compartilhados (<em>e-nodes</em>).</li>
+<li style="margin-bottom: 0;"><strong>Saturação de Igualdade:</strong> O processo de aplicar regras de reescrita contínuas para explorar e agrupar representações matemáticas.</li>
+</ul>
+</div>
+<div class="box box-highlight" style="height: 100%; padding: 1.5rem;">
+<h3>Treinamento Integrado (eggp)</h3>
+<p style="margin-top: 1rem;">O <strong>eggp</strong> é o único algoritmo de regressão simbólica capaz de executar as operações de mutação e cruzamento genético de forma otimizada diretamente na estrutura dos grafos de igualdade, minimizando redundâncias estruturais e economizando drasticamente alocação de memória na busca.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- SLIDE 7: E-GRAPHS COMPLEXOS -->
+<section class="slide" data-slide="7">
+<div class="slide-content">
+<h2>Compressão Estrutural Massiva</h2>
+<p class="mb">Na prática, as regras algébricas do E-graph agrupam milhares de <strong>e-classes</strong>, criando uma teia altamente densa capaz de representar infinitas equações.</p>
+<div class="center-text">
+<img alt="Diagrama de um E-graph saturado complexo" class="platform-img" src="images/egraph.png" style="max-height: 450px; filter: none;"/>
+<p style="font-size: 1.2rem; color: var(--text-muted); margin-top: 10px;">Raio-x topológico de um E-graph após rodar o treinamento.</p>
+</div>
+</div>
+</section>
+<!-- SLIDE 8: INTERACTIVE E-GRAPH -->
+<section class="slide" data-slide="8">
+<div class="slide-content">
+<h2>A Dinâmica Interativa dos E-graphs</h2>
+<div class="egraph-interactive-container">
+<div class="egraph-controls">
+<button class="eg-btn active" id="egBtn1">1. Inclusão</button>
+<button class="eg-btn" id="egBtn2">2. Reescrita</button>
+<button class="eg-btn" id="egBtn3">3. Saturação</button>
+<button class="eg-btn" id="egBtn4">4. Extração</button>
+</div>
+<div class="egraph-canvas">
+<div class="egraph-desc" id="egraphDesc">
+<strong>1. Inclusão:</strong> Expressões matemáticas base como \(x \times 2\) e \(x + x\) são instanciadas, formando e-classes independentes.
             </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 5: LIMITANTES DA SR -->
-    <section class="slide" data-slide="5">
-      <div class="slide-content">
-        <h2>O Preço da Interpretabilidade</h2>
-        <p class="mb">Apesar de seus imensos benefícios, a Regressão Simbólica ainda não domina o mercado devido ao seu altíssimo custo computacional de treinamento:</p>
-        <div class="three-cols">
-          <div class="box">
-            <h3>Explosão Combinatória</h3>
-            <p>O elevado número de expressões sintáticas geradas pelos operadores de mutação cresce de forma exponencial a cada geração evolutiva.</p>
-          </div>
-          <div class="box">
-            <h3>Redundância Computacional</h3>
-            <p>O modelo acaba processando infinitas fórmulas com aparências diferentes, mas que matematicamente dizem a mesma coisa (ex: \(x + x\) e \(2 \cdot x\)).</p>
-          </div>
-          <div class="box">
-            <h3>Gargalo de Hardware</h3>
-            <p>O custo repetitivo de calcular a aptidão esgota rapidamente a viabilidade de execução em recursos computacionais limitados.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 6: E-GRAPHS E EGGP -->
-    <section class="slide" data-slide="6">
-      <div class="slide-content">
-        <h2 style="margin-bottom: 1rem;">Grafos de Igualdade (E-graphs)</h2>
-        <p style="margin-bottom: 1rem;">Estruturas de dados matemáticas capazes de armazenar e compactar múltiplas expressões equivalentes de forma altamente eficiente.</p>
-        <div class="split" style="align-items: stretch;">
-          <div class="box" style="height: 100%; padding: 1.5rem;">
-            <h3>Fundamentos da Saturação</h3>
-            <ul class="spaced-list" style="margin-top: 1rem;">
-              <li style="margin-bottom: 1rem;"><strong>Classes de Equivalência (e-classes):</strong> Conjuntos de expressões logicamente equivalentes são agrupados em nós compartilhados (<em>e-nodes</em>).</li>
-              <li style="margin-bottom: 0;"><strong>Saturação de Igualdade:</strong> O processo de aplicar regras de reescrita contínuas para explorar e agrupar representações matemáticas.</li>
-            </ul>
-          </div>
-          <div class="box box-highlight" style="height: 100%; padding: 1.5rem;">
-            <h3>Treinamento Integrado (eggp)</h3>
-            <p style="margin-top: 1rem;">O <strong>eggp</strong> é o único algoritmo de regressão simbólica capaz de executar as operações de mutação e cruzamento genético de forma otimizada diretamente na estrutura dos grafos de igualdade, minimizando redundâncias estruturais e economizando drasticamente alocação de memória na busca.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 7: E-GRAPHS COMPLEXOS -->
-    <section class="slide" data-slide="7">
-      <div class="slide-content">
-        <h2>Compressão Estrutural Massiva</h2>
-        <p class="mb">Na prática, as regras algébricas do E-graph agrupam milhares de <strong>e-classes</strong>, criando uma teia altamente densa capaz de representar infinitas equações.</p>
-        <div class="center-text">
-          <img src="images/egraph.png" class="platform-img" alt="Diagrama de um E-graph saturado complexo" style="max-height: 450px; filter: none;">
-          <p style="font-size: 1.2rem; color: var(--text-muted); margin-top: 10px;">Raio-x topológico de um E-graph após rodar o treinamento.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 8: INTERACTIVE E-GRAPH -->
-    <section class="slide" data-slide="8">
-      <div class="slide-content">
-        <h2>A Dinâmica Interativa dos E-graphs</h2>
-        <div class="egraph-interactive-container">
-          <div class="egraph-controls">
-            <button id="egBtn1" class="eg-btn active">1. Inclusão</button>
-            <button id="egBtn2" class="eg-btn">2. Reescrita</button>
-            <button id="egBtn3" class="eg-btn">3. Saturação</button>
-            <button id="egBtn4" class="eg-btn">4. Extração</button>
-          </div>
-          <div class="egraph-canvas">
-            <div id="egraphDesc" class="egraph-desc">
-              <strong>1. Inclusão:</strong> Expressões matemáticas base como \(x \times 2\) e \(x + x\) são instanciadas, formando e-classes independentes.
-            </div>
-            <div id="egraphVisual" class="egraph-visual step-1 mt">
-              <div class="eclass c1">
-                <div class="eclass-border"><div class="enode">\(\times\)</div></div>
-                <div class="earrows"><span>&swarrow;</span><span>&searrow;</span></div>
-                <div class="echildren"><div class="eclass-leaf">\(x\)</div><div class="eclass-leaf">\(2\)</div></div>
-              </div>
-              <div class="eclass c2">
-                <div class="eclass-border"><div class="enode">\(+\)</div></div>
-                <div class="earrows"><span>&swarrow;</span><span>&searrow;</span></div>
-                <div class="echildren"><div class="eclass-leaf">\(x\)</div><div class="eclass-leaf">\(x\)</div></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 9: ALTERNATIVAS -->
-    <section class="slide" data-slide="9">
-      <div class="slide-content">
-        <h2>Barreiras das Ferramentas Atuais</h2>
-        <div class="box box-highlight">
-          <p class="mb">Softwares atuais de SR (como TuringBot e HeuristicLab) ainda sofrem com problemas cruciais:</p>
-          <ul class="spaced-list">
-            <li><strong>Peso Local:</strong> Forçam que o computador do usuário (com CPU e bateria normais) sustente sozinho toda a carga computacional do cálculo da evolução.</li>
-            <li><strong>Analista Passivo:</strong> Essas ferramentas geralmente retornam um conjunto restrito de alternativas. Isso priva o analista de navegar ativamente pelo E-graph para garimpar e consultar expressões por meio de regras personalizadas.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 10: SPECTRUM -->
-    <section class="slide" data-slide="10">
-      <div class="slide-content">
-        <h2>A Solução: Plataforma Spectrum</h2>
-        <div class="split">
-          <div>
-            <ul class="spaced-list">
-              <li>Criamos uma ferramenta nativa <strong>Web e em Nuvem</strong> dedicada a resolver todos os problemas de usabilidade da pesquisa em Regressão Simbólica.</li>
-              <li>O processamento massivo ocorre invisível na nuvem, poupando a máquina do usuário final de travamentos.</li>
-              <li>Centraliza 100% da operação num ambiente amigável: do momento de subir a tabela de dados até a geração do relatório visual conclusivo.</li>
-            </ul>
-          </div>
-          <div>
-            <img src="images/screens/profile_aberta.png" class="platform-img" alt="Screenshot da Plataforma Spectrum">
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 11: DDD DOMÍNIOS -->
-    <section class="slide" data-slide="11">
-      <div class="slide-content">
-        <h2>Domain-Driven Design (A Arquitetura)</h2>
-        <p>A arquitetura do sistema segue os princípios do <em>Domain-Driven Design</em> (DDD), garantindo o isolamento da regra de negócio. Os principais domínios são:</p>
-        <div class="box box-highlight" style="margin-top: 1rem;">
-          <ul class="spaced-list">
-            <li><strong>Authentication:</strong> Regras de login e segurança de credenciais para os pesquisadores.</li>
-            <li><strong>Workspace:</strong> Gestão e isolamento das pastas, tabelas de dados brutos e rascunhos individuais de cada usuário.</li>
-            <li><strong>Training:</strong> Coordena o envio das execuções de Inteligência Artificial para as filas na nuvem garantindo não travar a Web.</li>
-            <li><strong>Inference:</strong> O módulo que analisa o grafo já processado e exibe em tabelas os melhores resultados matemáticos garimpados.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 12: DDD ENTIDADES 1/2 -->
-    <section class="slide" data-slide="12">
-      <div class="slide-content">
-        <h2>Entidades Principais (1/2)</h2>
-        <p class="mb">Todo o fluxo de uso roda em cima de entidades centrais claras mapeadas dentro do banco de dados do sistema:</p>
-        <div class="box">
-          <ul class="spaced-list">
-            <li><strong>User:</strong> A identidade central do pesquisador, responsável pela autenticação e controle de acesso.</li>
-            <li><strong>Dataset:</strong> Abstração lógica que armazena os metadados e as referências diretas aos arquivos CSV experimentais.</li>
-            <li><strong>Profile:</strong> Espaço de trabalho personalizado no editor que organiza os datasets importados, modelos gerados e blocos modulares.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 13: DDD ENTIDADES 2/2 -->
-    <section class="slide" data-slide="13">
-      <div class="slide-content">
-        <h2>Entidades Principais (2/2)</h2>
-        <p class="mb">Continuação das entidades encarregadas pelo processamento lógico distribuído na nuvem:</p>
-        <div class="box">
-          <ul class="spaced-list">
-            <li><strong>Job:</strong> Configuração que encapsula e armazena os meta-parâmetros do algoritmo genético estipulados para a execução do treinamento.</li>
-            <li><strong>Model (E-graph Dump):</strong> Abstração do modelo persistido gerado após o término de um Job. Contém referências para a visualização da Fronteira de Pareto.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 14: IQL TITLE -->
-    <section class="slide" data-slide="14">
-      <div class="slide-content">
-        <h2 style="margin-bottom: 1.5rem;">A Linguagem IQL (Inference Query Language)</h2>
-        <p style="margin-bottom: 1.5rem;">A Inference Query Language (IQL) é uma linguagem declarativa desenvolvida para a prospecção ativa de resultados.</p>
-        <div class="box box-highlight" style="padding: 1.5rem;">
-          <p style="margin-bottom: 1rem;">Com sintaxe estrutural análoga à linguagem SQL, a IQL foi proposta para realizar buscas e filtragens condicionais sobre os e-graphs gerados durante o treinamento.</p>
-          <ul class="spaced-list" style="margin-bottom: 0;">
-            <li style="margin-bottom: 1rem;">Possibilita consultas diretas baseadas no limite de erro numérico e tamanho final das árvores.</li>
-            <li style="margin-bottom: 1rem;">Atua em conjunto à biblioteca rEGGression para casamentos de padrões simbólicos.</li>
-            <li style="margin-bottom: 0;">Permite extrair a expressão ótima adequada sem depender da resposta isolada arbitrária de uma ferramenta fechada.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 15: IQL SINTAXE -->
-    <section class="slide" data-slide="15">
-      <div class="slide-content">
-        <h2 style="margin-bottom: 1.5rem;">A Sintaxe da Exploração Ativa</h2>
-        <p>A IQL permite que o pesquisador crie regras de filtragem para formular buscas estruturadas e detalhadas:</p>
-        <pre style="margin-top: 1rem; overflow: visible; font-size: 1.3rem !important; padding: 2rem !important;"><code class="language-sql">SELECT TOP 5 expression, fitness, size 
+<div class="egraph-visual step-1 mt" id="egraphVisual">
+<div class="eclass c1">
+<div class="eclass-border"><div class="enode">\(\times\)</div></div>
+<div class="earrows"><span>↙</span><span>↘</span></div>
+<div class="echildren"><div class="eclass-leaf">\(x\)</div><div class="eclass-leaf">\(2\)</div></div>
+</div>
+<div class="eclass c2">
+<div class="eclass-border"><div class="enode">\(+\)</div></div>
+<div class="earrows"><span>↙</span><span>↘</span></div>
+<div class="echildren"><div class="eclass-leaf">\(x\)</div><div class="eclass-leaf">\(x\)</div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SLIDE 9: ALTERNATIVAS -->
+<section class="slide" data-slide="9">
+<div class="slide-content">
+<h2>Barreiras das Ferramentas Atuais</h2>
+<div class="box box-highlight">
+<p class="mb">Softwares atuais de SR (como TuringBot e HeuristicLab) ainda sofrem com problemas cruciais:</p>
+<ul class="spaced-list">
+<li><strong>Peso Local:</strong> Forçam que o computador do usuário (com CPU e bateria normais) sustente sozinho toda a carga computacional do cálculo da evolução.</li>
+<li><strong>Analista Passivo:</strong> Essas ferramentas geralmente retornam um conjunto restrito de alternativas. Isso priva o analista de navegar ativamente pelo E-graph para garimpar e consultar expressões por meio de regras personalizadas.</li>
+</ul>
+</div>
+</div>
+</section>
+<!-- SLIDE 10: SPECTRUM -->
+<section class="slide" data-slide="10">
+<div class="slide-content">
+<h2>A Solução: Plataforma Spectrum</h2>
+<div class="split">
+<div>
+<ul class="spaced-list">
+<li>Criamos uma ferramenta nativa <strong>Web e em Nuvem</strong> dedicada a resolver todos os problemas de usabilidade da pesquisa em Regressão Simbólica.</li>
+<li>O processamento massivo ocorre invisível na nuvem, poupando a máquina do usuário final de travamentos.</li>
+<li>Centraliza 100% da operação num ambiente amigável: do momento de subir a tabela de dados até a geração do relatório visual conclusivo.</li>
+</ul>
+</div>
+<div>
+<img alt="Screenshot da Plataforma Spectrum" class="platform-img" src="images/screens/profile_aberta.png"/>
+</div>
+</div>
+</div>
+</section>
+<!-- SLIDE 11: DDD DOMÍNIOS -->
+<section class="slide" data-slide="11">
+<div class="slide-content">
+<h2>Domain-Driven Design (A Arquitetura)</h2>
+<p>A arquitetura do sistema segue os princípios do <em>Domain-Driven Design</em> (DDD), garantindo o isolamento da regra de negócio. Os principais domínios são:</p>
+<div class="box box-highlight" style="margin-top: 1rem;">
+<ul class="spaced-list">
+<li><strong>Authentication:</strong> Regras de login e segurança de credenciais para os pesquisadores.</li>
+<li><strong>Workspace:</strong> Gestão e isolamento das pastas, tabelas de dados brutos e rascunhos individuais de cada usuário.</li>
+<li><strong>Training:</strong> Coordena o envio das execuções de Inteligência Artificial para as filas na nuvem garantindo não travar a Web.</li>
+<li><strong>Inference:</strong> O módulo que analisa o grafo já processado e exibe em tabelas os melhores resultados matemáticos garimpados.</li>
+</ul>
+</div>
+</div>
+</section>
+<!-- SLIDE 12: DDD ENTIDADES 1/2 -->
+<section class="slide" data-slide="12">
+<div class="slide-content">
+<h2>Entidades Principais (1/2)</h2>
+<p class="mb">Todo o fluxo de uso roda em cima de entidades centrais claras mapeadas dentro do banco de dados do sistema:</p>
+<div class="box">
+<ul class="spaced-list">
+<li><strong>User:</strong> A identidade central do pesquisador, responsável pela autenticação e controle de acesso.</li>
+<li><strong>Dataset:</strong> Abstração lógica que armazena os metadados e as referências diretas aos arquivos CSV experimentais.</li>
+<li><strong>Profile:</strong> Espaço de trabalho personalizado no editor que organiza os datasets importados, modelos gerados e blocos modulares.</li>
+</ul>
+</div>
+</div>
+</section>
+<!-- SLIDE 13: DDD ENTIDADES 2/2 -->
+<section class="slide" data-slide="13">
+<div class="slide-content">
+<h2>Entidades Principais (2/2)</h2>
+<p class="mb">Continuação das entidades encarregadas pelo processamento lógico distribuído na nuvem:</p>
+<div class="box">
+<ul class="spaced-list">
+<li><strong>Job:</strong> Configuração que encapsula e armazena os meta-parâmetros do algoritmo genético estipulados para a execução do treinamento.</li>
+<li><strong>Model (E-graph Dump):</strong> Abstração do modelo persistido gerado após o término de um Job. Contém referências para a visualização da Fronteira de Pareto.</li>
+</ul>
+</div>
+</div>
+</section>
+<!-- SLIDE 14: IQL TITLE -->
+<section class="slide" data-slide="14">
+<div class="slide-content">
+<h2 style="margin-bottom: 1.5rem;">A Linguagem IQL (Inference Query Language)</h2>
+<p style="margin-bottom: 1.5rem;">A Inference Query Language (IQL) é uma linguagem declarativa desenvolvida para a prospecção ativa de resultados.</p>
+<div class="box box-highlight" style="padding: 1.5rem;">
+<p style="margin-bottom: 1rem;">Com sintaxe estrutural análoga à linguagem SQL, a IQL foi proposta para realizar buscas e filtragens condicionais sobre os e-graphs gerados durante o treinamento.</p>
+<ul class="spaced-list" style="margin-bottom: 0;">
+<li style="margin-bottom: 1rem;">Possibilita consultas diretas baseadas no limite de erro numérico e tamanho final das árvores.</li>
+<li style="margin-bottom: 1rem;">Atua em conjunto à biblioteca rEGGression para casamentos de padrões simbólicos.</li>
+<li style="margin-bottom: 0;">Permite extrair a expressão ótima adequada sem depender da resposta isolada arbitrária de uma ferramenta fechada.</li>
+</ul>
+</div>
+</div>
+</section>
+<!-- SLIDE 15: IQL SINTAXE -->
+<section class="slide" data-slide="15">
+<div class="slide-content">
+<h2 style="margin-bottom: 1.5rem;">A Sintaxe da Exploração Ativa</h2>
+<p>A IQL permite que o pesquisador crie regras de filtragem para formular buscas estruturadas e detalhadas:</p>
+<pre style="margin-top: 1rem; overflow: visible; font-size: 1.3rem !important; padding: 2rem !important;"><code class="language-sql">SELECT TOP 5 expression, fitness, size 
 FROM egraph_gravitacional 
-WHERE size <= 15 AND fitness < 0.05
+WHERE size &lt;= 15 AND fitness &lt; 0.05
 PATTERN IS LIKE sin(v0) * v1;</code></pre>
-        <ul style="margin-top: 1rem;">
-          <li style="margin-bottom: 1rem;"><strong>Filtragem Estrutural (Pattern):</strong> A diretiva `PATTERN` permite a extração condicional de expressões limitando-as rigorosamente pela correspondência morfológica.</li>
-          <li style="margin-bottom: 0;"><strong>Avaliação Contínua:</strong> Comunicação <em>Server Side Events</em> (SSE) renderiza a extração parcial das equações conforme o servidor as obtém.</li>
-        </ul>
-      </div>
-    </section>
-    
-    <!-- SLIDE 16: IQL FILTROS AVANCADOS -->
-    <section class="slide" data-slide="16">
-      <div class="slide-content">
-        <h2>Exploração e Filtros Avançados</h2>
-        <div class="split">
-          <div>
-            <ul class="spaced-list">
-              <li>A sintaxe da IQL foi desenhada para expandir o potencial de filtragem além da simples morfologia da equação.</li>
-              <li>É possível definir limiares complexos combinando os metadados agregados aos E-nodes, avaliando instantaneamente as alternativas de sub-expressões que habitam a estrutura.</li>
-            </ul>
-          </div>
-          <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
-            <img src="images/screens/advanced_filters.png" class="platform-img" alt="Screenshot de Filtros Avançados" style="max-height: 500px; width: auto;">
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 17: CADERNOS COMPUTACIONAIS -->
-    <section class="slide" data-slide="17">
-      <div class="slide-content">
-        <h2>Interface de Perfis e Blocos Modulares</h2>
-        <div class="split">
-          <div>
-            <ul class="spaced-list">
-              <li>O ambiente de trabalho unifica a extração analítica através da organização da visualização em blocos modulares.</li>
-              <li><strong>Blocos IQL:</strong> Componentes executáveis que acolhem as consultas estruturadas pelo pesquisador.</li>
-              <li><strong>Blocos Markdown:</strong> Área textual baseada na linguagem Markdown, utilizada para formatar redações e relatar a justificativa científica das expressões obtidas.</li>
-            </ul>
-          </div>
-          <div>
-            <img src="images/screens/inference_block_results.png" class="platform-img" alt="Resultados de Inferência no Caderno">
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 18: FUNCIONALIDADES - DATASETS -->
-    <section class="slide" data-slide="18">
-      <div class="slide-content">
-        <h2>Funcionalidades: Gestão de Datasets</h2>
-        <div class="split">
-          <div>
-            <ul class="spaced-list">
-              <li><strong>Espaços de Trabalho Limpos:</strong> Todo projeto novo começa num Workspace segregado, mantendo a tela organizada.</li>
-              <li><strong>Pipeline de Dados Integrado:</strong> A abstração permite conduzir o envio dos dados, verificação morfológica e inicialização preditiva.</li>
-              <li><strong>Garantia Pré-Treino:</strong> O sistema abre uma visão da tabela final carregada, deixando o pesquisador conferir visualmente se os dados batem.</li>
-            </ul>
-          </div>
-          <div>
-            <img src="images/screens/upload_data_preview.png" class="platform-img" alt="Visualização do Upload de Dados">
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 19: FUNCIONALIDADES - JOBS -->
-    <section class="slide" data-slide="19">
-      <div class="slide-content">
-        <h2 style="margin-bottom: 1.5rem;">Funcionalidades: Submissão de Jobs</h2>
-        <p>A criação de modelos de regressão é plenamente configurável por meio da interface gráfica.</p>
-        <div class="split" style="margin-top: 1rem; align-items: stretch;">
-          <div class="box box-highlight" style="height: 100%; padding: 1.5rem;">
-            <ul class="spaced-list" style="margin-bottom: 0;">
-              <li style="margin-bottom: 1rem;"><strong>Configuração de Parâmetros:</strong> Área dedicada à definição das variáveis estipuladas ao treinamento.</li>
-              <li style="margin-bottom: 0;"><strong>Execução Distribuída:</strong> A carga computacional é despachada por meio de um <em>broker</em> de filas, garantindo execução isolada em <em>Workers</em>, liberando a interface.</li>
-            </ul>
-          </div>
-          <div class="center-text" style="display: flex; align-items: center; justify-content: center;">
-            <img src="images/screens/add_job_section.png" class="platform-img" alt="Seção de Submissão de Job" style="max-height: 280px; width: auto;">
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 20: FUNCIONALIDADES - PARETO E ANÁLISE -->
-    <section class="slide" data-slide="20">
-      <div class="slide-content">
-        <h2>Funcionalidades: Avaliação Multiobjetivo</h2>
-        <div class="split">
-          <div>
-            <p class="mb">A Avaliação Multiobjetivo auxilia a seleção do modelo, viabilizando o balanço de métricas conflitantes.</p>
-            <ul class="spaced-list">
-              <li><strong>Fronteira de Pareto:</strong> O módulo plota um gráfico em duas dimensões explicitando as equações com base na Precisão vs Complexidade.</li>
-              <li><strong>Seleção Intuitiva:</strong> Permite ao usuário interagir visualmente com a distribuição populacional, facilitando a escolha da expressão.</li>
-            </ul>
-          </div>
-          <div>
-            <img src="images/screens/model_metrics_pareto.png" class="platform-img" alt="Gráfico de Fronteira de Pareto">
-          </div>
-        </div>
-      </div>
-    </section>
-    
-    <!-- SLIDE 21: ANALISE DE METRICAS (Model metrics comparison) -->
-    <section class="slide" data-slide="21">
-      <div class="slide-content">
-        <h2>Análise Comparativa de Modelos</h2>
-        <div class="split">
-          <div>
-            <ul class="spaced-list">
-              <li>Além da Fronteira de Pareto, o ambiente gráfico fornece painéis detalhados de validação lado a lado.</li>
-              <li>O pesquisador ganha o poder de cruzar métricas de teste adicionais, validando a robustez dos modelos candidatos antes da sua exportação oficial, tudo no próprio navegador.</li>
-            </ul>
-          </div>
-          <div>
-            <img src="images/screens/model_metrics_comparison.png" class="platform-img" alt="Comparativo de Métricas dos Modelos">
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 22: COMPARATIVO -->
-    <section class="slide" data-slide="22">
-      <div class="slide-content">
-        <h2>Comparação Analítica de Plataformas</h2>
-        <p style="text-align: center; margin-bottom: 1rem;">Comparação de funcionalidades essenciais para pesquisa em Regressão Simbólica.</p>
-        <table class="table-simple" style="font-size: 1.1rem; margin-top: 0;">
-          <tr>
-            <th>Funcionalidade</th>
-            <th>HeuristicLab</th>
-            <th>TuringBot</th>
-            <th><strong>Spectrum</strong></th>
-          </tr>
-          <tr>
-            <td>Interface Gráfica</td>
-            <td>Sim</td>
-            <td>Sim</td>
-            <td><strong>Sim</strong></td>
-          </tr>
-          <tr>
-            <td>Exibição da Fronteira de Pareto e Métricas</td>
-            <td>Sim</td>
-            <td>Sim</td>
-            <td><strong>Sim</strong></td>
-          </tr>
-          <tr>
-            <td>Acessibilidade Web</td>
-            <td>Não</td>
-            <td>Não</td>
-            <td><strong>Sim</strong></td>
-          </tr>
-          <tr>
-            <td>Treinamento Remoto e Assíncrono</td>
-            <td>Parcial</td>
-            <td>Não</td>
-            <td><strong>Sim</strong></td>
-          </tr>
-          <tr>
-            <td>Pipelines de Dados Integrados</td>
-            <td>Não</td>
-            <td>Não</td>
-            <td><strong>Sim</strong></td>
-          </tr>
-          <tr class="highlight-row">
-            <td>Suporte a Consultas Declarativas de Padrões (IQL)</td>
-            <td>Não</td>
-            <td>Não</td>
-            <td><strong>Sim</strong></td>
-          </tr>
-          <tr>
-            <td>Ambiente de Documentação Integrado</td>
-            <td>Não</td>
-            <td>Não</td>
-            <td><strong>Sim</strong></td>
-          </tr>
-          <tr>
-            <td>Uso da estrutura de Grafos de Igualdade</td>
-            <td>Não</td>
-            <td>Não</td>
-            <td><strong>Sim</strong></td>
-          </tr>
-        </table>
-      </div>
-    </section>
-
-    <!-- SLIDE 23: CONCLUSÃO -->
-    <section class="slide" data-slide="23">
-      <div class="slide-content">
-        <h2>Conclusão</h2>
-        <div class="box box-highlight">
-          <ul class="spaced-list">
-            <li>A arquitetura distribuída do <strong>Spectrum</strong> provou que a transição de cargas pesadas para uma execução via filas destrava o treinamento exaustivo sem consumir o maquinário local do analista.</li>
-            <li>A linguagem estruturada <strong>IQL</strong> quebra o modelo de observação estática de outras ferramentas, permitindo ao cientista a prospecção e extração guiada de regras específicas imersas nos <em>e-graphs</em>.</li>
-            <li>Centralizar as visualizações otimizadas acopladas ao redator acadêmico agilizou com eficiência os fluxos metodológicos.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 24: TRABALHOS FUTUROS -->
-    <section class="slide" data-slide="24">
-      <div class="slide-content">
-        <h2>Trabalhos Futuros</h2>
-        <div class="box">
-          <ul class="spaced-list">
-            <li><strong>Resiliência de Rede:</strong> Implantar o padrão arquitetural estrito no código do backend para garantir que nenhum processo se perca.</li>
-            <li><strong>Suporte Estendido:</strong> Possibilitar a integração opcional da camada de treinamento para interligar as execuções IQL aos motores otimizados em C++ (ex. PySR).</li>
-            <li><strong>Tipagens Textuais Avançadas:</strong> Expandir o processador de dados para abranger e validar representações em texto, provindas da computação através de embeddings numéricos.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 25: ENCERRAMENTO -->
-    <section class="slide" data-slide="25">
-      <div class="slide-content center-content">
-        <h1 class="title" style="font-size: 6rem; margin-bottom: 2rem;">Perguntas?</h1>
-      </div>
-    </section>
-
-  </main>
-
-  <script src="app.js"></script>
+<ul style="margin-top: 1rem;">
+<li style="margin-bottom: 1rem;"><strong>Filtragem Estrutural (Pattern):</strong> A diretiva `PATTERN` permite a extração condicional de expressões limitando-as rigorosamente pela correspondência morfológica.</li>
+<li style="margin-bottom: 0;"><strong>Avaliação Contínua:</strong> Comunicação <em>Server Side Events</em> (SSE) renderiza a extração parcial das equações conforme o servidor as obtém.</li>
+</ul>
+</div>
+</section><section class="slide" data-slide="16">
+<div class="slide-content">
+<h2>O Pipeline de Execução da IQL</h2>
+<p class="mb">A execução das consultas IQL roda em um interpretador e compilador próprio (Parser) construído do zero na plataforma:</p>
+<div class="box box-highlight">
+<ul class="spaced-list">
+<li><strong>Análise Léxica (Tokenização):</strong> Converte a consulta textual em tokens validando a sintaxe e a semântica de forma robusta.</li>
+<li><strong>Análise Sintática (Pratt Parser):</strong> Transforma os tokens em uma Árvore de Sintaxe Abstrata (AST) representativa da própria consulta do usuário.</li>
+<li><strong>Integração Nativa:</strong> O motor executa a AST compilada diretamente contra o <em>e-graph</em> carregado em memória, garantindo altíssimo desempenho na extração massiva.</li>
+</ul>
+</div>
+</div>
+</section><section class="slide" data-slide="17">
+<div class="slide-content">
+<h2>Casamento de Padrões (Pattern Matching)</h2>
+<div class="split">
+<div>
+<ul class="spaced-list">
+<li>O verdadeiro poder da IQL reside na sua integração com algoritmos de <em>Pattern Matching</em> aplicados em grafos.</li>
+<li>A diretiva <code>PATTERN IS LIKE</code> instrui o motor a varrer o e-graph procurando equações que respeitem um <strong>esqueleto matemático específico</strong> (ex: <code>sin(v0) * v1</code>).</li>
+<li>Garante que as expressões extraídas façam total sentido para as regras de negócio ou físicas do especialista, injetando conhecimento humano na filtragem.</li>
+</ul>
+</div>
+<div class="box box-highlight" style="display: flex; align-items: center; justify-content: center; padding: 2rem;">
+<p style="font-size: 1.3rem; line-height: 1.8; text-align: center;">"A capacidade de filtrar expressões que respeitem características estruturais pré-estabelecidas torna o processo alinhado aos conhecimentos prévios do especialista de domínio."</p>
+</div>
+</div>
+</div>
+</section>
+<!-- SLIDE 16: IQL FILTROS AVANCADOS -->
+<section class="slide" data-slide="18">
+<div class="slide-content">
+<h2>Exploração e Filtros Avançados</h2>
+<div class="split">
+<div>
+<ul class="spaced-list">
+<li>A sintaxe da IQL foi desenhada para expandir o potencial de filtragem além da simples morfologia da equação.</li>
+<li>É possível definir limiares complexos combinando os metadados agregados aos E-nodes, avaliando instantaneamente as alternativas de sub-expressões que habitam a estrutura.</li>
+</ul>
+</div>
+<div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+<img alt="Screenshot de Filtros Avançados" class="platform-img" src="images/screens/advanced_filters.png" style="max-height: 500px; width: auto;"/>
+</div>
+</div>
+</div>
+</section>
+<!-- SLIDE 17: CADERNOS COMPUTACIONAIS -->
+<section class="slide" data-slide="19">
+<div class="slide-content">
+<h2>Interface de Perfis e Blocos Modulares</h2>
+<div class="split">
+<div>
+<ul class="spaced-list">
+<li>O ambiente de trabalho unifica a extração analítica através da organização da visualização em blocos modulares.</li>
+<li><strong>Blocos IQL:</strong> Componentes executáveis que acolhem as consultas estruturadas pelo pesquisador.</li>
+<li><strong>Blocos Markdown:</strong> Área textual baseada na linguagem Markdown, utilizada para formatar redações e relatar a justificativa científica das expressões obtidas.</li>
+</ul>
+</div>
+<div>
+<img alt="Resultados de Inferência no Caderno" class="platform-img" src="images/screens/inference_block_results.png"/>
+</div>
+</div>
+</div>
+</section>
+<!-- SLIDE 18: FUNCIONALIDADES - DATASETS -->
+<section class="slide" data-slide="20">
+<div class="slide-content">
+<h2>Funcionalidades: Gestão de Datasets</h2>
+<div class="split">
+<div>
+<ul class="spaced-list">
+<li><strong>Espaços de Trabalho Limpos:</strong> Todo projeto novo começa num Workspace segregado, mantendo a tela organizada.</li>
+<li><strong>Pipeline de Dados Integrado:</strong> A abstração permite conduzir o envio dos dados, verificação morfológica e inicialização preditiva.</li>
+<li><strong>Garantia Pré-Treino:</strong> O sistema abre uma visão da tabela final carregada, deixando o pesquisador conferir visualmente se os dados batem.</li>
+</ul>
+</div>
+<div>
+<img alt="Visualização do Upload de Dados" class="platform-img" src="images/screens/upload_data_preview.png"/>
+</div>
+</div>
+</div>
+</section>
+<!-- SLIDE 19: FUNCIONALIDADES - JOBS -->
+<section class="slide" data-slide="21">
+<div class="slide-content">
+<h2 style="margin-bottom: 1.5rem;">Funcionalidades: Submissão de Jobs</h2>
+<p>A criação de modelos de regressão é plenamente configurável por meio da interface gráfica.</p>
+<div class="split" style="margin-top: 1rem; align-items: stretch;">
+<div class="box box-highlight" style="height: 100%; padding: 1.5rem;">
+<ul class="spaced-list" style="margin-bottom: 0;">
+<li style="margin-bottom: 1rem;"><strong>Configuração de Parâmetros:</strong> Área dedicada à definição das variáveis estipuladas ao treinamento.</li>
+<li style="margin-bottom: 0;"><strong>Execução Distribuída:</strong> A carga computacional é despachada por meio de um <em>broker</em> de filas, garantindo execução isolada em <em>Workers</em>, liberando a interface.</li>
+</ul>
+</div>
+<div class="center-text" style="display: flex; align-items: center; justify-content: center;">
+<img alt="Seção de Submissão de Job" class="platform-img" src="images/screens/add_job_section.png" style="max-height: 280px; width: auto;"/>
+</div>
+</div>
+</div>
+</section>
+<!-- SLIDE 20: FUNCIONALIDADES - PARETO E ANÁLISE -->
+<section class="slide" data-slide="22">
+<div class="slide-content">
+<h2>Funcionalidades: Avaliação Multiobjetivo</h2>
+<div class="split">
+<div>
+<p class="mb">A Avaliação Multiobjetivo auxilia a seleção do modelo, viabilizando o balanço de métricas conflitantes.</p>
+<ul class="spaced-list">
+<li><strong>Fronteira de Pareto:</strong> O módulo plota um gráfico em duas dimensões explicitando as equações com base na Precisão vs Complexidade.</li>
+<li><strong>Seleção Intuitiva:</strong> Permite ao usuário interagir visualmente com a distribuição populacional, facilitando a escolha da expressão.</li>
+</ul>
+</div>
+<div>
+<img alt="Gráfico de Fronteira de Pareto" class="platform-img" src="images/screens/model_metrics_pareto.png"/>
+</div>
+</div>
+</div>
+</section>
+<!-- SLIDE 21: ANALISE DE METRICAS (Model metrics comparison) -->
+<section class="slide" data-slide="23">
+<div class="slide-content">
+<h2>Análise Comparativa de Modelos</h2>
+<div class="split">
+<div>
+<ul class="spaced-list">
+<li>Além da Fronteira de Pareto, o ambiente gráfico fornece painéis detalhados de validação lado a lado.</li>
+<li>O pesquisador ganha o poder de cruzar métricas de teste adicionais, validando a robustez dos modelos candidatos antes da sua exportação oficial, tudo no próprio navegador.</li>
+</ul>
+</div>
+<div>
+<img alt="Comparativo de Métricas dos Modelos" class="platform-img" src="images/screens/model_metrics_comparison.png"/>
+</div>
+</div>
+</div>
+</section>
+<!-- SLIDE 22: COMPARATIVO -->
+<section class="slide" data-slide="24">
+<div class="slide-content">
+<h2>Comparação Analítica de Plataformas</h2>
+<p style="text-align: center; margin-bottom: 1rem;">Comparação de funcionalidades essenciais para pesquisa em Regressão Simbólica.</p>
+<table class="table-simple" style="font-size: 1.1rem; margin-top: 0;">
+<tr>
+<th>Funcionalidade</th>
+<th>HeuristicLab</th>
+<th>TuringBot</th>
+<th><strong>Spectrum</strong></th>
+</tr>
+<tr>
+<td>Interface Gráfica</td>
+<td>Sim</td>
+<td>Sim</td>
+<td><strong>Sim</strong></td>
+</tr>
+<tr>
+<td>Exibição da Fronteira de Pareto e Métricas</td>
+<td>Sim</td>
+<td>Sim</td>
+<td><strong>Sim</strong></td>
+</tr>
+<tr>
+<td>Acessibilidade Web</td>
+<td>Não</td>
+<td>Não</td>
+<td><strong>Sim</strong></td>
+</tr>
+<tr>
+<td>Treinamento Remoto e Assíncrono</td>
+<td>Parcial</td>
+<td>Não</td>
+<td><strong>Sim</strong></td>
+</tr>
+<tr>
+<td>Pipelines de Dados Integrados</td>
+<td>Não</td>
+<td>Não</td>
+<td><strong>Sim</strong></td>
+</tr>
+<tr class="highlight-row">
+<td>Suporte a Consultas Declarativas de Padrões (IQL)</td>
+<td>Não</td>
+<td>Não</td>
+<td><strong>Sim</strong></td>
+</tr>
+<tr>
+<td>Ambiente de Documentação Integrado</td>
+<td>Não</td>
+<td>Não</td>
+<td><strong>Sim</strong></td>
+</tr>
+<tr>
+<td>Uso da estrutura de Grafos de Igualdade</td>
+<td>Não</td>
+<td>Não</td>
+<td><strong>Sim</strong></td>
+</tr>
+</table>
+</div>
+</section>
+<!-- SLIDE 23: CONCLUSÃO -->
+<section class="slide" data-slide="25">
+<div class="slide-content">
+<h2>Conclusão</h2>
+<div class="box box-highlight">
+<ul class="spaced-list">
+<li>A arquitetura distribuída do <strong>Spectrum</strong> provou que a transição de cargas pesadas para uma execução via filas destrava o treinamento exaustivo sem consumir o maquinário local do analista.</li>
+<li>A linguagem estruturada <strong>IQL</strong> quebra o modelo de observação estática de outras ferramentas, permitindo ao cientista a prospecção e extração guiada de regras específicas imersas nos <em>e-graphs</em>.</li>
+<li>Centralizar as visualizações otimizadas acopladas ao redator acadêmico agilizou com eficiência os fluxos metodológicos.</li>
+</ul>
+</div>
+</div>
+</section>
+<!-- SLIDE 24: TRABALHOS FUTUROS -->
+<section class="slide" data-slide="26">
+<div class="slide-content">
+<h2>Trabalhos Futuros</h2>
+<div class="box">
+<ul class="spaced-list">
+<li><strong>Resiliência de Rede:</strong> Implantar o padrão arquitetural estrito no código do backend para garantir que nenhum processo se perca.</li>
+<li><strong>Suporte Estendido:</strong> Possibilitar a integração opcional da camada de treinamento para interligar as execuções IQL aos motores otimizados em C++ (ex. PySR).</li>
+<li><strong>Tipagens Textuais Avançadas:</strong> Expandir o processador de dados para abranger e validar representações em texto, provindas da computação através de embeddings numéricos.</li>
+</ul>
+</div>
+</div>
+</section>
+<!-- SLIDE 25: ENCERRAMENTO -->
+<section class="slide" data-slide="27">
+<div class="slide-content center-content">
+<h1 class="title" style="font-size: 6rem; margin-bottom: 2rem;">Perguntas?</h1>
+</div>
+</section>
+</main>
+<script src="app.js"></script>
 </body>
 </html>
