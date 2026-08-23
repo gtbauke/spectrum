@@ -21,7 +21,6 @@ A Tabela~\ref{tab:iql_sql_comparison} apresenta um quadro comparativo entre as e
         \texttt{FROM} & Especifica a tabela de origem no esquema relacional & Especifica o modelo para instanciar o subjacente \textit{e-graph} em memória \\
         \texttt{WHERE} & Filtra linhas de acordo com predicados & Filtra equações empíricas por complexidade ou taxa de erro \\
         \texttt{LIKE} & Busca de similaridade léxica (\texttt{\%}) sob dados em \textit{strings} & Executa correspondência morfológica (\textit{pattern matching}) na AST da equação \\
-        \texttt{ORDER BY} & Ordena a saída de modo indexado por colunas sequenciais & Ordena por métricas de aptidão intrínseca (\textit{fitness}) ou complexidade (\textit{size}) \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -43,8 +42,7 @@ A IQL é composta por uma sintaxe inspirada no padrão ANSI SQL. A gramática fo
             \textit{column-list} \\
         & & \texttt{FROM} \textit{identifier}
             [\textit{where-clause}] \\
-        & & [\textit{pattern-clause}]
-            [\textit{order-clause}] \\
+        & & [\textit{pattern-clause}] \\
         & & [\textit{at-least-clause}]
             [\textit{limit-clause}] \\[4pt]
         \textit{modifier} & ::= & \texttt{TOP} \textit{integer}
@@ -68,7 +66,6 @@ A IQL é composta por uma sintaxe inspirada no padrão ANSI SQL. A gramática fo
             $\mid$ \textit{pattern-expr} \textit{arith-op} \textit{pattern-expr} \\[4pt]
         \textit{arith-op} & ::= & \texttt{+} $\mid$ \texttt{-}
             $\mid$ \texttt{*} $\mid$ \texttt{/} \\[4pt]
-        \textit{order-clause} & ::= & \texttt{ORDER BY} \textit{identifier} \\[4pt]
         \textit{at-least-clause} & ::= & \texttt{AT LEAST} \textit{integer} \\[4pt]
         \textit{limit-clause} & ::= & \texttt{LIMIT} \textit{integer} \\[4pt]
         \textit{identifier} & ::= & \textit{letter} (\textit{letter} $\mid$ \textit{digit}
@@ -110,7 +107,7 @@ A cláusula \texttt{WHERE} aplica filtros condicionais sobre as expressões cand
 
 A cláusula \texttt{PATTERN IS LIKE} realiza uma filtragem baseada nos padrões matemáticos contidos nas expressões geradas pelo modelo. Essa cláusula é especialmente útil para identificar expressões que compartilham uma estrutura comum, independentemente dos parâmetros específicos ou da complexidade. Por exemplo, a consulta \texttt{PATTERN IS LIKE sin(v0)} retornaria todas as expressões que contêm a função seno aplicada a uma variável, independentemente de outras operações ou termos presentes na expressão. A correspondência de padrões é realizada através da análise da Árvore de Sintaxe Abstrata (AST) das expressões, possibilitada pela estrutura de dados do \textit{e-graph} que mantém a representação abstrata da expressão matemática. Isso permite uma correspondência morfológica eficiente e flexível, que pode ser utilizada para explorar o espaço de soluções de maneira mais direcionada e intuitiva.
 
-A cláusula \texttt{ORDER BY} permite a ordenação dos resultados com base em uma métrica específica, como aptidão ou complexidade. Isso é especialmente útil para priorizar as soluções mais relevantes ou mais simples, dependendo do contexto da análise. A ordenação é realizada de forma ascendente por padrão, mas pode ser configurada para ordenação descendente se necessário.
+A implementação de uma cláusula \texttt{ORDER BY} também foi idealizada para permitir a ordenação dos resultados com base em uma métrica específica, como aptidão ou complexidade, visando priorizar as soluções mais relevantes ou mais simples. Embora inicialmente projetada na gramática teórica, a implementação funcional desta cláusula para ordenação ascendente e descendente é um recurso planejado para trabalhos futuros.
 
 A cláusula \texttt{AT LEAST} é utilizada para especificar um número mínimo de ocorrências de um determinado padrão ou expressão dentro do \textit{e-graph}. Isso é particularmente útil quando se deseja identificar expressões que são recorrentes ou que possuem uma frequência significativa dentro do espaço de soluções, o que pode indicar uma relevância maior ou uma tendência estrutural importante. Já a cláusula \texttt{LIMIT} restringe o número total de resultados retornados pela consulta, o que é útil para evitar sobrecarga de informações e para focar em um subconjunto mais gerenciável de soluções, especialmente quando o espaço de soluções é muito grande.
 
