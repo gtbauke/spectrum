@@ -65,9 +65,9 @@ Complementarmente, a análise das melhores expressões gerais (Tabela~\ref{tab:c
 Outro cenário que merece destaque é a utilização de consultas baseadas em padrões estruturais, como a cláusula \texttt{PATTERN IS LIKE}. Um pesquisador que deseja explorar modelos que preservem a forma funcional da Lei da Gravitação Universal pode utilizar seu conhecimento prévio para restringir a busca a expressões que sejam inversamente proporcionais ao quadrado da distância, independentemente de constantes multiplicativas. Por exemplo, a consulta:
 \begin{lstlisting}[language=SQL]
     SELECT TOP 10 expression, fitness, parameters, size FROM modelo_3
-    PATTERN IS LIKE 'v0 / (x3 ** 2)'
+    PATTERN IS LIKE 'v0 / (x2 * x2)'
 \end{lstlisting}
-permite recuperar apenas expressões que respeitem a estrutura $\frac{m_1 m_2}{r^2}$, mesmo em cenários com ruído significativo, como o Cenário 3. Essa capacidade de filtrar resultados com base em padrões estruturais é uma ferramenta poderosa para pesquisadores que desejam explorar o espaço de busca de forma direcionada, alinhando os resultados obtidos com o conhecimento teórico existente.
+permite recuperar apenas expressões que respeitem a estrutura $\frac{1}{r^2}$, mesmo em cenários com ruído significativo, como o Cenário 3. Essa capacidade de filtrar resultados com base em padrões estruturais é uma ferramenta poderosa para pesquisadores que desejam explorar o espaço de busca de forma direcionada, alinhando os resultados obtidos com o conhecimento teórico existente. A tabela \ref{tab:case_study_pattern_results} no Apêndice~\ref{sec:appendix-case-study-results} apresenta os resultados obtidos com a consulta baseada em padrões estruturais, evidenciando a eficácia da abordagem.
 
 Esses resultados demonstram concretamente que a abordagem de regressão simbólica baseada na plataforma Spectrum e inspecionada via consultas IQL permite extrair modelos interpretáveis que correspondem a leis físicas fundamentais, mesmo em condições estocásticas adversas.
 

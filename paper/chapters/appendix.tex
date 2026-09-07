@@ -926,4 +926,28 @@ A Tabela~\ref{tab:case_study_general_results} apresenta as 10 melhores expressõ
         \bottomrule
     \end{tabular}
 \end{table}
+
+\section{Expressões com Padrões Estruturais}
+\label{sec:appendix-pattern-results}
+A Tabela~\ref{tab:case_study_pattern_results} apresenta as expressões recuperadas pela consulta IQL baseada em padrões estruturais para o Cenário 3, utilizando a cláusula \texttt{PATTERN IS LIKE 'v0 / (x2 * x2)'}, ordenadas pelo seu desempenho (MSE).
+
+\begin{table}[htbp]
+    \centering
+    \caption{Expressões recuperadas por consulta IQL com padrões estruturais para o Cenário 3.}
+    \label{tab:case_study_pattern_results}
+    \begin{tabular}{p{2.8cm} c p{6.8cm} r}
+        \toprule
+        \textbf{Cenário} & \textbf{Rank} & \textbf{Expressão Encontrada} & \textbf{MSE} \\
+        \midrule
+        \multirow{7}{*}{\begin{tabular}{c}Cenário 3\\(Alto ruído -- 20\%)\end{tabular}} 
+          & 1  & $\frac{\frac{m_2 + m_2 m_1}{r}}{r^2}$ & $11{,}966$ \\
+          & 2  & $\frac{\frac{0{,}778 + 6{,}262(m_2 + 0{,}363)}{r}}{r^2}$ & $31{,}713$ \\
+          & 3  & $\frac{m_2 + 14{,}755 r}{r^2}$ & $41{,}867$ \\
+          & 4  & $\frac{\frac{36{,}909}{r^2}}{r - 0{,}128}$ & $46{,}625$ \\
+          & 5  & $\left(\frac{0{,}835 m_2^{-0{,}923}}{r^2}\right)^{-0{,}316}$ & $93{,}666$ \\
+          & 6  & $\frac{\frac{0{,}057^{m_2^{m_2}}}{\frac{1{,}839}{r^2}}}{r - 0{,}718}$ & $114{,}885$ \\
+          & 7  & $\frac{r}{(m_2 + 0{,}192)^{m_2} - \frac{m_1^r}{r^2}}$ & $158{,}473$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 \end{apendicesenv}
