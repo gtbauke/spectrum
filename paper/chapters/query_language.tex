@@ -105,7 +105,7 @@ Além disso, também é possível utilizar funções pré-definidas dentro da li
 
 A cláusula \texttt{WHERE} aplica filtros condicionais sobre as expressões candidatas, utilizando comparadores tradicionais como \texttt{=}, \texttt{<}, \texttt{>} e seus equivalentes de comparação. Esses filtros permitem restringir o conjunto de soluções retornadas com base em métricas como complexidade, número de parâmetros livres ou custo da expressão. Além disso, é possível filtrar especificamente pelos identificadores únicos das expressões, o que é útil para operações de referência cruzada ou para análises específicas sobre soluções previamente identificadas, desde que conhecidos esses identificadores. Múltiplas condições podem ser combinadas utilizando os operadores lógicos \texttt{AND} e \texttt{OR}, permitindo a construção de filtros complexos e específicos para as necessidades do usuário.
 
-A cláusula \texttt{PATTERN IS LIKE} realiza uma filtragem baseada nos padrões matemáticos contidos nas expressões geradas pelo modelo. Essa cláusula é especialmente útil para identificar expressões que compartilham uma estrutura comum, independentemente dos parâmetros específicos ou da complexidade. Por exemplo, a consulta \texttt{PATTERN IS LIKE sin(v0)} retornaria todas as expressões que contêm a função seno aplicada a uma variável, independentemente de outras operações ou termos presentes na expressão. A correspondência de padrões é realizada através da análise da Árvore de Sintaxe Abstrata (AST) das expressões, possibilitada pela estrutura de dados do \textit{e-graph} que mantém a representação abstrata da expressão matemática. Isso permite uma correspondência morfológica eficiente e flexível, que pode ser utilizada para explorar o espaço de soluções de maneira mais direcionada e intuitiva.
+A cláusula \texttt{PATTERN IS LIKE} realiza uma filtragem baseada nos padrões matemáticos contidos nas expressões geradas pelo modelo. Essa cláusula é especialmente útil para identificar expressões que compartilham uma estrutura comum, independentemente dos parâmetros específicos ou da complexidade. Por exemplo, a consulta \texttt{PATTERN IS LIKE "sin(v0)"} retornaria todas as expressões que contêm a função seno aplicada a uma variável, independentemente de outras operações ou termos presentes na expressão. A correspondência de padrões é realizada através da análise da Árvore de Sintaxe Abstrata (AST) das expressões, possibilitada pela estrutura de dados do \textit{e-graph} que mantém a representação abstrata da expressão matemática. Isso permite uma correspondência morfológica eficiente e flexível, que pode ser utilizada para explorar o espaço de soluções de maneira mais direcionada e intuitiva.
 
 A implementação de uma cláusula \texttt{ORDER BY} também foi idealizada para permitir a ordenação dos resultados com base em uma métrica específica, como aptidão ou complexidade, visando priorizar as soluções mais relevantes ou mais simples. Embora inicialmente projetada na gramática teórica, a implementação funcional desta cláusula para ordenação ascendente e descendente é um recurso planejado para trabalhos futuros.
 
@@ -122,13 +122,13 @@ Abaixo são apresentados exemplos de como a IQL pode ser utilizada para extrair 
     \item \textbf{Identificação de expressões que contenham um padrão específico, nesse caso, a função seno aplicada a uma variável}:
     \begin{lstlisting}[language=SQL]
     SELECT TOP 10 expression, fitness, size FROM my_model
-    PATTERN IS LIKE sin(v0)
+    PATTERN IS LIKE "sin(v0)"
     \end{lstlisting}
 
     \item \textbf{Busca por expressões que contenham um padrão de multiplicação entre duas variáveis}:
     \begin{lstlisting}[language=SQL]
     SELECT PARETO expression, size FROM my_model
-    PATTERN IS LIKE x1 * x2
+    PATTERN IS LIKE "x1 * x2"
     \end{lstlisting}
 
     \item \textbf{Análise de distribuição de padrões específicos dentro do espaço de soluções, buscando identificar quais padrões são mais frequentes e qual é a aptidão média associada a esses padrões}:

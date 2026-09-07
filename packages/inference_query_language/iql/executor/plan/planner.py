@@ -205,7 +205,7 @@ class Planner:
         return f"{left.to_string(0).strip()} {operator} {right.to_string(0).strip()}"
 
     def _build_pattern_string(self, pattern_node: PatternMatchingExpression) -> str:
-        return pattern_node.pattern.to_string(0).strip()
+        return pattern_node.pattern.value.strip()
 
     def _resolve_top_n(self, modifier: TopNAstNode) -> int:
         value_node = modifier.top_n()

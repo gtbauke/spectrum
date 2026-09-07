@@ -62,6 +62,13 @@ A análise quantitativa da fronteira de Pareto (Tabela~\ref{tab:case_study_paret
 
 Complementarmente, a análise das melhores expressões gerais (Tabela~\ref{tab:case_study_general_results}) evidencia a versatilidade da consulta declarativa IQL sobre a estrutura de grafos de igualdade (\textit{e-graphs}). A cláusula \texttt{SELECT TOP 10} possibilita inspecionar variações analíticas de alto desempenho no espaço de busca que não necessariamente pertencem à fronteira de Pareto, mas que compartilham o mesmo patamar mínimo de erro (como $\text{MSE} \approx 0{,}000$ no Cenário 1 e $\text{MSE} = 0{,}0430$ no Cenário 2). Essa funcionalidade oferece ao pesquisador um leque diversificado de formulações matemáticas funcionalmente equivalentes ou adaptadas a diferentes restrições de domínio.
 
+Outro cenário que merece destaque é a utilização de consultas baseadas em padrões estruturais, como a cláusula \texttt{PATTERN IS LIKE}. Um pesquisador que deseja explorar modelos que preservem a forma funcional da Lei da Gravitação Universal pode utilizar seu conhecimento prévio para restringir a busca a expressões que sejam inversamente proporcionais ao quadrado da distância, independentemente de constantes multiplicativas. Por exemplo, a consulta:
+\begin{lstlisting}[language=SQL]
+    SELECT TOP 10 expression, fitness, parameters, size FROM modelo_3
+    PATTERN IS LIKE 'v0 / (x3 ** 2)'
+\end{lstlisting}
+permite recuperar apenas expressões que respeitem a estrutura $\frac{m_1 m_2}{r^2}$, mesmo em cenários com ruído significativo, como o Cenário 3. Essa capacidade de filtrar resultados com base em padrões estruturais é uma ferramenta poderosa para pesquisadores que desejam explorar o espaço de busca de forma direcionada, alinhando os resultados obtidos com o conhecimento teórico existente.
+
 Esses resultados demonstram concretamente que a abordagem de regressão simbólica baseada na plataforma Spectrum e inspecionada via consultas IQL permite extrair modelos interpretáveis que correspondem a leis físicas fundamentais, mesmo em condições estocásticas adversas.
 
 \section{A Plataforma Spectrum: Consolidação e Resultados}
