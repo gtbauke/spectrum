@@ -28,13 +28,12 @@ def get_current_user(
     request: Request,
     token: HTTPAuthorizationCredentials | None = Depends(security)
 ):
-    token_str = ""
+    cookie_token = request.cookies.get("access_token")
     if token:
         token_str = token.credentials
-    elif request.cookies.get("access_token"):
-        token_str = request.cookies.get("access_token")
-
-    if not token_str:
+    elif cookie_token:
+        token_str = cookie_token
+    else:
         raise InvalidJWTToken()
 
     payload = decode_jwt_token(token_str)

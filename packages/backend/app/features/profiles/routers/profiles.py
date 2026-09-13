@@ -6,10 +6,9 @@ from app.api.unit_of_work import get_uow
 from app.features.datasets.errors.dataset_not_found import DatasetNotFound
 from app.features.profiles.dtos.link import LinkDatasetToProfile
 from app.features.profiles.responses.profile_summary import ProfileSummary
-from core.features.datasets.where import DatasetWhere
-from core.features.profiles.blocks.block import Block
-from core.features.profiles.blocks.where import BlockWhere
-from core.ports.unit_of_work import UnitOfWork
+from app.features.datasets.domain.where import DatasetWhere
+from app.features.profiles.blocks.domain.block import Block
+from app.core.ports.unit_of_work import UnitOfWork
 
 from app.features.auth.guards.get_current_user import get_current_user
 from app.features.profiles.errors.profile_not_found import ProfileNotFound
@@ -17,21 +16,21 @@ from app.features.profiles.dtos.create import CreateProfileDto
 from app.features.profiles.dtos.update import UpdateProfileDto
 from app.features.profiles.guards.can_edit_profile import can_edit_profile
 
-from core.features.profiles.profile import Profile
-from core.features.profiles.profile_mode import ProfileMode
-from core.features.profiles.where import ProfileWhere, ProfileFilter
+from app.features.profiles.domain.profile import Profile
+from app.features.profiles.domain.profile_mode import ProfileMode
+from app.features.profiles.domain.where import ProfileWhere, ProfileFilter
 
-from core.features.datasets.dataset import Dataset
-from core.features.datasets.artifact import Artifact
-from core.features.datasets.artifact_role import ArtifactRole
+from app.features.datasets.domain.dataset import Dataset
+from app.features.datasets.domain.artifact import Artifact
+from app.features.datasets.domain.artifact_role import ArtifactRole
 
-from core.utils.pagination.base import Pagination
-from core.utils.filters.field_filter import UUIDFilter, StringFilter, EnumFilter
+from app.core.utils.pagination.base import Pagination
+from app.core.utils.filters.field_filter import UUIDFilter, StringFilter, EnumFilter
 
 from app.features.profiles.blocks.routers.blocks import blocks_router
 from app.features.profiles.jobs.routers.jobs import jobs_router
 from app.features.profiles.models.routers.models import models_router
-from db.features.auth.repository import PaginatedResponse
+from app.core.utils.pagination.response import PaginatedResponse
 
 profiles_router = APIRouter()
 

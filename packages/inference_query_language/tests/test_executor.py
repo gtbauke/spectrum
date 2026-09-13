@@ -43,7 +43,7 @@ def test_executor_with_predict(mock_regressions, monkeypatch):
             return np.array([1.0, 2.0, 3.0])
 
     monkeypatch.setattr(
-        "core.features.profiles.blocks.inference.prediction_service.PredictionEvaluationService",
+        "iql.executor.query_executor.PredictionEvaluationService",
         MockService
     )
 

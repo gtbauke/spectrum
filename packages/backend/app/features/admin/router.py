@@ -5,12 +5,12 @@ from pathlib import Path
 from typing import Annotated
 
 import aio_pika
-from fastapi import APIRouter, Depends, Header, HTTPException, Response
+from fastapi import APIRouter, Depends, Header, HTTPException
 from fastapi.responses import HTMLResponse
 
-from core.common.config import Settings
-from db.common.session import AsyncSessionLocal
-from db.features.workers.repository import WorkerHeartbeatRepository
+from app.core.config import Settings
+from app.core.database.session import AsyncSessionLocal
+from app.workers.repository import WorkerHeartbeatRepository
 
 from app.state import state
 

@@ -2,7 +2,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 from typing import Annotated, Union
 
-from core.features.profiles.blocks.block_kind import MarkdownBlock, InferenceBlock
+from app.features.profiles.blocks.domain.block_kind import MarkdownBlock, InferenceBlock
 
 
 class UpdateBlockDto(BaseModel):

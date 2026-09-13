@@ -10,11 +10,14 @@
     ],
     "include": [
         "packages/backend",
-        "packages/core",
-        "packages/db_core",
-        "packages/inference_query_language",
-        "packages/workers"
+        "packages/inference_query_language"
     ],
+    "extraPaths": [
+        "packages/backend",
+        "packages/inference_query_language"
+    ],
+    "venvPath": ".",
+    "venv": ".venv",
     "ignore": [
         "scripts/*.py"
     ]

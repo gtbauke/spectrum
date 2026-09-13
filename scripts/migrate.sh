@@ -80,7 +80,7 @@ done
 echo "✅ Postgres is ready!"
 echo "You can now create your migration"
 
-cd "$ROOT_DIR/packages/db_core"
+cd "$ROOT_DIR/packages/backend"
 uv run alembic revision --autogenerate -m "$MIGRATION_MESSAGE"
 
 docker compose down

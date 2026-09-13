@@ -4,13 +4,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from core.common.logging import setup_logging
-from core.utils.broker_constants import MAIN_EXCHANGE_NAME
+from app.core.logging import setup_logging
+from app.core.utils.broker_constants import MAIN_EXCHANGE_NAME
 
 from .api.v1 import api_router
 from .features.admin.router import admin_router
-from .adapters.events.aio_pika_broker import AioPikaBroker
-from .utils.rebuild import *
+from app.core.adapters.events.aio_pika_broker import AioPikaBroker
+from app.utils import rebuild  # noqa: F401
 from .core.config import settings
 from .state import state
 
@@ -36,7 +36,7 @@ async def lifespan(app: FastAPI):
 
 setup_logging()
 
-app = FastAPI(
+app: FastAPI = FastAPI(
     title="Spectrum Backend",
     description="Backend service for Spectrum application",
     version="1.0.0",

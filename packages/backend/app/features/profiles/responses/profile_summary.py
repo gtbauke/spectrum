@@ -1,8 +1,8 @@
 from uuid import UUID
 from pydantic import BaseModel
 
-from core.features.profiles.profile import Profile
-from core.features.profiles.profile_mode import ProfileMode
+from app.features.profiles.domain.profile import Profile
+from app.features.profiles.domain.profile_mode import ProfileMode
 
 
 class ProfileSummary(BaseModel):

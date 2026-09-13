@@ -1,21 +1,21 @@
 import json
-from typing import cast
+from typing import cast, Any
 from uuid import UUID
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends
 
 from app.api.unit_of_work import get_uow
 from app.features.profiles.models.errors.model_not_found import ModelNotFound
-from core.features.profiles.blocks.inference.where import InferenceResultWhere
-from core.ports.unit_of_work import UnitOfWork
+from app.features.profiles.blocks.inference.domain.where import InferenceResultWhere
+from app.core.ports.unit_of_work import UnitOfWork
 
 from app.features.auth.guards.get_current_user import get_current_user
 
-from core.features.profiles.models.model import Model
-from core.features.profiles.models.where import ModelWhere, ModelFilter
-from core.utils.filters.field_filter import UUIDFilter
-from core.utils.pagination.response import PaginatedResponse
-from core.utils.pagination.base import Pagination
-from core.features.profiles.blocks.inference.prediction_service import PredictionEvaluationService
+from app.features.profiles.models.domain.model import Model
+from app.features.profiles.models.domain.where import ModelWhere, ModelFilter
+from app.core.utils.filters.field_filter import UUIDFilter
+from app.core.utils.pagination.response import PaginatedResponse
+from app.core.utils.pagination.base import Pagination
+from app.features.profiles.blocks.inference.domain.prediction_service import PredictionEvaluationService
 
 from app.features.profiles.models.dtos.predict import PredictRequestDto, PredictResponseDto
 from app.features.profiles.models.responses.model_name import ModelNameResponse
@@ -104,7 +104,7 @@ async def predict_model(
         expr_uuid = None
 
     expression_str = ""
-    parameters = "[]"
+    parameters: str | dict[str, Any] = "[]"
     returned_expr_id = ""
 
     if expr_uuid:
@@ -164,18 +164,20 @@ async def predict_model(
     for key in keys:
         variables[key] = [inp.get(key, 0.0) for inp in request.inputs]
 
+    parsed_params: list[float] = []
     if isinstance(parameters, str):
         try:
-            parameters = json.loads(parameters)
+            loaded = json.loads(parameters)
+            parsed_params = [float(x) for x in loaded] if isinstance(loaded, list) else []
         except json.JSONDecodeError:
-            parameters = []
+            parsed_params = []
     elif isinstance(parameters, dict):
-        parameters = [
+        parsed_params = [
             float(value) for value in parameters.values()
         ]
 
     predictions_array = service.evaluate_expression(
-        expression_str, variables, parameters)
+        expression_str, variables, parsed_params)
 
     return PredictResponseDto(
         expression_id=returned_expr_id,

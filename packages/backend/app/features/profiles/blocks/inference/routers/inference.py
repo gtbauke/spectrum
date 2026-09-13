@@ -11,15 +11,15 @@ from app.api.unit_of_work import get_uow
 from app.features.profiles.blocks.errors.block_not_found import BlockNotFound
 from app.features.profiles.blocks.inference.errors.inference_run_not_found import InferenceRunNotFound
 from app.features.profiles.guards.can_edit_profile import can_edit_profile
-from core.ports.unit_of_work import UnitOfWork
-from core.features.profiles.blocks.block_kind import BlockKind, InferenceBlock
-from core.features.profiles.blocks.inference.inference_run import InferenceRun, InferenceRunStatus
-from core.features.profiles.blocks.inference.events import InferenceRunRequestedEvent
-from core.features.profiles.blocks.inference.where import InferenceRunFilter, InferenceRunWhere, InferenceResultFilter
-from core.features.profiles.blocks.where import BlockWhere
-from core.utils.filters.field_filter import UUIDFilter
-from core.utils.pagination.base import Pagination
-from core.utils.pagination.response import PaginatedResponse
+from app.core.ports.unit_of_work import UnitOfWork
+from app.features.profiles.blocks.domain.block_kind import BlockKind, InferenceBlock
+from app.features.profiles.blocks.inference.domain.inference_run import InferenceRun, InferenceRunStatus
+from app.features.profiles.blocks.inference.domain.events import InferenceRunRequestedEvent
+from app.features.profiles.blocks.inference.domain.where import InferenceRunFilter, InferenceRunWhere, InferenceResultFilter
+from app.features.profiles.blocks.domain.where import BlockWhere
+from app.core.utils.filters.field_filter import UUIDFilter
+from app.core.utils.pagination.base import Pagination
+from app.core.utils.pagination.response import PaginatedResponse
 
 inference_router = APIRouter()
 logger = logging.getLogger(__name__)

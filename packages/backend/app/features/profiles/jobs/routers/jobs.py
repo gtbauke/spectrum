@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, status
 
 from app.api.unit_of_work import get_uow
 from app.features.profiles.jobs.errors.job_not_found import JobNotFound
-from core.ports.unit_of_work import UnitOfWork
+from app.core.ports.unit_of_work import UnitOfWork
 
 from app.features.auth.guards.get_current_user import get_current_user
 from app.features.profiles.guards.can_edit_profile import can_edit_profile
@@ -11,10 +11,10 @@ from app.features.profiles.guards.can_edit_profile import can_edit_profile
 from app.features.profiles.jobs.dtos.create import CreateJobDto
 from app.features.profiles.jobs.dtos.update import UpdateJobDto, BulkUpdateJobDto
 
-from core.features.profiles.jobs.job import Job
-from core.features.profiles.jobs.where import JobWhere, JobFilter
-from core.utils.filters.field_filter import UUIDFilter
-from core.utils.pagination.response import PaginatedResponse
+from app.features.profiles.jobs.domain.job import Job
+from app.features.profiles.jobs.domain.where import JobWhere, JobFilter
+from app.core.utils.filters.field_filter import UUIDFilter
+from app.core.utils.pagination.response import PaginatedResponse
 
 from app.features.profiles.jobs.runs.routers.runs import runs_router
 

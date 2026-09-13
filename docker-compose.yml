@@ -48,7 +48,7 @@ services:
             context: .
             target: build
         container_name: spectrum-migration
-        working_dir: /app/packages/db_core
+        working_dir: /app/packages/backend
         command: ["uv", "run", "alembic", "upgrade", "head"]
         depends_on:
             postgres:
@@ -88,8 +88,6 @@ services:
             - PYTHONDONTWRITEBYTECODE=1
         volumes:
             - ./packages/backend:/app/packages/backend
-            - ./packages/core:/app/packages/core
-            - ./packages/db_core:/app/packages/db_core
             - ./packages/inference_query_language:/app/packages/inference_query_language
             - ./spectrum_data:/app/spectrum_data
         working_dir: /app/packages/backend
@@ -118,12 +116,11 @@ services:
             - UV_COMPILE_BYTECODE=0
             - PYTHONDONTWRITEBYTECODE=1
         volumes:
-            - ./packages/workers:/app/packages/workers
-            - ./packages/core:/app/packages/core
-            - ./packages/db_core:/app/packages/db_core
+            - ./packages/backend:/app/packages/backend
+            - ./packages/inference_query_language:/app/packages/inference_query_language
             - ./spectrum_data:/app/spectrum_data
-        working_dir: /app/packages/workers
-        command: ["uv", "run", "python", "main.py"]
+        working_dir: /app/packages/backend
+        command: ["uv", "run", "python", "-m", "app.workers.main"]
 
     worker-verification:
         build:
@@ -148,12 +145,11 @@ services:
             - UV_COMPILE_BYTECODE=0
             - PYTHONDONTWRITEBYTECODE=1
         volumes:
-            - ./packages/workers:/app/packages/workers
-            - ./packages/core:/app/packages/core
-            - ./packages/db_core:/app/packages/db_core
+            - ./packages/backend:/app/packages/backend
+            - ./packages/inference_query_language:/app/packages/inference_query_language
             - ./spectrum_data:/app/spectrum_data
-        working_dir: /app/packages/workers
-        command: ["uv", "run", "python", "main.py"]
+        working_dir: /app/packages/backend
+        command: ["uv", "run", "python", "-m", "app.workers.main"]
 
     worker-iql:
         build:
@@ -178,13 +174,11 @@ services:
             - UV_COMPILE_BYTECODE=0
             - PYTHONDONTWRITEBYTECODE=1
         volumes:
-            - ./packages/workers:/app/packages/workers
-            - ./packages/core:/app/packages/core
-            - ./packages/db_core:/app/packages/db_core
+            - ./packages/backend:/app/packages/backend
             - ./packages/inference_query_language:/app/packages/inference_query_language
             - ./spectrum_data:/app/spectrum_data
-        working_dir: /app/packages/workers
-        command: ["uv", "run", "python", "main.py"]
+        working_dir: /app/packages/backend
+        command: ["uv", "run", "python", "-m", "app.workers.main"]
 
     frontend:
         build:

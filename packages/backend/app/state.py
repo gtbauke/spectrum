@@ -1,6 +1,6 @@
 import aio_pika
 
-from .adapters.events.aio_pika_broker import AioPikaBroker
+from app.core.adapters.events.aio_pika_broker import AioPikaBroker
 
 
 class AppState:

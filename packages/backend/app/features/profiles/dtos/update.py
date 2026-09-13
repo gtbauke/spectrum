@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 
-from core.features.profiles.profile import Block
-from core.features.profiles.profile_mode import ProfileMode
+from app.features.profiles.domain.profile import Block
+from app.features.profiles.domain.profile_mode import ProfileMode
 
 
 class UpdateProfileDto(BaseModel):

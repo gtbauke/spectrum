@@ -1,0 +1,21 @@
+from pydantic import BaseModel, Field
+from sqlalchemy import Select
+from typing import Tuple
+
+from app.core.database.base.root import RootBase
+
+
+class Pagination(BaseModel):
+    limit: int = Field(
+        default=50, ge=1, description="Number of items to return")
+
+    offset: int = Field(default=0, ge=0, description="Number of items to skip")
+
+    def apply[T: RootBase](self, statement: Select[Tuple[T, ...]]):
+        return statement.limit(self.limit).offset(self.offset)
+
+    def page(self) -> int:
+        return (self.offset // self.limit) + 1
+
+    def page_size(self) -> int:
+        return self.limit

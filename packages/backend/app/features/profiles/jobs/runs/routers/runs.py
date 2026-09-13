@@ -5,19 +5,19 @@ from fastapi import APIRouter, Depends, status
 from fastapi.responses import StreamingResponse
 
 from app.api.unit_of_work import get_uow
-from core.ports.unit_of_work import UnitOfWork
+from app.core.ports.unit_of_work import UnitOfWork
 
 from app.features.auth.guards.get_current_user import get_current_user
 from app.features.profiles.jobs.guards.can_edit_job import can_edit_job
 from app.features.profiles.jobs.runs.errors.run_not_found import RunNotFound
 
-from core.features.profiles.jobs.runs.run import Run
-from core.features.profiles.jobs.runs.events import RunCreatedEvent
-from core.features.profiles.jobs.runs.where import RunWhere, RunFilter
-from core.features.profiles.jobs.runs.status import JobRunStatus
-from core.utils.filters.field_filter import UUIDFilter
-from core.utils.pagination.response import PaginatedResponse
-from core.utils.pagination.base import Pagination
+from app.features.profiles.jobs.runs.domain.run import Run
+from app.features.profiles.jobs.runs.domain.events import RunCreatedEvent
+from app.features.profiles.jobs.runs.domain.where import RunWhere, RunFilter
+from app.features.profiles.jobs.runs.domain.status import JobRunStatus
+from app.core.utils.filters.field_filter import UUIDFilter
+from app.core.utils.pagination.response import PaginatedResponse
+from app.core.utils.pagination.base import Pagination
 
 runs_router = APIRouter()
 

@@ -1,0 +1,137 @@
+from typing import Any
+from uuid import UUID
+from sqlalchemy import ForeignKey, String, Integer, Float, Enum, UniqueConstraint, Index, ForeignKeyConstraint
+from sqlalchemy.orm import Mapped, mapped_column, declared_attr, relationship
+from typing import TYPE_CHECKING
+from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+
+from app.features.profiles.blocks.inference.domain.inference_run import InferenceRunStatus
+from app.core.database.base.immutable import ImmutableBase, ImmutableVersionedBase
+
+
+if TYPE_CHECKING:
+    from app.features.profiles.blocks.model import BlockORM
+
+
+class InferenceRunORM(ImmutableVersionedBase):
+    __tablename__ = "inference_runs"
+
+    block_id: Mapped[UUID] = mapped_column(
+        ForeignKey("blocks.id", ondelete="CASCADE"),
+        nullable=False
+    )
+
+    profile_id: Mapped[UUID] = mapped_column(
+        ForeignKey("profiles.id", ondelete="CASCADE"),
+        nullable=False
+    )
+
+    query: Mapped[str] = mapped_column(
+        String,
+        nullable=False
+    )
+
+    status: Mapped[InferenceRunStatus] = mapped_column(
+        Enum(InferenceRunStatus),
+        default=InferenceRunStatus.PENDING,
+        nullable=False
+    )
+
+    execution_time_ms: Mapped[int] = mapped_column(
+        Integer,
+        nullable=True
+    )
+
+    error: Mapped[str] = mapped_column(
+        String,
+        nullable=True
+    )
+
+    block: Mapped["BlockORM"] = relationship(
+        "BlockORM",
+        back_populates="inference_runs"
+    )
+
+    results: Mapped[list["InferenceResultORM"]] = relationship(
+        "InferenceResultORM",
+        primaryjoin="and_(foreign(InferenceResultORM.run_id) == InferenceRunORM.id, "
+                    "foreign(InferenceResultORM.run_version) == InferenceRunORM.version)",
+        lazy="selectin",
+        viewonly=True
+    )
+
+
+class InferenceResultORM(ImmutableBase):
+    __tablename__ = "inference_results"
+
+    run_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        nullable=False,
+    )
+
+    run_version: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+    )
+
+    expression: Mapped[str] = mapped_column(
+        String,
+        nullable=False
+    )
+
+    dl: Mapped[float] = mapped_column(
+        Float,
+        nullable=True
+    )
+
+    fitness: Mapped[float] = mapped_column(
+        Float,
+        nullable=True
+    )
+
+    latex: Mapped[str] = mapped_column(
+        String,
+        nullable=True
+    )
+
+    numpy: Mapped[str] = mapped_column(
+        String,
+        nullable=True
+    )
+
+    parameters: Mapped[dict[str, float]] = mapped_column(
+        JSONB,
+        nullable=True
+    )
+
+    size: Mapped[int] = mapped_column(
+        Integer,
+        nullable=True
+    )
+    frequency: Mapped[int] = mapped_column(
+        Integer,
+        nullable=True
+    )
+
+    egraph_id: Mapped[str] = mapped_column(
+        String,
+        index=True,
+        nullable=True
+    )
+
+    prediction: Mapped[list[float]] = mapped_column(
+        JSONB,
+        nullable=True
+    )
+
+    @declared_attr.directive
+    def __table_args__(cls) -> Any:
+        return (
+            UniqueConstraint("id", name=f"uq_{cls.__tablename__}_id"),
+            Index(f"idx_{cls.__tablename__}_timestamp", "timestamp"),
+            ForeignKeyConstraint(
+                ["run_id", "run_version"],
+                ["inference_runs.id", "inference_runs.version"],
+                ondelete="CASCADE"
+            ),
+        )

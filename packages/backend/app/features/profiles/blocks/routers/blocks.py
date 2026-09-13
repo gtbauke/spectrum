@@ -1,10 +1,10 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, status, Query
+from fastapi import APIRouter, Depends, status
 
 from app.api.unit_of_work import get_uow
 from app.features.profiles.blocks.errors.block_not_found import BlockNotFound
 from app.features.profiles.blocks.inference.routers.inference import inference_router
-from core.ports.unit_of_work import UnitOfWork
+from app.core.ports.unit_of_work import UnitOfWork
 
 from app.features.auth.guards.get_current_user import get_current_user
 from app.features.profiles.guards.can_edit_profile import can_edit_profile
@@ -12,9 +12,9 @@ from app.features.profiles.guards.can_edit_profile import can_edit_profile
 from app.features.profiles.blocks.dtos.create import CreateBlockDto
 from app.features.profiles.blocks.dtos.update import UpdateBlockDto, BulkUpdateBlockDto
 
-from core.features.profiles.blocks.block import Block
-from core.features.profiles.blocks.where import BlockWhere, BlockFilter
-from core.utils.filters.field_filter import UUIDFilter
+from app.features.profiles.blocks.domain.block import Block
+from app.features.profiles.blocks.domain.where import BlockWhere, BlockFilter
+from app.core.utils.filters.field_filter import UUIDFilter
 
 blocks_router = APIRouter()
 

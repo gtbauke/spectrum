@@ -40,7 +40,7 @@ services:
             context: .
             target: production
         container_name: spectrum-migration
-        working_dir: /app/packages/db_core
+        working_dir: /app/packages/backend
         command: ["uv", "run", "alembic", "upgrade", "head"]
         depends_on:
             postgres:
@@ -97,8 +97,8 @@ services:
             - FILE_STORAGE_SPECTRUM_DATA_PATH=/app/spectrum_data
         volumes:
             - spectrum_storage:/app/spectrum_data
-        working_dir: /app/packages/workers
-        command: ["uv", "run", "python", "main.py", "--no-sync"]
+        working_dir: /app/packages/backend
+        command: ["uv", "run", "python", "-m", "app.workers.main", "--no-sync"]
 
     worker-verification:
         build:
@@ -121,8 +121,8 @@ services:
             - FILE_STORAGE_SPECTRUM_DATA_PATH=/app/spectrum_data
         volumes:
             - spectrum_storage:/app/spectrum_data
-        working_dir: /app/packages/workers
-        command: ["uv", "run", "python", "main.py", "--no-sync"]
+        working_dir: /app/packages/backend
+        command: ["uv", "run", "python", "-m", "app.workers.main", "--no-sync"]
 
     worker-iql:
         build:
@@ -145,8 +145,8 @@ services:
             - FILE_STORAGE_SPECTRUM_DATA_PATH=/app/spectrum_data
         volumes:
             - spectrum_storage:/app/spectrum_data
-        working_dir: /app/packages/workers
-        command: ["uv", "run", "python", "main.py", "--no-sync"]
+        working_dir: /app/packages/backend
+        command: ["uv", "run", "python", "-m", "app.workers.main", "--no-sync"]
     frontend:
         build:
             context: ./packages/frontend

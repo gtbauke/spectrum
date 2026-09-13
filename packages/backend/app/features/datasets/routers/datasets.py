@@ -14,14 +14,14 @@ from app.features.auth.guards.get_current_user import get_current_user
 from app.features.datasets.guards.can_edit_dataset import can_edit_dataset
 from app.features.auth.errors.forbidden import Forbidden
 
-from core.ports.unit_of_work import UnitOfWork
-from core.features.datasets.dataset import Dataset
-from core.features.datasets.artifact import Artifact
-from core.features.datasets.artifact_role import ArtifactRole
-from core.features.datasets.visibility import DatasetVisibility
-from core.features.datasets.where import DatasetWhere, DatasetFilter, ArtifactFilter
-from core.utils.pagination.base import Pagination
-from core.utils.filters.field_filter import UUIDFilter, StringFilter, NumberFilter, EnumFilter
+from app.core.ports.unit_of_work import UnitOfWork
+from app.features.datasets.domain.dataset import Dataset
+from app.features.datasets.domain.artifact import Artifact
+from app.features.datasets.domain.artifact_role import ArtifactRole
+from app.features.datasets.domain.visibility import DatasetVisibility
+from app.features.datasets.domain.where import DatasetWhere, DatasetFilter, ArtifactFilter
+from app.core.utils.pagination.base import Pagination
+from app.core.utils.filters.field_filter import UUIDFilter, StringFilter, NumberFilter, EnumFilter
 
 from app.features.datasets.dtos.update_dataset import UpdateDatasetDto
 from .artifacts import artifacts_router

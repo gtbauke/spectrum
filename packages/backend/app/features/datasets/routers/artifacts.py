@@ -12,11 +12,11 @@ from app.features.datasets.errors.artifact_not_found import ArtifactNotFound
 from app.features.auth.guards.get_current_user import get_current_user
 from app.features.datasets.guards.can_edit_dataset import can_edit_dataset
 
-from core.ports.unit_of_work import UnitOfWork
-from core.features.datasets.artifact import Artifact
-from core.features.datasets.artifact_role import ArtifactRole
-from core.features.datasets.where import ArtifactWhere, ArtifactFilter
-from core.utils.filters.field_filter import UUIDFilter
+from app.core.ports.unit_of_work import UnitOfWork
+from app.features.datasets.domain.artifact import Artifact
+from app.features.datasets.domain.artifact_role import ArtifactRole
+from app.features.datasets.domain.where import ArtifactWhere, ArtifactFilter
+from app.core.utils.filters.field_filter import UUIDFilter
 
 artifacts_router = APIRouter()
 
@@ -110,7 +110,7 @@ async def preview_artifact(
 
         df = pd.read_csv(
             filepath,
-            skiprows=range(1, offset + 1) if offset > 0 else None,
+            skiprows=list(range(1, offset + 1)) if offset > 0 else None,
             nrows=limit
         )
         

@@ -15,7 +15,7 @@ async def get_download_url(path: str, response: Response):
     response.headers["Expires"] = "0"
 
     if settings.STORAGE_TYPE == "s3":
-        from core.adapters.storage.s3_storage import S3FileStorage
+        from app.core.adapters.storage.s3_storage import S3FileStorage
 
         storage = S3FileStorage(
             bucket=settings.S3_BUCKET,

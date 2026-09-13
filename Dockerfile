@@ -22,10 +22,7 @@ COPY pyproject.toml uv.lock ./
 
 # Copy all package manifests to allow 'uv sync' to cache dependencies
 COPY packages/backend/pyproject.toml ./packages/backend/
-COPY packages/core/pyproject.toml ./packages/core/
-COPY packages/db_core/pyproject.toml ./packages/db_core/
 COPY packages/inference_query_language/pyproject.toml ./packages/inference_query_language/
-COPY packages/workers/pyproject.toml ./packages/workers/
 
 # Install dependencies without the root project to cache high-cost layers
 RUN --mount=type=cache,target=/root/.cache/uv \

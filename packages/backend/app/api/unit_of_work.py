@@ -1,9 +1,8 @@
 from fastapi import HTTPException, status
 
-from db.common.session import AsyncSessionLocal
-
+from app.core.database.session import AsyncSessionLocal
+from app.core.adapters.unit_of_work import SqlAlchemyUnitOfWork
 from app.state import state
-from app.adapters.unit_of_work import ApiUnitOfWork
 
 
 async def get_uow():
@@ -13,7 +12,7 @@ async def get_uow():
             detail="Message broker not initialized",
         )
 
-    async with ApiUnitOfWork(
+    async with SqlAlchemyUnitOfWork(
         session_factory=AsyncSessionLocal,
         broker=state.message_broker,
     ) as uow:

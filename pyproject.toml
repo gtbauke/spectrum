@@ -10,7 +10,10 @@ dependencies = [
 ]
 
 [tool.uv.workspace]
-members = ["packages/*"]
+members = [
+    "packages/backend",
+    "packages/inference_query_language",
+]
 exclude = ["packages/frontend"]
 
 [tool.coverage.report]
@@ -23,3 +26,7 @@ exclude_also = [
     "if TYPE_CHECKING",
     "def to_serializable",
 ]
+
+[tool.mypy]
+python_version = "3.13"
+ignore_missing_imports = true

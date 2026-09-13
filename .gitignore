@@ -31,3 +31,4 @@ spectrum_data
 .coverage
 htmlcov/
 keys/
+*.egg-info/

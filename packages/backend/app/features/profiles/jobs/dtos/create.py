@@ -1,8 +1,8 @@
 from uuid import UUID
 from pydantic import BaseModel, Field
 
-from core.features.profiles.jobs.available_function import AvailableFunction
-from core.features.profiles.jobs.loss_function import LossFunction
+from app.features.profiles.jobs.domain.available_function import AvailableFunction
+from app.features.profiles.jobs.domain.loss_function import LossFunction
 
 
 class CreateJobDto(BaseModel):
